@@ -618,18 +618,16 @@ async function canUserViewVideosPage(userId) {
     try {
         const { client, db } = global.PredCord;
         const guildIds = [MAIN_GUILD_ID, COMMUNITY_GUILD_ID].filter(Boolean);
-        let anyConfigured = false;
         for (const guildId of guildIds) {
             const roleIds = await db.getVideoAccessRolesDB(guildId);
             if (!roleIds || roleIds.length === 0) continue;
-            anyConfigured = true;
             const guild = client.guilds.cache.get(guildId);
             const member = guild ? await guild.members.fetch(userId).catch(() => null) : null;
             if (!member) continue;
             const userRoles = member.roles.cache.map(r => r.id);
             if (roleIds.some(r => userRoles.includes(r))) return true;
         }
-        return !anyConfigured;
+        return false;
     } catch (e) {
         console.error('[VIDEOS ACCESS] check failed:', e.message);
         return false;
