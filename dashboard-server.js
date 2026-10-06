@@ -2275,6 +2275,8 @@ app.get('/api/bans/:guildId', requireAuth, async (req, res) => {
 
         const liveBans = await guild.bans.fetch();
         const logs = await db.getBanLogsDB(req.params.guildId, 500);
+        const blacklistEntries = await db.getAllBlacklistDB();
+        const blacklistedIds = new Set(blacklistEntries.map(e => e.userId));
 
         const logsByTarget = {};
         for (const log of logs) {
@@ -2295,7 +2297,7 @@ app.get('/api/bans/:guildId', requireAuth, async (req, res) => {
             }
         } catch (e) {}
 
-        const result = liveBans.map(ban => {
+        const result = liveBans.filter(ban => !blacklistedIds.has(ban.user.id)).map(ban => {
             const log = logsByTarget[ban.user.id];
             const audit = auditByTarget[ban.user.id];
             return {
