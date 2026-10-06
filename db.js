@@ -272,7 +272,8 @@ const BlacklistEntrySchema = new mongoose.Schema({
     modId: String,
     modTag: String,
     date: { type: Date, default: Date.now },
-    servers: { type: [String], default: [] }
+    servers: { type: [String], default: [] },
+    lastErrors: { type: [String], default: [] }
 }, { timestamps: true });
 
 const TicketBlockSchema = new mongoose.Schema({
@@ -854,6 +855,11 @@ async function getAllBlacklistDB() {
     return BlacklistEntry.find({}).lean();
 }
 
+async function getBlacklistSyncGuildIdsDB() {
+    const configs = await GuildConfig.find({ blacklistSyncEnabled: true }).select('guildId').lean();
+    return configs.map(c => c.guildId);
+}
+
 async function addTicketBlockDB(data) {
     return TicketBlock.findOneAndUpdate(
         { guildId: data.guildId, userId: data.userId },
@@ -1073,6 +1079,7 @@ module.exports = {
     removeBlacklistEntryDB,
     getBlacklistEntryDB,
     getAllBlacklistDB,
+    getBlacklistSyncGuildIdsDB,
     TicketBlock,
     addTicketBlockDB,
     removeTicketBlockDB,
