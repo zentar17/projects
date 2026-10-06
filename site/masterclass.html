@@ -121,6 +121,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 .header-nav a:hover::after { width: 100%; }
 .header-nav a.active { color: var(--primary); }
 .header-nav a.active::after { width: 100%; background: var(--primary); }
+.nav-videos-group { display: none; align-items: center; gap: 30px; }
+.nav-videos-group.visible { display: flex; }
 
 .header-auth {
     display: flex;
@@ -908,8 +910,10 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         <a href="/" data-i18n="nav_home">Home</a>
         <span class="nav-dot">•</span>
         <a href="/masterclass" class="active" data-i18n="nav_masterclass">Masterclass</a>
-        <span class="nav-dot">•</span>
-        <a href="/videos" data-i18n="nav_videos">Videos</a>
+        <span class="nav-videos-group" id="navVideosGroup">
+            <span class="nav-dot">•</span>
+            <a href="/videos" data-i18n="nav_videos">Videos</a>
+        </span>
         <span class="nav-dot">•</span>
         <a href="/community" data-i18n="nav_community">Community</a>
         <span class="nav-dot">•</span>
@@ -1352,9 +1356,11 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     setupSlideshow('mcHeroBg');
 
     updateAuthBtn();
+    var navVideosGroup = document.getElementById('navVideosGroup');
     fetch('/api/site/me').then(function(res) { return res.json(); }).then(function(data) {
         loggedIn = !!data.loggedIn;
         canAccessDashboard = !!data.canAccessDashboard;
+        if (navVideosGroup) navVideosGroup.classList.toggle('visible', !!data.canViewVideos);
         if (loggedIn && data.avatar) userAvatar.src = data.avatar;
         updateAuthBtn();
     }).catch(function() {});
