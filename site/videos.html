@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predage - Videos</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+.hidden { display: none !important; }
+
+:root {
+    --primary: #E67E22;
+    --accent: #38BDF8;
+    --bg-dark: #0a0a0f;
+    --bg-card: rgba(24, 24, 32, 0.85);
+    --bg-bar: #101016;
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #e8e8ed;
+    --text-dim: #a3a3ad;
+}
+
+html {
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--bg-dark);
+}
+
+body {
+    min-height: 100vh;
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: pageFadeIn 0.4s ease;
+}
+
+body.page-fade-out {
+    animation: pageFadeOut 0.22s ease forwards;
+}
+
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pageFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+::-webkit-scrollbar { width: 11px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb {
+    background-color: var(--primary);
+    border-radius: 999px;
+    border: 3px solid var(--bg-dark);
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: #d36a15; }
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: 0.7fr 2.2fr 0.7fr;
+    align-items: center;
+    padding: 16px 48px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.header-spacer { height: 78px; }
+
+.header-brand { display: flex; align-items: center; gap: 12px; }
+header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
+.header-brand span { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+
+.header-nav a {
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.3px;
+    transition: color 0.15s ease;
+}
+
+.header-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0;
+    height: 2px;
+    background: var(--text);
+    transition: width 0.25s ease;
+}
+
+.nav-dot {
+    color: var(--text-dim);
+    opacity: 0.4;
+    font-size: 14px;
+}
+
+.header-nav a:hover { color: var(--text); }
+.header-nav a:hover::after { width: 100%; }
+.header-nav a.active { color: var(--primary); }
+.header-nav a.active::after { width: 100%; background: var(--primary); }
+
+.header-auth {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.lang-switcher { position: relative; }
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+}
+
+.lang-btn:hover { border-color: rgba(255,255,255,0.25); }
+.lang-btn .flag-icon { width: 21px; height: 14px; border-radius: 2px; overflow: hidden; flex-shrink: 0; display: block; }
+.lang-btn svg.chev { width: 12px; height: 12px; stroke: var(--text-dim); }
+
+.lang-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.lang-dropdown.open { display: flex; }
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    background: none;
+    border: none;
+    font-family: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.lang-option:hover { background: rgba(255,255,255,0.06); }
+.lang-option.active { color: var(--primary); }
+.lang-option .flag-icon { width: 22px; height: 15px; border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+
+.auth-btn {
+    position: relative;
+    overflow: hidden;
+    background: var(--primary);
+    color: #fff;
+    border: 1px solid transparent;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-btn.logged-in {
+    background: transparent;
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
+}
+
+.auth-btn.logged-in:hover { border-color: rgba(255,255,255,0.6); }
+
+.user-menu { position: relative; display: inline-block; }
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    display: none;
+}
+
+.user-avatar.has-menu { cursor: pointer; }
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.user-dropdown.open { display: flex; }
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.user-dropdown-item:hover { background: rgba(255,255,255,0.06); }
+
+.videos-main {
+    flex: 1;
+    max-width: 1300px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 160px 24px 100px;
+}
+
+.videos-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 48px;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+}
+
+.videos-subtitle {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 16px;
+    font-weight: 600;
+    max-width: 640px;
+    margin: 0 auto 50px;
+    line-height: 1.6;
+}
+
+.videos-state {
+    max-width: 520px;
+    margin: 40px auto;
+    text-align: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 48px 36px;
+}
+
+.videos-state h3 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.videos-state p {
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 26px;
+}
+
+.videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 32px;
+}
+
+.video-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.video-card:hover {
+    border-color: rgba(255,255,255,0.25);
+    transform: translateY(-3px);
+}
+
+.video-card-thumb-wrap {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    background: #14141c;
+}
+
+.video-card-thumb {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+    background: #14141c;
+}
+
+.video-card-thumb-empty {
+    width: 100%;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #14141c;
+}
+
+.video-card-play-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 20px;
+    pointer-events: none;
+}
+
+.video-card-duration {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+}
+
+.video-card-progress-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.video-card-progress-fill {
+    height: 100%;
+    background: #ef4444;
+}
+
+.video-card-body {
+    padding: 18px 20px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.video-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.video-card-watched {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-card-watched img {
+    width: 24px;
+    height: 24px;
+    display: block;
+    filter: drop-shadow(0 0 3px rgba(52, 211, 153, 0.5)) drop-shadow(0 0 6px rgba(52, 211, 153, 0.25));
+}
+
+.video-card-body h3 {
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.video-card-body p {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.video-player-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 5, 8, 0.92);
+    z-index: 3000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.video-player-overlay.open { display: flex; }
+
+.video-player-box {
+    width: 100%;
+    max-width: 960px;
+}
+
+.video-player-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.video-player-frame video,
+.video-player-frame iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+.video-player-info {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 18px;
+}
+
+.video-player-info h3 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+.video-player-info p { color: var(--text-dim); font-size: 14px; line-height: 1.6; }
+
+.video-player-close {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.2s ease;
+}
+
+.video-player-close:hover { border-color: rgba(255,255,255,0.4); }
+
+.site-footer {
+    background: var(--bg-bar);
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+}
+
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 40px 40px;
+    display: flex;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+.footer-brand { max-width: 360px; }
+.footer-brand-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.footer-brand-top img { width: 68px; height: 68px; border-radius: 16px; object-fit: cover; }
+.footer-brand-top span { font-size: 36px; font-weight: 800; }
+.footer-brand p { color: var(--text-dim); font-size: 14.5px; line-height: 1.6; }
+.footer-cols { display: flex; gap: 60px; }
+.footer-col h4 { font-size: 14.5px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+.footer-col a { display: block; width: fit-content; position: relative; color: var(--text-dim); text-decoration: none; font-size: 14.5px; margin-bottom: 12px; transition: color 0.2s ease; }
+.footer-col a::after { content: ''; position: absolute; left: 0; bottom: -2px; width: 0; height: 1px; background: var(--text); transition: width 0.25s ease; }
+.footer-col a:hover { color: var(--text); }
+.footer-col a:hover::after { width: 100%; }
+.footer-bottom { border-top: 1px solid var(--border); padding: 18px 40px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; color: var(--text-dim); font-size: 13px; }
+.footer-disclaimer { opacity: 0.65; font-size: 11.5px; }
+
+@media (max-width: 900px) {
+    header { grid-template-columns: 1fr; row-gap: 14px; padding: 16px 20px; }
+    .header-nav { gap: 24px; flex-wrap: wrap; justify-content: center; }
+    .header-auth { justify-content: center; }
+    .videos-title { font-size: 32px; }
+    .videos-main { padding: 140px 20px 70px; }
+    .footer-inner { flex-direction: column; gap: 32px; }
+    .footer-bottom { flex-direction: column; text-align: center; padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="header-brand">
+        <img class="brand-logo" src="/images/dragon-logo.png" alt="Predage">
+        <span>Predage</span>
+    </div>
+
+    <nav class="header-nav">
+        <a href="/" data-i18n="nav_home">Home</a>
+        <span class="nav-dot">•</span>
+        <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
+        <span class="nav-dot">•</span>
+        <a href="/videos" class="active" data-i18n="nav_videos">Videos</a>
+        <span class="nav-dot">•</span>
+        <a href="/community" data-i18n="nav_community">Community</a>
+        <span class="nav-dot">•</span>
+        <a href="#" data-i18n="nav_merch">Merch</a>
+    </nav>
+
+    <div class="header-auth">
+        <div class="lang-switcher" id="langSwitcher">
+            <button class="lang-btn" id="langBtn">
+                <span class="flag-icon" id="langBtnFlag"></span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="lang-dropdown" id="langDropdown"></div>
+        </div>
+        <button class="auth-btn" id="authBtn">Sign In</button>
+        <div class="user-menu" id="userMenu">
+            <img class="user-avatar" id="userAvatar" alt="">
+            <div class="user-dropdown" id="userDropdown">
+                <a href="/dashboard" class="user-dropdown-item" data-i18n="user_admin_panel">Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="header-spacer" id="headerSpacer"></div>
+
+<main class="videos-main">
+    <h1 class="videos-title" data-i18n="videos_title">Videos</h1>
+    <p class="videos-subtitle" data-i18n="videos_subtitle">Exclusive video content, unlocked based on your Masterclass package.</p>
+
+    <div id="videosEmpty" class="videos-state hidden">
+        <h3 data-i18n="videos_empty_title">No videos yet</h3>
+        <p data-i18n="videos_empty_desc">No videos are unlocked for your current role. Check out the Masterclass packages to get access.</p>
+    </div>
+
+    <div id="videosGrid" class="videos-grid hidden"></div>
+</main>
+
+<div class="video-player-overlay" id="videoPlayerOverlay">
+    <div class="video-player-box">
+        <div class="video-player-frame" id="videoPlayerFrame"></div>
+        <div class="video-player-info">
+            <div>
+                <h3 id="videoPlayerTitle"></h3>
+                <p id="videoPlayerDesc"></p>
+            </div>
+            <button class="video-player-close" id="videoPlayerClose" type="button">&times;</button>
+        </div>
+    </div>
+</div>
+
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <div class="footer-brand-top">
+                <img src="/images/dragon-logo.png" alt="Predage">
+                <span>Predage</span>
+            </div>
+        </div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <h4 data-i18n="footer_platform">Platform</h4>
+                <a href="/" data-i18n="nav_home">Home</a>
+                <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
+                <a href="/community" data-i18n="nav_community">Community</a>
+                <a href="#" data-i18n="nav_merch">Merch</a>
+            </div>
+            <div class="footer-col">
+                <h4 data-i18n="footer_socials">Socials</h4>
+                <a href="https://x.com/Predage1" target="_blank" rel="noopener">Twitter</a>
+                <a href="https://www.youtube.com/@predagefn" target="_blank" rel="noopener">YouTube</a>
+                <a href="https://www.twitch.tv/predagefn" target="_blank" rel="noopener">Twitch</a>
+                <a href="https://www.instagram.com/predagefn/" target="_blank" rel="noopener">Instagram</a>
+            </div>
+            <div class="footer-col">
+                <h4 data-i18n="footer_legal">Legal</h4>
+                <a href="/terms" data-i18n="footer_terms">Terms of Service</a>
+                <a href="/privacy" data-i18n="footer_privacy">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span data-i18n="footer_copyright">Predage © 2026. All rights reserved.</span>
+        <span class="footer-disclaimer" data-i18n="footer_disclaimer">Not affiliated with Epic Games, Inc.</span>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+<script>
+(function() {
+    var FLAGS = {
+        it: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#009246"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ce2b37"/></svg>',
+        en: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#00247d"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#fff" stroke-width="4"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#cf142b" stroke-width="2"/><path d="M15,0 V20 M0,10 H30" stroke="#fff" stroke-width="6"/><path d="M15,0 V20 M0,10 H30" stroke="#cf142b" stroke-width="3.2"/></svg>',
+        de: '<svg viewBox="0 0 30 20"><rect width="30" height="6.66" y="0" fill="#000"/><rect width="30" height="6.66" y="6.66" fill="#dd0000"/><rect width="30" height="6.67" y="13.33" fill="#ffce00"/></svg>',
+        es: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#aa151b"/><rect width="30" height="10" y="5" fill="#f1bf00"/></svg>',
+        fr: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#0055a4"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ef4135"/></svg>'
+    };
+
+    var LANGS = [
+        { code: 'it', name: 'Italiano' },
+        { code: 'en', name: 'English' },
+        { code: 'de', name: 'Deutsch' },
+        { code: 'es', name: 'Español' },
+        { code: 'fr', name: 'Français' }
+    ];
+
+    var I18N = {
+        it: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Accedi', auth_logout: 'Esci', user_admin_panel: 'Pannello Admin',
+            videos_title: 'Video', videos_subtitle: 'Contenuti video esclusivi, sbloccati in base al tuo pacchetto Masterclass.',
+            videos_empty_title: 'Ancora nessun video', videos_empty_desc: 'Nessun video è sbloccato per il tuo ruolo attuale. Dai un\'occhiata ai pacchetti Masterclass per ottenere l\'accesso.',
+            footer_platform: 'Piattaforma',
+            footer_socials: 'Social',
+            footer_legal: 'Legale', footer_terms: 'Termini di Servizio', footer_privacy: 'Informativa sulla Privacy',
+            footer_copyright: 'Predage © 2026. Tutti i diritti riservati.',
+            footer_disclaimer: 'Non affiliato con Epic Games, Inc.'
+        },
+        en: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Sign In', auth_logout: 'Log Out', user_admin_panel: 'Admin Panel',
+            videos_title: 'Videos', videos_subtitle: 'Exclusive video content, unlocked based on your Masterclass package.',
+            videos_empty_title: 'No videos yet', videos_empty_desc: 'No videos are unlocked for your current role. Check out the Masterclass packages to get access.',
+            footer_platform: 'Platform',
+            footer_socials: 'Socials',
+            footer_legal: 'Legal', footer_terms: 'Terms of Service', footer_privacy: 'Privacy Policy',
+            footer_copyright: 'Predage © 2026. All rights reserved.',
+            footer_disclaimer: 'Not affiliated with Epic Games, Inc.'
+        },
+        de: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Anmelden', auth_logout: 'Abmelden', user_admin_panel: 'Admin-Panel',
+            videos_title: 'Videos', videos_subtitle: 'Exklusive Videoinhalte, freigeschaltet je nach deinem Masterclass-Paket.',
+            videos_empty_title: 'Noch keine Videos', videos_empty_desc: 'Für deine aktuelle Rolle sind keine Videos freigeschaltet. Schau dir die Masterclass-Pakete an, um Zugang zu erhalten.',
+            footer_platform: 'Plattform',
+            footer_socials: 'Soziale Medien',
+            footer_legal: 'Rechtliches', footer_terms: 'Nutzungsbedingungen', footer_privacy: 'Datenschutzrichtlinie',
+            footer_copyright: 'Predage © 2026. Alle Rechte vorbehalten.',
+            footer_disclaimer: 'Nicht verbunden mit Epic Games, Inc.'
+        },
+        es: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Iniciar sesión', auth_logout: 'Cerrar sesión', user_admin_panel: 'Panel de Administración',
+            videos_title: 'Videos', videos_subtitle: 'Contenido de vídeo exclusivo, desbloqueado según tu paquete Masterclass.',
+            videos_empty_title: 'Todavía no hay vídeos', videos_empty_desc: 'No hay vídeos desbloqueados para tu rol actual. Echa un vistazo a los paquetes Masterclass para obtener acceso.',
+            footer_platform: 'Plataforma',
+            footer_socials: 'Redes Sociales',
+            footer_legal: 'Legal', footer_terms: 'Términos de Servicio', footer_privacy: 'Política de Privacidad',
+            footer_copyright: 'Predage © 2026. Todos los derechos reservados.',
+            footer_disclaimer: 'No afiliado con Epic Games, Inc.'
+        },
+        fr: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Se connecter', auth_logout: 'Déconnexion', user_admin_panel: 'Panneau Admin',
+            videos_title: 'Vidéos', videos_subtitle: 'Contenu vidéo exclusif, débloqué selon ton pack Masterclass.',
+            videos_empty_title: 'Pas encore de vidéos', videos_empty_desc: 'Aucune vidéo n\'est débloquée pour ton rôle actuel. Jette un œil aux packs Masterclass pour obtenir l\'accès.',
+            footer_platform: 'Plateforme',
+            footer_socials: 'Réseaux Sociaux',
+            footer_legal: 'Mentions Légales', footer_terms: 'Conditions d\'Utilisation', footer_privacy: 'Politique de Confidentialité',
+            footer_copyright: 'Predage © 2026. Tous droits réservés.',
+            footer_disclaimer: 'Non affilié à Epic Games, Inc.'
+        }
+    };
+
+    var currentLang = 'en';
+    var loggedIn = false;
+    var canViewVideos = false;
+    var canAccessDashboard = false;
+    var langBtnFlag = document.getElementById('langBtnFlag');
+    var langDropdown = document.getElementById('langDropdown');
+    var langBtn = document.getElementById('langBtn');
+    var authBtn = document.getElementById('authBtn');
+    var userMenu = document.getElementById('userMenu');
+    var userAvatar = document.getElementById('userAvatar');
+    var userDropdown = document.getElementById('userDropdown');
+    var videosEmpty = document.getElementById('videosEmpty');
+    var videosGrid = document.getElementById('videosGrid');
+    var videoPlayerOverlay = document.getElementById('videoPlayerOverlay');
+    var videoPlayerFrame = document.getElementById('videoPlayerFrame');
+    var videoPlayerTitle = document.getElementById('videoPlayerTitle');
+    var videoPlayerDesc = document.getElementById('videoPlayerDesc');
+    var videoPlayerClose = document.getElementById('videoPlayerClose');
+    var loadedVideos = [];
+    var currentHls = null;
+    var currentVideoRef = null;
+    var lastReportedProgress = 0;
+
+    function renderLangUI() {
+        langBtnFlag.innerHTML = FLAGS[currentLang];
+        langDropdown.innerHTML = LANGS.map(function(l) {
+            return '<button class="lang-option' + (l.code === currentLang ? ' active' : '') + '" data-code="' + l.code + '">' +
+                '<span class="flag-icon">' + FLAGS[l.code] + '</span><span>' + l.name + '</span>' +
+            '</button>';
+        }).join('');
+    }
+
+    function applyStaticTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n');
+            if (I18N[currentLang][key]) el.textContent = I18N[currentLang][key];
+        });
+    }
+
+    function updateAuthBtn() {
+        authBtn.textContent = loggedIn ? I18N[currentLang].auth_logout : I18N[currentLang].auth_signin;
+        authBtn.classList.toggle('logged-in', loggedIn);
+        userAvatar.style.display = loggedIn ? 'block' : 'none';
+        userAvatar.classList.toggle('has-menu', canAccessDashboard);
+        if (!loggedIn || !canAccessDashboard) userDropdown.classList.remove('open');
+    }
+
+    userAvatar.addEventListener('click', function(e) {
+        if (!canAccessDashboard) return;
+        e.stopPropagation();
+        userDropdown.classList.toggle('open');
+    });
+
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(str) {
+        if (str === null || str === undefined) return '';
+        return String(str).replace(/"/g, '&quot;');
+    }
+
+    function formatDuration(seconds) {
+        var s = Number(seconds);
+        if (!s || !isFinite(s) || s <= 0) return '';
+        s = Math.round(s);
+        var h = Math.floor(s / 3600);
+        var m = Math.floor((s % 3600) / 60);
+        var sec = s % 60;
+        var pad = function(n) { return n < 10 ? '0' + n : String(n); };
+        return h > 0 ? (h + ':' + pad(m) + ':' + pad(sec)) : (m + ':' + pad(sec));
+    }
+
+    function reportProgress(force) {
+        if (!currentVideoRef) return;
+        var videoEl = document.getElementById('videoPlayerEl');
+        if (!videoEl || !videoEl.duration || !isFinite(videoEl.duration)) return;
+        var progress = videoEl.currentTime / videoEl.duration;
+        if (!force && (progress - lastReportedProgress) < 0.02) return;
+        lastReportedProgress = progress;
+        var videoRef = currentVideoRef;
+
+        fetch('/api/site/videos/' + encodeURIComponent(videoRef.id) + '/progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ progress: progress, position: videoEl.currentTime })
+        }).then(function(res) { return res.json(); }).then(function(data) {
+            videoRef.progress = data.progress;
+            videoRef.resumeAt = data.positionSeconds;
+            if (data.completed && !videoRef.watched) {
+                videoRef.watched = true;
+                renderVideos();
+            }
+        }).catch(function() {});
+    }
+
+    function openPlayer(video) {
+        currentVideoRef = video;
+        lastReportedProgress = video.progress || 0;
+        var resumeAt = (!video.watched && video.resumeAt > 3) ? video.resumeAt : 0;
+        var resumeDone = false;
+
+        videoPlayerFrame.innerHTML = '<video id="videoPlayerEl" controls autoplay controlsList="nodownload noremoteplayback" disablePictureInPicture oncontextmenu="return false"></video>';
+        var videoEl = document.getElementById('videoPlayerEl');
+
+        function applyResume() {
+            if (resumeDone || !resumeAt) return;
+            resumeDone = true;
+            videoEl.currentTime = resumeAt;
+        }
+
+        if (video.hlsReady && window.Hls && window.Hls.isSupported()) {
+            var hls = new Hls();
+            currentHls = hls;
+            hls.loadSource(video.videoSrc);
+            hls.attachMedia(videoEl);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                applyResume();
+                videoEl.play().catch(function() {});
+            });
+            hls.on(Hls.Events.ERROR, function(event, data) {
+                if (!data.fatal) return;
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                    hls.startLoad();
+                } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                    hls.recoverMediaError();
+                } else {
+                    hls.destroy();
+                    currentHls = null;
+                }
+            });
+        } else {
+            videoEl.addEventListener('loadedmetadata', applyResume);
+            videoEl.src = video.videoSrc;
+        }
+
+        videoEl.addEventListener('timeupdate', function() { reportProgress(false); });
+        videoEl.addEventListener('ended', function() { reportProgress(true); });
+
+        videoPlayerTitle.textContent = video.title;
+        videoPlayerDesc.textContent = video.description || '';
+        videoPlayerOverlay.classList.add('open');
+    }
+
+    function closePlayer() {
+        reportProgress(true);
+        videoPlayerOverlay.classList.remove('open');
+        if (currentHls) {
+            currentHls.destroy();
+            currentHls = null;
+        }
+        videoPlayerFrame.innerHTML = '';
+        currentVideoRef = null;
+    }
+
+    function renderVideos() {
+        if (!loggedIn || !canViewVideos) {
+            videosEmpty.classList.remove('hidden');
+            videosGrid.classList.add('hidden');
+            return;
+        }
+
+        if (loadedVideos.length === 0) {
+            videosEmpty.classList.remove('hidden');
+            videosGrid.classList.add('hidden');
+            return;
+        }
+
+        videosEmpty.classList.add('hidden');
+        videosGrid.classList.remove('hidden');
+
+        videosGrid.innerHTML = loadedVideos.map(function(v, idx) {
+            var thumb = v.thumbnailUrl
+                ? '<img class="video-card-thumb" src="' + escapeAttr(v.thumbnailUrl) + '" alt="">'
+                : '<div class="video-card-thumb-empty"></div>';
+            var duration = formatDuration(v.duration);
+            var durationBadge = duration ? '<span class="video-card-duration">' + duration + '</span>' : '';
+            var progress = v.progress || 0;
+            var progressBar = (!v.watched && progress > 0.01)
+                ? '<div class="video-card-progress-track"><div class="video-card-progress-fill" style="width:' + Math.round(Math.min(progress, 1) * 100) + '%"></div></div>'
+                : '';
+            return '<div class="video-card" data-idx="' + idx + '">' +
+                '<div class="video-card-thumb-wrap">' +
+                    thumb +
+                    '<span class="video-card-play-overlay">&#9654;</span>' +
+                    durationBadge +
+                    progressBar +
+                '</div>' +
+                '<div class="video-card-body">' +
+                    '<div class="video-card-info">' +
+                        '<h3>' + escapeHtml(v.title) + '</h3>' +
+                        '<p>' + escapeHtml(v.description || '') + '</p>' +
+                    '</div>' +
+                    (v.watched ? '<div class="video-card-watched"><img src="https://cdn.discordapp.com/emojis/1488162507733336074.webp?size=48&amp;name=tick%7E1&amp;lossless=true" alt="Watched"></div>' : '') +
+                '</div>' +
+            '</div>';
+        }).join('');
+
+        videosGrid.querySelectorAll('.video-card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                openPlayer(loadedVideos[parseInt(card.getAttribute('data-idx'), 10)]);
+            });
+        });
+    }
+
+    function loadVideos() {
+        if (!loggedIn || !canViewVideos) {
+            renderVideos();
+            return;
+        }
+        fetch('/api/site/videos').then(function(res) {
+            if (!res.ok) throw new Error('Failed to load videos');
+            return res.json();
+        }).then(function(data) {
+            loadedVideos = Array.isArray(data.videos) ? data.videos : [];
+            renderVideos();
+        }).catch(function() {
+            loadedVideos = [];
+            renderVideos();
+        });
+    }
+
+    function setLang(code) {
+        currentLang = code;
+        renderLangUI();
+        applyStaticTranslations();
+        updateAuthBtn();
+        renderVideos();
+    }
+
+    langBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        langDropdown.classList.toggle('open');
+    });
+
+    langDropdown.addEventListener('click', function(e) {
+        var opt = e.target.closest('.lang-option');
+        if (!opt) return;
+        langDropdown.classList.remove('open');
+        setLang(opt.getAttribute('data-code'));
+    });
+
+    document.addEventListener('click', function() {
+        langDropdown.classList.remove('open');
+        userDropdown.classList.remove('open');
+    });
+
+    videoPlayerClose.addEventListener('click', closePlayer);
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closePlayer();
+    });
+
+    renderLangUI();
+    applyStaticTranslations();
+    renderVideos();
+
+    var headerEl = document.querySelector('header');
+    var headerSpacer = document.getElementById('headerSpacer');
+    function syncHeaderSpacer() {
+        headerSpacer.style.height = headerEl.offsetHeight + 'px';
+    }
+    syncHeaderSpacer();
+    window.addEventListener('resize', syncHeaderSpacer);
+
+    updateAuthBtn();
+    fetch('/api/site/me').then(function(res) { return res.json(); }).then(function(data) {
+        loggedIn = !!data.loggedIn;
+        canViewVideos = !!data.canViewVideos;
+        canAccessDashboard = !!data.canAccessDashboard;
+        if (loggedIn && data.avatar) userAvatar.src = data.avatar;
+        updateAuthBtn();
+        loadVideos();
+    }).catch(function() {
+        loadVideos();
+    });
+
+    authBtn.addEventListener('click', function() {
+        if (loggedIn) {
+            fetch('/api/site/logout', { method: 'POST' }).then(function() {
+                window.location.reload();
+            });
+        } else {
+            window.location.href = '/site-auth/discord?next=' + encodeURIComponent('/videos');
+        }
+    });
+
+    document.querySelectorAll('.header-nav a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            var href = link.getAttribute('href');
+            if (!href || href.charAt(0) !== '/' || link.classList.contains('active')) return;
+            e.preventDefault();
+            document.body.classList.add('page-fade-out');
+            setTimeout(function() { window.location.href = href; }, 200);
+        });
+    });
+
+    window.addEventListener('pageshow', function() {
+        document.body.classList.remove('page-fade-out');
+    });
+})();
+</script>
+</body>
+</html>

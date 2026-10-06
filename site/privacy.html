@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predage - Privacy Policy</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --primary: #E67E22;
+    --accent: #38BDF8;
+    --bg-dark: #0a0a0f;
+    --bg-card: rgba(24, 24, 32, 0.85);
+    --bg-bar: #101016;
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #e8e8ed;
+    --text-dim: #a3a3ad;
+}
+
+html, body {
+    min-height: 100%;
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) var(--bg-dark);
+}
+
+html::-webkit-scrollbar {
+    width: 10px;
+}
+
+html::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+html::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    border: 2px solid var(--bg-dark);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    animation: pageFadeIn 0.4s ease;
+}
+
+body.page-fade-out {
+    animation: pageFadeOut 0.22s ease forwards;
+}
+
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pageFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: 0.7fr 2.2fr 0.7fr;
+    align-items: center;
+    padding: 18px 48px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.header-spacer { height: 78px; }
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+header img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+
+.header-nav a {
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.3px;
+    transition: color 0.15s ease;
+}
+
+.header-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0;
+    height: 2px;
+    background: var(--text);
+    transition: width 0.25s ease;
+}
+
+.header-nav a:hover { color: var(--text); }
+.header-nav a:hover::after { width: 100%; }
+.header-nav a.hidden { display: none; }
+
+.header-brand span { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
+
+.nav-dot { color: var(--text-dim); opacity: 0.5; font-size: 14px; }
+
+.header-auth {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.lang-switcher { position: relative; }
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+}
+
+.lang-btn:hover { border-color: rgba(255,255,255,0.25); }
+.lang-btn .flag-icon { width: 21px; height: 14px; border-radius: 2px; overflow: hidden; flex-shrink: 0; display: block; }
+.lang-btn svg.chev { width: 12px; height: 12px; stroke: var(--text-dim); }
+
+.lang-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.lang-dropdown.open { display: flex; }
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    background: none;
+    border: none;
+    font-family: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.lang-option:hover { background: rgba(255,255,255,0.06); }
+.lang-option.active { color: var(--primary); }
+.lang-option .flag-icon { width: 22px; height: 15px; border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+
+.auth-btn {
+    position: relative;
+    overflow: hidden;
+    background: var(--primary);
+    color: #fff;
+    border: 1px solid transparent;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-btn.logged-in {
+    background: transparent;
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
+}
+
+.auth-btn.logged-in:hover { border-color: rgba(255,255,255,0.6); }
+
+.user-menu { position: relative; display: inline-block; }
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    display: none;
+}
+
+.user-avatar.has-menu { cursor: pointer; }
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.user-dropdown.open { display: flex; }
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.user-dropdown-item:hover { background: rgba(255,255,255,0.06); }
+
+.legal-page {
+    flex: 1;
+    flex-shrink: 0;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 40px 80px;
+    width: 100%;
+}
+
+.legal-title {
+    font-size: 34px;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.legal-updated {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 42px;
+}
+
+.legal-section {
+    margin-bottom: 30px;
+}
+
+.legal-section h2 {
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: var(--text);
+}
+
+.legal-section p {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+.legal-section ul {
+    margin: 10px 0 0 20px;
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.9;
+}
+
+.legal-section a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.legal-section a:hover { text-decoration: underline; }
+
+.site-footer {
+    background: var(--bg-bar);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 40px 40px;
+    display: flex;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+.footer-brand { max-width: 360px; }
+
+.footer-brand-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.footer-brand-top img {
+    width: 68px;
+    height: 68px;
+    border-radius: 16px;
+    object-fit: cover;
+}
+
+.footer-brand-top span {
+    font-size: 36px;
+    font-weight: 800;
+}
+
+.footer-brand p {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+
+.footer-cols {
+    display: flex;
+    gap: 60px;
+}
+
+.footer-col h4 {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+}
+
+.footer-col a {
+    display: block;
+    width: fit-content;
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13.5px;
+    margin-bottom: 12px;
+    transition: color 0.2s ease;
+}
+
+.footer-col a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 1px;
+    background: var(--text);
+    transition: width 0.25s ease;
+}
+
+.footer-col a:hover { color: var(--text); }
+.footer-col a:hover::after { width: 100%; }
+
+
+.footer-bottom {
+    border-top: 1px solid var(--border);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    color: var(--text-dim);
+    font-size: 12px;
+}
+
+.footer-disclaimer { opacity: 0.65; font-size: 11.5px; }
+
+@media (max-width: 860px) {
+    header { grid-template-columns: 1fr; row-gap: 12px; padding: 14px 20px; }
+    .header-nav { justify-content: center; gap: 22px; flex-wrap: wrap; }
+}
+
+@media (max-width: 720px) {
+    .footer-inner { flex-direction: column; gap: 32px; }
+    .footer-cols { flex-wrap: wrap; gap: 32px; }
+    .footer-bottom { flex-direction: column; text-align: center; padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="header-brand">
+        <img src="/images/dragon-logo.png" alt="Predage">
+        <span>Predage</span>
+    </div>
+
+    <nav class="header-nav">
+        <a href="/" data-i18n="nav_home">Home</a>
+        <span class="nav-dot">•</span>
+        <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
+        <span class="nav-dot">•</span>
+        <a href="/videos" data-i18n="nav_videos">Videos</a>
+        <span class="nav-dot">•</span>
+        <a href="/community" data-i18n="nav_community">Community</a>
+        <span class="nav-dot">•</span>
+        <a href="#" data-i18n="nav_merch">Merch</a>
+    </nav>
+
+    <div class="header-auth">
+        <div class="lang-switcher" id="langSwitcher">
+            <button class="lang-btn" id="langBtn">
+                <span class="flag-icon" id="langBtnFlag"></span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="lang-dropdown" id="langDropdown"></div>
+        </div>
+        <button class="auth-btn" id="authBtn">Sign In</button>
+        <div class="user-menu" id="userMenu">
+            <img class="user-avatar" id="userAvatar" alt="">
+            <div class="user-dropdown" id="userDropdown">
+                <a href="/dashboard" class="user-dropdown-item" data-i18n="user_admin_panel">Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="header-spacer" id="headerSpacer"></div>
+
+<div class="legal-page">
+    <h1 class="legal-title" data-i18n="privacy_title">Privacy Policy</h1>
+    <p class="legal-updated" data-i18n="privacy_updated">Last updated: 20/09/2026</p>
+
+    <div class="legal-section">
+        <h2 data-i18n="privacy_s1_h">1. Information We Collect</h2>
+        <p data-i18n="privacy_s1_p">When you sign in with Discord on our website, we receive basic information from your Discord account, such as your user ID, username, avatar, and the roles you hold on the PredCord and Predage Community servers. When you submit a staff application or a ban appeal, we also store the answers you provide in the form.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="privacy_s2_h">2. How We Use Your Information</h2>
+        <p data-i18n="privacy_s2_p">We use this information to:</p>
+        <ul>
+            <li data-i18n="privacy_s2_li1">Sign you in and keep you signed in on the website and dashboard;</li>
+            <li data-i18n="privacy_s2_li2">Show you the correct sections of the dashboard based on your roles;</li>
+            <li data-i18n="privacy_s2_li3">Review staff applications and ban appeals;</li>
+            <li data-i18n="privacy_s2_li4">Keep moderation records, such as bans and warnings, for the servers you're part of.</li>
+        </ul>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="privacy_s3_h">3. Discord Authentication</h2>
+        <p data-i18n="privacy_s3_p">Signing in on Predage's website uses Discord's official OAuth2 login. We never see or store your Discord password. Discord only shares with us the information you approve during the sign-in process.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="privacy_s4_h">4. Cookies And Sessions</h2>
+        <p data-i18n="privacy_s4_p">We use a single essential cookie to keep you signed in between page visits. This cookie is required for the website and dashboard to function correctly and is not used for advertising or tracking purposes.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="privacy_s5_h">5. Data Retention</h2>
+        <p data-i18n="privacy_s5_p">We keep staff application answers, ban appeal answers, and moderation records for as long as needed to run the PredCord and Predage Community servers properly, or until a staff member removes them.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="privacy_s6_h">6. Sharing Of Information</h2>
+        <p data-i18n="privacy_s6_p">We do not sell your information. Data collected through the dashboard is only visible to authorized staff members with the correct permissions, and is never shared with third parties outside of what's required to operate our Discord servers.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="privacy_s7_h">7. Your Rights</h2>
+        <p data-i18n="privacy_s7_p">You can ask us to review or delete the information we hold about you, such as a past application or appeal, by contacting the staff team. Some information, such as moderation history, may be kept for the safety of the community even after a request.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="privacy_s8_h">8. Changes To This Policy</h2>
+        <p data-i18n="privacy_s8_p">We may update this Privacy Policy from time to time. Any changes will be posted on this page along with an updated "Last updated" date.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="privacy_s9_h">9. Contact</h2>
+        <p data-i18n-html="privacy_s9_p">If you have any questions about this Privacy Policy, you can reach out to the staff team on the <a href="https://discord.gg/fFZcyNBcEY" target="_blank" rel="noopener">Predage Community Discord server</a>.</p>
+    </div>
+</div>
+
+<footer class="site-footer" id="siteFooter">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <div class="footer-brand-top">
+                <img src="/images/dragon-logo.png" alt="Predage">
+                <span>Predage</span>
+            </div>
+        </div>
+
+        <div class="footer-cols">
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <a href="/">Home</a>
+                <a href="/masterclass">Masterclass</a>
+                <a href="/community">Community</a>
+                <a href="#">Merch</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Socials</h4>
+                <a href="https://x.com/Predage1" target="_blank" rel="noopener">Twitter</a>
+                <a href="https://www.youtube.com/@predagefn" target="_blank" rel="noopener">YouTube</a>
+                <a href="https://www.twitch.tv/predagefn" target="_blank" rel="noopener">Twitch</a>
+                <a href="https://www.instagram.com/predagefn/" target="_blank" rel="noopener">Instagram</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <a href="/terms">Terms of Service</a>
+                <a href="/privacy">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <span>Predage © 2026. All rights reserved.</span>
+        <span class="footer-disclaimer">Not affiliated with Epic Games, Inc.</span>
+    </div>
+</footer>
+
+<script>
+(function() {
+    var FLAGS = {
+        it: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#009246"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ce2b37"/></svg>',
+        en: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#00247d"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#fff" stroke-width="4"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#cf142b" stroke-width="2"/><path d="M15,0 V20 M0,10 H30" stroke="#fff" stroke-width="6"/><path d="M15,0 V20 M0,10 H30" stroke="#cf142b" stroke-width="3.2"/></svg>',
+        de: '<svg viewBox="0 0 30 20"><rect width="30" height="6.66" y="0" fill="#000"/><rect width="30" height="6.66" y="6.66" fill="#dd0000"/><rect width="30" height="6.67" y="13.33" fill="#ffce00"/></svg>',
+        es: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#aa151b"/><rect width="30" height="10" y="5" fill="#f1bf00"/></svg>',
+        fr: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#0055a4"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ef4135"/></svg>'
+    };
+
+    var LANGS = [
+        { code: 'it', name: 'Italiano' },
+        { code: 'en', name: 'English' },
+        { code: 'de', name: 'Deutsch' },
+        { code: 'es', name: 'Español' },
+        { code: 'fr', name: 'Français' }
+    ];
+
+    var I18N = {
+        it: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Accedi", auth_logout: "Esci", user_admin_panel: "Pannello Admin", privacy_title: "Informativa sulla Privacy", privacy_updated: "Ultimo aggiornamento: 20/09/2026", privacy_s1_h: "1. Informazioni che Raccogliamo", privacy_s1_p: "Quando accedi con Discord sul nostro sito, riceviamo informazioni di base dal tuo account Discord, come il tuo ID utente, nome utente, avatar e i ruoli che possiedi sui server PredCord e Predage Community. Quando invii una candidatura staff o un ricorso ban, memorizziamo anche le risposte fornite nel modulo.", privacy_s2_h: "2. Come Utilizziamo le Tue Informazioni", privacy_s2_p: "Utilizziamo queste informazioni per:", privacy_s2_li1: "Farti accedere e mantenerti connesso sul sito e sulla dashboard;", privacy_s2_li2: "Mostrarti le sezioni corrette della dashboard in base ai tuoi ruoli;", privacy_s2_li3: "Esaminare candidature staff e ricorsi ban;", privacy_s2_li4: "Conservare i registri di moderazione, come ban e avvisi, per i server di cui fai parte.", privacy_s3_h: "3. Autenticazione Discord", privacy_s3_p: "L'accesso al sito di Predage utilizza il login OAuth2 ufficiale di Discord. Non vediamo né memorizziamo mai la tua password Discord. Discord ci condivide solo le informazioni che approvi durante il processo di accesso.", privacy_s4_h: "4. Cookie e Sessioni", privacy_s4_p: "Utilizziamo un unico cookie essenziale per mantenerti connesso tra una visita e l'altra. Questo cookie è necessario per il corretto funzionamento del sito e della dashboard e non viene utilizzato per scopi pubblicitari o di tracciamento.", privacy_s5_h: "5. Conservazione dei Dati", privacy_s5_p: "Conserviamo le risposte alle candidature staff, le risposte ai ricorsi ban e i registri di moderazione per tutto il tempo necessario a gestire correttamente i server PredCord e Predage Community, o finché un membro dello staff non li rimuove.", privacy_s6_h: "6. Condivisione delle Informazioni", privacy_s6_p: "Non vendiamo le tue informazioni. I dati raccolti tramite la dashboard sono visibili solo ai membri dello staff autorizzati con i permessi corretti, e non vengono mai condivisi con terze parti al di fuori di quanto necessario per gestire i nostri server Discord.", privacy_s7_h: "7. I Tuoi Diritti", privacy_s7_p: "Puoi chiederci di esaminare o eliminare le informazioni che conserviamo su di te, come una candidatura o un ricorso passati, contattando il team staff. Alcune informazioni, come la cronologia di moderazione, potrebbero essere conservate per la sicurezza della community anche dopo una richiesta.", privacy_s8_h: "8. Modifiche a Questa Informativa", privacy_s8_p: "Potremmo aggiornare questa Informativa sulla Privacy di tanto in tanto. Eventuali modifiche verranno pubblicate su questa pagina insieme a una data di \"Ultimo aggiornamento\" aggiornata.", privacy_s9_h: "9. Contatti", privacy_s9_p: "Se hai domande su questa Informativa sulla Privacy, puoi contattare il team staff sul <a href=\"https://discord.gg/fFZcyNBcEY\" target=\"_blank\" rel=\"noopener\">server Discord di Predage Community</a>." },
+        en: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Sign In", auth_logout: "Log Out", user_admin_panel: "Admin Panel", privacy_title: "Privacy Policy", privacy_updated: "Last updated: 20/09/2026", privacy_s1_h: "1. Information We Collect", privacy_s1_p: "When you sign in with Discord on our website, we receive basic information from your Discord account, such as your user ID, username, avatar, and the roles you hold on the PredCord and Predage Community servers. When you submit a staff application or a ban appeal, we also store the answers you provide in the form.", privacy_s2_h: "2. How We Use Your Information", privacy_s2_p: "We use this information to:", privacy_s2_li1: "Sign you in and keep you signed in on the website and dashboard;", privacy_s2_li2: "Show you the correct sections of the dashboard based on your roles;", privacy_s2_li3: "Review staff applications and ban appeals;", privacy_s2_li4: "Keep moderation records, such as bans and warnings, for the servers you're part of.", privacy_s3_h: "3. Discord Authentication", privacy_s3_p: "Signing in on Predage's website uses Discord's official OAuth2 login. We never see or store your Discord password. Discord only shares with us the information you approve during the sign-in process.", privacy_s4_h: "4. Cookies And Sessions", privacy_s4_p: "We use a single essential cookie to keep you signed in between page visits. This cookie is required for the website and dashboard to function correctly and is not used for advertising or tracking purposes.", privacy_s5_h: "5. Data Retention", privacy_s5_p: "We keep staff application answers, ban appeal answers, and moderation records for as long as needed to run the PredCord and Predage Community servers properly, or until a staff member removes them.", privacy_s6_h: "6. Sharing Of Information", privacy_s6_p: "We do not sell your information. Data collected through the dashboard is only visible to authorized staff members with the correct permissions, and is never shared with third parties outside of what's required to operate our Discord servers.", privacy_s7_h: "7. Your Rights", privacy_s7_p: "You can ask us to review or delete the information we hold about you, such as a past application or appeal, by contacting the staff team. Some information, such as moderation history, may be kept for the safety of the community even after a request.", privacy_s8_h: "8. Changes To This Policy", privacy_s8_p: "We may update this Privacy Policy from time to time. Any changes will be posted on this page along with an updated \"Last updated\" date.", privacy_s9_h: "9. Contact", privacy_s9_p: "If you have any questions about this Privacy Policy, you can reach out to the staff team on the <a href=\"https://discord.gg/fFZcyNBcEY\" target=\"_blank\" rel=\"noopener\">Predage Community Discord server</a>." },
+        de: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Anmelden", auth_logout: "Abmelden", user_admin_panel: "Admin-Panel", privacy_title: "Datenschutzrichtlinie", privacy_updated: "Zuletzt aktualisiert: 20.09.2026", privacy_s1_h: "1. Informationen, die wir erfassen", privacy_s1_p: "Wenn du dich auf unserer Website mit Discord anmeldest, erhalten wir grundlegende Informationen von deinem Discord-Konto, wie deine Nutzer-ID, deinen Benutzernamen, dein Avatar und die Rollen, die du auf den Servern PredCord und Predage Community innehast. Wenn du eine Staff-Bewerbung oder einen Bann-Einspruch einreichst, speichern wir auch die von dir im Formular angegebenen Antworten.", privacy_s2_h: "2. Wie wir deine Informationen verwenden", privacy_s2_p: "Wir verwenden diese Informationen, um:", privacy_s2_li1: "Dich auf der Website und im Dashboard anzumelden und angemeldet zu halten;", privacy_s2_li2: "Dir die passenden Bereiche des Dashboards basierend auf deinen Rollen anzuzeigen;", privacy_s2_li3: "Staff-Bewerbungen und Bann-Einsprüche zu prüfen;", privacy_s2_li4: "Moderationsaufzeichnungen, wie Banns und Verwarnungen, für die Server zu führen, denen du angehörst.", privacy_s3_h: "3. Discord-Authentifizierung", privacy_s3_p: "Die Anmeldung auf der Website von Predage erfolgt über das offizielle OAuth2-Login von Discord. Wir sehen oder speichern niemals dein Discord-Passwort. Discord teilt uns nur die Informationen mit, die du während des Anmeldevorgangs genehmigst.", privacy_s4_h: "4. Cookies und Sitzungen", privacy_s4_p: "Wir verwenden ein einziges unbedingt erforderliches Cookie, um dich zwischen Seitenbesuchen angemeldet zu halten. Dieses Cookie ist für die korrekte Funktion der Website und des Dashboards erforderlich und wird nicht für Werbe- oder Tracking-Zwecke verwendet.", privacy_s5_h: "5. Datenspeicherung", privacy_s5_p: "Wir bewahren Antworten auf Staff-Bewerbungen, Antworten auf Bann-Einsprüche und Moderationsaufzeichnungen so lange auf, wie es für den ordnungsgemäßen Betrieb der Server PredCord und Predage Community erforderlich ist, oder bis ein Staff-Mitglied sie entfernt.", privacy_s6_h: "6. Weitergabe von Informationen", privacy_s6_p: "Wir verkaufen deine Informationen nicht. Über das Dashboard erfasste Daten sind nur für autorisierte Staff-Mitglieder mit den entsprechenden Berechtigungen sichtbar und werden niemals an Dritte weitergegeben, außer soweit dies für den Betrieb unserer Discord-Server erforderlich ist.", privacy_s7_h: "7. Deine Rechte", privacy_s7_p: "Du kannst uns bitten, die über dich gespeicherten Informationen, wie eine frühere Bewerbung oder einen früheren Einspruch, zu überprüfen oder zu löschen, indem du das Staff-Team kontaktierst. Einige Informationen, wie der Moderationsverlauf, können auch nach einer Anfrage zur Sicherheit der Community aufbewahrt werden.", privacy_s8_h: "8. Änderungen dieser Richtlinie", privacy_s8_p: "Wir können diese Datenschutzrichtlinie von Zeit zu Zeit aktualisieren. Änderungen werden auf dieser Seite zusammen mit einem aktualisierten Datum \"Zuletzt aktualisiert\" veröffentlicht.", privacy_s9_h: "9. Kontakt", privacy_s9_p: "Wenn du Fragen zu dieser Datenschutzrichtlinie hast, kannst du das Staff-Team auf dem <a href=\"https://discord.gg/fFZcyNBcEY\" target=\"_blank\" rel=\"noopener\">Predage-Community-Discord-Server</a> kontaktieren." },
+        es: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Iniciar sesión", auth_logout: "Cerrar sesión", user_admin_panel: "Panel de Administración", privacy_title: "Política de Privacidad", privacy_updated: "Última actualización: 20/09/2026", privacy_s1_h: "1. Información que Recopilamos", privacy_s1_p: "Cuando inicias sesión con Discord en nuestro sitio web, recibimos información básica de tu cuenta de Discord, como tu ID de usuario, nombre de usuario, avatar y los roles que tienes en los servidores PredCord y Predage Community. Cuando envías una solicitud de staff o una apelación de baneo, también almacenamos las respuestas que proporcionas en el formulario.", privacy_s2_h: "2. Cómo Utilizamos tu Información", privacy_s2_p: "Utilizamos esta información para:", privacy_s2_li1: "Iniciar tu sesión y mantenerte conectado en el sitio web y el panel;", privacy_s2_li2: "Mostrarte las secciones correctas del panel según tus roles;", privacy_s2_li3: "Revisar solicitudes de staff y apelaciones de baneo;", privacy_s2_li4: "Mantener registros de moderación, como baneos y advertencias, de los servidores de los que formas parte.", privacy_s3_h: "3. Autenticación con Discord", privacy_s3_p: "Iniciar sesión en el sitio web de Predage utiliza el inicio de sesión OAuth2 oficial de Discord. Nunca vemos ni almacenamos tu contraseña de Discord. Discord solo nos comparte la información que apruebas durante el proceso de inicio de sesión.", privacy_s4_h: "4. Cookies y Sesiones", privacy_s4_p: "Utilizamos una única cookie esencial para mantenerte conectado entre visitas a la página. Esta cookie es necesaria para que el sitio web y el panel funcionen correctamente y no se utiliza con fines publicitarios ni de seguimiento.", privacy_s5_h: "5. Retención de Datos", privacy_s5_p: "Conservamos las respuestas de solicitudes de staff, las respuestas de apelaciones de baneo y los registros de moderación durante el tiempo necesario para gestionar correctamente los servidores PredCord y Predage Community, o hasta que un miembro del staff los elimine.", privacy_s6_h: "6. Intercambio de Información", privacy_s6_p: "No vendemos tu información. Los datos recopilados a través del panel solo son visibles para los miembros del staff autorizados con los permisos correctos, y nunca se comparten con terceros fuera de lo necesario para operar nuestros servidores de Discord.", privacy_s7_h: "7. Tus Derechos", privacy_s7_p: "Puedes pedirnos que revisemos o eliminemos la información que tenemos sobre ti, como una solicitud o apelación anterior, contactando al equipo de staff. Parte de la información, como el historial de moderación, puede conservarse por la seguridad de la comunidad incluso después de una solicitud.", privacy_s8_h: "8. Cambios en esta Política", privacy_s8_p: "Podemos actualizar esta Política de Privacidad de vez en cuando. Cualquier cambio se publicará en esta página junto con una fecha de \"Última actualización\" actualizada.", privacy_s9_h: "9. Contacto", privacy_s9_p: "Si tienes alguna pregunta sobre esta Política de Privacidad, puedes contactar al equipo de staff en el <a href=\"https://discord.gg/fFZcyNBcEY\" target=\"_blank\" rel=\"noopener\">servidor de Discord de Predage Community</a>." },
+        fr: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Se connecter", auth_logout: "Déconnexion", user_admin_panel: "Panneau Admin", privacy_title: "Politique de Confidentialité", privacy_updated: "Dernière mise à jour : 20/09/2026", privacy_s1_h: "1. Informations que Nous Collectons", privacy_s1_p: "Lorsque tu te connectes avec Discord sur notre site web, nous recevons des informations de base de ton compte Discord, telles que ton ID utilisateur, ton nom d'utilisateur, ton avatar et les rôles que tu détiens sur les serveurs PredCord et Predage Community. Lorsque tu soumets une candidature staff ou un appel de bannissement, nous stockons également les réponses que tu fournis dans le formulaire.", privacy_s2_h: "2. Comment Nous Utilisons tes Informations", privacy_s2_p: "Nous utilisons ces informations pour :", privacy_s2_li1: "Te connecter et te maintenir connecté sur le site web et le tableau de bord ;", privacy_s2_li2: "T'afficher les sections appropriées du tableau de bord selon tes rôles ;", privacy_s2_li3: "Examiner les candidatures staff et les appels de bannissement ;", privacy_s2_li4: "Conserver les registres de modération, tels que les bannissements et avertissements, pour les serveurs dont tu fais partie.", privacy_s3_h: "3. Authentification Discord", privacy_s3_p: "La connexion sur le site web de Predage utilise le login OAuth2 officiel de Discord. Nous ne voyons ni ne stockons jamais ton mot de passe Discord. Discord ne nous partage que les informations que tu approuves pendant le processus de connexion.", privacy_s4_h: "4. Cookies et Sessions", privacy_s4_p: "Nous utilisons un seul cookie essentiel pour te maintenir connecté entre les visites de pages. Ce cookie est nécessaire au bon fonctionnement du site web et du tableau de bord et n'est pas utilisé à des fins publicitaires ou de suivi.", privacy_s5_h: "5. Conservation des Données", privacy_s5_p: "Nous conservons les réponses aux candidatures staff, les réponses aux appels de bannissement et les registres de modération aussi longtemps que nécessaire pour faire fonctionner correctement les serveurs PredCord et Predage Community, ou jusqu'à ce qu'un membre du staff les supprime.", privacy_s6_h: "6. Partage des Informations", privacy_s6_p: "Nous ne vendons pas tes informations. Les données collectées via le tableau de bord ne sont visibles que par les membres du staff autorisés disposant des permissions appropriées, et ne sont jamais partagées avec des tiers au-delà de ce qui est nécessaire pour faire fonctionner nos serveurs Discord.", privacy_s7_h: "7. Tes Droits", privacy_s7_p: "Tu peux nous demander de consulter ou de supprimer les informations que nous détenons à ton sujet, comme une candidature ou un appel passé, en contactant l'équipe staff. Certaines informations, comme l'historique de modération, peuvent être conservées pour la sécurité de la communauté même après une demande.", privacy_s8_h: "8. Modifications de cette Politique", privacy_s8_p: "Nous pouvons mettre à jour cette Politique de Confidentialité de temps à autre. Toute modification sera publiée sur cette page avec une date de \"Dernière mise à jour\" actualisée.", privacy_s9_h: "9. Contact", privacy_s9_p: "Si tu as des questions concernant cette Politique de Confidentialité, tu peux contacter l'équipe staff sur le <a href=\"https://discord.gg/fFZcyNBcEY\" target=\"_blank\" rel=\"noopener\">serveur Discord de Predage Community</a>." }
+    };
+
+    var currentLang = 'en';
+    var loggedIn = false;
+    var canAccessDashboard = false;
+    var langBtnFlag = document.getElementById('langBtnFlag');
+    var langDropdown = document.getElementById('langDropdown');
+    var langBtn = document.getElementById('langBtn');
+    var authBtn = document.getElementById('authBtn');
+    var userMenu = document.getElementById('userMenu');
+    var userAvatar = document.getElementById('userAvatar');
+    var userDropdown = document.getElementById('userDropdown');
+
+    function renderLangUI() {
+        langBtnFlag.innerHTML = FLAGS[currentLang];
+        langDropdown.innerHTML = LANGS.map(function(l) {
+            return '<button class="lang-option' + (l.code === currentLang ? ' active' : '') + '" data-code="' + l.code + '">' +
+                '<span class="flag-icon">' + FLAGS[l.code] + '</span><span>' + l.name + '</span>' +
+            '</button>';
+        }).join('');
+    }
+
+    function applyStaticTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n');
+            if (I18N[currentLang][key]) el.textContent = I18N[currentLang][key];
+        });
+        document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n-html');
+            if (I18N[currentLang][key]) el.innerHTML = I18N[currentLang][key];
+        });
+    }
+
+    function updateAuthBtn() {
+        authBtn.textContent = loggedIn ? I18N[currentLang].auth_logout : I18N[currentLang].auth_signin;
+        authBtn.classList.toggle('logged-in', loggedIn);
+        userAvatar.style.display = loggedIn ? 'block' : 'none';
+        userAvatar.classList.toggle('has-menu', canAccessDashboard);
+        if (!loggedIn || !canAccessDashboard) userDropdown.classList.remove('open');
+    }
+
+    userAvatar.addEventListener('click', function(e) {
+        if (!canAccessDashboard) return;
+        e.stopPropagation();
+        userDropdown.classList.toggle('open');
+    });
+
+    function setLang(code) {
+        currentLang = code;
+        renderLangUI();
+        applyStaticTranslations();
+        updateAuthBtn();
+    }
+
+    langBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        langDropdown.classList.toggle('open');
+    });
+
+    langDropdown.addEventListener('click', function(e) {
+        var opt = e.target.closest('.lang-option');
+        if (!opt) return;
+        langDropdown.classList.remove('open');
+        setLang(opt.getAttribute('data-code'));
+    });
+
+    document.addEventListener('click', function() {
+        langDropdown.classList.remove('open');
+        userDropdown.classList.remove('open');
+    });
+
+    renderLangUI();
+    applyStaticTranslations();
+
+    var headerEl = document.querySelector('header');
+    var headerSpacer = document.getElementById('headerSpacer');
+    function syncHeaderSpacer() {
+        headerSpacer.style.height = headerEl.offsetHeight + 'px';
+    }
+    syncHeaderSpacer();
+    window.addEventListener('resize', syncHeaderSpacer);
+
+    updateAuthBtn();
+    fetch('/api/site/me').then(function(res) { return res.json(); }).then(function(data) {
+        loggedIn = !!data.loggedIn;
+        canAccessDashboard = !!data.canAccessDashboard;
+        if (loggedIn && data.avatar) userAvatar.src = data.avatar;
+        updateAuthBtn();
+    }).catch(function() {});
+
+    authBtn.addEventListener('click', function() {
+        if (loggedIn) {
+            fetch('/api/site/logout', { method: 'POST' }).then(function() {
+                window.location.reload();
+            });
+        } else {
+            window.location.href = '/site-auth/discord?next=' + encodeURIComponent(window.location.pathname);
+        }
+    });
+
+    document.querySelectorAll('.header-nav a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            var href = link.getAttribute('href');
+            if (!href || href.charAt(0) !== '/' || link.classList.contains('active')) return;
+            e.preventDefault();
+            document.body.classList.add('page-fade-out');
+            setTimeout(function() { window.location.href = href; }, 200);
+        });
+    });
+
+    window.addEventListener('pageshow', function() {
+        document.body.classList.remove('page-fade-out');
+    });
+})();
+</script>
+
+</body>
+</html>

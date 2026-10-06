@@ -1,0 +1,1531 @@
+[
+  {
+    "timestamp": "2026-10-04T16:17:58.483Z",
+    "type": "LOGIN_ERROR",
+    "message": "Connect Timeout Error (attempted addresses: 162.159.128.233:443, 162.159.135.232:443, 162.159.137.232:443, 162.159.138.232:443, 162.159.136.232:443, timeout: 10000ms)",
+    "stack": "ConnectTimeoutError: Connect Timeout Error (attempted addresses: 162.159.128.233:443, 162.159.135.232:443, 162.159.137.232:443, 162.159.138.232:443, 162.159.136.232:443, timeout: 10000ms)\n    at onConnectTimeout (node:internal/deps/undici/undici:2405:23)\n    at Immediate._onImmediate (node:internal/deps/undici/undici:2371:35)\n    at process.processImmediate (node:internal/timers:574:21)",
+    "context": {
+      "attempt": 1,
+      "retries": 5
+    },
+    "memory": {
+      "rss": 125710336,
+      "heapTotal": 69373952,
+      "heapUsed": 37858112,
+      "external": 22608516,
+      "arrayBuffers": 18506858
+    },
+    "uptime": 11.8036237
+  },
+  {
+    "timestamp": "2026-10-04T16:18:46.307Z",
+    "type": "UNHANDLED_REJECTION",
+    "message": "Client network socket disconnected before secure TLS connection was established",
+    "stack": "MongoServerSelectionError: Client network socket disconnected before secure TLS connection was established\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async Topology._connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:200:28)\n    at async Topology.connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:152:13)\n    at async topologyConnect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:264:17)\n    at async MongoClient._connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:277:13)\n    at async MongoClient.connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:202:13)\n    at async MongoClient.connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:446:16)",
+    "context": {},
+    "memory": {
+      "rss": 130068480,
+      "heapTotal": 70946816,
+      "heapUsed": 35909776,
+      "external": 22677460,
+      "arrayBuffers": 18566147
+    },
+    "uptime": 31.2844819
+  },
+  {
+    "timestamp": "2026-10-04T16:19:21.243Z",
+    "type": "UNCAUGHT_EXCEPTION",
+    "message": "Opening handshake has timed out",
+    "stack": "Error: Opening handshake has timed out\n    at ClientRequest.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\ws\\lib\\websocket.js:890:7)\n    at ClientRequest.emit (node:events:514:20)\n    at TLSSocket.emitRequestTimeout (node:_http_client:1124:9)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 95604736,
+      "heapTotal": 36343808,
+      "heapUsed": 35001016,
+      "external": 22662335,
+      "arrayBuffers": 18561129
+    },
+    "uptime": 66.220213
+  },
+  {
+    "timestamp": "2026-10-04T16:20:40.379Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at listOnTimeout (node:internal/timers:644:9)\n    at process.processTimers (node:internal/timers:618:7)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)",
+    "context": {},
+    "memory": {
+      "rss": 104869888,
+      "heapTotal": 41324544,
+      "heapUsed": 38879248,
+      "external": 22989192,
+      "arrayBuffers": 18766281
+    },
+    "uptime": 75.9198005
+  },
+  {
+    "timestamp": "2026-10-04T16:24:41.918Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 105472000,
+      "heapTotal": 41324544,
+      "heapUsed": 40246248,
+      "external": 23120502,
+      "arrayBuffers": 18897591
+    },
+    "uptime": 317.4596223
+  },
+  {
+    "timestamp": "2026-10-04T16:26:00.823Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection 11 to 65.62.227.233:27017 closed",
+    "stack": "MongoNetworkError: connection 11 to 65.62.227.233:27017 closed\n    at Connection.onClose (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connection.js:120:22)\n    at TLSSocket.emit (node:events:526:24)\n    at node:net:362:12\n    at TCP.done (node:internal/tls/wrap:769:7)",
+    "context": {},
+    "memory": {
+      "rss": 104779776,
+      "heapTotal": 41848832,
+      "heapUsed": 40591928,
+      "external": 23132794,
+      "arrayBuffers": 18902199
+    },
+    "uptime": 396.3639994
+  },
+  {
+    "timestamp": "2026-10-04T16:30:40.437Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15060ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15060ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 105947136,
+      "heapTotal": 42373120,
+      "heapUsed": 41294368,
+      "external": 23269682,
+      "arrayBuffers": 19031403
+    },
+    "uptime": 675.9783623
+  },
+  {
+    "timestamp": "2026-10-04T16:38:40.468Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 108011520,
+      "heapTotal": 43683840,
+      "heapUsed": 42035920,
+      "external": 23580182,
+      "arrayBuffers": 19357271
+    },
+    "uptime": 1156.0084571
+  },
+  {
+    "timestamp": "2026-10-04T16:39:40.489Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 108777472,
+      "heapTotal": 44208128,
+      "heapUsed": 42565016,
+      "external": 23583601,
+      "arrayBuffers": 19357309
+    },
+    "uptime": 1216.0295589
+  },
+  {
+    "timestamp": "2026-10-04T16:41:00.193Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 19690ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 19690ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 109264896,
+      "heapTotal": 44732416,
+      "heapUsed": 42528960,
+      "external": 23580262,
+      "arrayBuffers": 19357351
+    },
+    "uptime": 1295.7339215
+  },
+  {
+    "timestamp": "2026-10-04T16:41:40.509Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Client network socket disconnected before secure TLS connection was established",
+    "stack": "MongoServerSelectionError: Client network socket disconnected before secure TLS connection was established\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 110088192,
+      "heapTotal": 44470272,
+      "heapUsed": 42703904,
+      "external": 23649606,
+      "arrayBuffers": 19424232
+    },
+    "uptime": 1336.0496781
+  },
+  {
+    "timestamp": "2026-10-04T16:42:58.219Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 16373ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 16373ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 109555712,
+      "heapTotal": 44994560,
+      "heapUsed": 43172520,
+      "external": 23646963,
+      "arrayBuffers": 19424052
+    },
+    "uptime": 1413.7603123
+  },
+  {
+    "timestamp": "2026-10-04T16:45:40.525Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15029ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15029ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 110292992,
+      "heapTotal": 44994560,
+      "heapUsed": 43388784,
+      "external": 23729190,
+      "arrayBuffers": 19490911
+    },
+    "uptime": 1576.065722
+  },
+  {
+    "timestamp": "2026-10-04T16:46:40.530Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 110678016,
+      "heapTotal": 45256704,
+      "heapUsed": 43550208,
+      "external": 23714164,
+      "arrayBuffers": 19488790
+    },
+    "uptime": 1636.0704083
+  },
+  {
+    "timestamp": "2026-10-04T16:46:51.547Z",
+    "type": "SHARD_ERROR",
+    "message": "Opening handshake has timed out",
+    "stack": "Error: Opening handshake has timed out\n    at ClientRequest.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\ws\\lib\\websocket.js:890:7)\n    at ClientRequest.emit (node:events:514:20)\n    at TLSSocket.emitRequestTimeout (node:_http_client:1124:9)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 110628864,
+      "heapTotal": 44732416,
+      "heapUsed": 43308104,
+      "external": 23714164,
+      "arrayBuffers": 19488547
+    },
+    "uptime": 1647.0874887
+  },
+  {
+    "timestamp": "2026-10-04T16:47:40.543Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 16300ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 16300ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 111099904,
+      "heapTotal": 44994560,
+      "heapUsed": 43681544,
+      "external": 23711490,
+      "arrayBuffers": 19488579
+    },
+    "uptime": 1696.0836428
+  },
+  {
+    "timestamp": "2026-10-04T16:48:40.551Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 112316416,
+      "heapTotal": 45256704,
+      "heapUsed": 43643560,
+      "external": 23711496,
+      "arrayBuffers": 19488547
+    },
+    "uptime": 1756.0917713
+  },
+  {
+    "timestamp": "2026-10-04T16:54:55.319Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection 27 to 65.62.227.233:27017 closed",
+    "stack": "MongoNetworkError: connection 27 to 65.62.227.233:27017 closed\n    at Connection.onClose (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connection.js:120:22)\n    at TLSSocket.emit (node:events:526:24)\n    at node:net:362:12\n    at TCP.done (node:internal/tls/wrap:769:7)",
+    "context": {},
+    "memory": {
+      "rss": 110137344,
+      "heapTotal": 45518848,
+      "heapUsed": 40616144,
+      "external": 23125999,
+      "arrayBuffers": 18903088
+    },
+    "uptime": 2130.8598885
+  },
+  {
+    "timestamp": "2026-10-04T16:59:40.842Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 109916160,
+      "heapTotal": 45256704,
+      "heapUsed": 40839088,
+      "external": 23252805,
+      "arrayBuffers": 19029894
+    },
+    "uptime": 2416.3827551
+  },
+  {
+    "timestamp": "2026-10-04T17:03:40.675Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 109936640,
+      "heapTotal": 45518848,
+      "heapUsed": 41732088,
+      "external": 23391838,
+      "arrayBuffers": 19161243
+    },
+    "uptime": 2656.2159766
+  },
+  {
+    "timestamp": "2026-10-04T17:04:40.682Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 18168ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 18168ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at listOnTimeout (node:internal/timers:644:9)\n    at process.processTimers (node:internal/timers:618:7)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)",
+    "context": {},
+    "memory": {
+      "rss": 111112192,
+      "heapTotal": 45518848,
+      "heapUsed": 41688000,
+      "external": 23383026,
+      "arrayBuffers": 19160115
+    },
+    "uptime": 2716.2227874
+  },
+  {
+    "timestamp": "2026-10-04T17:08:40.721Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 111923200,
+      "heapTotal": 46305280,
+      "heapUsed": 41959824,
+      "external": 23451054,
+      "arrayBuffers": 19225889
+    },
+    "uptime": 2956.2618764
+  },
+  {
+    "timestamp": "2026-10-04T17:09:40.730Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15020ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15020ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 112574464,
+      "heapTotal": 45780992,
+      "heapUsed": 42436944,
+      "external": 23449989,
+      "arrayBuffers": 19227078
+    },
+    "uptime": 3016.2711772
+  },
+  {
+    "timestamp": "2026-10-04T17:12:40.761Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 112529408,
+      "heapTotal": 45518848,
+      "heapUsed": 42564824,
+      "external": 23581237,
+      "arrayBuffers": 19358326
+    },
+    "uptime": 3196.3017727
+  },
+  {
+    "timestamp": "2026-10-04T17:13:55.799Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15020ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15020ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 112107520,
+      "heapTotal": 46043136,
+      "heapUsed": 43109112,
+      "external": 23589012,
+      "arrayBuffers": 19358417
+    },
+    "uptime": 3271.3406885
+  },
+  {
+    "timestamp": "2026-10-04T17:14:40.772Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 16201ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 16201ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at listOnTimeout (node:internal/timers:644:9)\n    at process.processTimers (node:internal/timers:618:7)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)",
+    "context": {},
+    "memory": {
+      "rss": 112046080,
+      "heapTotal": 45780992,
+      "heapUsed": 42975792,
+      "external": 23580162,
+      "arrayBuffers": 19357251
+    },
+    "uptime": 3316.3130891
+  },
+  {
+    "timestamp": "2026-10-04T17:24:40.831Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15018ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15018ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 112431104,
+      "heapTotal": 45518848,
+      "heapUsed": 43818888,
+      "external": 23910734,
+      "arrayBuffers": 19685521
+    },
+    "uptime": 3916.3720938
+  },
+  {
+    "timestamp": "2026-10-04T17:28:40.852Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15044ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15044ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 113205248,
+      "heapTotal": 46305280,
+      "heapUsed": 44446096,
+      "external": 24039742,
+      "arrayBuffers": 19816831
+    },
+    "uptime": 4156.3927905
+  },
+  {
+    "timestamp": "2026-10-04T17:29:40.864Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 113577984,
+      "heapTotal": 46305280,
+      "heapUsed": 44648408,
+      "external": 24042034,
+      "arrayBuffers": 19816869
+    },
+    "uptime": 4216.405006
+  },
+  {
+    "timestamp": "2026-10-04T17:31:09.823Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15000ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15000ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 114466816,
+      "heapTotal": 46567424,
+      "heapUsed": 44692736,
+      "external": 24106543,
+      "arrayBuffers": 19883632
+    },
+    "uptime": 4305.3642088
+  },
+  {
+    "timestamp": "2026-10-04T17:31:56.115Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15001ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15001ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processTimers (node:internal/timers:615:9)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)",
+    "context": {},
+    "memory": {
+      "rss": 114442240,
+      "heapTotal": 46567424,
+      "heapUsed": 44906304,
+      "external": 24123186,
+      "arrayBuffers": 19884907
+    },
+    "uptime": 4351.6555645
+  },
+  {
+    "timestamp": "2026-10-04T17:32:40.895Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.217:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.217:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at listOnTimeout (node:internal/timers:644:9)\n    at process.processTimers (node:internal/timers:618:7)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)",
+    "context": {},
+    "memory": {
+      "rss": 115265536,
+      "heapTotal": 47091712,
+      "heapUsed": 45383880,
+      "external": 24108873,
+      "arrayBuffers": 19885962
+    },
+    "uptime": 4396.4355527
+  },
+  {
+    "timestamp": "2026-10-04T17:37:40.949Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15018ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15018ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 116051968,
+      "heapTotal": 46567424,
+      "heapUsed": 44995992,
+      "external": 24237919,
+      "arrayBuffers": 20013843
+    },
+    "uptime": 4696.4899886
+  },
+  {
+    "timestamp": "2026-10-04T17:38:40.945Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 115875840,
+      "heapTotal": 46829568,
+      "heapUsed": 45388872,
+      "external": 24237973,
+      "arrayBuffers": 20015062
+    },
+    "uptime": 4756.4856142
+  },
+  {
+    "timestamp": "2026-10-04T17:39:58.175Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 17192ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 17192ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 116105216,
+      "heapTotal": 47091712,
+      "heapUsed": 45645440,
+      "external": 24304658,
+      "arrayBuffers": 20079493
+    },
+    "uptime": 4833.7158605
+  },
+  {
+    "timestamp": "2026-10-04T17:44:41.005Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15016ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15016ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processTimers (node:internal/timers:615:9)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)",
+    "context": {},
+    "memory": {
+      "rss": 112091136,
+      "heapTotal": 46567424,
+      "heapUsed": 39124176,
+      "external": 22941164,
+      "arrayBuffers": 18700459
+    },
+    "uptime": 5116.5459465
+  },
+  {
+    "timestamp": "2026-10-04T17:45:40.998Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15030ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15030ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 113827840,
+      "heapTotal": 46829568,
+      "heapUsed": 39367840,
+      "external": 22933379,
+      "arrayBuffers": 18702784
+    },
+    "uptime": 5176.539225
+  },
+  {
+    "timestamp": "2026-10-04T17:48:44.488Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 113831936,
+      "heapTotal": 47091712,
+      "heapUsed": 40011920,
+      "external": 22991360,
+      "arrayBuffers": 18766171
+    },
+    "uptime": 5360.029071
+  },
+  {
+    "timestamp": "2026-10-04T17:49:57.198Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15000ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15000ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 113790976,
+      "heapTotal": 47091712,
+      "heapUsed": 40236856,
+      "external": 23060353,
+      "arrayBuffers": 18837442
+    },
+    "uptime": 5432.7391339
+  },
+  {
+    "timestamp": "2026-10-04T17:53:41.055Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.217:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.217:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 114720768,
+      "heapTotal": 46829568,
+      "heapUsed": 40223528,
+      "external": 23194870,
+      "arrayBuffers": 18964275
+    },
+    "uptime": 5656.5962881
+  },
+  {
+    "timestamp": "2026-10-05T15:01:16.098Z",
+    "type": "INTERACTION_HANDLER",
+    "message": "Unknown interaction",
+    "stack": "DiscordAPIError[10062]: Unknown interaction\n    at handleErrors (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\@discordjs\\rest\\dist\\index.js:791:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async BurstHandler.runRequest (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\@discordjs\\rest\\dist\\index.js:898:23)\n    at async _REST.request (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\@discordjs\\rest\\dist\\index.js:1342:22)\n    at async ButtonInteraction.deferReply (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\discord.js\\src\\structures\\interfaces\\InteractionResponses.js:122:22)\n    at async Client.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\index.js:2775:13)",
+    "context": {
+      "customId": "appeal_modlogs_1297667554487042130"
+    },
+    "memory": {
+      "rss": 110469120,
+      "heapTotal": 44994560,
+      "heapUsed": 42866576,
+      "external": 24135261,
+      "arrayBuffers": 19909887
+    },
+    "uptime": 751.5207246
+  },
+  {
+    "timestamp": "2026-10-05T15:03:01.119Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 112394240,
+      "heapTotal": 47353856,
+      "heapUsed": 44175184,
+      "external": 24281657,
+      "arrayBuffers": 20035694
+    },
+    "uptime": 856.5416346
+  },
+  {
+    "timestamp": "2026-10-05T16:01:47.106Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 107847680,
+      "heapTotal": 45518848,
+      "heapUsed": 39288976,
+      "external": 23843574,
+      "arrayBuffers": 19620663
+    },
+    "uptime": 2236.3472662
+  },
+  {
+    "timestamp": "2026-10-05T16:05:03.292Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 16174ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 16174ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 109551616,
+      "heapTotal": 45256704,
+      "heapUsed": 39676080,
+      "external": 23844925,
+      "arrayBuffers": 19618585
+    },
+    "uptime": 2432.5331932
+  },
+  {
+    "timestamp": "2026-10-05T16:06:11.605Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 16308ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 16308ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 109416448,
+      "heapTotal": 46043136,
+      "heapUsed": 39535240,
+      "external": 23909286,
+      "arrayBuffers": 19684121
+    },
+    "uptime": 2500.8460985
+  },
+  {
+    "timestamp": "2026-10-05T16:11:02.226Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 109371392,
+      "heapTotal": 45518848,
+      "heapUsed": 41130856,
+      "external": 23981680,
+      "arrayBuffers": 19751085
+    },
+    "uptime": 2791.4678908
+  },
+  {
+    "timestamp": "2026-10-05T16:12:47.190Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15056ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15056ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 109203456,
+      "heapTotal": 45256704,
+      "heapUsed": 40907600,
+      "external": 24040720,
+      "arrayBuffers": 19815555
+    },
+    "uptime": 2896.4316908
+  },
+  {
+    "timestamp": "2026-10-05T16:17:06.445Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 closed",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 closed\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 111386624,
+      "heapTotal": 46567424,
+      "heapUsed": 41980592,
+      "external": 24170927,
+      "arrayBuffers": 19948016
+    },
+    "uptime": 3155.686808
+  },
+  {
+    "timestamp": "2026-10-05T16:17:47.235Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15021ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15021ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 110878720,
+      "heapTotal": 45780992,
+      "heapUsed": 41976992,
+      "external": 24169854,
+      "arrayBuffers": 19946943
+    },
+    "uptime": 3196.47649
+  },
+  {
+    "timestamp": "2026-10-05T16:22:02.289Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15010ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15010ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 112054272,
+      "heapTotal": 46567424,
+      "heapUsed": 42684072,
+      "external": 24302291,
+      "arrayBuffers": 20079380
+    },
+    "uptime": 3451.5299207
+  },
+  {
+    "timestamp": "2026-10-05T16:25:47.280Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 112078848,
+      "heapTotal": 45256704,
+      "heapUsed": 42950336,
+      "external": 24434752,
+      "arrayBuffers": 20209563
+    },
+    "uptime": 3676.5210682
+  },
+  {
+    "timestamp": "2026-10-05T16:27:06.720Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15190ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15190ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 112259072,
+      "heapTotal": 45780992,
+      "heapUsed": 43281504,
+      "external": 24499237,
+      "arrayBuffers": 20276326
+    },
+    "uptime": 3755.9609836
+  },
+  {
+    "timestamp": "2026-10-05T16:27:47.282Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 112799744,
+      "heapTotal": 45518848,
+      "heapUsed": 42952568,
+      "external": 24508117,
+      "arrayBuffers": 20275213
+    },
+    "uptime": 3796.5238654
+  },
+  {
+    "timestamp": "2026-10-05T16:31:02.310Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15002ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15002ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 113963008,
+      "heapTotal": 47091712,
+      "heapUsed": 43491088,
+      "external": 24566090,
+      "arrayBuffers": 20340925
+    },
+    "uptime": 3991.5514225
+  },
+  {
+    "timestamp": "2026-10-05T16:31:47.322Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15029ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15029ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at listOnTimeout (node:internal/timers:644:9)\n    at process.processTimers (node:internal/timers:618:7)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)",
+    "context": {},
+    "memory": {
+      "rss": 113729536,
+      "heapTotal": 46567424,
+      "heapUsed": 43584040,
+      "external": 24563874,
+      "arrayBuffers": 20340963
+    },
+    "uptime": 4036.563222
+  },
+  {
+    "timestamp": "2026-10-05T16:36:02.502Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15060ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15060ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 114851840,
+      "heapTotal": 47091712,
+      "heapUsed": 44604088,
+      "external": 24697462,
+      "arrayBuffers": 20474551
+    },
+    "uptime": 4291.7431809
+  },
+  {
+    "timestamp": "2026-10-05T16:37:02.464Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15029ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15029ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 115138560,
+      "heapTotal": 47091712,
+      "heapUsed": 44401808,
+      "external": 24698627,
+      "arrayBuffers": 20472311
+    },
+    "uptime": 4351.7050885
+  },
+  {
+    "timestamp": "2026-10-05T16:40:47.404Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 16231ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 16231ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 110059520,
+      "heapTotal": 47091712,
+      "heapUsed": 37629304,
+      "external": 22921071,
+      "arrayBuffers": 18700651
+    },
+    "uptime": 4576.6456504
+  },
+  {
+    "timestamp": "2026-10-05T16:42:48.772Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 111157248,
+      "heapTotal": 46567424,
+      "heapUsed": 37784136,
+      "external": 22988999,
+      "arrayBuffers": 18766325
+    },
+    "uptime": 4698.0133395
+  },
+  {
+    "timestamp": "2026-10-05T16:45:47.436Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15031ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15031ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 111583232,
+      "heapTotal": 47091712,
+      "heapUsed": 38617200,
+      "external": 23057013,
+      "arrayBuffers": 18836593
+    },
+    "uptime": 4876.6772113
+  },
+  {
+    "timestamp": "2026-10-05T16:46:47.453Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15007ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15007ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 111640576,
+      "heapTotal": 46829568,
+      "heapUsed": 38684600,
+      "external": 23121450,
+      "arrayBuffers": 18901030
+    },
+    "uptime": 4936.6941705
+  },
+  {
+    "timestamp": "2026-10-05T16:51:47.498Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 16284ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 16284ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 112459776,
+      "heapTotal": 46567424,
+      "heapUsed": 38856424,
+      "external": 23192733,
+      "arrayBuffers": 18964629
+    },
+    "uptime": 5236.7390678
+  },
+  {
+    "timestamp": "2026-10-05T16:52:47.497Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15048ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15048ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 112525312,
+      "heapTotal": 46829568,
+      "heapUsed": 39361128,
+      "external": 23185032,
+      "arrayBuffers": 18964612
+    },
+    "uptime": 5296.738102
+  },
+  {
+    "timestamp": "2026-10-05T17:06:47.614Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15024ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15024ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 111788032,
+      "heapTotal": 46567424,
+      "heapUsed": 40397624,
+      "external": 23644726,
+      "arrayBuffers": 19424306
+    },
+    "uptime": 6136.8555507
+  },
+  {
+    "timestamp": "2026-10-05T17:08:05.856Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 18211ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 18211ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 112844800,
+      "heapTotal": 46567424,
+      "heapUsed": 40615968,
+      "external": 23710338,
+      "arrayBuffers": 19489918
+    },
+    "uptime": 6215.0976538
+  },
+  {
+    "timestamp": "2026-10-05T17:10:03.488Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 113242112,
+      "heapTotal": 46829568,
+      "heapUsed": 41060632,
+      "external": 23774885,
+      "arrayBuffers": 19554465
+    },
+    "uptime": 6332.7294165
+  },
+  {
+    "timestamp": "2026-10-05T17:10:47.651Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Client network socket disconnected before secure TLS connection was established",
+    "stack": "MongoServerSelectionError: Client network socket disconnected before secure TLS connection was established\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processTimers (node:internal/timers:615:9)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)",
+    "context": {},
+    "memory": {
+      "rss": 113750016,
+      "heapTotal": 46305280,
+      "heapUsed": 40593904,
+      "external": 23776074,
+      "arrayBuffers": 19554503
+    },
+    "uptime": 6376.8920406
+  },
+  {
+    "timestamp": "2026-10-05T17:11:47.655Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15068ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15068ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 114544640,
+      "heapTotal": 47878144,
+      "heapUsed": 41129512,
+      "external": 23786065,
+      "arrayBuffers": 19557961
+    },
+    "uptime": 6436.8968293
+  },
+  {
+    "timestamp": "2026-10-05T17:13:06.002Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 18318ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 18318ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 114143232,
+      "heapTotal": 46567424,
+      "heapUsed": 41253888,
+      "external": 23842827,
+      "arrayBuffers": 19622407
+    },
+    "uptime": 6515.2431863
+  },
+  {
+    "timestamp": "2026-10-05T17:18:02.758Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15012ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15012ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 114311168,
+      "heapTotal": 47091712,
+      "heapUsed": 41881264,
+      "external": 23974213,
+      "arrayBuffers": 19753793
+    },
+    "uptime": 6811.9993064
+  },
+  {
+    "timestamp": "2026-10-05T17:21:47.734Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 115113984,
+      "heapTotal": 48140288,
+      "heapUsed": 42612448,
+      "external": 24055503,
+      "arrayBuffers": 19819715
+    },
+    "uptime": 7036.9765662
+  },
+  {
+    "timestamp": "2026-10-05T17:31:47.840Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 16218ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 16218ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 109535232,
+      "heapTotal": 45780992,
+      "heapUsed": 35956632,
+      "external": 22984685,
+      "arrayBuffers": 18766201
+    },
+    "uptime": 7637.0816814
+  },
+  {
+    "timestamp": "2026-10-05T17:35:47.882Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15014ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15014ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 109252608,
+      "heapTotal": 45780992,
+      "heapUsed": 36178632,
+      "external": 23115995,
+      "arrayBuffers": 18897511
+    },
+    "uptime": 7877.1242236
+  },
+  {
+    "timestamp": "2026-10-05T17:37:47.880Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15023ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15023ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 110350336,
+      "heapTotal": 45780992,
+      "heapUsed": 36472848,
+      "external": 23186201,
+      "arrayBuffers": 18963185
+    },
+    "uptime": 7997.122024
+  },
+  {
+    "timestamp": "2026-10-05T17:40:48.347Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 109707264,
+      "heapTotal": 46305280,
+      "heapUsed": 36982368,
+      "external": 23247381,
+      "arrayBuffers": 19030024
+    },
+    "uptime": 8177.5887268
+  },
+  {
+    "timestamp": "2026-10-05T17:42:04.246Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15168ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15168ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 110174208,
+      "heapTotal": 46305280,
+      "heapUsed": 37129168,
+      "external": 23315247,
+      "arrayBuffers": 19097890
+    },
+    "uptime": 8253.4879109
+  },
+  {
+    "timestamp": "2026-10-05T17:43:04.215Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15024ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 15024ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 110845952,
+      "heapTotal": 46567424,
+      "heapUsed": 37455704,
+      "external": 23316474,
+      "arrayBuffers": 19099117
+    },
+    "uptime": 8313.4567479
+  },
+  {
+    "timestamp": "2026-10-05T17:43:47.931Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15007ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15007ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 111140864,
+      "heapTotal": 46043136,
+      "heapUsed": 37068344,
+      "external": 23313107,
+      "arrayBuffers": 19095750
+    },
+    "uptime": 8357.1729183
+  },
+  {
+    "timestamp": "2026-10-05T17:48:07.165Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 closed",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 closed\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 111284224,
+      "heapTotal": 46567424,
+      "heapUsed": 37482384,
+      "external": 23444455,
+      "arrayBuffers": 19225971
+    },
+    "uptime": 8616.4059863
+  },
+  {
+    "timestamp": "2026-10-05T17:53:47.997Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processTimers (node:internal/timers:615:9)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)",
+    "context": {},
+    "memory": {
+      "rss": 111943680,
+      "heapTotal": 46305280,
+      "heapUsed": 38295296,
+      "external": 23650307,
+      "arrayBuffers": 19425266
+    },
+    "uptime": 8957.2388755
+  },
+  {
+    "timestamp": "2026-10-05T17:57:57.344Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.233:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.233:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:196:22)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 112844800,
+      "heapTotal": 46305280,
+      "heapUsed": 38726672,
+      "external": 23773916,
+      "arrayBuffers": 19554281
+    },
+    "uptime": 9206.5854094
+  },
+  {
+    "timestamp": "2026-10-05T18:05:48.088Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "getaddrinfo ENOTFOUND ac-mphtqxm-shard-00-01.krvefui.mongodb.net",
+    "stack": "MongoServerSelectionError: getaddrinfo ENOTFOUND ac-mphtqxm-shard-00-01.krvefui.mongodb.net\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 108236800,
+      "heapTotal": 45780992,
+      "heapUsed": 38566240,
+      "external": 24034262,
+      "arrayBuffers": 19816905
+    },
+    "uptime": 9677.3291228
+  },
+  {
+    "timestamp": "2026-10-06T16:45:10.759Z",
+    "type": "LOGIN_ERROR",
+    "message": "Connect Timeout Error (attempted addresses: 162.159.138.232:443, 162.159.128.233:443, 162.159.136.232:443, 162.159.135.232:443, 162.159.137.232:443, timeout: 10000ms)",
+    "stack": "ConnectTimeoutError: Connect Timeout Error (attempted addresses: 162.159.138.232:443, 162.159.128.233:443, 162.159.136.232:443, 162.159.135.232:443, 162.159.137.232:443, timeout: 10000ms)\n    at onConnectTimeout (node:internal/deps/undici/undici:2405:23)\n    at Immediate._onImmediate (node:internal/deps/undici/undici:2371:35)\n    at process.processImmediate (node:internal/timers:574:21)",
+    "context": {
+      "attempt": 1,
+      "retries": 5
+    },
+    "memory": {
+      "rss": 126066688,
+      "heapTotal": 69926912,
+      "heapUsed": 34953448,
+      "external": 22714471,
+      "arrayBuffers": 18506858
+    },
+    "uptime": 12.405765
+  },
+  {
+    "timestamp": "2026-10-06T16:45:56.454Z",
+    "type": "UNHANDLED_REJECTION",
+    "message": "connect ETIMEDOUT 65.62.227.233:27017",
+    "stack": "MongoServerSelectionError: connect ETIMEDOUT 65.62.227.233:27017\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async Topology._connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:200:28)\n    at async Topology.connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:152:13)\n    at async topologyConnect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:264:17)\n    at async MongoClient._connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:277:13)\n    at async MongoClient.connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:202:13)\n    at async MongoClient.connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:446:16)",
+    "context": {},
+    "memory": {
+      "rss": 120832000,
+      "heapTotal": 37683200,
+      "heapUsed": 35194272,
+      "external": 22764093,
+      "arrayBuffers": 18561348
+    },
+    "uptime": 34.798518
+  },
+  {
+    "timestamp": "2026-10-06T16:49:17.830Z",
+    "type": "LOGIN_ERROR",
+    "message": "Connect Timeout Error (attempted addresses: 162.159.128.233:443, 162.159.136.232:443, 162.159.135.232:443, 162.159.138.232:443, 162.159.137.232:443, timeout: 10000ms)",
+    "stack": "ConnectTimeoutError: Connect Timeout Error (attempted addresses: 162.159.128.233:443, 162.159.136.232:443, 162.159.135.232:443, 162.159.138.232:443, 162.159.137.232:443, timeout: 10000ms)\n    at onConnectTimeout (node:internal/deps/undici/undici:2405:23)\n    at Immediate._onImmediate (node:internal/deps/undici/undici:2371:35)\n    at process.processImmediate (node:internal/timers:574:21)",
+    "context": {
+      "attempt": 1,
+      "retries": 5
+    },
+    "memory": {
+      "rss": 125792256,
+      "heapTotal": 69926912,
+      "heapUsed": 40098584,
+      "external": 22714471,
+      "arrayBuffers": 18511234
+    },
+    "uptime": 11.9767353
+  },
+  {
+    "timestamp": "2026-10-06T16:51:00.681Z",
+    "type": "MESSAGE_CREATE_HANDLER",
+    "message": "Connect Timeout Error (attempted addresses: 162.159.128.233:443, 162.159.136.232:443, 162.159.135.232:443, 162.159.138.232:443, 162.159.137.232:443, timeout: 10000ms)",
+    "stack": "ConnectTimeoutError: Connect Timeout Error (attempted addresses: 162.159.128.233:443, 162.159.136.232:443, 162.159.135.232:443, 162.159.138.232:443, 162.159.137.232:443, timeout: 10000ms)\n    at onConnectTimeout (node:internal/deps/undici/undici:2405:23)\n    at Immediate._onImmediate (node:internal/deps/undici/undici:2371:35)\n    at process.processImmediate (node:internal/timers:574:21)",
+    "context": {
+      "content": "*mute 1346238732495355944 4m gay"
+    },
+    "memory": {
+      "rss": 135057408,
+      "heapTotal": 45547520,
+      "heapUsed": 42829304,
+      "external": 23324865,
+      "arrayBuffers": 19101954
+    },
+    "uptime": 90.0495995
+  },
+  {
+    "timestamp": "2026-10-06T16:56:46.778Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15048ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15048ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 136749056,
+      "heapTotal": 48955392,
+      "heapUsed": 46272512,
+      "external": 23825673,
+      "arrayBuffers": 19567236
+    },
+    "uptime": 436.1461507
+  },
+  {
+    "timestamp": "2026-10-06T17:03:46.828Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.209:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.209:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 139005952,
+      "heapTotal": 49741824,
+      "heapUsed": 43653768,
+      "external": 23326067,
+      "arrayBuffers": 19103156
+    },
+    "uptime": 856.1966785
+  },
+  {
+    "timestamp": "2026-10-06T17:07:37.742Z",
+    "type": "AUTOROLE_ASSIGN",
+    "message": "Connect Timeout Error (attempted addresses: 162.159.135.232:443, 162.159.136.232:443, 162.159.137.232:443, 162.159.128.233:443, 162.159.138.232:443, timeout: 10000ms)",
+    "stack": "ConnectTimeoutError: Connect Timeout Error (attempted addresses: 162.159.135.232:443, 162.159.136.232:443, 162.159.137.232:443, 162.159.128.233:443, 162.159.138.232:443, timeout: 10000ms)\n    at onConnectTimeout (node:internal/deps/undici/undici:2405:23)\n    at Immediate._onImmediate (node:internal/deps/undici/undici:2371:35)\n    at process.processImmediate (node:internal/timers:574:21)",
+    "context": {
+      "guildId": "1341033385090486323",
+      "userId": "1346238732495355944",
+      "roleId": "1342159822056980533"
+    },
+    "memory": {
+      "rss": 135786496,
+      "heapTotal": 46071808,
+      "heapUsed": 44787840,
+      "external": 23791035,
+      "arrayBuffers": 19568124
+    },
+    "uptime": 123.781471
+  },
+  {
+    "timestamp": "2026-10-06T17:14:51.979Z",
+    "type": "INTERACTION_HANDLER",
+    "message": "Connect Timeout Error (attempted addresses: 162.159.128.233:443, 162.159.138.232:443, 162.159.135.232:443, 162.159.136.232:443, 162.159.137.232:443, timeout: 10000ms)",
+    "stack": "ConnectTimeoutError: Connect Timeout Error (attempted addresses: 162.159.128.233:443, 162.159.138.232:443, 162.159.135.232:443, 162.159.136.232:443, 162.159.137.232:443, timeout: 10000ms)\n    at onConnectTimeout (node:internal/deps/undici/undici:2405:23)\n    at Immediate._onImmediate (node:internal/deps/undici/undici:2371:35)\n    at process.processImmediate (node:internal/timers:574:21)",
+    "context": {},
+    "memory": {
+      "rss": 131170304,
+      "heapTotal": 43454464,
+      "heapUsed": 41671448,
+      "external": 23202502,
+      "arrayBuffers": 18979591
+    },
+    "uptime": 113.454545
+  },
+  {
+    "timestamp": "2026-10-06T17:15:01.603Z",
+    "type": "INTERACTION_HANDLER",
+    "message": "Unknown interaction",
+    "stack": "DiscordAPIError[10062]: Unknown interaction\n    at handleErrors (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\@discordjs\\rest\\dist\\index.js:791:13)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async BurstHandler.runRequest (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\@discordjs\\rest\\dist\\index.js:898:23)\n    at async _REST.request (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\@discordjs\\rest\\dist\\index.js:1342:22)\n    at async ChatInputCommandInteraction.reply (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\discord.js\\src\\structures\\interfaces\\InteractionResponses.js:193:22)\n    at async Client.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\index.js:2325:17)",
+    "context": {},
+    "memory": {
+      "rss": 130994176,
+      "heapTotal": 43716608,
+      "heapUsed": 41539408,
+      "external": 23205118,
+      "arrayBuffers": 18982207
+    },
+    "uptime": 123.0779079
+  },
+  {
+    "timestamp": "2026-10-06T17:20:14.801Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15026ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15026ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 132104192,
+      "heapTotal": 45027328,
+      "heapUsed": 43462336,
+      "external": 23433272,
+      "arrayBuffers": 19194993
+    },
+    "uptime": 436.2759275
+  },
+  {
+    "timestamp": "2026-10-06T17:26:14.877Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 15026ms (connectTimeoutMS: 15000)",
+    "stack": "MongoServerSelectionError: Socket 'secureConnect' timed out after 15026ms (connectTimeoutMS: 15000)\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at runNextTicks (node:internal/process/task_queues:65:5)\n    at process.processTimers (node:internal/timers:615:9)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)",
+    "context": {},
+    "memory": {
+      "rss": 137121792,
+      "heapTotal": 47648768,
+      "heapUsed": 44613552,
+      "external": 23582608,
+      "arrayBuffers": 19359697
+    },
+    "uptime": 796.3513678
+  },
+  {
+    "timestamp": "2026-10-06T17:27:14.872Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "connection <monitor> to 65.62.227.217:27017 timed out",
+    "stack": "MongoServerSelectionError: connection <monitor> to 65.62.227.217:27017 timed out\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async tryOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:148:18)\n    at async executeOperation (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\operations\\execute_operation.js:78:16)\n    at async FindCursor._initialize (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\find_cursor.js:62:26)\n    at async FindCursor.cursorInit (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:632:27)\n    at async FindCursor.fetchBatch (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:666:13)\n    at async FindCursor.next (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:342:17)\n    at async [Symbol.asyncIterator] (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:250:34)\n    at async FindCursor.toArray (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cursor\\abstract_cursor.js:422:26)\n    at async model.Query._find (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongoose\\lib\\query.js:2430:14)",
+    "context": {},
+    "memory": {
+      "rss": 136650752,
+      "heapTotal": 47386624,
+      "heapUsed": 45237904,
+      "external": 23650550,
+      "arrayBuffers": 19427639
+    },
+    "uptime": 856.3465879
+  },
+  {
+    "timestamp": "2026-10-06T17:28:33.072Z",
+    "type": "AUTO_UNBAN_SCHEDULER",
+    "message": "Socket 'secureConnect' timed out after 18166ms (connectTimeoutMS: 15000)",
+    "stack": "MongoNetworkTimeoutError: Socket 'secureConnect' timed out after 18166ms (connectTimeoutMS: 15000)\n    at TLSSocket.<anonymous> (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\cmap\\connect.js:288:20)\n    at TLSSocket.wrapper (node:events:639:12)\n    at TLSSocket.emit (node:events:514:20)\n    at Socket._onTimeout (node:net:822:8)\n    at Timeout.onStreamTimeout (node:internal/stream_base_commons:237:10)\n    at listOnTimeout (node:internal/timers:687:11)\n    at process.processTimers (node:internal/timers:618:7)",
+    "context": {},
+    "memory": {
+      "rss": 137695232,
+      "heapTotal": 47648768,
+      "heapUsed": 45133264,
+      "external": 23712957,
+      "arrayBuffers": 19490046
+    },
+    "uptime": 934.5464356
+  },
+  {
+    "timestamp": "2026-10-06T17:32:35.559Z",
+    "type": "LOGIN_ERROR",
+    "message": "Connect Timeout Error (attempted addresses: 162.159.137.232:443, 162.159.128.233:443, 162.159.138.232:443, 162.159.135.232:443, 162.159.136.232:443, timeout: 10000ms)",
+    "stack": "ConnectTimeoutError: Connect Timeout Error (attempted addresses: 162.159.137.232:443, 162.159.128.233:443, 162.159.138.232:443, 162.159.135.232:443, 162.159.136.232:443, timeout: 10000ms)\n    at onConnectTimeout (node:internal/deps/undici/undici:2405:23)\n    at Immediate._onImmediate (node:internal/deps/undici/undici:2371:35)\n    at process.processImmediate (node:internal/timers:574:21)",
+    "context": {
+      "attempt": 1,
+      "retries": 5
+    },
+    "memory": {
+      "rss": 106356736,
+      "heapTotal": 55345152,
+      "heapUsed": 32498016,
+      "external": 22581298,
+      "arrayBuffers": 18506418
+    },
+    "uptime": 11.496669
+  },
+  {
+    "timestamp": "2026-10-06T17:33:11.482Z",
+    "type": "LOGIN_ERROR",
+    "message": "Connect Timeout Error (attempted addresses: 162.159.137.232:443, timeout: 10000ms)",
+    "stack": "ConnectTimeoutError: Connect Timeout Error (attempted addresses: 162.159.137.232:443, timeout: 10000ms)\n    at onConnectTimeout (node:internal/deps/undici/undici:2405:23)\n    at Immediate._onImmediate (node:internal/deps/undici/undici:2371:35)\n    at process.processImmediate (node:internal/timers:574:21)",
+    "context": {
+      "attempt": 1,
+      "retries": 5
+    },
+    "memory": {
+      "rss": 134950912,
+      "heapTotal": 54726656,
+      "heapUsed": 30738064,
+      "external": 22640876,
+      "arrayBuffers": 18561070
+    },
+    "uptime": 26.4069967
+  },
+  {
+    "timestamp": "2026-10-06T17:35:08.798Z",
+    "type": "LOGIN_ERROR",
+    "message": "Connect Timeout Error (attempted addresses: 162.159.138.232:443, 162.159.137.232:443, 162.159.136.232:443, 162.159.135.232:443, 162.159.128.233:443, timeout: 10000ms)",
+    "stack": "ConnectTimeoutError: Connect Timeout Error (attempted addresses: 162.159.138.232:443, 162.159.137.232:443, 162.159.136.232:443, 162.159.135.232:443, 162.159.128.233:443, timeout: 10000ms)\n    at onConnectTimeout (node:internal/deps/undici/undici:2405:23)\n    at Immediate._onImmediate (node:internal/deps/undici/undici:2371:35)\n    at process.processImmediate (node:internal/timers:574:21)",
+    "context": {
+      "attempt": 1,
+      "retries": 5
+    },
+    "memory": {
+      "rss": 153251840,
+      "heapTotal": 70455296,
+      "heapUsed": 40459608,
+      "external": 22771367,
+      "arrayBuffers": 18565667
+    },
+    "uptime": 26.8069872
+  },
+  {
+    "timestamp": "2026-10-06T17:35:13.479Z",
+    "type": "UNHANDLED_REJECTION",
+    "message": "connect ETIMEDOUT 65.62.227.233:27017",
+    "stack": "MongoServerSelectionError: connect ETIMEDOUT 65.62.227.233:27017\n    at Topology.selectServer (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:327:38)\n    at async Topology._connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:200:28)\n    at async Topology.connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\sdam\\topology.js:152:13)\n    at async topologyConnect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:264:17)\n    at async MongoClient._connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:277:13)\n    at async MongoClient.connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:202:13)\n    at async MongoClient.connect (C:\\Users\\andri\\Desktop\\PredCord Project\\node_modules\\mongodb\\lib\\mongo_client.js:446:16)",
+    "context": {},
+    "memory": {
+      "rss": 154193920,
+      "heapTotal": 70766592,
+      "heapUsed": 41082640,
+      "external": 22771407,
+      "arrayBuffers": 18565667
+    },
+    "uptime": 31.4881398
+  },
+  {
+    "timestamp": "2026-10-06T17:35:29.499Z",
+    "type": "LOGIN_ERROR",
+    "message": "Connect Timeout Error (attempted addresses: 162.159.138.232:443, timeout: 10000ms)",
+    "stack": "ConnectTimeoutError: Connect Timeout Error (attempted addresses: 162.159.138.232:443, timeout: 10000ms)\n    at onConnectTimeout (node:internal/deps/undici/undici:2405:23)\n    at Immediate._onImmediate (node:internal/deps/undici/undici:2371:35)\n    at process.processImmediate (node:internal/timers:574:21)",
+    "context": {
+      "attempt": 2,
+      "retries": 5
+    },
+    "memory": {
+      "rss": 120279040,
+      "heapTotal": 37425152,
+      "heapUsed": 35186520,
+      "external": 22763893,
+      "arrayBuffers": 18560616
+    },
+    "uptime": 47.5072
+  }
+]

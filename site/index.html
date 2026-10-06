@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predage</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --primary: #E67E22;
+    --accent: #38BDF8;
+    --bg-dark: #0a0a0f;
+    --bg-card: rgba(24, 24, 32, 0.85);
+    --bg-bar: #101016;
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #e8e8ed;
+    --text-dim: #a3a3ad;
+}
+
+html {
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--bg-dark);
+}
+
+body {
+    min-height: 100vh;
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: pageFadeIn 0.4s ease;
+}
+
+body.page-fade-out {
+    animation: pageFadeOut 0.22s ease forwards;
+}
+
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pageFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+::-webkit-scrollbar { width: 11px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb {
+    background-color: var(--primary);
+    border-radius: 999px;
+    border: 3px solid var(--bg-dark);
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: #d36a15; }
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: 0.7fr 2.2fr 0.7fr;
+    align-items: center;
+    padding: 18px 48px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.header-spacer { height: 78px; }
+
+.header-brand { display: flex; align-items: center; gap: 12px; }
+header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
+.header-brand span { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+
+.header-nav a {
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.3px;
+    transition: color 0.15s ease;
+}
+
+.header-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0;
+    height: 2px;
+    background: var(--text);
+    transition: width 0.25s ease;
+}
+
+.nav-dot {
+    color: var(--text-dim);
+    opacity: 0.5;
+    font-size: 14px;
+}
+
+.header-nav a:hover { color: var(--text); }
+.header-nav a:hover::after { width: 100%; }
+.header-nav a.active { color: var(--primary); }
+.header-nav a.active::after { width: 100%; background: var(--primary); }
+
+.header-auth {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.lang-switcher { position: relative; }
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+}
+
+.lang-btn:hover { border-color: rgba(255,255,255,0.25); }
+.lang-btn .flag-icon { width: 21px; height: 14px; border-radius: 2px; overflow: hidden; flex-shrink: 0; display: block; }
+.lang-btn svg.chev { width: 12px; height: 12px; stroke: var(--text-dim); }
+
+.lang-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.lang-dropdown.open { display: flex; }
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    background: none;
+    border: none;
+    font-family: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.lang-option:hover { background: rgba(255,255,255,0.06); }
+.lang-option.active { color: var(--primary); }
+.lang-option .flag-icon { width: 22px; height: 15px; border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+
+.auth-btn {
+    position: relative;
+    overflow: hidden;
+    background: var(--primary);
+    color: #fff;
+    border: 1px solid transparent;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-btn.logged-in {
+    background: transparent;
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
+}
+
+.auth-btn.logged-in:hover { border-color: rgba(255,255,255,0.6); }
+
+.user-menu { position: relative; display: inline-block; }
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    display: none;
+}
+
+.user-avatar.has-menu { cursor: pointer; }
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.user-dropdown.open { display: flex; }
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.user-dropdown-item:hover { background: rgba(255,255,255,0.06); }
+
+.hero-v2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-photo-v2 {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 96px);
+    min-height: 480px;
+    overflow: hidden;
+}
+
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.4s ease;
+}
+
+.hero-slide.active { opacity: 1; }
+
+.hero-photo-v2::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10,10,15,0.65) 0%, rgba(10,10,15,0.5) 35%, rgba(10,10,15,0.5) 65%, rgba(10,10,15,1) 100%);
+}
+
+.hero-top {
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    text-align: center;
+    padding: 0 24px;
+}
+
+.hero-top-brand {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.hero-top-name {
+    font-size: 56px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    color: var(--primary);
+    text-shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+.hero-top-tag {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    margin-bottom: 7px;
+}
+
+.hero-tagline {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.55;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.7);
+}
+
+.hero-sponsors {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 40px;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 0 24px;
+}
+
+.sponsor-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+    padding: 0 28px;
+    flex-shrink: 0;
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.sponsor-card:hover { opacity: 1; transform: scale(1.06); }
+
+.sponsor-icon {
+    height: 100px;
+    width: auto;
+    max-width: 230px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sponsor-icon img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 10px rgba(0,0,0,0.85));
+}
+
+.stats-section {
+    position: relative;
+    overflow: hidden;
+    padding: 90px 48px;
+    background: linear-gradient(180deg, #0a0a0f 0%, #FF6A00 50%, #0a0a0f 100%);
+}
+
+.stats-content { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; }
+
+.stats-title {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 900;
+    margin-bottom: 48px;
+}
+
+.stats-title .highlight { color: var(--primary); }
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.stat-box {
+    position: relative;
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 48px 36px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.stat-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 1.6s ease;
+    pointer-events: none;
+}
+
+.stat-box:hover::before { left: 125%; }
+
+.stat-box-value {
+    font-size: 46px;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.stat-box-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dim);
+    letter-spacing: 0.3px;
+}
+
+.best-results-section {
+    position: relative;
+    overflow: hidden;
+    padding: 90px 48px 100px;
+    background: linear-gradient(180deg, #0a0a0f 0%, #FF6A00 100%);
+}
+
+.best-results-content { position: relative; z-index: 1; max-width: 100%; margin: 0 auto; }
+
+.best-results-title {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 900;
+    margin-bottom: 64px;
+}
+
+.best-results-title .highlight { color: var(--primary); }
+
+.tournament-row {
+    display: flex;
+    align-items: center;
+    gap: 56px;
+    text-decoration: none;
+    color: var(--text);
+    margin-bottom: 76px;
+}
+
+.tournament-row:last-child { margin-bottom: 0; }
+
+.tournament-row.reverse { flex-direction: row-reverse; }
+
+.tournament-row.reverse .tournament-info { text-align: right; }
+.tournament-row.reverse .tournament-stats { justify-content: flex-end; }
+
+.tournament-image {
+    flex: 1 1 0;
+    height: 480px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    background: #10131a;
+}
+
+.tournament-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.tournament-row:hover .tournament-image img { transform: scale(1.05); }
+
+.tournament-info { flex: 1 1 0; }
+
+.tournament-name {
+    font-size: 30px;
+    font-weight: 900;
+    margin-bottom: 14px;
+    line-height: 1.3;
+}
+
+.tournament-name-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 22px;
+}
+
+.tournament-row.reverse .tournament-name-line { justify-content: flex-end; margin-left: auto; }
+
+.tournament-name-line .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffffff;
+    flex-shrink: 0;
+}
+
+.tournament-name-line .line {
+    flex: 1 1 auto;
+    height: 1px;
+    background: #ffffff;
+}
+
+.tournament-row {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.tournament-row.in-view {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tournament-desc {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 26px;
+    max-width: 480px;
+}
+
+.tournament-row.reverse .tournament-desc { margin-left: auto; text-align: left; }
+
+.tournament-stats { display: flex; gap: 18px; flex-wrap: wrap; }
+
+.tournament-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 26px;
+    transition: border-color 0.2s ease;
+}
+
+.tournament-stat:hover { border-color: rgba(255,255,255,0.7); }
+
+.tournament-stat-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    margin-bottom: 5px;
+}
+
+.tournament-stat-value {
+    font-size: 21px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+@media (max-width: 760px) {
+    .tournament-row, .tournament-row.reverse { flex-direction: column; }
+    .tournament-row.reverse .tournament-info { text-align: left; }
+    .tournament-row.reverse .tournament-stats { justify-content: flex-start; }
+}
+
+.site-footer {
+    background: var(--bg-bar);
+    border-top: 1px solid var(--border);
+}
+
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 40px 40px;
+    display: flex;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+.footer-brand { max-width: 360px; }
+.footer-brand-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.footer-brand-top img { width: 68px; height: 68px; border-radius: 16px; object-fit: cover; }
+.footer-brand-top span { font-size: 36px; font-weight: 800; }
+.footer-brand p { color: var(--text-dim); font-size: 13.5px; line-height: 1.6; }
+.footer-cols { display: flex; gap: 60px; }
+.footer-col h4 { font-size: 13.5px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+.footer-col a { display: block; width: fit-content; position: relative; color: var(--text-dim); text-decoration: none; font-size: 13.5px; margin-bottom: 12px; transition: color 0.2s ease; }
+.footer-col a::after { content: ''; position: absolute; left: 0; bottom: -2px; width: 0; height: 1px; background: var(--text); transition: width 0.25s ease; }
+.footer-col a:hover { color: var(--text); }
+.footer-col a:hover::after { width: 100%; }
+.footer-bottom { border-top: 1px solid var(--border); padding: 18px 40px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; color: var(--text-dim); font-size: 12px; }
+.footer-disclaimer { opacity: 0.65; font-size: 11.5px; }
+
+@media (max-width: 900px) {
+    header { grid-template-columns: 1fr; row-gap: 16px; padding: 18px 20px; }
+    .header-nav { gap: 24px; flex-wrap: wrap; justify-content: center; }
+    .header-nav a { font-size: 16px; }
+    .header-auth { justify-content: center; }
+    .hero-photo-v2 { height: calc(100vh - 170px); min-height: 420px; }
+    .hero-top { top: 28px; }
+    .hero-top-name { font-size: 30px; }
+    .hero-tagline { font-size: 14px; }
+    .hero-sponsors { gap: 10px; bottom: 24px; }
+    .sponsor-icon { height: 68px; max-width: 160px; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .footer-inner { flex-direction: column; gap: 32px; }
+    .footer-bottom { flex-direction: column; text-align: center; padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="header-brand">
+        <img class="brand-logo" src="/images/dragon-logo.png" alt="Predage">
+        <span>Predage</span>
+    </div>
+
+    <nav class="header-nav">
+        <a href="/" class="active" data-i18n="nav_home">Home</a>
+        <span class="nav-dot">•</span>
+        <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
+        <span class="nav-dot">•</span>
+        <a href="/videos" data-i18n="nav_videos">Videos</a>
+        <span class="nav-dot">•</span>
+        <a href="/community" data-i18n="nav_community">Community</a>
+        <span class="nav-dot">•</span>
+        <a href="#" data-i18n="nav_merch">Merch</a>
+    </nav>
+
+    <div class="header-auth">
+        <div class="lang-switcher" id="langSwitcher">
+            <button class="lang-btn" id="langBtn">
+                <span class="flag-icon" id="langBtnFlag"></span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="lang-dropdown" id="langDropdown"></div>
+        </div>
+        <button class="auth-btn" id="authBtn">Sign In</button>
+        <div class="user-menu" id="userMenu">
+            <img class="user-avatar" id="userAvatar" alt="">
+            <div class="user-dropdown" id="userDropdown">
+                <a href="/dashboard" class="user-dropdown-item" data-i18n="user_admin_panel">Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="header-spacer" id="headerSpacer"></div>
+
+<section class="hero-v2">
+    <div class="hero-photo-v2" id="heroPhotoV2">
+        <img class="hero-slide active" src="/images/slide1.jpg" alt="Predage" style="object-position: center 38%;">
+        <img class="hero-slide" src="/images/slide2.jpg" alt="Predage" style="object-position: center 38%;">
+        <img class="hero-slide" src="/images/slide4.jpg" alt="Predage" style="object-position: center 40%;">
+        <img class="hero-slide" src="/images/slide5.png" alt="Predage" style="object-position: center 30%;">
+        <img class="hero-slide" src="/images/slide6.png" alt="Predage" style="object-position: center 55%;">
+        <img class="hero-slide" src="/images/slide7.png" alt="Predage" style="object-position: center 25%;">
+        <div class="hero-top">
+            <div class="hero-top-brand">
+                <span class="hero-top-name">Predage</span>
+                <span class="hero-top-tag" data-i18n="hero_tag">Website</span>
+            </div>
+            <p class="hero-tagline" data-i18n="hero_tagline">Years of elite Fortnite competition, real tournament results, and a community built on skill and dedication. Join Predage Community and start your journey to the top.</p>
+        </div>
+        <div class="hero-sponsors" id="sponsorTrack"></div>
+    </div>
+</section>
+
+<section class="stats-section">
+    <div class="stats-content">
+        <h2 class="stats-title">Predage <span class="highlight" data-i18n="word_results">Results</span></h2>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-box-value">80K+</div>
+                <div class="stat-box-label" data-i18n="stat_power_ranking">Power Ranking</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value">$32,655</div>
+                <div class="stat-box-label" data-i18n="stat_official_earnings">Official Earnings</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value">$57K+</div>
+                <div class="stat-box-label" data-i18n="stat_total_earnings">Total Earnings</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value">6</div>
+                <div class="stat-box-label" data-i18n="stat_fncs">FNCS Grand Finals</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="best-results-section" id="bestResults">
+    <div class="best-results-content">
+        <h2 class="best-results-title"><span data-i18n="word_best">Best</span> <span class="highlight" data-i18n="word_results">Results</span></h2>
+        <div id="bestResultsList"></div>
+    </div>
+</section>
+
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <div class="footer-brand-top">
+                <img src="/images/dragon-logo.png" alt="Predage">
+                <span>Predage</span>
+            </div>
+        </div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <h4 data-i18n="footer_platform">Platform</h4>
+                <a href="/" data-i18n="nav_home">Home</a>
+                <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
+                <a href="/community" data-i18n="nav_community">Community</a>
+                <a href="#" data-i18n="nav_merch">Merch</a>
+            </div>
+            <div class="footer-col">
+                <h4 data-i18n="footer_socials">Socials</h4>
+                <a href="https://x.com/Predage1" target="_blank" rel="noopener">Twitter</a>
+                <a href="https://www.youtube.com/@predagefn" target="_blank" rel="noopener">YouTube</a>
+                <a href="https://www.twitch.tv/predagefn" target="_blank" rel="noopener">Twitch</a>
+                <a href="https://www.instagram.com/predagefn/" target="_blank" rel="noopener">Instagram</a>
+            </div>
+            <div class="footer-col">
+                <h4 data-i18n="footer_legal">Legal</h4>
+                <a href="/terms" data-i18n="footer_terms">Terms of Service</a>
+                <a href="/privacy" data-i18n="footer_privacy">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span data-i18n="footer_copyright">Predage © 2026. All rights reserved.</span>
+        <span class="footer-disclaimer" data-i18n="footer_disclaimer">Not affiliated with Epic Games, Inc.</span>
+    </div>
+</footer>
+
+<script>
+(function() {
+    var FLAGS = {
+        it: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#009246"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ce2b37"/></svg>',
+        en: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#00247d"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#fff" stroke-width="4"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#cf142b" stroke-width="2"/><path d="M15,0 V20 M0,10 H30" stroke="#fff" stroke-width="6"/><path d="M15,0 V20 M0,10 H30" stroke="#cf142b" stroke-width="3.2"/></svg>',
+        de: '<svg viewBox="0 0 30 20"><rect width="30" height="6.66" y="0" fill="#000"/><rect width="30" height="6.66" y="6.66" fill="#dd0000"/><rect width="30" height="6.67" y="13.33" fill="#ffce00"/></svg>',
+        es: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#aa151b"/><rect width="30" height="10" y="5" fill="#f1bf00"/></svg>',
+        fr: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#0055a4"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ef4135"/></svg>'
+    };
+
+    var LANGS = [
+        { code: 'it', name: 'Italiano' },
+        { code: 'en', name: 'English' },
+        { code: 'de', name: 'Deutsch' },
+        { code: 'es', name: 'Español' },
+        { code: 'fr', name: 'Français' }
+    ];
+
+    var I18N = {
+        it: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Accedi', auth_logout: 'Esci', user_admin_panel: 'Pannello Admin',
+            hero_tag: 'Sito Web',
+            hero_tagline: 'Anni di competizione Fortnite ai massimi livelli, risultati veri nei tornei e una community costruita su impegno e dedizione. Unisciti a Predage e inizia il tuo percorso verso il successo.',
+            word_results: 'Risultati', word_best: 'Migliori',
+            stat_power_ranking: 'Power Ranking', stat_official_earnings: 'Guadagni Ufficiali', stat_total_earnings: 'Guadagni Totali', stat_fncs: 'FNCS Grand Finals',
+            label_earnings: 'Guadagni', label_date: 'Data', label_region: 'Regione', region_europe: 'Europa',
+            code_label: 'Codice',
+            footer_platform: 'Piattaforma',
+            footer_socials: 'Social',
+            footer_legal: 'Legale', footer_terms: 'Termini di Servizio', footer_privacy: 'Informativa sulla Privacy',
+            footer_copyright: 'Predage © 2026. Tutti i diritti riservati.',
+            footer_disclaimer: 'Non affiliato con Epic Games, Inc.'
+        },
+        en: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Sign In', auth_logout: 'Log Out', user_admin_panel: 'Admin Panel',
+            hero_tag: 'Website',
+            hero_tagline: 'Years of elite Fortnite competition, real tournament results, and a community built on skill and dedication. Join Predage Community and start your journey to the top.',
+            word_results: 'Results', word_best: 'Best',
+            stat_power_ranking: 'Power Ranking', stat_official_earnings: 'Official Earnings', stat_total_earnings: 'Total Earnings', stat_fncs: 'FNCS Grand Finals',
+            label_earnings: 'Earnings', label_date: 'Date', label_region: 'Region', region_europe: 'Europe',
+            code_label: 'Code',
+            footer_platform: 'Platform',
+            footer_socials: 'Socials',
+            footer_legal: 'Legal', footer_terms: 'Terms of Service', footer_privacy: 'Privacy Policy',
+            footer_copyright: 'Predage © 2026. All rights reserved.',
+            footer_disclaimer: 'Not affiliated with Epic Games, Inc.'
+        },
+        de: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Anmelden', auth_logout: 'Abmelden', user_admin_panel: 'Admin-Panel',
+            hero_tag: 'Webseite',
+            hero_tagline: 'Jahre an Fortnite-Wettkampf auf höchstem Niveau, echte Turnierergebnisse und eine Community, die auf Können und Einsatz aufgebaut ist. Werde Teil von Predage und starte deinen Weg nach oben.',
+            word_results: 'Ergebnisse', word_best: 'Beste',
+            stat_power_ranking: 'Power Ranking', stat_official_earnings: 'Offizielle Einnahmen', stat_total_earnings: 'Gesamteinnahmen', stat_fncs: 'FNCS Grand Finals',
+            label_earnings: 'Einnahmen', label_date: 'Datum', label_region: 'Region', region_europe: 'Europa',
+            code_label: 'Code',
+            footer_platform: 'Plattform',
+            footer_socials: 'Soziale Medien',
+            footer_legal: 'Rechtliches', footer_terms: 'Nutzungsbedingungen', footer_privacy: 'Datenschutzrichtlinie',
+            footer_copyright: 'Predage © 2026. Alle Rechte vorbehalten.',
+            footer_disclaimer: 'Nicht verbunden mit Epic Games, Inc.'
+        },
+        es: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Iniciar sesión', auth_logout: 'Cerrar sesión', user_admin_panel: 'Panel de Administración',
+            hero_tag: 'Sitio Web',
+            hero_tagline: 'Años de competición de Fortnite de élite, resultados reales en torneos y una comunidad construida sobre habilidad y dedicación. Únete a Predage y comienza tu camino hacia la cima.',
+            word_results: 'Resultados', word_best: 'Mejores',
+            stat_power_ranking: 'Power Ranking', stat_official_earnings: 'Ganancias Oficiales', stat_total_earnings: 'Ganancias Totales', stat_fncs: 'FNCS Grand Finals',
+            label_earnings: 'Ganancias', label_date: 'Fecha', label_region: 'Región', region_europe: 'Europa',
+            code_label: 'Código',
+            footer_platform: 'Plataforma',
+            footer_socials: 'Redes Sociales',
+            footer_legal: 'Legal', footer_terms: 'Términos de Servicio', footer_privacy: 'Política de Privacidad',
+            footer_copyright: 'Predage © 2026. Todos los derechos reservados.',
+            footer_disclaimer: 'No afiliado con Epic Games, Inc.'
+        },
+        fr: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Se connecter', auth_logout: 'Déconnexion', user_admin_panel: 'Panneau Admin',
+            hero_tag: 'Site Web',
+            hero_tagline: 'Des années de compétition Fortnite au plus haut niveau, de vrais résultats en tournoi et une communauté bâtie sur la compétence et l\'engagement. Rejoins Predage et commence ton ascension vers le sommet.',
+            word_results: 'Résultats', word_best: 'Meilleurs',
+            stat_power_ranking: 'Power Ranking', stat_official_earnings: 'Gains Officiels', stat_total_earnings: 'Gains Totaux', stat_fncs: 'FNCS Grand Finals',
+            label_earnings: 'Gains', label_date: 'Date', label_region: 'Région', region_europe: 'Europe',
+            code_label: 'Code',
+            footer_platform: 'Plateforme',
+            footer_socials: 'Réseaux Sociaux',
+            footer_legal: 'Mentions Légales', footer_terms: 'Conditions d\'Utilisation', footer_privacy: 'Politique de Confidentialité',
+            footer_copyright: 'Predage © 2026. Tous droits réservés.',
+            footer_disclaimer: 'Non affilié à Epic Games, Inc.'
+        }
+    };
+
+    var currentLang = 'en';
+    var loggedIn = false;
+    var canAccessDashboard = false;
+    var langBtnFlag = document.getElementById('langBtnFlag');
+    var langDropdown = document.getElementById('langDropdown');
+    var langBtn = document.getElementById('langBtn');
+    var authBtn = document.getElementById('authBtn');
+    var userMenu = document.getElementById('userMenu');
+    var userAvatar = document.getElementById('userAvatar');
+    var userDropdown = document.getElementById('userDropdown');
+
+    function renderLangUI() {
+        langBtnFlag.innerHTML = FLAGS[currentLang];
+        langDropdown.innerHTML = LANGS.map(function(l) {
+            return '<button class="lang-option' + (l.code === currentLang ? ' active' : '') + '" data-code="' + l.code + '">' +
+                '<span class="flag-icon">' + FLAGS[l.code] + '</span><span>' + l.name + '</span>' +
+            '</button>';
+        }).join('');
+    }
+
+    function applyStaticTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n');
+            if (I18N[currentLang][key]) el.textContent = I18N[currentLang][key];
+        });
+    }
+
+    function updateAuthBtn() {
+        authBtn.textContent = loggedIn ? I18N[currentLang].auth_logout : I18N[currentLang].auth_signin;
+        authBtn.classList.toggle('logged-in', loggedIn);
+        userAvatar.style.display = loggedIn ? 'block' : 'none';
+        userAvatar.classList.toggle('has-menu', canAccessDashboard);
+        if (!loggedIn || !canAccessDashboard) userDropdown.classList.remove('open');
+    }
+
+    userAvatar.addEventListener('click', function(e) {
+        if (!canAccessDashboard) return;
+        e.stopPropagation();
+        userDropdown.classList.toggle('open');
+    });
+
+    function setLang(code) {
+        currentLang = code;
+        renderLangUI();
+        applyStaticTranslations();
+        updateAuthBtn();
+        renderSponsors();
+        renderResults();
+    }
+
+    langBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        langDropdown.classList.toggle('open');
+    });
+
+    langDropdown.addEventListener('click', function(e) {
+        var opt = e.target.closest('.lang-option');
+        if (!opt) return;
+        langDropdown.classList.remove('open');
+        setLang(opt.getAttribute('data-code'));
+    });
+
+    document.addEventListener('click', function() {
+        langDropdown.classList.remove('open');
+        userDropdown.classList.remove('open');
+    });
+
+    var SPONSORS = [
+        { name: 'ArgonPads', subType: 'code', discount: '-5%', image: '/images/sponsor-argonpads.png', href: 'https://argonpads.com/' },
+        { name: 'PJ Digital Store', subType: 'code', discount: '-10%', image: '/images/sponsor-pjdigitalstore.png', href: 'https://www.pjdigitalstore.com/collections/offerte?id=09767942-65b1-407b-be04-353654a57e47&domain=pjdigitalstore.com&source_id=x&campaign_id=22810418827&placement_id=&keyword=&targetid=&loc_interest_ms=&loc_physical_ms=1008039&matchtype=&device=c&devicemodel=&target=&random=7906510441731261170&adposition=&utm_term=' },
+        { name: 'Prozis', subType: 'code', discount: '-10%', image: '/images/sponsor-prozis.png', href: 'https://www.prozis.com/it/en/?ot=AFFIT1608' }
+    ];
+
+    var sponsorTrack = document.getElementById('sponsorTrack');
+    function renderSponsors() {
+        var sponsorHtml = SPONSORS.map(function(s) {
+            return '<a class="sponsor-card" href="' + s.href + '" target="_blank" rel="noopener sponsored">' +
+                '<span class="sponsor-icon"><img src="' + s.image + '" alt="' + s.name + '"></span>' +
+            '</a>';
+        }).join('');
+        sponsorTrack.innerHTML = sponsorHtml;
+    }
+
+    var RESULTS = [
+        { name: 'Reddysh Rumble: Love & Legends', link: 'https://liquipedia.net/fortnite/Reddysh_Rumble/Love_%26_Legends/Europe', date: '2026-02-07', earnings: '$5.000', regionKey: 'europe', image: '/images/result-reddysh-rumble.png',
+          desc: {
+              it: 'Il Reddysh Rumble è un torneo chiuso con un montepremi di $50.000. Il format del torneo consiste in delle partite Build & Zero Build. Predage, invitato da Fraanticc, ha concluso il torneo in prima posizione vincendo $5.000.',
+              en: 'Reddysh Rumble is a closed tournament with a $50,000 prize pool. The tournament format consists of Build & Zero Build matches. Predage, invited by Fraanticc, finished the tournament in first place, winning $5,000.',
+              de: 'Der Reddysh Rumble ist ein geschlossenes Turnier mit einem Preispool von 50.000 $. Das Turnierformat besteht aus Build- und Zero-Build-Matches. Predage, eingeladen von Fraanticc, beendete das Turnier auf dem ersten Platz und gewann 5.000 $.',
+              es: 'El Reddysh Rumble es un torneo cerrado con un premio de $50.000. El formato del torneo consiste en partidas de Build y Zero Build. Predage, invitado por Fraanticc, terminó el torneo en primer lugar, ganando $5.000.',
+              fr: 'Le Reddysh Rumble est un tournoi fermé avec une cagnotte de 50 000 $. Le format du tournoi se compose de matchs Build & Zero Build. Predage, invité par Fraanticc, a terminé le tournoi à la première place, remportant 5 000 $.'
+          }
+        },
+        { name: 'Twitch Rivals: Cracked Cup 2025', link: 'https://liquipedia.net/fortnite/Twitch_Rivals/Cracked_Cup/TwitchCon_Europe', date: '2025-05-31', earnings: '$2.250', regionKey: 'europe', image: '/images/result-twitch-rivals.png', imagePosition: 'center 15%',
+          desc: {
+              it: 'Il Twitch Rivals è un torneo privato, a cui partecipano players su invito, le squadre sono formate tra 1 Pro Player e 1 Content Creator, in questo caso da Predage e Nezak. Il torneo era composto da 4 partite giocate nella modalità Reload Zero Build concludendo in prima posizione guadagnando $4.500.',
+              en: 'Twitch Rivals is a private tournament with players competing by invite only; teams are made up of 1 Pro Player and 1 Content Creator, in this case Predage and Nezak. The tournament consisted of 4 matches played in Reload Zero Build mode, finishing in first place and earning $4,500.',
+              de: 'Twitch Rivals ist ein privates Turnier, an dem Spieler nur auf Einladung teilnehmen; die Teams bestehen aus 1 Pro Player und 1 Content Creator, in diesem Fall Predage und Nezak. Das Turnier bestand aus 4 Matches im Modus Reload Zero Build und endete mit dem ersten Platz und einem Gewinn von 4.500 $.',
+              es: 'Twitch Rivals es un torneo privado en el que los jugadores participan por invitación; los equipos están formados por 1 Pro Player y 1 Content Creator, en este caso Predage y Nezak. El torneo constaba de 4 partidas jugadas en el modo Reload Zero Build, terminando en primer lugar y ganando $4.500.',
+              fr: 'Twitch Rivals est un tournoi privé auquel les joueurs participent sur invitation ; les équipes sont composées d\'1 Pro Player et d\'1 Content Creator, dans ce cas Predage et Nezak. Le tournoi comprenait 4 matchs joués en mode Reload Zero Build, se terminant à la première place avec un gain de 4 500 $.'
+          }
+        },
+        { name: 'FNCS Major 1 Group Stage', link: 'https://fortnitetracker.com/events/epicgames_S33_FNCSMajor1_GroupStage_EU?window=S33_FNCSMajor1_GroupStage_Group1_EU&page=0#3', date: '2025-02-02', earnings: null, regionKey: 'europe', image: '/images/result-fncs-groupstage.png', imageFit: 'contain',
+          desc: {
+              it: 'Il Group Stage è un torneo che dà l\'occasione di qualificarsi direttamente alle FNCS Grand Finals. Per qualificarsi bisogna fare una win oppure un top 10. Predage, Rax e Radeon, con una prestazione spettacolare, sono riusciti a conquistare una win, ottenendo così la qualificazione diretta alle FNCS Grand Finals.',
+              en: 'The Group Stage is a tournament that gives the chance to qualify directly for the FNCS Grand Finals. To qualify you need a win or a top 10 finish. Predage, Rax and Radeon, with a spectacular performance, managed to secure a win, earning direct qualification to the FNCS Grand Finals.',
+              de: 'Die Group Stage ist ein Turnier, das die Chance bietet, sich direkt für die FNCS Grand Finals zu qualifizieren. Um sich zu qualifizieren, braucht man einen Sieg oder einen Platz in den Top 10. Predage, Rax und Radeon haben mit einer spektakulären Leistung einen Sieg geholt und sich damit direkt für die FNCS Grand Finals qualifiziert.',
+              es: 'La Group Stage es un torneo que da la oportunidad de clasificarse directamente para las FNCS Grand Finals. Para clasificarse hay que conseguir una victoria o un top 10. Predage, Rax y Radeon, con una actuación espectacular, lograron una victoria, consiguiendo así la clasificación directa a las FNCS Grand Finals.',
+              fr: 'La Group Stage est un tournoi qui donne la chance de se qualifier directement pour les FNCS Grand Finals. Pour se qualifier, il faut réaliser une victoire ou un top 10. Predage, Rax et Radeon, avec une performance spectaculaire, ont décroché une victoire, obtenant ainsi la qualification directe pour les FNCS Grand Finals.'
+          }
+        }
+    ];
+
+    var bestResultsList = document.getElementById('bestResultsList');
+    function renderResults() {
+        bestResultsList.innerHTML = RESULTS.map(function(r, i) {
+            var statsHtml = '';
+            if (r.earnings) {
+                statsHtml += '<div class="tournament-stat"><div class="tournament-stat-label">' + I18N[currentLang].label_earnings + '</div><div class="tournament-stat-value">' + r.earnings + '</div></div>';
+            }
+            statsHtml += '<div class="tournament-stat"><div class="tournament-stat-label">' + I18N[currentLang].label_date + '</div><div class="tournament-stat-value">' + r.date + '</div></div>';
+            statsHtml += '<div class="tournament-stat"><div class="tournament-stat-label">' + I18N[currentLang].label_region + '</div><div class="tournament-stat-value">' + I18N[currentLang]['region_' + r.regionKey] + '</div></div>';
+            var descHtml = '';
+            if (r.desc) {
+                var descText = r.desc[currentLang] || r.desc.en;
+                descHtml = '<div class="tournament-desc">' + descText + '</div>';
+            }
+            return '<a class="tournament-row' + (i % 2 === 1 ? ' reverse' : '') + '" href="' + r.link + '" target="_blank" rel="noopener">' +
+                '<div class="tournament-image"><img src="' + r.image + '" alt="' + r.name + '"' + (r.imagePosition || r.imageFit ? ' style="' + (r.imagePosition ? 'object-position:' + r.imagePosition + ';' : '') + (r.imageFit ? 'object-fit:' + r.imageFit + ';' : '') + '"' : '') + '></div>' +
+                '<div class="tournament-info">' +
+                    '<div class="tournament-name">' + r.name + '</div>' +
+                    '<div class="tournament-name-line"><span class="dot"></span><span class="line"></span><span class="dot"></span></div>' +
+                    descHtml +
+                    '<div class="tournament-stats">' + statsHtml + '</div>' +
+                '</div>' +
+            '</a>';
+        }).join('');
+        matchTitleLineWidth();
+        setupScrollReveal();
+    }
+
+    function matchTitleLineWidth() {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        document.querySelectorAll('.tournament-row').forEach(function(row) {
+            var title = row.querySelector('.tournament-name');
+            var lineWrap = row.querySelector('.tournament-name-line');
+            if (title && lineWrap) {
+                var style = getComputedStyle(title);
+                ctx.font = style.fontWeight + ' ' + style.fontSize + ' ' + style.fontFamily;
+                var textWidth = ctx.measureText(title.textContent).width;
+                lineWrap.style.width = Math.ceil(textWidth) + 'px';
+            }
+        });
+    }
+
+    function setupScrollReveal() {
+        if (!('IntersectionObserver' in window)) {
+            document.querySelectorAll('.tournament-row').forEach(function(row) {
+                row.classList.add('in-view');
+            });
+            return;
+        }
+        var revealObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                } else {
+                    entry.target.classList.remove('in-view');
+                }
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.tournament-row').forEach(function(row) {
+            revealObserver.observe(row);
+        });
+    }
+
+    renderLangUI();
+    applyStaticTranslations();
+    renderSponsors();
+    renderResults();
+
+    var headerEl = document.querySelector('header');
+    var headerSpacer = document.getElementById('headerSpacer');
+    var heroPhotoV2 = document.getElementById('heroPhotoV2');
+    function syncHeaderSpacer() {
+        headerSpacer.style.height = headerEl.offsetHeight + 'px';
+        if (heroPhotoV2) heroPhotoV2.style.height = (window.innerHeight - headerEl.offsetHeight) + 'px';
+    }
+    syncHeaderSpacer();
+    window.addEventListener('resize', syncHeaderSpacer);
+    window.addEventListener('resize', matchTitleLineWidth);
+
+    function setupSlideshow(containerId) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        var slides = Array.prototype.slice.call(container.querySelectorAll('img.hero-slide'));
+        if (slides.length < 2) return;
+        var current = 0;
+        setInterval(function() {
+            slides[current].classList.remove('active');
+            current = (current + 1) % slides.length;
+            slides[current].classList.add('active');
+        }, 3000);
+    }
+    setupSlideshow('heroPhotoV2');
+
+    updateAuthBtn();
+    fetch('/api/site/me').then(function(res) { return res.json(); }).then(function(data) {
+        loggedIn = !!data.loggedIn;
+        canAccessDashboard = !!data.canAccessDashboard;
+        if (loggedIn && data.avatar) userAvatar.src = data.avatar;
+        updateAuthBtn();
+    }).catch(function() {});
+
+    authBtn.addEventListener('click', function() {
+        if (loggedIn) {
+            fetch('/api/site/logout', { method: 'POST' }).then(function() {
+                window.location.reload();
+            });
+        } else {
+            window.location.href = '/site-auth/discord?next=' + encodeURIComponent('/');
+        }
+    });
+
+    document.querySelectorAll('.header-nav a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            var href = link.getAttribute('href');
+            if (!href || href.charAt(0) !== '/' || link.classList.contains('active')) return;
+            e.preventDefault();
+            document.body.classList.add('page-fade-out');
+            setTimeout(function() { window.location.href = href; }, 200);
+        });
+    });
+
+    window.addEventListener('pageshow', function() {
+        document.body.classList.remove('page-fade-out');
+    });
+})();
+</script>
+</body>
+</html>

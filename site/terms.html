@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predage - Terms of Service</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --primary: #E67E22;
+    --accent: #38BDF8;
+    --bg-dark: #0a0a0f;
+    --bg-card: rgba(24, 24, 32, 0.85);
+    --bg-bar: #101016;
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #e8e8ed;
+    --text-dim: #a3a3ad;
+}
+
+html, body {
+    min-height: 100%;
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) var(--bg-dark);
+}
+
+html::-webkit-scrollbar {
+    width: 10px;
+}
+
+html::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+html::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    border: 2px solid var(--bg-dark);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    animation: pageFadeIn 0.4s ease;
+}
+
+body.page-fade-out {
+    animation: pageFadeOut 0.22s ease forwards;
+}
+
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pageFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: 0.7fr 2.2fr 0.7fr;
+    align-items: center;
+    padding: 18px 48px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.header-spacer { height: 78px; }
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+header img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+
+.header-nav a {
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.3px;
+    transition: color 0.15s ease;
+}
+
+.header-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0;
+    height: 2px;
+    background: var(--text);
+    transition: width 0.25s ease;
+}
+
+.header-nav a:hover { color: var(--text); }
+.header-nav a:hover::after { width: 100%; }
+.header-nav a.hidden { display: none; }
+
+.header-brand span { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
+
+.nav-dot { color: var(--text-dim); opacity: 0.5; font-size: 14px; }
+
+.header-auth {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.lang-switcher { position: relative; }
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+}
+
+.lang-btn:hover { border-color: rgba(255,255,255,0.25); }
+.lang-btn .flag-icon { width: 21px; height: 14px; border-radius: 2px; overflow: hidden; flex-shrink: 0; display: block; }
+.lang-btn svg.chev { width: 12px; height: 12px; stroke: var(--text-dim); }
+
+.lang-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.lang-dropdown.open { display: flex; }
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    background: none;
+    border: none;
+    font-family: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.lang-option:hover { background: rgba(255,255,255,0.06); }
+.lang-option.active { color: var(--primary); }
+.lang-option .flag-icon { width: 22px; height: 15px; border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+
+.auth-btn {
+    position: relative;
+    overflow: hidden;
+    background: var(--primary);
+    color: #fff;
+    border: 1px solid transparent;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-btn.logged-in {
+    background: transparent;
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
+}
+
+.auth-btn.logged-in:hover { border-color: rgba(255,255,255,0.6); }
+
+.user-menu { position: relative; display: inline-block; }
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    display: none;
+}
+
+.user-avatar.has-menu { cursor: pointer; }
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.user-dropdown.open { display: flex; }
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.user-dropdown-item:hover { background: rgba(255,255,255,0.06); }
+
+.legal-page {
+    flex: 1;
+    flex-shrink: 0;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 40px 80px;
+    width: 100%;
+}
+
+.legal-title {
+    font-size: 34px;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.legal-updated {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 42px;
+}
+
+.legal-section {
+    margin-bottom: 30px;
+}
+
+.legal-section h2 {
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: var(--text);
+}
+
+.legal-section p {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+.legal-section ul {
+    margin: 10px 0 0 20px;
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.9;
+}
+
+.legal-section a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.legal-section a:hover { text-decoration: underline; }
+
+.site-footer {
+    background: var(--bg-bar);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 40px 40px;
+    display: flex;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+.footer-brand { max-width: 360px; }
+
+.footer-brand-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.footer-brand-top img {
+    width: 68px;
+    height: 68px;
+    border-radius: 16px;
+    object-fit: cover;
+}
+
+.footer-brand-top span {
+    font-size: 36px;
+    font-weight: 800;
+}
+
+.footer-brand p {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+
+.footer-cols {
+    display: flex;
+    gap: 60px;
+}
+
+.footer-col h4 {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+}
+
+.footer-col a {
+    display: block;
+    width: fit-content;
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13.5px;
+    margin-bottom: 12px;
+    transition: color 0.2s ease;
+}
+
+.footer-col a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 1px;
+    background: var(--text);
+    transition: width 0.25s ease;
+}
+
+.footer-col a:hover { color: var(--text); }
+.footer-col a:hover::after { width: 100%; }
+
+
+.footer-bottom {
+    border-top: 1px solid var(--border);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    color: var(--text-dim);
+    font-size: 12px;
+}
+
+.footer-disclaimer { opacity: 0.65; font-size: 11.5px; }
+
+@media (max-width: 860px) {
+    header { grid-template-columns: 1fr; row-gap: 12px; padding: 14px 20px; }
+    .header-nav { justify-content: center; gap: 22px; flex-wrap: wrap; }
+}
+
+@media (max-width: 720px) {
+    .footer-inner { flex-direction: column; gap: 32px; }
+    .footer-cols { flex-wrap: wrap; gap: 32px; }
+    .footer-bottom { flex-direction: column; text-align: center; padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="header-brand">
+        <img src="/images/dragon-logo.png" alt="Predage">
+        <span>Predage</span>
+    </div>
+
+    <nav class="header-nav">
+        <a href="/" data-i18n="nav_home">Home</a>
+        <span class="nav-dot">•</span>
+        <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
+        <span class="nav-dot">•</span>
+        <a href="/videos" data-i18n="nav_videos">Videos</a>
+        <span class="nav-dot">•</span>
+        <a href="/community" data-i18n="nav_community">Community</a>
+        <span class="nav-dot">•</span>
+        <a href="#" data-i18n="nav_merch">Merch</a>
+    </nav>
+
+    <div class="header-auth">
+        <div class="lang-switcher" id="langSwitcher">
+            <button class="lang-btn" id="langBtn">
+                <span class="flag-icon" id="langBtnFlag"></span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="lang-dropdown" id="langDropdown"></div>
+        </div>
+        <button class="auth-btn" id="authBtn">Sign In</button>
+        <div class="user-menu" id="userMenu">
+            <img class="user-avatar" id="userAvatar" alt="">
+            <div class="user-dropdown" id="userDropdown">
+                <a href="/dashboard" class="user-dropdown-item" data-i18n="user_admin_panel">Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="header-spacer" id="headerSpacer"></div>
+
+<div class="legal-page">
+    <h1 class="legal-title" data-i18n="terms_title">Terms Of Service</h1>
+    <p class="legal-updated" data-i18n="terms_updated">Last updated: 20/09/2026</p>
+
+    <div class="legal-section">
+        <h2 data-i18n="terms_s1_h">1. Acceptance of Terms</h2>
+        <p data-i18n="terms_s1_p">By accessing or using the Predage website, the PredCord and Predage Community Discord servers, or any related service ("Predage", "we", "us"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree with any part of these Terms, please do not use our services.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="terms_s2_h">2. Changes to Terms</h2>
+        <p data-i18n="terms_s2_p">We may update these Terms from time to time to reflect changes to our services or for legal reasons. Changes take effect as soon as they are posted on this page. Continuing to use Predage's services after an update means you accept the revised Terms.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="terms_s3_h">3. Account and Discord Sign In</h2>
+        <p data-i18n="terms_s3_p">Some features, such as submitting a staff application, appealing a ban, or accessing the dashboard, require you to sign in with your Discord account. By signing in, you confirm that the Discord account belongs to you and that you meet Discord's own minimum age requirement.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="terms_s4_h">4. User Conduct</h2>
+        <p data-i18n="terms_s4_p">When using Predage's website and Discord servers, you agree to:</p>
+        <ul>
+            <li data-i18n="terms_s4_li1">Follow the rules of the Predage Community and PredCord servers at all times;</li>
+            <li data-i18n="terms_s4_li2">Provide accurate information in staff applications and ban appeals;</li>
+            <li data-i18n="terms_s4_li3">Not attempt to abuse, exploit, or interfere with the dashboard or bot functionality;</li>
+            <li data-i18n="terms_s4_li4">Use the services only for lawful purposes.</li>
+        </ul>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="terms_s5_h">5. Moderation Decisions</h2>
+        <p data-i18n="terms_s5_p">Bans, warnings, and other moderation actions taken on PredCord or Predage Community are at the discretion of the staff team. Submitting a ban appeal does not guarantee that a punishment will be reversed.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="terms_s6_h">6. Privacy</h2>
+        <p data-i18n-html="terms_s6_p">Your use of Predage's services is also governed by our <a href="/privacy">Privacy Policy</a>, which explains what information we collect and how it is used.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="terms_s7_h">7. Disclaimer</h2>
+        <p data-i18n="terms_s7_p">Predage's website and dashboard are provided "as is", without warranties of any kind. We do our best to keep everything running smoothly, but we do not guarantee uninterrupted or error-free access to our services.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="terms_s8_h">8. Limitation of Liability</h2>
+        <p data-i18n="terms_s8_p">Predage and its staff shall not be held liable for any damages arising from your use of, or inability to use, our website, dashboard, or Discord servers.</p>
+    </div>
+
+    <div class="legal-section">
+        <h2 data-i18n="terms_s9_h">9. Contact</h2>
+        <p data-i18n-html="terms_s9_p">If you have any questions about these Terms, you can reach out to the staff team on the <a href="https://discord.gg/fFZcyNBcEY" target="_blank" rel="noopener">Predage Community Discord server</a>.</p>
+    </div>
+</div>
+
+<footer class="site-footer" id="siteFooter">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <div class="footer-brand-top">
+                <img src="/images/dragon-logo.png" alt="Predage">
+                <span>Predage</span>
+            </div>
+        </div>
+
+        <div class="footer-cols">
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <a href="/">Home</a>
+                <a href="/masterclass">Masterclass</a>
+                <a href="/community">Community</a>
+                <a href="#">Merch</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Socials</h4>
+                <a href="https://x.com/Predage1" target="_blank" rel="noopener">Twitter</a>
+                <a href="https://www.youtube.com/@predagefn" target="_blank" rel="noopener">YouTube</a>
+                <a href="https://www.twitch.tv/predagefn" target="_blank" rel="noopener">Twitch</a>
+                <a href="https://www.instagram.com/predagefn/" target="_blank" rel="noopener">Instagram</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <a href="/terms">Terms of Service</a>
+                <a href="/privacy">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <span>Predage © 2026. All rights reserved.</span>
+        <span class="footer-disclaimer">Not affiliated with Epic Games, Inc.</span>
+    </div>
+</footer>
+
+<script>
+(function() {
+    var FLAGS = {
+        it: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#009246"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ce2b37"/></svg>',
+        en: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#00247d"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#fff" stroke-width="4"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#cf142b" stroke-width="2"/><path d="M15,0 V20 M0,10 H30" stroke="#fff" stroke-width="6"/><path d="M15,0 V20 M0,10 H30" stroke="#cf142b" stroke-width="3.2"/></svg>',
+        de: '<svg viewBox="0 0 30 20"><rect width="30" height="6.66" y="0" fill="#000"/><rect width="30" height="6.66" y="6.66" fill="#dd0000"/><rect width="30" height="6.67" y="13.33" fill="#ffce00"/></svg>',
+        es: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#aa151b"/><rect width="30" height="10" y="5" fill="#f1bf00"/></svg>',
+        fr: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#0055a4"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ef4135"/></svg>'
+    };
+
+    var LANGS = [
+        { code: 'it', name: 'Italiano' },
+        { code: 'en', name: 'English' },
+        { code: 'de', name: 'Deutsch' },
+        { code: 'es', name: 'Español' },
+        { code: 'fr', name: 'Français' }
+    ];
+
+    var I18N = {
+        it: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Accedi", auth_logout: "Esci", user_admin_panel: "Pannello Admin", terms_title: "Termini di Servizio", terms_updated: "Ultimo aggiornamento: 20/09/2026", terms_s1_h: "1. Accettazione dei Termini", terms_s1_p: "Accedendo o utilizzando il sito web di Predage, i server Discord PredCord e Predage Community, o qualsiasi servizio correlato (\"Predage\", \"noi\"), accetti di essere vincolato da questi Termini di Servizio (\"Termini\"). Se non sei d'accordo con una qualsiasi parte di questi Termini, ti preghiamo di non utilizzare i nostri servizi.", terms_s2_h: "2. Modifiche ai Termini", terms_s2_p: "Potremmo aggiornare questi Termini di tanto in tanto per riflettere modifiche ai nostri servizi o per motivi legali. Le modifiche entrano in vigore non appena vengono pubblicate su questa pagina. Continuare a utilizzare i servizi di Predage dopo un aggiornamento significa accettare i Termini rivisti.", terms_s3_h: "3. Account e Accesso con Discord", terms_s3_p: "Alcune funzionalità, come l'invio di una candidatura staff, il ricorso contro un ban o l'accesso alla dashboard, richiedono l'accesso con il tuo account Discord. Accedendo, confermi che l'account Discord ti appartiene e che soddisfi il requisito minimo di età stabilito da Discord.", terms_s4_h: "4. Condotta dell'Utente", terms_s4_p: "Utilizzando il sito web e i server Discord di Predage, accetti di:", terms_s4_li1: "Rispettare sempre le regole dei server Predage Community e PredCord;", terms_s4_li2: "Fornire informazioni accurate nelle candidature staff e nei ricorsi ban;", terms_s4_li3: "Non tentare di abusare, sfruttare o interferire con la dashboard o le funzionalità del bot;", terms_s4_li4: "Utilizzare i servizi solo per scopi legali.", terms_s5_h: "5. Decisioni di Moderazione", terms_s5_p: "Ban, avvisi e altre azioni di moderazione intraprese su PredCord o Predage Community sono a discrezione del team staff. L'invio di un ricorso ban non garantisce che una punizione venga revocata.", terms_s6_h: "6. Privacy", terms_s6_p: "L'utilizzo dei servizi di Predage è disciplinato anche dalla nostra <a href=\"/privacy\">Informativa sulla Privacy</a>, che spiega quali informazioni raccogliamo e come vengono utilizzate.", terms_s7_h: "7. Esclusione di Responsabilità", terms_s7_p: "Il sito web e la dashboard di Predage sono forniti \"così come sono\", senza garanzie di alcun tipo. Facciamo del nostro meglio per mantenere tutto funzionante correttamente, ma non garantiamo un accesso ininterrotto o privo di errori ai nostri servizi.", terms_s8_h: "8. Limitazione di Responsabilità", terms_s8_p: "Predage e il suo staff non potranno essere ritenuti responsabili per eventuali danni derivanti dall'utilizzo, o dall'impossibilità di utilizzo, del nostro sito web, della dashboard o dei server Discord.", terms_s9_h: "9. Contatti", terms_s9_p: "Se hai domande su questi Termini, puoi contattare il team staff sul <a href=\"https://discord.gg/fFZcyNBcEY\" target=\"_blank\" rel=\"noopener\">server Discord di Predage Community</a>." },
+        en: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Sign In", auth_logout: "Log Out", user_admin_panel: "Admin Panel", terms_title: "Terms Of Service", terms_updated: "Last updated: 20/09/2026", terms_s1_h: "1. Acceptance of Terms", terms_s1_p: "By accessing or using the Predage website, the PredCord and Predage Community Discord servers, or any related service (\"Predage\", \"we\", \"us\"), you agree to be bound by these Terms of Service (\"Terms\"). If you do not agree with any part of these Terms, please do not use our services.", terms_s2_h: "2. Changes to Terms", terms_s2_p: "We may update these Terms from time to time to reflect changes to our services or for legal reasons. Changes take effect as soon as they are posted on this page. Continuing to use Predage's services after an update means you accept the revised Terms.", terms_s3_h: "3. Account and Discord Sign In", terms_s3_p: "Some features, such as submitting a staff application, appealing a ban, or accessing the dashboard, require you to sign in with your Discord account. By signing in, you confirm that the Discord account belongs to you and that you meet Discord's own minimum age requirement.", terms_s4_h: "4. User Conduct", terms_s4_p: "When using Predage's website and Discord servers, you agree to:", terms_s4_li1: "Follow the rules of the Predage Community and PredCord servers at all times;", terms_s4_li2: "Provide accurate information in staff applications and ban appeals;", terms_s4_li3: "Not attempt to abuse, exploit, or interfere with the dashboard or bot functionality;", terms_s4_li4: "Use the services only for lawful purposes.", terms_s5_h: "5. Moderation Decisions", terms_s5_p: "Bans, warnings, and other moderation actions taken on PredCord or Predage Community are at the discretion of the staff team. Submitting a ban appeal does not guarantee that a punishment will be reversed.", terms_s6_h: "6. Privacy", terms_s6_p: "Your use of Predage's services is also governed by our <a href=\"/privacy\">Privacy Policy</a>, which explains what information we collect and how it is used.", terms_s7_h: "7. Disclaimer", terms_s7_p: "Predage's website and dashboard are provided \"as is\", without warranties of any kind. We do our best to keep everything running smoothly, but we do not guarantee uninterrupted or error-free access to our services.", terms_s8_h: "8. Limitation of Liability", terms_s8_p: "Predage and its staff shall not be held liable for any damages arising from your use of, or inability to use, our website, dashboard, or Discord servers.", terms_s9_h: "9. Contact", terms_s9_p: "If you have any questions about these Terms, you can reach out to the staff team on the <a href=\"https://discord.gg/fFZcyNBcEY\" target=\"_blank\" rel=\"noopener\">Predage Community Discord server</a>." },
+        de: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Anmelden", auth_logout: "Abmelden", user_admin_panel: "Admin-Panel", terms_title: "Nutzungsbedingungen", terms_updated: "Zuletzt aktualisiert: 20.09.2026", terms_s1_h: "1. Annahme der Bedingungen", terms_s1_p: "Durch den Zugriff auf oder die Nutzung der Predage-Website, der PredCord- und Predage-Community-Discord-Server oder eines damit verbundenen Dienstes (\"Predage\", \"wir\"), erklärst du dich mit diesen Nutzungsbedingungen (\"Bedingungen\") einverstanden. Wenn du mit einem Teil dieser Bedingungen nicht einverstanden bist, nutze bitte unsere Dienste nicht.", terms_s2_h: "2. Änderungen der Bedingungen", terms_s2_p: "Wir können diese Bedingungen von Zeit zu Zeit aktualisieren, um Änderungen an unseren Diensten widerzuspiegeln oder aus rechtlichen Gründen. Änderungen treten in Kraft, sobald sie auf dieser Seite veröffentlicht werden. Die weitere Nutzung der Dienste von Predage nach einer Aktualisierung bedeutet, dass du die überarbeiteten Bedingungen akzeptierst.", terms_s3_h: "3. Konto und Discord-Anmeldung", terms_s3_p: "Einige Funktionen, wie das Einreichen einer Staff-Bewerbung, das Einlegen eines Einspruchs gegen einen Bann oder der Zugriff auf das Dashboard, erfordern eine Anmeldung mit deinem Discord-Konto. Mit der Anmeldung bestätigst du, dass das Discord-Konto dir gehört und dass du die von Discord festgelegte Mindestaltersanforderung erfüllst.", terms_s4_h: "4. Verhalten der Nutzer", terms_s4_p: "Bei der Nutzung der Website und der Discord-Server von Predage erklärst du dich einverstanden:", terms_s4_li1: "Die Regeln der Predage-Community- und PredCord-Server stets zu befolgen;", terms_s4_li2: "Genaue Angaben in Staff-Bewerbungen und Bann-Einsprüchen zu machen;", terms_s4_li3: "Nicht zu versuchen, das Dashboard oder die Bot-Funktionen zu missbrauchen, auszunutzen oder zu beeinträchtigen;", terms_s4_li4: "Die Dienste nur für rechtmäßige Zwecke zu nutzen.", terms_s5_h: "5. Moderationsentscheidungen", terms_s5_p: "Banns, Verwarnungen und andere Moderationsmaßnahmen auf PredCord oder Predage Community liegen im Ermessen des Staff-Teams. Das Einreichen eines Bann-Einspruchs garantiert nicht, dass eine Strafe aufgehoben wird.", terms_s6_h: "6. Datenschutz", terms_s6_p: "Deine Nutzung der Dienste von Predage unterliegt auch unserer <a href=\"/privacy\">Datenschutzrichtlinie</a>, die erklärt, welche Informationen wir erfassen und wie sie verwendet werden.", terms_s7_h: "7. Haftungsausschluss", terms_s7_p: "Die Website und das Dashboard von Predage werden \"wie besehen\" bereitgestellt, ohne jegliche Gewährleistung. Wir geben unser Bestes, damit alles reibungslos läuft, garantieren jedoch keinen unterbrechungsfreien oder fehlerfreien Zugriff auf unsere Dienste.", terms_s8_h: "8. Haftungsbeschränkung", terms_s8_p: "Predage und sein Staff-Team haften nicht für Schäden, die durch die Nutzung oder Nichtnutzbarkeit unserer Website, unseres Dashboards oder unserer Discord-Server entstehen.", terms_s9_h: "9. Kontakt", terms_s9_p: "Wenn du Fragen zu diesen Bedingungen hast, kannst du das Staff-Team auf dem <a href=\"https://discord.gg/fFZcyNBcEY\" target=\"_blank\" rel=\"noopener\">Predage-Community-Discord-Server</a> kontaktieren." },
+        es: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Iniciar sesión", auth_logout: "Cerrar sesión", user_admin_panel: "Panel de Administración", terms_title: "Términos de Servicio", terms_updated: "Última actualización: 20/09/2026", terms_s1_h: "1. Aceptación de los Términos", terms_s1_p: "Al acceder o utilizar el sitio web de Predage, los servidores de Discord PredCord y Predage Community, o cualquier servicio relacionado (\"Predage\", \"nosotros\"), aceptas quedar vinculado por estos Términos de Servicio (\"Términos\"). Si no estás de acuerdo con alguna parte de estos Términos, por favor no utilices nuestros servicios.", terms_s2_h: "2. Cambios en los Términos", terms_s2_p: "Podemos actualizar estos Términos de vez en cuando para reflejar cambios en nuestros servicios o por motivos legales. Los cambios entran en vigor en cuanto se publican en esta página. Continuar utilizando los servicios de Predage después de una actualización implica aceptar los Términos revisados.", terms_s3_h: "3. Cuenta e Inicio de Sesión con Discord", terms_s3_p: "Algunas funciones, como enviar una solicitud de staff, apelar un baneo o acceder al panel, requieren iniciar sesión con tu cuenta de Discord. Al iniciar sesión, confirmas que la cuenta de Discord te pertenece y que cumples con el requisito mínimo de edad de Discord.", terms_s4_h: "4. Conducta del Usuario", terms_s4_p: "Al utilizar el sitio web y los servidores de Discord de Predage, aceptas:", terms_s4_li1: "Seguir en todo momento las reglas de los servidores Predage Community y PredCord;", terms_s4_li2: "Proporcionar información precisa en las solicitudes de staff y apelaciones de baneo;", terms_s4_li3: "No intentar abusar, explotar o interferir con el panel o las funciones del bot;", terms_s4_li4: "Utilizar los servicios únicamente con fines legales.", terms_s5_h: "5. Decisiones de Moderación", terms_s5_p: "Los baneos, advertencias y otras acciones de moderación tomadas en PredCord o Predage Community quedan a discreción del equipo de staff. Enviar una apelación de baneo no garantiza que se revoque un castigo.", terms_s6_h: "6. Privacidad", terms_s6_p: "El uso que hagas de los servicios de Predage también se rige por nuestra <a href=\"/privacy\">Política de Privacidad</a>, que explica qué información recopilamos y cómo se utiliza.", terms_s7_h: "7. Descargo de Responsabilidad", terms_s7_p: "El sitio web y el panel de Predage se proporcionan \"tal cual\", sin garantías de ningún tipo. Hacemos todo lo posible para que todo funcione correctamente, pero no garantizamos un acceso ininterrumpido o libre de errores a nuestros servicios.", terms_s8_h: "8. Limitación de Responsabilidad", terms_s8_p: "Predage y su staff no serán responsables de los daños que puedan derivarse del uso, o la imposibilidad de uso, de nuestro sitio web, panel o servidores de Discord.", terms_s9_h: "9. Contacto", terms_s9_p: "Si tienes alguna pregunta sobre estos Términos, puedes contactar al equipo de staff en el <a href=\"https://discord.gg/fFZcyNBcEY\" target=\"_blank\" rel=\"noopener\">servidor de Discord de Predage Community</a>." },
+        fr: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Se connecter", auth_logout: "Déconnexion", user_admin_panel: "Panneau Admin", terms_title: "Conditions d'Utilisation", terms_updated: "Dernière mise à jour : 20/09/2026", terms_s1_h: "1. Acceptation des Conditions", terms_s1_p: "En accédant au site web de Predage, aux serveurs Discord PredCord et Predage Community, ou à tout service associé (\"Predage\", \"nous\"), ou en les utilisant, tu acceptes d'être lié par les présentes Conditions d'Utilisation (\"Conditions\"). Si tu n'es pas d'accord avec une partie de ces Conditions, merci de ne pas utiliser nos services.", terms_s2_h: "2. Modifications des Conditions", terms_s2_p: "Nous pouvons mettre à jour ces Conditions de temps à autre pour refléter des changements apportés à nos services ou pour des raisons légales. Les modifications prennent effet dès leur publication sur cette page. Continuer à utiliser les services de Predage après une mise à jour signifie que tu acceptes les Conditions révisées.", terms_s3_h: "3. Compte et Connexion Discord", terms_s3_p: "Certaines fonctionnalités, comme l'envoi d'une candidature staff, un appel contre un bannissement, ou l'accès au tableau de bord, nécessitent de te connecter avec ton compte Discord. En te connectant, tu confirmes que le compte Discord t'appartient et que tu remplis l'exigence d'âge minimum de Discord.", terms_s4_h: "4. Conduite de l'Utilisateur", terms_s4_p: "En utilisant le site web et les serveurs Discord de Predage, tu acceptes de :", terms_s4_li1: "Respecter en permanence les règles des serveurs Predage Community et PredCord ;", terms_s4_li2: "Fournir des informations exactes dans les candidatures staff et les appels de bannissement ;", terms_s4_li3: "Ne pas tenter d'abuser, d'exploiter ou d'interférer avec le tableau de bord ou les fonctionnalités du bot ;", terms_s4_li4: "Utiliser les services uniquement à des fins légales.", terms_s5_h: "5. Décisions de Modération", terms_s5_p: "Les bannissements, avertissements et autres actions de modération prises sur PredCord ou Predage Community relèvent de la discrétion de l'équipe staff. Soumettre un appel de bannissement ne garantit pas qu'une sanction sera annulée.", terms_s6_h: "6. Confidentialité", terms_s6_p: "Ton utilisation des services de Predage est également régie par notre <a href=\"/privacy\">Politique de Confidentialité</a>, qui explique quelles informations nous collectons et comment elles sont utilisées.", terms_s7_h: "7. Avertissement", terms_s7_p: "Le site web et le tableau de bord de Predage sont fournis \"tels quels\", sans garantie d'aucune sorte. Nous faisons de notre mieux pour que tout fonctionne correctement, mais nous ne garantissons pas un accès ininterrompu ou sans erreur à nos services.", terms_s8_h: "8. Limitation de Responsabilité", terms_s8_p: "Predage et son staff ne pourront être tenus responsables des dommages résultant de ton utilisation, ou de ton impossibilité d'utiliser, notre site web, notre tableau de bord ou nos serveurs Discord.", terms_s9_h: "9. Contact", terms_s9_p: "Si tu as des questions concernant ces Conditions, tu peux contacter l'équipe staff sur le <a href=\"https://discord.gg/fFZcyNBcEY\" target=\"_blank\" rel=\"noopener\">serveur Discord de Predage Community</a>." }
+    };
+
+    var currentLang = 'en';
+    var loggedIn = false;
+    var canAccessDashboard = false;
+    var langBtnFlag = document.getElementById('langBtnFlag');
+    var langDropdown = document.getElementById('langDropdown');
+    var langBtn = document.getElementById('langBtn');
+    var authBtn = document.getElementById('authBtn');
+    var userMenu = document.getElementById('userMenu');
+    var userAvatar = document.getElementById('userAvatar');
+    var userDropdown = document.getElementById('userDropdown');
+
+    function renderLangUI() {
+        langBtnFlag.innerHTML = FLAGS[currentLang];
+        langDropdown.innerHTML = LANGS.map(function(l) {
+            return '<button class="lang-option' + (l.code === currentLang ? ' active' : '') + '" data-code="' + l.code + '">' +
+                '<span class="flag-icon">' + FLAGS[l.code] + '</span><span>' + l.name + '</span>' +
+            '</button>';
+        }).join('');
+    }
+
+    function applyStaticTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n');
+            if (I18N[currentLang][key]) el.textContent = I18N[currentLang][key];
+        });
+        document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n-html');
+            if (I18N[currentLang][key]) el.innerHTML = I18N[currentLang][key];
+        });
+    }
+
+    function updateAuthBtn() {
+        authBtn.textContent = loggedIn ? I18N[currentLang].auth_logout : I18N[currentLang].auth_signin;
+        authBtn.classList.toggle('logged-in', loggedIn);
+        userAvatar.style.display = loggedIn ? 'block' : 'none';
+        userAvatar.classList.toggle('has-menu', canAccessDashboard);
+        if (!loggedIn || !canAccessDashboard) userDropdown.classList.remove('open');
+    }
+
+    userAvatar.addEventListener('click', function(e) {
+        if (!canAccessDashboard) return;
+        e.stopPropagation();
+        userDropdown.classList.toggle('open');
+    });
+
+    function setLang(code) {
+        currentLang = code;
+        renderLangUI();
+        applyStaticTranslations();
+        updateAuthBtn();
+    }
+
+    langBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        langDropdown.classList.toggle('open');
+    });
+
+    langDropdown.addEventListener('click', function(e) {
+        var opt = e.target.closest('.lang-option');
+        if (!opt) return;
+        langDropdown.classList.remove('open');
+        setLang(opt.getAttribute('data-code'));
+    });
+
+    document.addEventListener('click', function() {
+        langDropdown.classList.remove('open');
+        userDropdown.classList.remove('open');
+    });
+
+    renderLangUI();
+    applyStaticTranslations();
+
+    var headerEl = document.querySelector('header');
+    var headerSpacer = document.getElementById('headerSpacer');
+    function syncHeaderSpacer() {
+        headerSpacer.style.height = headerEl.offsetHeight + 'px';
+    }
+    syncHeaderSpacer();
+    window.addEventListener('resize', syncHeaderSpacer);
+
+    updateAuthBtn();
+    fetch('/api/site/me').then(function(res) { return res.json(); }).then(function(data) {
+        loggedIn = !!data.loggedIn;
+        canAccessDashboard = !!data.canAccessDashboard;
+        if (loggedIn && data.avatar) userAvatar.src = data.avatar;
+        updateAuthBtn();
+    }).catch(function() {});
+
+    authBtn.addEventListener('click', function() {
+        if (loggedIn) {
+            fetch('/api/site/logout', { method: 'POST' }).then(function() {
+                window.location.reload();
+            });
+        } else {
+            window.location.href = '/site-auth/discord?next=' + encodeURIComponent(window.location.pathname);
+        }
+    });
+
+    document.querySelectorAll('.header-nav a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            var href = link.getAttribute('href');
+            if (!href || href.charAt(0) !== '/' || link.classList.contains('active')) return;
+            e.preventDefault();
+            document.body.classList.add('page-fade-out');
+            setTimeout(function() { window.location.href = href; }, 200);
+        });
+    });
+
+    window.addEventListener('pageshow', function() {
+        document.body.classList.remove('page-fade-out');
+    });
+})();
+</script>
+
+</body>
+</html>

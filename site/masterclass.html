@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predage - Masterclass</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Anton&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --primary: #E67E22;
+    --accent: #38BDF8;
+    --bg-dark: #0a0a0f;
+    --bg-card: rgba(24, 24, 32, 0.85);
+    --bg-bar: #101016;
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #e8e8ed;
+    --text-dim: #a3a3ad;
+}
+
+html {
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--bg-dark);
+}
+
+body {
+    min-height: 100vh;
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: pageFadeIn 0.4s ease;
+}
+
+body.page-fade-out {
+    animation: pageFadeOut 0.22s ease forwards;
+}
+
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pageFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+::-webkit-scrollbar { width: 11px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb {
+    background-color: var(--primary);
+    border-radius: 999px;
+    border: 3px solid var(--bg-dark);
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: #d36a15; }
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: 0.7fr 2.2fr 0.7fr;
+    align-items: center;
+    padding: 16px 48px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.header-spacer { height: 78px; }
+
+.header-brand { display: flex; align-items: center; gap: 12px; }
+header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
+.header-brand span { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+
+.header-nav a {
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.3px;
+    transition: color 0.15s ease;
+}
+
+.header-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0;
+    height: 2px;
+    background: var(--text);
+    transition: width 0.25s ease;
+}
+
+.nav-dot {
+    color: var(--text-dim);
+    opacity: 0.4;
+    font-size: 14px;
+}
+
+.header-nav a:hover { color: var(--text); }
+.header-nav a:hover::after { width: 100%; }
+.header-nav a.active { color: var(--primary); }
+.header-nav a.active::after { width: 100%; background: var(--primary); }
+
+.header-auth {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.lang-switcher { position: relative; }
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+}
+
+.lang-btn:hover { border-color: rgba(255,255,255,0.25); }
+.lang-btn .flag-icon { width: 21px; height: 14px; border-radius: 2px; overflow: hidden; flex-shrink: 0; display: block; }
+.lang-btn svg.chev { width: 12px; height: 12px; stroke: var(--text-dim); }
+
+.lang-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.lang-dropdown.open { display: flex; }
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    background: none;
+    border: none;
+    font-family: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.lang-option:hover { background: rgba(255,255,255,0.06); }
+.lang-option.active { color: var(--primary); }
+.lang-option .flag-icon { width: 22px; height: 15px; border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+
+.auth-btn {
+    position: relative;
+    overflow: hidden;
+    background: var(--primary);
+    color: #fff;
+    border: 1px solid transparent;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-btn.logged-in {
+    background: transparent;
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
+}
+
+.auth-btn.logged-in:hover { border-color: rgba(255,255,255,0.6); }
+
+.user-menu { position: relative; display: inline-block; }
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    display: none;
+}
+
+.user-avatar.has-menu { cursor: pointer; }
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.user-dropdown.open { display: flex; }
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.user-dropdown-item:hover { background: rgba(255,255,255,0.06); }
+
+.mc-hero {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    padding: 190px 24px 90px;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.mc-hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.mc-hero-clip {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.08);
+    transition: opacity 1.8s ease;
+    animation: mcClipMove 10s ease-in-out infinite;
+}
+
+.mc-hero-clip.active { opacity: 1; }
+
+@keyframes mcClipMove {
+    0% { transform: scale(1.08) translate3d(0, 0, 0); }
+    50% { transform: scale(1.17) translate3d(0, -2%, 0); }
+    100% { transform: scale(1.08) translate3d(0, 0, 0); }
+}
+
+.mc-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(10,10,15,0.78) 0%, rgba(10,10,15,0.5) 38%, rgba(10,10,15,0.6) 70%, #0a0a0f 100%);
+}
+
+.mc-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1150px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.mc-title-wrap {
+    position: relative;
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.mc-title {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-size: 56px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+.mc-title-white { color: #ffffff; }
+.mc-title-orange { color: var(--primary); }
+
+.mc-description {
+    font-size: 20px;
+    font-weight: 600;
+    color: #f0f0f3;
+    line-height: 1.55;
+    max-width: 640px;
+    margin: 0 auto 16px;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.7);
+    min-height: 3.1em;
+}
+
+.mc-highlight {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    text-shadow: 0 0 12px rgba(56,189,248,0.65), 0 2px 10px rgba(0,0,0,0.7);
+    max-width: 640px;
+    line-height: 1.55;
+    margin: 0 auto 24px;
+    min-height: 1.55em;
+}
+
+.mc-cursor {
+    display: inline-block;
+    margin-left: 2px;
+    color: var(--accent);
+    animation: mcBlink 1s step-end infinite;
+}
+
+@keyframes mcBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.results-btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 700;
+    padding: 15px 48px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.results-btn:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.results-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.6s ease;
+}
+
+.results-btn:hover::before { left: 125%; }
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 5, 8, 0.72);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.modal-overlay.open {
+    display: flex;
+}
+
+.modal-box {
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 460px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    animation: modalPopIn 0.22s ease;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.modal-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-box::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-box::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+}
+
+.modal-box::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+@keyframes modalPopIn {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-close {
+    position: relative;
+    overflow: hidden;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid #ef4444;
+    border-radius: 8px;
+    color: var(--text-dim);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.modal-close::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.6s ease;
+}
+
+.modal-close:hover::before { left: 125%; }
+
+.modal-close:hover {
+    color: var(--text);
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.modal-title {
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    padding-right: 24px;
+    line-height: 1.4;
+}
+
+.modal-title a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.modal-title a:hover {
+    text-decoration: underline;
+}
+
+.result-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+
+.result-detail-row:last-child {
+    border-bottom: none;
+}
+
+.result-detail-label {
+    color: var(--text-dim);
+    flex-shrink: 0;
+}
+
+.result-detail-value {
+    color: var(--text);
+    font-weight: 700;
+    text-align: right;
+}
+
+.result-detail-value a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.result-detail-value a:hover {
+    text-decoration: underline;
+}
+
+.more-year-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.more-year-btn {
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 800;
+    padding: 8px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.more-year-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.6s ease;
+}
+
+.more-year-btn:hover::before { left: 125%; }
+
+.more-year-btn.active {
+    color: var(--text);
+    border-color: var(--primary);
+    background: rgba(230, 126, 34, 0.14);
+}
+
+.more-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.more-result-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.2s ease;
+}
+
+.more-result-row:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.more-result-row:hover .more-result-link-icon {
+    color: var(--primary);
+}
+
+.more-result-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.more-result-link-icon {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    color: var(--text-dim);
+}
+
+.more-result-prize {
+    color: var(--primary);
+    font-weight: 800;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.modal-box-wide {
+    max-width: 640px;
+    max-height: 62vh;
+}
+
+.mc-cta-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 28px;
+}
+
+.view-plans-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid transparent;
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    padding: 15px 0;
+    border-radius: 14px;
+    cursor: pointer;
+    text-shadow: 0 0 5px rgba(56,189,248,0.95), 0 0 12px rgba(56,189,248,0.75), 0 0 24px rgba(56,189,248,0.5);
+    box-shadow: none;
+    opacity: 0;
+    max-width: 0;
+    margin-left: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+    transition: opacity 0.6s ease, max-width 0.6s ease, padding 0.6s ease, margin-left 0.6s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.view-plans-btn.visible {
+    opacity: 1;
+    max-width: 260px;
+    padding: 15px 42px;
+    margin-left: 18px;
+    border-color: rgba(56,189,248,0.5);
+    box-shadow: 0 0 14px rgba(56,189,248,0.25), inset 0 0 14px rgba(56,189,248,0.08);
+    pointer-events: auto;
+}
+
+.view-plans-btn.visible:hover {
+    border-color: rgba(56,189,248,0.9);
+    box-shadow: 0 0 22px rgba(56,189,248,0.4), inset 0 0 18px rgba(56,189,248,0.14);
+}
+
+.mc-tiers-section {
+    padding: 70px 24px 110px;
+}
+
+.mc-tiers-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: stretch;
+    gap: 56px;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.mc-tier-card {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 30px 22px;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mc-tier-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.mc-tier-card.in-view { opacity: 1; transform: translateY(0); }
+
+.mc-tier-card:hover { border-color: rgba(255,255,255,0.25); }
+
+.mc-tier-card.recommended {
+    border-color: var(--accent);
+    padding-top: 56px;
+    box-shadow: 0 0 24px rgba(56,189,248,0.3), inset 0 0 20px rgba(56,189,248,0.06);
+}
+
+.mc-tier-card.recommended:hover { border-color: var(--accent); }
+
+.mc-tier-ribbon {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    background: var(--accent);
+    color: #04202c;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    line-height: 1.35;
+    text-align: center;
+    padding: 7px 14px;
+    border-radius: 15px 15px 0 0;
+    text-transform: uppercase;
+}
+
+.mc-tier-card:nth-child(1) { transition-delay: 0.05s, 0.05s, 0s; }
+.mc-tier-card:nth-child(2) { transition-delay: 0.2s, 0.2s, 0s; }
+.mc-tier-card:nth-child(3) { transition-delay: 0.35s, 0.35s, 0s; }
+.mc-tier-card:nth-child(4) { transition-delay: 0.5s, 0.5s, 0s; }
+.mc-tier-card:nth-child(5) { transition-delay: 0.65s, 0.65s, 0s; }
+
+.mc-tier-name {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.mc-tier-price {
+    font-size: 15px;
+    font-weight: 900;
+    color: #ff7a1a;
+    text-shadow: 0 0 6px rgba(255,122,26,0.95), 0 0 16px rgba(255,122,26,0.75), 0 0 32px rgba(255,122,26,0.5);
+    margin-bottom: 0;
+    text-align: center;
+}
+
+.mc-tier-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    align-self: flex-start;
+    margin-top: 20px;
+    gap: 18px;
+}
+
+.mc-tier-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 15.5px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.5;
+}
+
+.mc-feat-dot {
+    flex-shrink: 0;
+    color: var(--primary);
+    font-size: 17px;
+    font-weight: 900;
+    line-height: 1.5;
+}
+
+.mc-feat-text {
+    text-align: left;
+    max-width: 190px;
+}
+
+.mc-feat-text a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.mc-feat-text a:hover {
+    text-decoration: underline;
+}
+
+.mc-tier-card.custom {
+    text-align: center;
+    border-color: rgba(230, 126, 34, 0.3);
+}
+
+.mc-tier-card.custom .mc-tier-name { color: var(--primary); margin-bottom: 10px; }
+
+.mc-tier-card.custom .mc-tier-body { justify-content: flex-start; }
+
+.mc-tier-card.custom p {
+    font-size: 17px;
+    font-weight: 600;
+    color: #ffffff;
+    line-height: 2;
+}
+
+.site-footer {
+    background: var(--bg-bar);
+    border-top: 1px solid var(--border);
+    margin-top: auto;
+}
+
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 40px 40px;
+    display: flex;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+.footer-brand { max-width: 360px; }
+.footer-brand-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.footer-brand-top img { width: 68px; height: 68px; border-radius: 16px; object-fit: cover; }
+.footer-brand-top span { font-size: 36px; font-weight: 800; }
+.footer-brand p { color: var(--text-dim); font-size: 14.5px; line-height: 1.6; }
+.footer-cols { display: flex; gap: 60px; }
+.footer-col h4 { font-size: 14.5px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+.footer-col a { display: block; width: fit-content; position: relative; color: var(--text-dim); text-decoration: none; font-size: 14.5px; margin-bottom: 12px; transition: color 0.2s ease; }
+.footer-col a::after { content: ''; position: absolute; left: 0; bottom: -2px; width: 0; height: 1px; background: var(--text); transition: width 0.25s ease; }
+.footer-col a:hover { color: var(--text); }
+.footer-col a:hover::after { width: 100%; }
+.footer-bottom { border-top: 1px solid var(--border); padding: 18px 40px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; color: var(--text-dim); font-size: 13px; }
+.footer-disclaimer { opacity: 0.65; font-size: 11.5px; }
+
+@media (max-width: 1100px) {
+    .mc-tiers-grid { grid-template-columns: repeat(2, 1fr); gap: 40px; }
+}
+
+@media (max-width: 900px) {
+    header { grid-template-columns: 1fr; row-gap: 14px; padding: 16px 20px; }
+    .header-nav { gap: 24px; flex-wrap: wrap; justify-content: center; }
+    .header-auth { justify-content: center; }
+    .mc-title { font-size: 30px; }
+    .mc-hero { padding: 140px 20px 70px; min-height: 560px; }
+    .mc-description { font-size: 14px; }
+    .mc-highlight { font-size: 14px; }
+    .footer-inner { flex-direction: column; gap: 32px; }
+    .footer-bottom { flex-direction: column; text-align: center; padding: 18px 20px; }
+}
+
+@media (max-width: 640px) {
+    .mc-tiers-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <div class="header-brand">
+        <img class="brand-logo" src="/images/dragon-logo.png" alt="Predage">
+        <span>Predage</span>
+    </div>
+
+    <nav class="header-nav">
+        <a href="/" data-i18n="nav_home">Home</a>
+        <span class="nav-dot">•</span>
+        <a href="/masterclass" class="active" data-i18n="nav_masterclass">Masterclass</a>
+        <span class="nav-dot">•</span>
+        <a href="/videos" data-i18n="nav_videos">Videos</a>
+        <span class="nav-dot">•</span>
+        <a href="/community" data-i18n="nav_community">Community</a>
+        <span class="nav-dot">•</span>
+        <a href="#" data-i18n="nav_merch">Merch</a>
+    </nav>
+
+    <div class="header-auth">
+        <div class="lang-switcher" id="langSwitcher">
+            <button class="lang-btn" id="langBtn">
+                <span class="flag-icon" id="langBtnFlag"></span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="lang-dropdown" id="langDropdown"></div>
+        </div>
+        <button class="auth-btn" id="authBtn">Sign In</button>
+        <div class="user-menu" id="userMenu">
+            <img class="user-avatar" id="userAvatar" alt="">
+            <div class="user-dropdown" id="userDropdown">
+                <a href="/dashboard" class="user-dropdown-item" data-i18n="user_admin_panel">Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="header-spacer" id="headerSpacer"></div>
+
+<section class="mc-hero">
+    <div class="mc-hero-bg" id="mcHeroBg">
+        <img class="mc-hero-clip active" src="/images/slide1.jpg" alt="">
+        <img class="mc-hero-clip" src="/images/slide2.jpg" alt="">
+        <img class="mc-hero-clip" src="/images/slide4.jpg" alt="">
+        <img class="mc-hero-clip" src="/images/slide5.png" alt="">
+        <img class="mc-hero-clip" src="/images/slide6.png" alt="">
+        <img class="mc-hero-clip" src="/images/slide7.png" alt="">
+    </div>
+    <div class="mc-hero-content">
+        <div class="mc-title-wrap">
+            <h1 class="mc-title"><span class="mc-title-white">Master</span><span class="mc-title-orange">class</span></h1>
+        </div>
+        <p class="mc-description"><span id="mcDescMain"></span><span class="mc-cursor" id="mcCursorMain">|</span></p>
+        <p class="mc-highlight"><span id="mcDescHighlight"></span><span class="mc-cursor" id="mcCursorHighlight">|</span></p>
+        <div class="mc-cta-row">
+            <button class="results-btn" id="resultsMoreBtn" type="button" data-i18n="mc_results_btn">Results</button>
+            <button class="view-plans-btn" id="viewPlansBtn" type="button"><span data-i18n="mc_view_plans_btn">View Plans</span></button>
+        </div>
+    </div>
+</section>
+
+<section class="mc-tiers-section">
+    <div class="mc-tiers-grid" id="mcTiersGrid"></div>
+</section>
+
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <div class="footer-brand-top">
+                <img src="/images/dragon-logo.png" alt="Predage">
+                <span>Predage</span>
+            </div>
+        </div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <h4 data-i18n="footer_platform">Platform</h4>
+                <a href="/" data-i18n="nav_home">Home</a>
+                <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
+                <a href="/community" data-i18n="nav_community">Community</a>
+                <a href="#" data-i18n="nav_merch">Merch</a>
+            </div>
+            <div class="footer-col">
+                <h4 data-i18n="footer_socials">Socials</h4>
+                <a href="https://x.com/Predage1" target="_blank" rel="noopener">Twitter</a>
+                <a href="https://www.youtube.com/@predagefn" target="_blank" rel="noopener">YouTube</a>
+                <a href="https://www.twitch.tv/predagefn" target="_blank" rel="noopener">Twitch</a>
+                <a href="https://www.instagram.com/predagefn/" target="_blank" rel="noopener">Instagram</a>
+            </div>
+            <div class="footer-col">
+                <h4 data-i18n="footer_legal">Legal</h4>
+                <a href="/terms" data-i18n="footer_terms">Terms of Service</a>
+                <a href="/privacy" data-i18n="footer_privacy">Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span data-i18n="footer_copyright">Predage © 2026. All rights reserved.</span>
+        <span class="footer-disclaimer" data-i18n="footer_disclaimer">Not affiliated with Epic Games, Inc.</span>
+    </div>
+</footer>
+
+<div class="modal-overlay" id="resultModal">
+    <div class="modal-box modal-box-wide">
+        <button class="modal-close" id="resultModalClose">&times;</button>
+        <div id="resultModalContent"></div>
+    </div>
+</div>
+
+<script>
+(function() {
+    var FLAGS = {
+        it: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#009246"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ce2b37"/></svg>',
+        en: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#00247d"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#fff" stroke-width="4"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#cf142b" stroke-width="2"/><path d="M15,0 V20 M0,10 H30" stroke="#fff" stroke-width="6"/><path d="M15,0 V20 M0,10 H30" stroke="#cf142b" stroke-width="3.2"/></svg>',
+        de: '<svg viewBox="0 0 30 20"><rect width="30" height="6.66" y="0" fill="#000"/><rect width="30" height="6.66" y="6.66" fill="#dd0000"/><rect width="30" height="6.67" y="13.33" fill="#ffce00"/></svg>',
+        es: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#aa151b"/><rect width="30" height="10" y="5" fill="#f1bf00"/></svg>',
+        fr: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#0055a4"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ef4135"/></svg>'
+    };
+
+    var LANGS = [
+        { code: 'it', name: 'Italiano' },
+        { code: 'en', name: 'English' },
+        { code: 'de', name: 'Deutsch' },
+        { code: 'es', name: 'Español' },
+        { code: 'fr', name: 'Français' }
+    ];
+
+    var I18N = {
+        it: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Accedi', auth_logout: 'Esci', user_admin_panel: 'Pannello Admin',
+            mc_description: 'Da qualche mese, Predage mette a disposizione la sua vasta esperienza come fortnite pro player per aiutare a migliorare tutti i fan che lo supportano ogni giorno. Predage compete nel mondo del Fortnite competitivo da diversi anni, raggiungendo sempre i massimi livelli e portando l\'Italia in alto.',
+            mc_description_highlight: 'Se vuoi migliorare, affidati a Predage, uno dei migliori IGL italiani di sempre. Scegli il tuo piano.',
+            mc_results_btn: 'Risultati',
+            mc_view_plans_btn: 'Vedi i Piani',
+            mc_recommended_badge: 'Livello consigliato • {n} players hanno fatto lo stesso',
+            mc_month: '/mese',
+            tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personalizzato',
+            custom_desc: 'Scegli e combina liberamente le cose che ti servono per creare un pacchetto su misura, pensato in base alle tue esigenze e alle tue preferenze. Puoi selezionare i servizi di Predage che desideri, costruisci la combinazione perfetta per te. Personalizza il tuo pacchetto come vuoi, scegli ciò che ti serve, aggiungi i tuoi preferiti e crea una soluzione unica, proprio come la vuoi tu.',
+            f_all_videos: 'Tutti i video del nostro sito',
+            f_dropmap_calc: 'Una dropmap al mese di abbonamento direttamente da {link}',
+            f_calls_plural: 'Call mensili con Predage dove puoi fare tutte le domande che vuoi',
+            f_call_singular: 'Call mensile con Predage dove puoi fare tutte le domande che vuoi',
+            f_vod_review: '1 ora di vod review con Predage al mese',
+            f_custom_session_new: 'Una sessione di custom in cui puoi capire come gioca il Tier 1 e imparare a giocare come Predage',
+            footer_platform: 'Piattaforma',
+            footer_socials: 'Social',
+            footer_legal: 'Legale', footer_terms: 'Termini di Servizio', footer_privacy: 'Informativa sulla Privacy',
+            footer_copyright: 'Predage © 2026. Tutti i diritti riservati.',
+            footer_disclaimer: 'Non affiliato con Epic Games, Inc.'
+        },
+        en: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Sign In', auth_logout: 'Log Out', user_admin_panel: 'Admin Panel',
+            mc_description: 'For a few months now, Predage has been sharing his extensive experience as a Fortnite pro player to help improve every fan who supports him every day. Predage has competed in the world of competitive Fortnite for several years, always reaching the highest levels and flying Italy\'s flag high.',
+            mc_description_highlight: 'If you want to improve, trust Predage, one of the best Italian IGLs of all time. Choose your plan.',
+            mc_results_btn: 'Results',
+            mc_view_plans_btn: 'View Plans',
+            mc_recommended_badge: 'Recommended Level • {n} players did the same',
+            mc_month: '/month',
+            tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Custom',
+            custom_desc: 'Freely choose and combine what you need to build a package tailored to you, designed around your needs and preferences. Pick the Predage services you want and build the perfect combination for yourself. Customize your package however you like, add what you need, add your favorites, and create a unique solution, exactly the way you want it.',
+            f_all_videos: 'All the videos on our site',
+            f_dropmap_calc: 'A dropmap per month of subscription directly from {link}',
+            f_calls_plural: 'Montly calls with Predage where you can ask all of the question you want',
+            f_call_singular: 'Montly call with Predage where you can ask all of the question you want',
+            f_vod_review: '1 Hour of vod review with Predage per month',
+            f_custom_session_new: 'A session of customs from where you can understand how Tier 1 play and learn how to play like Predage',
+            footer_platform: 'Platform',
+            footer_socials: 'Socials',
+            footer_legal: 'Legal', footer_terms: 'Terms of Service', footer_privacy: 'Privacy Policy',
+            footer_copyright: 'Predage © 2026. All rights reserved.',
+            footer_disclaimer: 'Not affiliated with Epic Games, Inc.'
+        },
+        de: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Anmelden', auth_logout: 'Abmelden', user_admin_panel: 'Admin-Panel',
+            mc_description: 'Seit einigen Monaten stellt Predage seine umfangreiche Erfahrung als Fortnite-Pro-Spieler zur Verfügung, um allen Fans, die ihn jeden Tag unterstützen, beim Verbessern zu helfen. Predage tritt seit mehreren Jahren in der Welt des competitiven Fortnite an, erreicht dabei stets Höchstleistungen und trägt Italiens Namen ganz nach oben.',
+            mc_description_highlight: 'Wenn du dich verbessern willst, vertraue auf Predage, einen der besten italienischen IGLs aller Zeiten. Wähle deinen Plan.',
+            mc_results_btn: 'Ergebnisse',
+            mc_view_plans_btn: 'Pläne ansehen',
+            mc_recommended_badge: 'Empfohlene Stufe • {n} players haben dasselbe getan',
+            mc_month: '/Monat',
+            tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Individuell',
+            custom_desc: 'Wähle und kombiniere frei das, was du brauchst, um dir ein maßgeschneidertes Paket zu erstellen, abgestimmt auf deine Bedürfnisse und Vorlieben. Wähle die Predage-Leistungen aus, die du möchtest, und baue dir die perfekte Kombination. Personalisiere dein Paket genau wie du es willst, füge deine Favoriten hinzu und erschaffe eine einzigartige Lösung, ganz nach deinem Geschmack.',
+            f_all_videos: 'Alle Videos auf unserer Seite',
+            f_dropmap_calc: 'Eine Dropmap pro Monat Abo direkt von {link}',
+            f_calls_plural: 'Monatliche Calls mit Predage, bei denen du alle Fragen stellen kannst, die du willst',
+            f_call_singular: 'Monatlicher Call mit Predage, bei dem du alle Fragen stellen kannst, die du willst',
+            f_vod_review: '1 Stunde VOD-Review mit Predage pro Monat',
+            f_custom_session_new: 'Eine Custom-Session, in der du verstehst, wie Tier 1 spielt, und lernst, wie Predage zu spielen',
+            footer_platform: 'Plattform',
+            footer_socials: 'Soziale Medien',
+            footer_legal: 'Rechtliches', footer_terms: 'Nutzungsbedingungen', footer_privacy: 'Datenschutzrichtlinie',
+            footer_copyright: 'Predage © 2026. Alle Rechte vorbehalten.',
+            footer_disclaimer: 'Nicht verbunden mit Epic Games, Inc.'
+        },
+        es: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Iniciar sesión', auth_logout: 'Cerrar sesión', user_admin_panel: 'Panel de Administración',
+            mc_description: 'Desde hace algunos meses, Predage pone a disposición su amplia experiencia como jugador profesional de Fortnite para ayudar a mejorar a todos los fans que lo apoyan cada día. Predage compite en el mundo del Fortnite competitivo desde hace varios años, alcanzando siempre los niveles más altos y llevando a Italia a lo más alto.',
+            mc_description_highlight: 'Si quieres mejorar, confía en Predage, uno de los mejores IGL italianos de todos los tiempos. Elige tu plan.',
+            mc_results_btn: 'Resultados',
+            mc_view_plans_btn: 'Ver Planes',
+            mc_recommended_badge: 'Nivel recomendado • {n} players hicieron lo mismo',
+            mc_month: '/mes',
+            tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personalizado',
+            custom_desc: 'Elige y combina libremente lo que necesites para crear un paquete a tu medida, pensado según tus necesidades y preferencias. Puedes seleccionar los servicios de Predage que quieras y construir la combinación perfecta para ti. Personaliza tu paquete como quieras, añade lo que necesites, suma tus favoritos y crea una solución única, tal como la quieres.',
+            f_all_videos: 'Todos los vídeos de nuestro sitio',
+            f_dropmap_calc: 'Una dropmap al mes de suscripción directamente desde {link}',
+            f_calls_plural: 'Llamadas mensuales con Predage donde puedes hacer todas las preguntas que quieras',
+            f_call_singular: 'Llamada mensual con Predage donde puedes hacer todas las preguntas que quieras',
+            f_vod_review: '1 hora de revisión de VOD con Predage al mes',
+            f_custom_session_new: 'Una sesión de customs en la que puedes entender cómo juega el Tier 1 y aprender a jugar como Predage',
+            footer_platform: 'Plataforma',
+            footer_socials: 'Redes Sociales',
+            footer_legal: 'Legal', footer_terms: 'Términos de Servicio', footer_privacy: 'Política de Privacidad',
+            footer_copyright: 'Predage © 2026. Todos los derechos reservados.',
+            footer_disclaimer: 'No afiliado con Epic Games, Inc.'
+        },
+        fr: {
+            nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
+            auth_signin: 'Se connecter', auth_logout: 'Déconnexion', user_admin_panel: 'Panneau Admin',
+            mc_description: 'Depuis quelques mois, Predage met à disposition sa vaste expérience de joueur professionnel Fortnite pour aider à progresser tous les fans qui le soutiennent chaque jour. Predage évolue dans le monde du Fortnite compétitif depuis plusieurs années, atteignant toujours les plus hauts niveaux et portant l\'Italie au sommet.',
+            mc_description_highlight: 'Si tu veux progresser, fais confiance à Predage, l\'un des meilleurs IGL italiens de tous les temps. Choisis ton plan.',
+            mc_results_btn: 'Résultats',
+            mc_view_plans_btn: 'Voir les Plans',
+            mc_recommended_badge: 'Niveau recommandé • {n} players ont fait de même',
+            mc_month: '/mois',
+            tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personnalisé',
+            custom_desc: 'Choisis et combine librement ce dont tu as besoin pour créer un pack sur mesure, pensé selon tes besoins et tes préférences. Sélectionne les services Predage que tu souhaites et construis la combinaison parfaite pour toi. Personnalise ton pack comme tu le souhaites, ajoute ce qu\'il te faut, ajoute tes favoris et crée une solution unique, exactement comme tu la veux.',
+            f_all_videos: 'Toutes les vidéos de notre site',
+            f_dropmap_calc: 'Une dropmap par mois d\'abonnement directement depuis {link}',
+            f_calls_plural: 'Appels mensuels avec Predage où tu peux poser toutes les questions que tu veux',
+            f_call_singular: 'Appel mensuel avec Predage où tu peux poser toutes les questions que tu veux',
+            f_vod_review: '1 heure de revue de VOD avec Predage par mois',
+            f_custom_session_new: 'Une session de customs où tu peux comprendre comment joue le Tier 1 et apprendre à jouer comme Predage',
+            footer_platform: 'Plateforme',
+            footer_socials: 'Réseaux Sociaux',
+            footer_legal: 'Mentions Légales', footer_terms: 'Conditions d\'Utilisation', footer_privacy: 'Politique de Confidentialité',
+            footer_copyright: 'Predage © 2026. Tous droits réservés.',
+            footer_disclaimer: 'Non affilié à Epic Games, Inc.'
+        }
+    };
+
+    var DROPCALC_LINK = '<a href="https://www.droppingcalc.com/it" target="_blank" rel="noopener">DropCalc</a>';
+
+    var TIERS = [
+        { nameKey: 'tier_name_1', price: '9.99', features: ['f_all_videos', 'f_dropmap_calc'] },
+        { nameKey: 'tier_name_2', price: '19.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural'], recommended: true },
+        { nameKey: 'tier_name_3', price: '49.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural', 'f_vod_review'] },
+        { nameKey: 'tier_name_4', price: '99.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_call_singular', 'f_vod_review', 'f_custom_session_new'] },
+        { nameKey: 'tier_name_custom', custom: true }
+    ];
+
+    var recommendedCount = Math.floor(Math.random() * (30 - 16 + 1)) + 16;
+
+    var currentLang = 'en';
+    var loggedIn = false;
+    var canAccessDashboard = false;
+    var langBtnFlag = document.getElementById('langBtnFlag');
+    var langDropdown = document.getElementById('langDropdown');
+    var langBtn = document.getElementById('langBtn');
+    var authBtn = document.getElementById('authBtn');
+    var userMenu = document.getElementById('userMenu');
+    var userAvatar = document.getElementById('userAvatar');
+    var userDropdown = document.getElementById('userDropdown');
+    var mcTiersGrid = document.getElementById('mcTiersGrid');
+    var mcDescMain = document.getElementById('mcDescMain');
+    var mcDescHighlight = document.getElementById('mcDescHighlight');
+    var mcCursorMain = document.getElementById('mcCursorMain');
+    var mcCursorHighlight = document.getElementById('mcCursorHighlight');
+    var viewPlansBtn = document.getElementById('viewPlansBtn');
+    var typeTimer = null;
+
+    function typewriterStart(mainText, highlightText) {
+        if (typeTimer) clearInterval(typeTimer);
+        mcDescMain.textContent = '';
+        mcDescHighlight.textContent = '';
+        mcCursorMain.style.display = 'inline-block';
+        mcCursorHighlight.style.display = 'none';
+        viewPlansBtn.classList.remove('visible');
+        var i = 0;
+        typeTimer = setInterval(function() {
+            if (i < mainText.length) {
+                mcDescMain.textContent += mainText.charAt(i);
+            } else {
+                if (mcCursorMain.style.display !== 'none') {
+                    mcCursorMain.style.display = 'none';
+                    mcCursorHighlight.style.display = 'inline-block';
+                }
+                mcDescHighlight.textContent += highlightText.charAt(i - mainText.length);
+            }
+            i++;
+            if (i >= mainText.length + highlightText.length) {
+                clearInterval(typeTimer);
+                setTimeout(function() { viewPlansBtn.classList.add('visible'); }, 300);
+            }
+        }, 7);
+    }
+
+    function smoothScrollTo(targetY, duration) {
+        var startY = window.scrollY;
+        var diff = targetY - startY;
+        var startTime = null;
+        function step(timestamp) {
+            if (startTime === null) startTime = timestamp;
+            var time = timestamp - startTime;
+            var percent = Math.min(time / duration, 1);
+            var eased = percent < 0.5 ? 2 * percent * percent : -1 + (4 - 2 * percent) * percent;
+            window.scrollTo(0, startY + diff * eased);
+            if (time < duration) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    viewPlansBtn.addEventListener('click', function() {
+        var target = document.querySelector('.mc-tiers-section');
+        if (!target) return;
+        var targetY = target.getBoundingClientRect().top + window.scrollY - headerEl.offsetHeight - 20;
+        smoothScrollTo(targetY, 1500);
+    });
+
+    function renderLangUI() {
+        langBtnFlag.innerHTML = FLAGS[currentLang];
+        langDropdown.innerHTML = LANGS.map(function(l) {
+            return '<button class="lang-option' + (l.code === currentLang ? ' active' : '') + '" data-code="' + l.code + '">' +
+                '<span class="flag-icon">' + FLAGS[l.code] + '</span><span>' + l.name + '</span>' +
+            '</button>';
+        }).join('');
+    }
+
+    function applyStaticTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n');
+            if (I18N[currentLang][key]) el.textContent = I18N[currentLang][key];
+        });
+    }
+
+    function updateAuthBtn() {
+        authBtn.textContent = loggedIn ? I18N[currentLang].auth_logout : I18N[currentLang].auth_signin;
+        authBtn.classList.toggle('logged-in', loggedIn);
+        userAvatar.style.display = loggedIn ? 'block' : 'none';
+        userAvatar.classList.toggle('has-menu', canAccessDashboard);
+        if (!loggedIn || !canAccessDashboard) userDropdown.classList.remove('open');
+    }
+
+    userAvatar.addEventListener('click', function(e) {
+        if (!canAccessDashboard) return;
+        e.stopPropagation();
+        userDropdown.classList.toggle('open');
+    });
+
+    function renderTiers() {
+        mcTiersGrid.innerHTML = TIERS.map(function(t) {
+            if (t.custom) {
+                return '<div class="mc-tier-card custom">' +
+                    '<div class="mc-tier-name">' + I18N[currentLang][t.nameKey] + '</div>' +
+                    '<div class="mc-tier-body"><p>' + I18N[currentLang].custom_desc + '</p></div>' +
+                '</div>';
+            }
+            var featuresHtml = t.features.map(function(fKey) {
+                var text = I18N[currentLang][fKey].replace('{link}', DROPCALC_LINK);
+                return '<li><span class="mc-feat-dot">•</span><span class="mc-feat-text">' + text + '</span></li>';
+            }).join('');
+            var ribbonHtml = t.recommended ? '<div class="mc-tier-ribbon">' + I18N[currentLang].mc_recommended_badge.replace('{n}', recommendedCount) + '</div>' : '';
+            return '<div class="mc-tier-card' + (t.recommended ? ' recommended' : '') + '">' +
+                ribbonHtml +
+                '<div class="mc-tier-name">' + I18N[currentLang][t.nameKey] + '</div>' +
+                '<div class="mc-tier-price">' + t.price + ' ' + I18N[currentLang].mc_month + '</div>' +
+                '<ul class="mc-tier-features">' + featuresHtml + '</ul>' +
+            '</div>';
+        }).join('');
+        setupTiersReveal();
+    }
+
+    var tiersRevealObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('in-view');
+            } else {
+                entry.target.classList.remove('in-view');
+            }
+        });
+    }, { threshold: 0.15 }) : null;
+
+    function setupTiersReveal() {
+        var cards = mcTiersGrid.querySelectorAll('.mc-tier-card');
+        if (!tiersRevealObserver) {
+            cards.forEach(function(card) { card.classList.add('in-view'); });
+            return;
+        }
+        cards.forEach(function(card) { tiersRevealObserver.observe(card); });
+    }
+
+    function setLang(code) {
+        currentLang = code;
+        renderLangUI();
+        applyStaticTranslations();
+        updateAuthBtn();
+        renderTiers();
+        typewriterStart(I18N[currentLang].mc_description, I18N[currentLang].mc_description_highlight);
+    }
+
+    langBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        langDropdown.classList.toggle('open');
+    });
+
+    langDropdown.addEventListener('click', function(e) {
+        var opt = e.target.closest('.lang-option');
+        if (!opt) return;
+        langDropdown.classList.remove('open');
+        setLang(opt.getAttribute('data-code'));
+    });
+
+    document.addEventListener('click', function() {
+        langDropdown.classList.remove('open');
+        userDropdown.classList.remove('open');
+    });
+
+    renderLangUI();
+    applyStaticTranslations();
+    renderTiers();
+    typewriterStart(I18N[currentLang].mc_description, I18N[currentLang].mc_description_highlight);
+
+    var headerEl = document.querySelector('header');
+    var headerSpacer = document.getElementById('headerSpacer');
+    function syncHeaderSpacer() {
+        headerSpacer.style.height = headerEl.offsetHeight + 'px';
+    }
+    syncHeaderSpacer();
+    window.addEventListener('resize', syncHeaderSpacer);
+
+    function setupSlideshow(containerId) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
+        var slides = Array.prototype.slice.call(container.querySelectorAll('img.mc-hero-clip'));
+        if (slides.length < 2) return;
+        var current = 0;
+        setInterval(function() {
+            slides[current].classList.remove('active');
+            current = (current + 1) % slides.length;
+            slides[current].classList.add('active');
+        }, 4000);
+    }
+    setupSlideshow('mcHeroBg');
+
+    updateAuthBtn();
+    fetch('/api/site/me').then(function(res) { return res.json(); }).then(function(data) {
+        loggedIn = !!data.loggedIn;
+        canAccessDashboard = !!data.canAccessDashboard;
+        if (loggedIn && data.avatar) userAvatar.src = data.avatar;
+        updateAuthBtn();
+    }).catch(function() {});
+
+    authBtn.addEventListener('click', function() {
+        if (loggedIn) {
+            fetch('/api/site/logout', { method: 'POST' }).then(function() {
+                window.location.reload();
+            });
+        } else {
+            window.location.href = '/site-auth/discord?next=' + encodeURIComponent('/masterclass');
+        }
+    });
+
+    var MORE_TOURNAMENTS = [
+        { name: 'FNCS Division 1 Practice', link: 'https://fortnitetracker.com/events/epicgames_S42_FNCSDivisionalCup_Division1_EU?window=S42_FNCSDivisionalCup_Division1_Week3Final_EU&page=0#33', prize: '100€', year: 2026 },
+        { name: 'FNCS Division 1 Practice', link: 'https://fortnitetracker.com/events/epicgames_S42_FNCSDivisionalCup_Division1_EU?window=S42_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#33', prize: '100€', year: 2026 },
+        { name: 'FNCS Global Championship Last Chance Finals', link: 'https://fortnitetracker.com/events/epicgames_S41_FNCSLastChanceMajor_EU?window=S41_FNCSLastChanceMajor_Final_EU&page=0#40', prize: '300€', year: 2026 },
+        { name: 'Reload Elite Series Finals', link: 'https://fortnitetracker.com/events/epicgames_S41_ReloadEliteSeries4Final_EU?window=S41_ReloadEliteSeries4Final_EU&page=0#19', prize: '500€', year: 2026 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S41_FNCSDivisionalCup_Division1_EU?window=S41_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#8', prize: '400€', year: 2026 },
+        { name: 'Reload Duos Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S40_DuosReloadVictoryCup_EU?window=S40_DuosReloadVictoryCup_Round2_day2_EU&page=0#28', prize: '100€', year: 2026 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S40_FNCSDivisionalCup_Division1_EU?window=S40_FNCSDivisionalCup_Division1_Week3Final_EU&page=0#26', prize: '200€', year: 2026 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S40_FNCSDivisionalCup_Division1_EU?window=S40_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#17', prize: '300€', year: 2026 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S40_SoloVictoryCup_EU?window=S40_SoloVictoryCup_Round2_Day1_EU&page=0#98', prize: '100€', year: 2026 },
+        { name: 'Reload Elite Series Finals', link: 'https://fortnitetracker.com/events/epicgames_S39_ReloadEliteSeries2Final_EU?window=S39_ReloadEliteSeries2Final_EU&page=0#12', prize: '1000€', year: 2026 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S39_FNCSDivisionalCup_Division1_EU?window=S39_FNCSDivisionalCup_Division1_Week4Final_EU&page=0#11', prize: '300€', year: 2026 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S39_FNCSDivisionalCup_Division1_EU?window=S39_FNCSDivisionalCup_Division1_Week3Final_EU&page=0#13', prize: '300€', year: 2026 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S39_FNCSDivisionalCup_Division1_EU?window=S39_FNCSDivisionalCup_Division1_Week2Final_EU&page=0#12', prize: '300€', year: 2026 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S39_FNCSDivisionalCup_Division1_EU?window=S39_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#15', prize: '300€', year: 2026 },
+        { name: 'Reload Duos Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S39_ReloadCashVictoryCup_Dec_EU?window=S39_ReloadCashVictoryCup_Event3Round2_EU_makegood&page=0#24', prize: '100€', year: 2025 },
+        { name: 'Duos Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S39_DuosVictoryCup_EU?window=S39_DuosVictoryCup_Round2_Day1_January_EU&page=0#6', prize: '100€', year: 2026 },
+        { name: '$1 Million Unreal Cup', link: 'https://fortnitetracker.com/events/epicgames_S39_1MillionUnrealCup_EU?window=S39_1MillionUnrealCup_EU&page=4#445', prize: '100€', year: 2025 },
+        { name: 'Squads Victory Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S38_SquadsVictoryCup_EU?window=S38_SquadsVictoryCup_Round2_Day2_EU&page=0#15', prize: '100€', year: 2025 },
+        { name: 'Duos Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S37_DuosDivisionalCup_Division1_EU?window=S37_DuosDivisionalCup_Division1_Week5Final_EU&page=0#25', prize: '200€', year: 2025 },
+        { name: 'Duos Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S37_DuosDivisionalCup_Division1_EU?window=S37_DuosDivisionalCup_Division1_Week2Final_EU&page=0#22', prize: '200€', year: 2025 },
+        { name: 'Fortnite Performance Evaluation', link: 'https://fortnitetracker.com/events/epicgames_S37_PerformanceEvaluation_EU?window=S37_PerformanceEvaluation_Event2Round2_EU&page=0#4', prize: '400€', year: 2025 },
+        { name: 'FNCS Major 3 Finals', link: 'https://fortnitetracker.com/events/epicgames_S36_FNCSMajor3_Final_EU?window=S36_FNCSMajor3_Final_Day1_EU&sm=S36_FNCSMajor3_Final_CumulativeLeaderboardDef&page=0#20', prize: '2900€', year: 2025 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S36_FNCSDivisionalCup_Division1_EU?window=S36_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#17', prize: '300€', year: 2025 },
+        { name: 'FNCS Showdown', link: 'https://fortnitetracker.com/events/epicgames_S35_FNSCShowdown_EU?window=S35_FNCSShowdown_Event3Round2_EU&page=0#24', prize: '150€', year: 2025 },
+        { name: 'Solo Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S34_SoloCashCup_EU?window=S34_SoloCashCup_Event5Round2_EU&page=0#16', prize: '320€', year: 2025 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S34_FNCSDivisionalCup_Division1_EU?window=S34_FNCSDivisionalCup_Division1_Week4Final_EU_mg&page=0#11', prize: '600€', year: 2025 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S34_FNCSDivisionalCup_Division1_EU?window=S34_FNCSDivisionalCup_Division1_Week3Final_EU&page=0#11', prize: '600€', year: 2025 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S34_FNCSDivisionalCup_Division1_EU?window=S34_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#8', prize: '1200€', year: 2025 },
+        { name: 'FNCS Major 1 Finals', link: 'https://fortnitetracker.com/events/epicgames_S33_FNCSMajor1_Final_EU?window=S33_FNCSMajor1_Final_Day1_EU&sm=S33_FNCSMajor1_Final_CumulativeLeaderboardDef&page=0#18', prize: '2900€', year: 2025 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S33_FNCSDivisionalCup_Division1_EU?window=S33_FNCSDivisionalCup_Division1_Week5Final_EU&page=0#14', prize: '600€', year: 2025 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S33_FNCSDivisionalCup_Division1_EU?window=S33_FNCSDivisionalCup_Division1_Week4Final_EU&page=0#17', prize: '300€', year: 2025 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S33_FNCSDivisionalCup_Division1_EU?window=S33_FNCSDivisionalCup_Division1_Week3Final_EU&page=0#15', prize: '600€', year: 2025 },
+        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S33_FNCSDivisionalCup_Division1_EU?window=S33_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#5', prize: '1650€', year: 2025 },
+        { name: 'Trios Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S32_TriosCashCup_EU?window=S32_TriosCashCup_Event4Round2_EU&page=0#3', prize: '750€', year: 2024 },
+        { name: 'Trios Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_TriosCashCup_EU?window=S31_TriosCashCup_Event3Round2_EU&page=0#24', prize: '150€', year: 2024 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_DuosCashCup_EU?window=S31_DuosCashCup_Event5Round2_EU&page=0#37', prize: '150€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_SoloVictoryCashCup_EU?window=S31_SoloVictoryCashCup_Event5Round2_EU&page=3#340', prize: '100€', year: 2024 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_DuosCashCup_EU?window=S31_DuosCashCup_Event4Round2_EU&page=0#21', prize: '300€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_SoloVictoryCashCup_EU?window=S31_SoloVictoryCashCup_Event3Round2_EU&page=3#358', prize: '100€', year: 2024 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_DuosCashCup_EU?window=S31_DuosCashCup_Event2Round2_EU&page=0#2', prize: '1350€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_SoloVictoryCashCup_EU?window=S31_SoloVictoryCashCup_Event2Round2_EU&page=1#172', prize: '100€', year: 2024 },
+        { name: 'Katoo FNCS Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_InfluencerCup_EU?window=S31_InfluencerCup_Round2_EU&page=1#177', prize: '100€', year: 2024 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_DuosCashCup_EU?window=S31_DuosCashCup_Event1Round2_EU&page=0#5', prize: '450€', year: 2024 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_DuosCashCup_EU?window=S30_DuosCashCup_Event8Round2_EU&page=0#17', prize: '300€', year: 2024 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_DuosCashCup_EU?window=S30_DuosCashCup_Event7Round2_EU&page=0#38', prize: '150€', year: 2024 },
+        { name: 'FNCS Major 3 Grand Finals', link: 'https://fortnitetracker.com/events/epicgames_S30_FNCS_Major3_GrandFinals_EU?window=S30_FNCS_Major3_GrandFinalDay2_EU&sm=S30_FNCS_Major3_GrandFinalDay2_CumulativeLeaderboardDef&page=0#38', prize: '1000€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_SoloVictoryCashCup_EU?window=S30_SoloVictoryCashCup_Event4Round2_EU&page=0#62', prize: '100€', year: 2024 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_DuosCashCup_EU?window=S30_DuosCashCup_Event3Round2_EU&page=0#20', prize: '300€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_SoloVictoryCashCup_EU?window=S30_SoloVictoryCashCup_Event3Round2_EU&page=0#4', prize: '200€', year: 2024 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_DuosCashCup_EU?window=S30_DuosCashCup_Event2Round2_EU&page=0#16', prize: '300€', year: 2024 },
+        { name: 'Squads Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_SquadsVictoryCashCup_EU?window=S30_SquadsVictoryCashCup_Event2Round2_EU&page=0#2', prize: '200€', year: 2024 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_DuosCashCup_EU?window=S30_DuosCashCup_Event1Round2_EU&page=0#4', prize: '450€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S29_SoloVictoryCashCup_EU?window=S29_SoloVictoryCashCup_Event6Round2_EU&page=1#140', prize: '100€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S29_SoloVictoryCashCup_EU?window=S29_SoloVictoryCashCup_Event5Round2_EU&page=3#305', prize: '100€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S29_SoloVictoryCashCup_EU?window=S29_SoloVictoryCashCup_Event4Round2_EU&page=2#209', prize: '100€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S29_SoloVictoryCashCup_EU?window=S29_SoloVictoryCashCup_Event2Round2_EU&page=3#317', prize: '100€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S29_SoloVictoryCashCup_EU?window=S29_SoloVictoryCashCup_Event1Round2_EU&page=2#209', prize: '100€', year: 2024 },
+        { name: 'FNCS Major 1 Grand Finals', link: 'https://fortnitetracker.com/events/epicgames_S28_FNCS_Major1_GrandFinals_EU?window=S28_FNCS_Major1_GrandFinalDay2_EU&sm=S28_FNCS_Major1_GrandFinalDay2_CumulativeLeaderboardDef&page=0#42', prize: '1000€', year: 2024 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_DuosCashCup_EU?window=S28_DuosCashCup_Event4Round2_EU&page=0#28', prize: '125€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_SoloVictoryCashCup_EU?window=S28_SoloVictoryCashCup_Event6Round2_EU&page=2#220', prize: '100€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_SoloVictoryCashCup_EU?window=S28_SoloVictoryCashCup_Event5Round2_EU&page=2#226', prize: '100€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_SoloVictoryCashCup_EU?window=S28_SoloVictoryCashCup_MakeGood3Round2_EU&page=1#135', prize: '100€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_SoloVictoryCashCup_EU?window=S28_SoloVictoryCashCup_MakeGood1Round2_EU&page=1#194', prize: '100€', year: 2024 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_SoloVictoryCashCup_EU?window=S28_SoloVictoryCashCup_Event3Round2_EU&page=1#193', prize: '100€', year: 2024 },
+        { name: "Inoxtag's OG Skirmish", link: 'https://fortnitetracker.com/events/epicgames_S27_OGInoxtag_Duos_EU?window=S27_OGInoxtag_EU_Event2&page=0#8', prize: '300€', year: 2023 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S26_DuosCashCup_EU?window=S26_DuosCashCup_EU_Event7_Round2&page=0#6', prize: '350€', year: 2023 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S26_DuosCashCup_EU?window=S26_DuosCashCup_EU_Event3_Round2&page=0#37', prize: '100€', year: 2023 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S25_DuosCashCup_EU?window=S25_DuosCashCup_EU_Event3_Round2&page=0#15', prize: '100€', year: 2023 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S25_SoloVictoryCashCup_EU?window=S25_SoloVictoryCashCup_Event3Round2_EU&page=1#135', prize: '100€', year: 2023 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S25_SoloVictoryCashCup_EU?window=S25_SoloVictoryCashCup_Event2Round2_EU&page=0#93', prize: '100€', year: 2023 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S24_SoloVictoryCup_EU?window=S24_SoloVictoryCup_Event7_Round2_EU&page=1#134', prize: '100€', year: 2023 },
+        { name: 'Duo Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S24_DuosCashCup_EU?window=S24_DuosCashCup_EU_Event4_Round2&page=0#25', prize: '100€', year: 2023 },
+        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S24_SoloVictoryCup_EU?window=S24_SoloVictoryCup_Event1_Round2_EU&page=0#4', prize: '200€', year: 2023 },
+        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S24_DuosCashCup_EU?window=S24_DuosCashCup_EU_Event1_Round2&page=0#25', prize: '100€', year: 2023 },
+        { name: 'Solo Victory Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S23_SoloCashCup_EU?window=S23_SoloCashCup_Event9_Round2_EU&page=1#163', prize: '100€', year: 2023 },
+        { name: 'Solo Victory Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S23_SoloCashCup_EU?window=S23_SoloCashCup_Event5_Round2_EU&page=1#111', prize: '100€', year: 2023 },
+        { name: 'Elite Cup Weekly Finals', link: 'https://fortnitetracker.com/events/epicgames_S23_DivisionalCups_Elite_Finals_EU?window=S23_DivisionalCups_Elite_Finals_EU_Week2_makegood&page=0#38', prize: '300€', year: 2023 }
+    ];
+
+    var LINK_ICON_SVG = '<svg class="more-result-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"></path><path d="M10 14 21 3"></path><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"></path></svg>';
+
+    function renderMoreList(year) {
+        var list = document.getElementById('moreResultsList');
+        if (!list) return;
+        var items = MORE_TOURNAMENTS.filter(function(t) { return t.year === year; });
+        items.sort(function(a, b) {
+            var pa = parseInt(a.prize.replace(/[^0-9]/g, ''), 10);
+            var pb = parseInt(b.prize.replace(/[^0-9]/g, ''), 10);
+            return pb - pa;
+        });
+        list.innerHTML = items.map(function(t) {
+            return '<a class="more-result-row" href="' + t.link + '" target="_blank" rel="noopener">' +
+                '<span class="more-result-name">' + t.name + LINK_ICON_SVG + '</span>' +
+                '<span class="more-result-prize">' + t.prize + '</span>' +
+            '</a>';
+        }).join('');
+    }
+
+    var resultModal = document.getElementById('resultModal');
+    var resultModalContent = document.getElementById('resultModalContent');
+    var resultModalClose = document.getElementById('resultModalClose');
+
+    function closeResultModal() {
+        if (resultModal) resultModal.classList.remove('open');
+    }
+
+    var resultsMoreBtn = document.getElementById('resultsMoreBtn');
+    if (resultsMoreBtn) {
+        resultsMoreBtn.addEventListener('click', function() {
+            if (!resultModal || !resultModalContent) return;
+            var years = [2026, 2025, 2024, 2023];
+            resultModalContent.innerHTML = '<h3 class="modal-title">More Results</h3>' +
+                '<div class="more-year-tabs" id="moreYearTabs">' +
+                years.map(function(y, i) {
+                    return '<button class="more-year-btn' + (i === 0 ? ' active' : '') + '" data-year="' + y + '">' + y + '</button>';
+                }).join('') +
+                '</div>' +
+                '<div class="more-results-list" id="moreResultsList"></div>';
+            renderMoreList(years[0]);
+            var tabs = document.getElementById('moreYearTabs');
+            if (tabs) {
+                tabs.addEventListener('click', function(e) {
+                    var btn = e.target.closest('.more-year-btn');
+                    if (!btn) return;
+                    tabs.querySelectorAll('.more-year-btn').forEach(function(b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    renderMoreList(parseInt(btn.getAttribute('data-year'), 10));
+                });
+            }
+            resultModal.classList.add('open');
+        });
+    }
+
+    if (resultModalClose) resultModalClose.addEventListener('click', closeResultModal);
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && resultModal && resultModal.classList.contains('open')) closeResultModal();
+    });
+
+    document.querySelectorAll('.header-nav a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            var href = link.getAttribute('href');
+            if (!href || href.charAt(0) !== '/' || link.classList.contains('active')) return;
+            e.preventDefault();
+            document.body.classList.add('page-fade-out');
+            setTimeout(function() { window.location.href = href; }, 200);
+        });
+    });
+
+    window.addEventListener('pageshow', function() {
+        document.body.classList.remove('page-fade-out');
+    });
+})();
+</script>
+</body>
+</html>
