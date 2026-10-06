@@ -678,6 +678,19 @@ async function getBanLogsDB(guildId, limit = 200) {
     return DashboardLog.find({ guildId, action: { $in: ['user_banned', 'user_banned_auto'] } }).sort({ date: -1 }).limit(limit).lean();
 }
 
+async function updateBanReasonDB(guildId, userId, newReason) {
+    await DashboardLog.findOneAndUpdate(
+        { guildId, targetId: userId, action: { $in: ['user_banned', 'user_banned_auto'] } },
+        { $set: { reason: newReason } },
+        { sort: { date: -1 } }
+    );
+    await ModLog.findOneAndUpdate(
+        { guildId, targetId: userId, action: { $regex: /ban/i } },
+        { $set: { reason: newReason } },
+        { sort: { date: -1 } }
+    );
+}
+
 async function saveTranscriptDB(data) {
     try {
         const doc = await Transcript.create({
@@ -860,6 +873,10 @@ async function getBlacklistSyncGuildIdsDB() {
     return configs.map(c => c.guildId);
 }
 
+async function updateBlacklistReasonDB(userId, newReason) {
+    return BlacklistEntry.findOneAndUpdate({ userId }, { $set: { reason: newReason } }, { new: true }).lean();
+}
+
 async function addTicketBlockDB(data) {
     return TicketBlock.findOneAndUpdate(
         { guildId: data.guildId, userId: data.userId },
@@ -971,6 +988,29 @@ async function getJoinLeaveTotalsDB(guildId) {
     return { joins, leaves };
 }
 
+async function getJoinLeaveSeriesDB(guildId, startTime, endTime) {
+    const rows = await JoinLeaveEvent.aggregate([
+        { $match: { guildId, date: { $gte: startTime, $lte: endTime } } },
+        {
+            $group: {
+                _id: { day: { $dateToString: { format: '%Y-%m-%d', date: '$date' } }, type: '$type' },
+                count: { $sum: 1 }
+            }
+        },
+        { $sort: { '_id.day': 1 } }
+    ]);
+
+    const byDay = {};
+    for (const row of rows) {
+        const day = row._id.day;
+        if (!byDay[day]) byDay[day] = { day, joins: 0, leaves: 0 };
+        if (row._id.type === 'join') byDay[day].joins = row.count;
+        else if (row._id.type === 'leave') byDay[day].leaves = row.count;
+    }
+
+    return Object.values(byDay).sort((a, b) => a.day.localeCompare(b.day));
+}
+
 async function getTicketStatsByModeratorDB(guildId, sinceDate) {
     const match = { guildId };
     if (sinceDate) match.closedAt = { $gte: sinceDate };
@@ -1047,6 +1087,7 @@ module.exports = {
     saveDashboardLogDB,
     getDashboardLogsDB,
     getBanLogsDB,
+    updateBanReasonDB,
     Transcript,
     saveTranscriptDB,
     getTranscriptDB,
@@ -1080,6 +1121,7 @@ module.exports = {
     getBlacklistEntryDB,
     getAllBlacklistDB,
     getBlacklistSyncGuildIdsDB,
+    updateBlacklistReasonDB,
     TicketBlock,
     addTicketBlockDB,
     removeTicketBlockDB,
@@ -1107,6 +1149,7 @@ module.exports = {
     addJoinLeaveEventDB,
     getJoinLeaveStatsDB,
     getJoinLeaveTotalsDB,
+    getJoinLeaveSeriesDB,
     getTicketStatsByModeratorDB,
     getModeratorActionStatsDB,
 };
