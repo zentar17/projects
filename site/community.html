@@ -124,6 +124,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 .header-nav a:hover::after { width: 100%; }
 .header-nav a.active { color: var(--primary); }
 .header-nav a.active::after { width: 100%; background: var(--primary); }
+.nav-videos-group { display: none; align-items: center; gap: 30px; }
+.nav-videos-group.visible { display: flex; }
 
 .header-auth {
     display: flex;
@@ -812,8 +814,10 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         <a href="/" data-i18n="nav_home">Home</a>
         <span class="nav-dot">•</span>
         <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
-        <span class="nav-dot">•</span>
-        <a href="/videos" data-i18n="nav_videos">Videos</a>
+        <span class="nav-videos-group" id="navVideosGroup">
+            <span class="nav-dot">•</span>
+            <a href="/videos" data-i18n="nav_videos">Videos</a>
+        </span>
         <span class="nav-dot">•</span>
         <a href="/community" class="active" data-i18n="nav_community">Community</a>
         <span class="nav-dot">•</span>
@@ -1400,11 +1404,14 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         userDropdown.classList.toggle('open');
     });
 
+    var navVideosGroup = document.getElementById('navVideosGroup');
+
     function refreshAuth() {
         return fetch('/api/site/me').then(function(r) { return r.json(); }).then(function(data) {
             loggedIn = !!data.loggedIn;
             canAccessDashboard = !!data.canAccessDashboard;
             currentUser = data.loggedIn ? data : null;
+            if (navVideosGroup) navVideosGroup.classList.toggle('visible', !!data.canViewVideos);
             if (loggedIn && data.avatar) userAvatar.src = data.avatar;
             updateAuthBtn();
             renderInlineForms();
