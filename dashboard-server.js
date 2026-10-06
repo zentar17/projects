@@ -628,6 +628,8 @@ async function canUserViewVideosPage(userId) {
     if (SUPER_OWNER_IDS.includes(userId)) return true;
     try {
         const { client, db } = global.PredCord;
+        const settings = await db.getMasterclassSettingsDB();
+        if ((settings.viewUserIds || []).includes(userId) || (settings.manageUserIds || []).includes(userId)) return true;
         const guildIds = [MAIN_GUILD_ID, COMMUNITY_GUILD_ID].filter(Boolean);
         for (const guildId of guildIds) {
             const roleIds = await db.getVideoAccessRolesDB(guildId);
