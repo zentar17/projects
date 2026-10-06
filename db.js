@@ -107,6 +107,7 @@ const GuildConfigSchema = new mongoose.Schema({
     trialModRoleIds: { type: [String], default: [] },
     headModRoleIds: { type: [String], default: [] },
     supportRoleIds: { type: [String], default: [] },
+    blacklistSyncEnabled: { type: Boolean, default: false },
     dashboardPermissions: {
         createRoles: { type: [String], default: [] },
         editRoles: { type: [String], default: [] },
