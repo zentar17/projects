@@ -179,6 +179,9 @@ async function init() {
         canUploadVideos = !!meData.canUploadVideos;
         canManageVideos = !!meData.canManageVideos;
 
+        const navVideosGroup = document.getElementById('navVideosGroup');
+        if (navVideosGroup) navVideosGroup.classList.toggle('visible', !!meData.canViewVideos);
+
         await loadMyPermissions();
         await loadGuilds();
         setupEvents();
