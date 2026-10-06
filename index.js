@@ -1072,7 +1072,7 @@ client.on('messageCreate', async (message) => {
             }
         }
 
-        if (firstChar === NATIVE_PREFIX) {
+        if (firstChar === NATIVE_PREFIX || firstChar === '!') {
             const cooldown = await db.getCommandCooldownDB(message.author.id, message.guild.id, `native_${command}`);
             if (cooldown) {
                 const remaining = Math.ceil((new Date(cooldown.expiresAt).getTime() - Date.now()) / 1000);
@@ -1091,11 +1091,153 @@ client.on('messageCreate', async (message) => {
                 action: 'native_command_used',
                 userId: message.author.id,
                 userTag: message.author.tag,
-                details: `Command: ${NATIVE_PREFIX}${command}`,
+                details: `Command: ${firstChar}${command}`,
                 channelId: message.channel.id
             });
 
             await handleNativeCommand(message, command, args);
+            return;
+        }
+
+        if (firstChar === '-') {
+            if (!(await isAdminSafe(message.member))) { await message.delete().catch(() => {}); return; }
+
+            if (command === 'blacklist') {
+                const input = args[0];
+                if (!input) {
+                    const embed = new EmbedBuilder().setDescription('Usage: `-blacklist <@user/ID> [reason]`').setColor(COLORS.ERROR);
+                    await message.channel.send({ embeds: [embed] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+                const result = await getUserFromInput(message.guild, input);
+                if (!result || !result.user) {
+                    const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR);
+                    await message.channel.send({ embeds: [embed] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+                const user = result.user;
+                const member = result.member;
+                const reason = args.slice(1).join(' ') || 'No reason provided';
+
+                try {
+                    if (member) {
+                        if (!member.bannable) {
+                            const embed = new EmbedBuilder().setDescription('I cant moderate this user.').setColor(COLORS.ERROR);
+                            await message.channel.send({ embeds: [embed] });
+                            await message.delete().catch(() => {});
+                            return;
+                        }
+                        await member.ban({ reason: `Blacklist: ${reason}` });
+                    } else {
+                        await message.guild.bans.create(user.id, { reason: `Blacklist: ${reason}` });
+                    }
+
+                    const existing = await db.getBlacklistEntryDB(user.id);
+                    const servers = new Set(existing?.servers || []);
+                    servers.add(message.guild.id);
+                    await db.addBlacklistEntryDB({
+                        userId: user.id,
+                        userTag: user.tag,
+                        reason,
+                        modId: message.author.id,
+                        modTag: message.author.tag,
+                        date: new Date(),
+                        servers: Array.from(servers)
+                    });
+
+                    await saveModLog(message.guild, 'BLACKLIST', { id: user.id, tag: user.tag }, message.author, reason);
+                    await db.saveDashboardLogDB(message.guild.id, {
+                        type: 'moderation',
+                        action: 'user_blacklisted',
+                        userId: message.author.id,
+                        userTag: message.author.tag,
+                        targetId: user.id,
+                        targetTag: user.tag,
+                        moderatorId: message.author.id,
+                        moderatorTag: message.author.tag,
+                        reason: reason,
+                        channelId: message.channel.id
+                    });
+
+                    const embed = new EmbedBuilder()
+                        .setDescription(`**${user.tag || user.username}** (${user.id}) has been blacklisted for the reason **${reason}**`)
+                        .setColor(BLACK);
+                    await message.channel.send({ embeds: [embed] });
+                } catch (error) {
+                    const embed = new EmbedBuilder().setDescription('Error during blacklist: ' + error.message).setColor(COLORS.ERROR);
+                    await message.channel.send({ embeds: [embed] });
+                }
+                await message.delete().catch(() => {});
+                return;
+            }
+
+            if (command === 'unbl') {
+                const userId = args[0];
+                if (!userId) {
+                    const embed = new EmbedBuilder().setDescription('Usage: `-unbl <ID>`').setColor(COLORS.ERROR);
+                    await message.channel.send({ embeds: [embed] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+
+                try {
+                    const bans = await message.guild.bans.fetch();
+                    const bannedUser = bans.find(ban => ban.user.id === userId);
+                    if (bannedUser) {
+                        await message.guild.members.unban(userId);
+                    }
+
+                    const entry = await db.getBlacklistEntryDB(userId);
+                    await db.removeBlacklistEntryDB(userId);
+
+                    const targetTag = entry?.userTag || bannedUser?.user?.tag || `Unknown User (${userId})`;
+                    await saveModLog(message.guild, 'UNBLACKLIST', { id: userId, tag: targetTag }, message.author, 'Removed from blacklist');
+                    await db.saveDashboardLogDB(message.guild.id, {
+                        type: 'moderation',
+                        action: 'user_unblacklisted',
+                        userId: message.author.id,
+                        userTag: message.author.tag,
+                        targetId: userId,
+                        targetTag: targetTag,
+                        moderatorId: message.author.id,
+                        moderatorTag: message.author.tag,
+                        reason: 'Removed from blacklist',
+                        channelId: message.channel.id
+                    });
+
+                    const embed = new EmbedBuilder()
+                        .setDescription(`**${targetTag}** has been removed from the blacklist${bannedUser ? ' and unbanned here' : ''}.`)
+                        .setColor(BLACK);
+                    await message.channel.send({ embeds: [embed] });
+                } catch (error) {
+                    const embed = new EmbedBuilder().setDescription('Error during unblacklist: ' + error.message).setColor(COLORS.ERROR);
+                    await message.channel.send({ embeds: [embed] });
+                }
+                await message.delete().catch(() => {});
+                return;
+            }
+
+            if (command === 'bll') {
+                const entries = await db.getAllBlacklistDB();
+                if (!entries.length) {
+                    const embed = new EmbedBuilder().setDescription('The blacklist is empty.').setColor(COLORS.INFO);
+                    await message.channel.send({ embeds: [embed] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+                const lines = entries.slice(0, 25).map(e => `**${e.userTag || e.userId}** (${e.userId}) — ${e.reason || 'No reason provided'} — by ${e.modTag || e.modId || 'Unknown'}`);
+                const embed = new EmbedBuilder()
+                    .setTitle(`Blacklist (${entries.length})`)
+                    .setDescription(lines.join('\n'))
+                    .setColor(COLORS.INFO);
+                await message.channel.send({ embeds: [embed] });
+                await message.delete().catch(() => {});
+                return;
+            }
+
+            await message.delete().catch(() => {});
             return;
         }
 
@@ -1952,6 +2094,33 @@ async function handleNativeCommand(message, command, args) {
         }
         const lines = roles.slice(0, 30).map(r => `<@${r.userId}> — <@&${r.roleId}> — expires <t:${Math.floor(new Date(r.expiresAt).getTime() / 1000)}:R>`);
         const embed = new EmbedBuilder().setTitle('Active temporary roles').setDescription(lines.join('\n')).setColor(COLORS.INFO);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'ms') {
+        if (!(await hasModPerms(message.member))) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        const result = input ? await getUserFromInput(message.guild, input) : { user: message.author };
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const target = result.user;
+        const stats = await db.getModeratorActionStatsDB(message.guild.id, target.id);
+        const embed = new EmbedBuilder()
+            .setTitle(`Moderation statistics for ${target.tag || target.username}`)
+            .addFields(
+                { name: 'Mutes', value: `7d: **${stats.mute.day7}** · 30d: **${stats.mute.day30}** · All-time: **${stats.mute.all}**`, inline: false },
+                { name: 'Bans', value: `7d: **${stats.ban.day7}** · 30d: **${stats.ban.day30}** · All-time: **${stats.ban.all}**`, inline: false },
+                { name: 'Kicks', value: `7d: **${stats.kick.day7}** · 30d: **${stats.kick.day30}** · All-time: **${stats.kick.all}**`, inline: false },
+                { name: 'Warns', value: `7d: **${stats.warn.day7}** · 30d: **${stats.warn.day30}** · All-time: **${stats.warn.all}**`, inline: false }
+            )
+            .setColor(COLORS.INFO)
+            .setThumbnail(THUMBNAIL_URL);
         await message.channel.send({ embeds: [embed] });
         await message.delete().catch(() => {});
         return;
