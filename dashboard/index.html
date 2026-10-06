@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PredCord Dashboard</title>
+<link rel="icon" type="image/png" href="/dashboard/favicon.png">
+<link rel="shortcut icon" type="image/png" href="/dashboard/favicon.png">
+<link rel="apple-touch-icon" href="/dashboard/favicon.png">
+<link rel="stylesheet" href="/dashboard/style.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="header-brand">
+        <img src="/images/dragon-logo.png" alt="Predage" class="brand-logo">
+        <span>PredCord <span class="brand-accent">Dashboard</span></span>
+    </div>
+
+    <nav class="header-nav">
+        <a href="/">Home</a>
+        <span class="nav-dot">•</span>
+        <a href="/masterclass">Masterclass</a>
+        <span class="nav-dot">•</span>
+        <a href="/videos">Videos</a>
+        <span class="nav-dot">•</span>
+        <a href="#">Community</a>
+        <span class="nav-dot">•</span>
+        <a href="#">Merch</a>
+    </nav>
+
+    <div class="header-auth">
+        <div class="lang-switcher" id="langSwitcher">
+            <button class="lang-btn" id="langBtn" type="button">
+                <span class="flag-icon" id="langBtnFlag"></span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="lang-dropdown" id="langDropdown"></div>
+        </div>
+
+        <button id="logoutBtn" class="auth-btn logged-in">Logout</button>
+
+        <div class="user-menu" id="userMenu">
+            <button class="user-avatar-btn" id="userAvatarBtn">
+                <img src="" alt="" class="user-avatar-img" id="userAvatarImg">
+            </button>
+            <div class="user-dropdown hidden" id="userDropdown">
+                <div class="user-dropdown-header">
+                    <img src="" alt="" class="user-dropdown-avatar" id="userDropdownAvatar">
+                    <div class="user-dropdown-names">
+                        <div class="user-dropdown-displayname" id="userDropdownDisplayName">—</div>
+                        <div class="user-dropdown-username" id="userDropdownUsername" title="Click to copy ID">—</div>
+                    </div>
+                </div>
+                <div class="user-dropdown-roles-section hidden" id="userDropdownRolesSection">
+                    <div class="user-dropdown-divider"></div>
+                    <div class="user-dropdown-section-title">Roles</div>
+                    <div class="user-dropdown-roles" id="userDropdownRoles">
+                        <span class="loading-text">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div id="serverSelectScreen" class="server-select-screen">
+    <h1 class="server-select-title"><span id="adminsFontCycle">Admins</span> <span class="highlight">Panels</span></h1>
+    <p class="server-select-subtitle">Select a server to manage</p>
+    <div class="server-select-grid">
+        <button type="button" class="server-select-card" data-server="community">
+            <img src="/images/dragon-pfp.webp" alt="Predage Community">
+            <span class="server-select-name">Predage <span class="highlight">Community</span></span>
+        </button>
+        <button type="button" class="server-select-card" data-server="predcord">
+            <img src="/images/predcord-pfp.webp" alt="PredCord">
+            <span class="server-select-name">PredCord</span>
+        </button>
+        <button type="button" class="server-select-card hidden" data-server="masterclass" id="masterclassSelectCard">
+            <img src="/images/dragon-logo.png" alt="Masterclass Control">
+            <span class="server-select-name">Masterclass <span class="highlight">Control</span></span>
+        </button>
+    </div>
+</div>
+
+<main id="dashboardMain" class="hidden">
+    <aside>
+        <div class="current-server-badge" id="currentServerBadge">
+            <img src="" alt="" id="currentServerBadgeImg">
+            <span id="currentServerBadgeName">—</span>
+        </div>
+        <button type="button" class="change-server-btn" id="changeServerBtn">Change Server</button>
+
+        <h3>Sections</h3>
+        <nav class="nav-tabs" id="guildNavTabs">
+            <button class="nav-tab active" data-tab="commands">Custom Commands</button>
+            <button class="nav-tab hidden" data-tab="permissions" id="navTabPermissions">Permissions</button>
+            <button class="nav-tab hidden" data-tab="config" id="navTabConfig">Configuration</button>
+            <button class="nav-tab hidden" data-tab="tickets" id="navTabTickets">Tickets</button>
+            <button class="nav-tab hidden" data-tab="stats" id="navTabStats">Statistics</button>
+            <button class="nav-tab" data-tab="bans">Ban</button>
+            <button class="nav-tab" data-tab="logs">Logs</button>
+        </nav>
+        <nav class="nav-tabs hidden" id="masterclassNavTabs">
+            <button class="nav-tab active" data-tab="videos" id="navTabVideos">Videos</button>
+            <button class="nav-tab hidden" data-tab="masterclass-permissions" id="navTabMasterclassPermissions">Permissions</button>
+        </nav>
+    </aside>
+
+    <section class="content">
+        <div id="tab-commands" class="tab-content">
+            <div class="panel-header">
+                <h2>Custom Commands</h2>
+                <button id="newCmdBtn" class="btn-primary">+ New Command</button>
+            </div>
+            <div id="commandsList" class="commands-list">
+                <div class="loading">Loading</div>
+            </div>
+        </div>
+
+        <div id="tab-permissions" class="tab-content hidden">
+            <div class="panel-header">
+                <h2>Permissions</h2>
+                <button id="savePermissionsBtn" class="btn-primary">Save Permissions</button>
+            </div>
+
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>Create Commands</h3>
+                    <p class="permission-desc">Who can create new custom commands</p>
+                    <div id="createRolesList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="permission-card">
+                    <h3>Edit Commands</h3>
+                    <p class="permission-desc">Who can edit existing commands</p>
+                    <div id="editRolesList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="permission-card">
+                    <h3>Delete Commands</h3>
+                    <p class="permission-desc">Who can delete commands</p>
+                    <div id="deleteRolesList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+
+                <div class="permission-card">
+                    <h3>View Logs</h3>
+                    <p class="permission-desc">Who can view the moderation history</p>
+                    <div id="viewLogsRolesList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Special Users</h2>
+
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>Admin</h3>
+                    <p class="permission-desc">Users with admin permissions (bypass roles)</p>
+
+                    <div class="special-user-input">
+                        <input type="text" id="adminUserInput" placeholder="Paste Discord ID..." maxlength="32">
+                        <button type="button" id="adminUserAdd" class="btn-add-user">Add</button>
+                    </div>
+
+                    <div id="adminUsersList" class="special-users-list">
+                        <p class="loading-text">No users.</p>
+                    </div>
+                </div>
+
+                <div class="permission-card">
+                    <h3>Owner</h3>
+                    <p class="permission-desc">Users with owner permissions (full access)</p>
+
+                    <div class="special-user-input">
+                        <input type="text" id="ownerUserInput" placeholder="Paste Discord ID..." maxlength="32">
+                        <button type="button" id="ownerUserAdd" class="btn-add-user">Add</button>
+                    </div>
+
+                    <div id="ownerUsersList" class="special-users-list">
+                        <p class="loading-text">No users.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Projected Roles</h2>
+
+            <div class="permissions-grid">
+                <div class="permission-card" style="grid-column: 1 / -1;">
+                    <h3>Protected Roles</h3>
+                    <p class="permission-desc">Users with these roles cannot be moderated</p>
+                    <div id="projectedRolesList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-config" class="tab-content hidden">
+            <div class="panel-header">
+                <h2>Configuration</h2>
+                <button id="saveConfigBtn" class="btn-primary">Save Configuration</button>
+            </div>
+
+            <h2 class="section-title">Log Channels</h2>
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>Join/Leave Log</h3>
+                    <p class="permission-desc">Channel for join/leave logs</p>
+                    <div id="cfgJoinLeaveList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+                <div class="permission-card">
+                    <h3>Mod Log</h3>
+                    <p class="permission-desc">Channel for moderation logs</p>
+                    <div id="cfgModLogList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Roles</h2>
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>Staff Roles</h3>
+                    <p class="permission-desc">Staff roles (ticket access)</p>
+                    <div id="cfgStaffRoleList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+                <div class="permission-card">
+                    <h3>Admin Roles</h3>
+                    <p class="permission-desc">Administrator roles</p>
+                    <div id="cfgAdminRoleList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Staff Applications</h2>
+            <div class="permissions-grid">
+                <div class="permission-card" id="staffAppCommunityCard">
+                    <h3>Community Applications</h3>
+                    <p class="permission-desc">Channel where Predage Community staff applications are sent</p>
+                    <div id="cfgStaffAppCommunityList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+                <div class="permission-card" id="staffAppPredcordCard">
+                    <h3>PredCord Applications</h3>
+                    <p class="permission-desc">Channel where PredCord staff applications are sent</p>
+                    <div id="cfgStaffAppPredcordList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Ban Appeals</h2>
+            <div class="permissions-grid">
+                <div class="permission-card" id="banAppealCommunityCard">
+                    <h3>Community Appeals</h3>
+                    <p class="permission-desc">Channel where Predage Community ban appeals are sent</p>
+                    <div id="cfgBanAppealCommunityList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+                <div class="permission-card" id="banAppealPredcordCard">
+                    <h3>PredCord Appeals</h3>
+                    <p class="permission-desc">Channel where PredCord ban appeals are sent</p>
+                    <div id="cfgBanAppealPredcordList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Other Log Channels</h2>
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>Message Log</h3>
+                    <div id="cfgMessageLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Invite Log</h3>
+                    <div id="cfgInviteLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Role Log</h3>
+                    <div id="cfgRoleLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Dropmap Log</h3>
+                    <div id="cfgDropmapLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Mod Invite Log</h3>
+                    <div id="cfgModInviteLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Ticket Log</h3>
+                    <div id="cfgTicketLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Anti-Alt Warning</h3>
+                    <div id="cfgAntiAltList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Categories</h2>
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>General Tickets</h3>
+                    <div id="cfgGeneralCatList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Dropmap Tickets</h3>
+                    <div id="cfgDropmapCatList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Unban Tickets</h3>
+                    <div id="cfgUnbanCatList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Masterclass Tickets</h3>
+                    <div id="cfgMasterclassCatList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Autorole</h2>
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>Autorole</h3>
+                    <p class="permission-desc">Role automatically given to new members</p>
+                    <div id="cfgAutoroleList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Staff Roles (multi)</h2>
+            <p class="permissions-info">Admin and Support roles are managed in the "Roles" section above.</p>
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>Mod Roles</h3>
+                    <div id="cfgModRoleIdsList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Trial Mod Roles</h3>
+                    <div id="cfgTrialModRoleIdsList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Head Mod Roles</h3>
+                    <div id="cfgHeadModRoleIdsList" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Invite Trigger System</h2>
+            <p class="permissions-info">When a member gets one of these roles, they receive an auto-generated invite to the target server by DM.</p>
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>Invite Trigger Role 1</h3>
+                    <div id="cfgInviteTrigger1List" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Invite Trigger Role 2</h3>
+                    <div id="cfgInviteTrigger2List" class="roles-list"><p class="loading-text">Loading...</p></div>
+                </div>
+                <div class="permission-card">
+                    <h3>Target Invite Guild ID</h3>
+                    <input type="text" id="cfgTargetInviteGuildId" class="text-input" placeholder="Guild ID" maxlength="32">
+                </div>
+                <div class="permission-card">
+                    <h3>Mod Target Invite Guild ID</h3>
+                    <p class="permission-desc">Guild newly accepted staff get invited to</p>
+                    <input type="text" id="cfgModTargetInviteGuildId" class="text-input" placeholder="Guild ID" maxlength="32">
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-stats" class="tab-content hidden">
+            <div class="panel-header">
+                <h2>Statistics</h2>
+            </div>
+
+            <h2 class="section-title">Join / Leave</h2>
+            <div class="stats-period-switch" id="statsPeriodSwitch">
+                <button type="button" class="stats-period-btn active" data-period="tutto">All time</button>
+                <button type="button" class="stats-period-btn" data-period="oggi">Today</button>
+                <button type="button" class="stats-period-btn" data-period="ieri">Yesterday</button>
+                <button type="button" class="stats-period-btn" data-period="3giorni">3 days</button>
+                <button type="button" class="stats-period-btn" data-period="7giorni">7 days</button>
+                <button type="button" class="stats-period-btn" data-period="14giorni">14 days</button>
+                <button type="button" class="stats-period-btn" data-period="30giorni">30 days</button>
+            </div>
+            <div class="permissions-grid" id="statsJoinLeaveGrid">
+                <div class="permission-card"><h3>Loading...</h3></div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Ticket Closes by Moderator</h2>
+            <div id="statsTicketsList" class="modlogs-list">
+                <div class="loading">Loading</div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Moderator Action Stats</h2>
+            <div class="special-user-input">
+                <input type="text" id="statsModUserInput" placeholder="Paste Discord ID..." maxlength="32">
+                <button type="button" id="statsModUserBtn" class="btn-add-user">Search</button>
+            </div>
+            <div id="statsModeratorResult" class="modlogs-list"></div>
+        </div>
+
+        <div id="tab-tickets" class="tab-content hidden">
+            <div class="panel-header">
+                <h2>Ticket Configuration</h2>
+                <button id="saveTicketsBtn" class="btn-primary">Save Configuration</button>
+            </div>
+
+            <p class="permissions-info">
+                Configure the ticket system. These settings are used by the <strong>/panel</strong> command to create ticket channels.
+            </p>
+
+            <h2 class="section-title">Ticket Settings</h2>
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>Tickets Category</h3>
+                    <p class="permission-desc">Category where ticket channels will be created</p>
+                    <div id="ticketCategoryList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+                <div class="permission-card">
+                    <h3>Ticket Logs</h3>
+                    <p class="permission-desc">Channel where ticket logs will be sent</p>
+                    <div id="ticketLogsList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+                <div class="permission-card">
+                    <h3>Staff Roles</h3>
+                    <p class="permission-desc">Roles pinged on new tickets and allowed to claim/close them</p>
+                    <div id="ticketStaffRoleList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+                <div class="permission-card">
+                    <h3>Admin Roles</h3>
+                    <p class="permission-desc">Roles with full ticket permissions (claim, close, manage)</p>
+                    <div id="ticketAdminRoleList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-videos" class="tab-content hidden">
+            <div class="panel-header">
+                <h2>Masterclass Control</h2>
+                <div style="display:flex; gap:10px;">
+                    <button id="migrateVideosBtn" class="btn-secondary hidden">Protect Old Videos</button>
+                    <button id="newVideoBtn" class="btn-primary">+ New Video</button>
+                </div>
+            </div>
+
+            <div class="masterclass-guild-switch" id="masterclassGuildSwitch">
+                <button type="button" class="masterclass-guild-pill active" data-guild="community">Predage Community</button>
+                <button type="button" class="masterclass-guild-pill" data-guild="predcord">PredCord</button>
+            </div>
+
+            <h2 class="section-title">Page Access</h2>
+            <p class="permissions-info">
+                Only users with one of these roles can open the public <strong>/videos</strong> page. Leave empty to let every logged in user open the page (each video is still restricted by its own roles below).
+            </p>
+
+            <div class="permissions-grid">
+                <div class="permission-card" style="grid-column: 1 / -1;">
+                    <h3>Who can access the Videos page</h3>
+                    <div id="videoAccessRolesList" class="roles-list">
+                        <p class="loading-text">Loading...</p>
+                    </div>
+                    <button type="button" id="saveVideoAccessBtn" class="btn-primary" style="margin-top: 16px;">Save Access</button>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Video Library</h2>
+            <p class="permissions-info">
+                Videos visible only to users with the selected roles on this server. Leave no role selected to make a video visible to every logged in user with page access.
+            </p>
+
+            <div id="videosList" class="videos-grid">
+                <div class="loading">Loading</div>
+            </div>
+        </div>
+
+        <div id="tab-masterclass-permissions" class="tab-content hidden">
+            <div class="panel-header">
+                <h2>Masterclass Permissions</h2>
+            </div>
+
+            <h2 class="section-title">Video Access</h2>
+
+            <div class="permissions-grid">
+                <div class="permission-card" style="grid-column: 1 / -1;">
+                    <h3>Can view every video, no roles needed</h3>
+                    <p class="permission-desc">These Discord IDs can see every video on the public site, even ones restricted to roles they don't have.</p>
+
+                    <div class="special-user-input">
+                        <input type="text" id="mcViewUserInput" placeholder="Paste Discord ID..." maxlength="32">
+                        <button type="button" id="mcViewUserAdd" class="btn-add-user">Add</button>
+                    </div>
+
+                    <div id="mcViewUsersList" class="special-users-list">
+                        <p class="loading-text">No users.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Dashboard Access</h2>
+
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>Can upload videos</h3>
+                    <p class="permission-desc">These Discord IDs can add new videos in Masterclass Control.</p>
+
+                    <div class="special-user-input">
+                        <input type="text" id="mcUploadUserInput" placeholder="Paste Discord ID..." maxlength="32">
+                        <button type="button" id="mcUploadUserAdd" class="btn-add-user">Add</button>
+                    </div>
+
+                    <div id="mcUploadUsersList" class="special-users-list">
+                        <p class="loading-text">No users.</p>
+                    </div>
+                </div>
+
+                <div class="permission-card">
+                    <h3>Can edit / delete videos</h3>
+                    <p class="permission-desc">These Discord IDs can modify or remove any video in Masterclass Control.</p>
+
+                    <div class="special-user-input">
+                        <input type="text" id="mcManageUserInput" placeholder="Paste Discord ID..." maxlength="32">
+                        <button type="button" id="mcManageUserAdd" class="btn-add-user">Add</button>
+                    </div>
+
+                    <div id="mcManageUsersList" class="special-users-list">
+                        <p class="loading-text">No users.</p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" id="saveMasterclassPermissionsBtn" class="btn-primary" style="margin-top: 20px;">Save Permissions</button>
+        </div>
+
+        <div id="tab-bans" class="tab-content hidden">
+            <div class="panel-header">
+                <h2>Ban</h2>
+            </div>
+
+            <p id="bansCount" class="bans-count"></p>
+
+            <div class="logs-container">
+                <div id="bansList" class="modlogs-list">
+                    <div class="loading">Loading</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-logs" class="tab-content hidden">
+            <div class="panel-header">
+                <h2>Logs</h2>
+            </div>
+
+            <div class="logs-container">
+                <div id="modlogsList" class="modlogs-list">
+                    <div class="loading">Loading</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<div id="modal" class="modal hidden">
+    <div class="modal-content">
+        <button type="button" id="modalCloseBtn" class="modal-close-btn">&times;</button>
+        <h2 id="modalTitle">New Command</h2>
+        <form id="cmdForm" novalidate>
+            <div class="field-row">
+                <div>
+                    <label>Command name (no prefix)</label>
+                    <input type="text" id="cmdName" placeholder="e.g: rules" pattern="[a-zA-Z0-9]{1,32}" maxlength="32">
+                </div>
+                <div>
+                    <label>Prefix</label>
+                    <input type="text" id="cmdPrefix" maxlength="1" placeholder="e.g: *" value="*">
+                </div>
+            </div>
+
+            <label>Command Type</label>
+            <select id="cmdType">
+                <option value="text">Message Content - Normal</option>
+                <option value="embed">Embed</option>
+                <option value="ban">Ban</option>
+                <option value="kick">Kick</option>
+                <option value="mute">Mute</option>
+                <option value="warn">Warn</option>
+                <option value="purge" id="purgeOption" class="hidden">Purge</option>
+            </select>
+
+            <div class="field-row">
+                <div id="labelTitle" style="display:none;">
+                    <label>Title (embed only)</label>
+                    <input type="text" id="cmdTitle" placeholder="e.g: Server Rules">
+                </div>
+                <div id="labelColor" style="display:none;">
+                    <label>Embed Color</label>
+                    <input type="color" id="cmdColor" value="#E67E22">
+                </div>
+            </div>
+
+            <label class="toggle-row">
+                <span class="toggle-text">Automatically delete the command message</span>
+                <input type="checkbox" id="cmdDelete" class="toggle-input" checked>
+                <span class="toggle-switch"></span>
+            </label>
+
+            <div id="labelResponse">
+                <div class="label-with-more">
+                    <label id="responseLabelText">Response</label>
+                    <button type="button" id="moreBtn" class="more-btn">More</button>
+                </div>
+                <textarea id="cmdResponse" rows="6" placeholder="Variables: {user} {username} {server} {membercount} {args} {md} {hammertime+N}"></textarea>
+                <p id="responseHint" style="color: var(--text-dim); font-size: 12px; margin-top: 8px; line-height: 1.5;"></p>
+            </div>
+
+            <div id="moreOptions" class="more-options hidden">
+                <div class="field-row">
+                    <div id="labelThumbnail" style="display:none;">
+                        <label>Thumbnail URL (optional)</label>
+                        <input type="url" id="cmdThumbnail" placeholder="https://...">
+                    </div>
+
+                    <div id="labelImage">
+                        <label>Image URL (optional)</label>
+                        <input type="url" id="cmdImage" placeholder="https://...">
+                    </div>
+                </div>
+
+                <div id="labelButtons">
+                    <div class="label-with-more">
+                        <label>Buttons</label>
+                        <button type="button" id="addButtonBtn" class="more-btn">+ Add buttons</button>
+                    </div>
+                    <div id="cmdButtonsList"></div>
+                </div>
+            </div>
+
+            <div id="labelDuration" style="display:none;">
+                <label id="durationLabelText">Duration (days)</label>
+                <input type="number" id="cmdDuration" min="1" placeholder="e.g: 7">
+                <p id="durationHint" style="color: var(--text-dim); font-size: 12px; margin-top: 8px; line-height: 1.5;"></p>
+            </div>
+
+            <div id="extraEmbedsWrap" style="display:none;">
+                <div class="label-with-more">
+                    <label>Additional Embeds</label>
+                    <button type="button" id="addEmbedBtn" class="more-btn">+ Embed</button>
+                </div>
+                <div id="extraEmbedsList"></div>
+            </div>
+
+            <div id="baseToggleWrap" class="base-toggle-wrap hidden">
+                <label class="toggle-row base-toggle-row">
+                    <span class="toggle-text base-toggle-text">Set as <strong>Base</strong> command (Owner only)</span>
+                    <input type="checkbox" id="cmdIsBase" class="toggle-input">
+                    <span class="toggle-switch base-toggle-switch"></span>
+                </label>
+            </div>
+
+            <hr class="divider">
+
+            <button type="button" id="permissionsBtn" class="permissions-btn">
+                Command Permissions
+            </button>
+
+            <div class="preview-section" id="previewSection">
+                <h3 class="preview-title">Preview</h3>
+                <div class="discord-preview">
+                    <div class="discord-message">
+                        <img class="discord-avatar" src="https://images-ext-1.discordapp.net/external/Lir9nmM9QUd1ClFMcchk0JDU4CPNed97Iui2Sm_rfOk/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/1510639493642850355/9774661e36e8458550112734ce78dc14.webp?format=webp&width=320&height=320" alt="" id="previewAvatar">
+                        <div class="discord-message-body">
+                            <div class="discord-message-header">
+                                <span class="discord-username">PredCord Utilities</span>
+                                <span class="discord-bot-tag">BOT</span>
+                            </div>
+                            <div class="discord-message-content" id="previewContent">
+                                <p class="preview-empty">Fill in the Response field to see the preview.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" id="cancelBtn" class="btn-secondary">Cancel</button>
+                <button type="submit" class="btn-primary">Save Command</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="permissionsBox" class="permissions-box hidden">
+    <div class="permissions-box-header">
+        <h3>Command Permissions</h3>
+        <button type="button" id="permissionsClose" class="permissions-close">&times;</button>
+    </div>
+    <p class="permissions-box-hint">
+        Select the roles that can use this command in the bot.
+        If you don't select any role, <strong>no one</strong> will be able to use it.
+    </p>
+    <div id="rolesList" class="roles-list">
+        <p class="loading-text">Loading roles...</p>
+    </div>
+</div>
+
+<div id="videoModal" class="modal hidden">
+    <div class="modal-content">
+        <button type="button" id="videoModalCloseBtn" class="modal-close-btn">&times;</button>
+        <h2>New Video</h2>
+        <form id="videoForm" novalidate>
+            <label>Title</label>
+            <input type="text" id="videoTitle" placeholder="e.g: Dropmap Tier 1" maxlength="150">
+
+            <label>Description</label>
+            <textarea id="videoDescription" rows="3" maxlength="1000" placeholder="Short description of the video (min. 5 characters)"></textarea>
+
+            <label>Video file</label>
+            <input type="file" id="videoFile" accept="video/mp4">
+            <p class="permissions-info" id="videoFileHint">MP4 only. Large files may take a while to upload.</p>
+
+            <video id="videoFilePreview" class="video-file-preview hidden" controls></video>
+
+            <label>Preview thumbnail (optional)</label>
+            <input type="file" id="videoThumbnailFile" accept="image/*">
+            <div class="thumbnail-capture-row">
+                <img id="videoThumbnailPreview" class="video-thumbnail-preview hidden" alt="">
+            </div>
+            <input type="hidden" id="videoThumbnail">
+
+            <hr class="divider">
+
+            <label class="label-with-more">
+                <span>Required Roles</span>
+            </label>
+            <p class="permissions-info">Only members with at least one of these roles can see this video. Select none to show it to everyone logged in.</p>
+            <div id="videoRolesList" class="roles-list">
+                <p class="loading-text">Loading roles...</p>
+            </div>
+
+            <div class="modal-actions">
+                <button type="submit" class="btn-primary">Save Video</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="confirmModal" class="modal hidden">
+    <div class="modal-content confirm-modal-content">
+        <div class="confirm-modal-icon">&#9888;</div>
+        <h2 id="confirmModalTitle">Confirm deletion</h2>
+        <p id="confirmModalText" class="confirm-modal-text">Are you sure?</p>
+        <div class="confirm-modal-actions">
+            <button type="button" id="confirmCancelBtn" class="btn-secondary">Cancel</button>
+            <button type="button" id="confirmOkBtn" class="btn-danger">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div id="accessDeniedToast" class="access-denied-toast hidden">
+    <span class="access-denied-icon">&#10006;</span>
+    <span class="access-denied-text">Access Denied</span>
+</div>
+
+<div id="formToast" class="form-toast hidden">
+    <span class="form-toast-icon">✕</span>
+    <span class="form-toast-text">Fill all fields</span>
+</div>
+
+<script src="/dashboard/app.js"></script>
+
+</body>
+</html>
