@@ -1886,12 +1886,19 @@ app.get('/api/stats/joinleave/:guildId', requireAuth, async (req, res) => {
         const windowed = await db.getJoinLeaveStatsDB(guildId, startTime, endTime);
         const totals = await db.getJoinLeaveTotalsDB(guildId);
 
+        let seriesStart = startTime;
+        if (period === 'tutto') {
+            seriesStart = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        }
+        const series = await db.getJoinLeaveSeriesDB(guildId, seriesStart, endTime);
+
         const guild = client ? client.guilds.cache.get(guildId) : null;
 
         res.json({
             period,
             windowed,
             totals,
+            series,
             memberCount: guild ? guild.memberCount : null
         });
     } catch (e) {
@@ -2314,6 +2321,59 @@ app.get('/api/bans/:guildId', requireAuth, async (req, res) => {
     }
 });
 
+app.get('/api/blacklist', requireAuth, async (req, res) => {
+    try {
+        const guildId = req.query.guildId || MAIN_GUILD_ID;
+        const hasPerm = await userHasPermission(req, 'viewLogsRoles', guildId);
+        if (!hasPerm) {
+            return res.status(403).json({ error: 'Access Denied' });
+        }
+
+        const { db } = global.PredCord;
+        const entries = await db.getAllBlacklistDB();
+        entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+        res.json(entries);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/blacklist-action', requireAuth, writeLimiter, async (req, res) => {
+    try {
+        const { action, userId, reason, guildId } = req.body;
+        if (!action || !userId || !guildId) return res.status(400).json({ error: 'Missing parameters' });
+
+        if (!isOwner(req, guildId)) {
+            return res.status(403).json({ error: 'Access Denied' });
+        }
+
+        const { client, db, saveModLog, unbanFromAllGuilds } = global.PredCord;
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) return res.status(404).json({ error: 'Server not found' });
+
+        if (action === 'change_reason') {
+            if (!reason) return res.status(400).json({ error: 'Missing reason' });
+            await db.updateBlacklistReasonDB(userId, reason);
+            return res.json({ success: true });
+        }
+
+        if (action === 'unblacklist') {
+            const entry = await db.getBlacklistEntryDB(userId);
+            if (!entry) return res.status(404).json({ error: 'User not blacklisted' });
+
+            const unbanResult = await unbanFromAllGuilds(guild, userId, entry.servers);
+            await db.removeBlacklistEntryDB(userId);
+            await saveModLog(guild, 'UNBLACKLIST', { id: userId, tag: entry.userTag || userId }, client.user, 'Removed from blacklist via dashboard', null);
+
+            return res.json({ success: true, unbanResult });
+        }
+
+        return res.status(400).json({ error: 'Invalid action' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.get('/api/dashboard-logs/:guildId', requireAuth, async (req, res) => {
     try {
         const hasPerm = await userHasPermission(req, 'viewLogsRoles', req.params.guildId);
@@ -2361,7 +2421,7 @@ app.post('/api/moderation/:guildId', requireAuth, writeLimiter, async (req, res)
         try {
             member = await guild.members.fetch(userId);
         } catch {
-            if (action !== 'unban') {
+            if (action !== 'unban' && action !== 'change_reason') {
                 return res.status(404).json({ error: 'User not found in server' });
             }
         }
@@ -2412,6 +2472,10 @@ app.post('/api/moderation/:guildId', requireAuth, writeLimiter, async (req, res)
             if (!member.moderatable) return res.status(400).json({ error: 'Cannot unmute this user' });
             await member.timeout(null, cleanReason);
             actionLabel = 'User unmuted';
+        } else if (action === 'change_reason') {
+            if (!reason) return res.status(400).json({ error: 'Missing reason' });
+            await db.updateBanReasonDB(guild.id, userId, reason);
+            return res.json({ success: true });
         } else {
             return res.status(400).json({ error: 'Invalid action' });
         }
