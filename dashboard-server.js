@@ -416,6 +416,17 @@ passport.use('discord-site', new DiscordStrategy({
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.get('/videos.html', async (req, res, next) => {
+    if (!req.session.siteUser) return res.redirect('/');
+    try {
+        const allowed = await canUserViewVideosPage(req.session.siteUser.id);
+        if (!allowed) return res.redirect('/');
+    } catch (e) {
+        return res.redirect('/');
+    }
+    next();
+});
+
 app.use('/dashboard', express.static(DASHBOARD_DIR));
 app.use(express.static(SITE_DIR));
 
@@ -2445,7 +2456,14 @@ app.get('/masterclass', (req, res) => {
     res.sendFile(path.join(SITE_DIR, 'masterclass.html'));
 });
 
-app.get('/videos', (req, res) => {
+app.get('/videos', async (req, res) => {
+    if (!req.session.siteUser) return res.redirect('/');
+    try {
+        const allowed = await canUserViewVideosPage(req.session.siteUser.id);
+        if (!allowed) return res.redirect('/');
+    } catch (e) {
+        return res.redirect('/');
+    }
     res.set('Cache-Control', 'no-store');
     res.sendFile(path.join(SITE_DIR, 'videos.html'));
 });
