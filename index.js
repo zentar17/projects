@@ -87,7 +87,7 @@ const COLORS = {
     REPORT: 0xE67E22
 };
 
-const BLACK = 0x000000;
+const BLACK = 0x6B6E73;
 const PROJECTED_ERROR = 0xED4245;
 const RED = 0xED4245;
 const GOLD = 0xFFD700;
@@ -1036,6 +1036,9 @@ client.once('clientReady', async () => {
         formatModerationHistory,
         getProjectedRolesDB: async (guildId) => await db.getProjectedRolesDB(guildId),
         saveDashboardLogDB: async (guildId, data) => await db.saveDashboardLogDB(guildId, data),
+        getBlacklistTargetGuilds,
+        banFromAllGuilds,
+        unbanFromAllGuilds,
         db
     };
     console.log('[DASHBOARD] global.PredCord API exposed');
@@ -1206,8 +1209,8 @@ client.on('messageCreate', async (message) => {
 
             if (command === 'blacklist') {
                 const input = args[0];
-                if (!input) {
-                    const embed = new EmbedBuilder().setDescription('Usage: `-blacklist <@user/ID> [reason]`').setColor(COLORS.ERROR);
+                if (!input || args.length < 2) {
+                    const embed = new EmbedBuilder().setDescription('Usage: `-blacklist <@user/ID> <reason>` — the reason is mandatory.').setColor(COLORS.ERROR);
                     await message.channel.send({ embeds: [embed] });
                     await message.delete().catch(() => {});
                     return;
@@ -1251,7 +1254,7 @@ client.on('messageCreate', async (message) => {
                     return;
                 }
 
-                const reason = args.slice(1).join(' ') || 'No reason provided';
+                const reason = args.slice(1).join(' ');
 
                 try {
                     const banResult = await banFromAllGuilds(message.guild, user.id, reason);
