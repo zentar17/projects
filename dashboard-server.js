@@ -897,6 +897,13 @@ app.get('/api/me', requireAuth, async (req, res) => {
 
     const masterclass = await getMasterclassFlags(req);
 
+    let canViewVideos = false;
+    if (role === 'owner' || role === 'admin') {
+        canViewVideos = true;
+    } else if (req.session.user && req.session.user.id) {
+        canViewVideos = await canUserViewVideosPage(req.session.user.id);
+    }
+
     res.json({
         user: req.session.user,
         isAdmin: role === 'owner' || role === 'admin',
@@ -907,6 +914,7 @@ app.get('/api/me', requireAuth, async (req, res) => {
         canAccessMasterclass: masterclass.canAccess,
         canUploadVideos: masterclass.canUpload,
         canManageVideos: masterclass.canManage,
+        canViewVideos: canViewVideos,
         access: access
     });
 });
