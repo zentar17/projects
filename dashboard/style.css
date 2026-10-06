@@ -375,6 +375,9 @@ header {
 .header-nav a:hover { color: var(--text); }
 .header-nav a.active { color: var(--primary); }
 
+.nav-videos-group { display: none; align-items: center; gap: 30px; }
+.nav-videos-group.visible { display: flex; }
+
 .nav-dot {
     color: var(--text-dim);
     opacity: 0.4;
