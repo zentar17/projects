@@ -425,7 +425,10 @@
             </div>
 
             <div class="chart-container">
-                <canvas id="joinLeaveChart" height="110"></canvas>
+                <div class="chart-header"><h3>Join / Leave Trend</h3></div>
+                <div class="chart-canvas-wrap">
+                    <canvas id="joinLeaveChart"></canvas>
+                </div>
             </div>
 
             <div class="divider-thick"></div>
@@ -823,6 +826,24 @@
         <div class="confirm-modal-actions">
             <button type="button" id="confirmCancelBtn" class="btn-secondary">Cancel</button>
             <button type="button" id="confirmOkBtn" class="btn-danger">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div id="reasonModal" class="modal hidden">
+    <div class="modal-content reason-modal-content">
+        <h2>Change Reason</h2>
+        <div class="reason-modal-field">
+            <label>Current Reason</label>
+            <p id="reasonModalCurrent" class="reason-modal-current"></p>
+        </div>
+        <div class="reason-modal-field">
+            <label for="reasonModalInput">New Reason</label>
+            <input type="text" id="reasonModalInput" placeholder="Enter new reason..." maxlength="500">
+        </div>
+        <div class="confirm-modal-actions">
+            <button type="button" id="reasonCancelBtn" class="btn-secondary">Cancel</button>
+            <button type="button" id="reasonOkBtn" class="btn-primary">Save</button>
         </div>
     </div>
 </div>
