@@ -1241,8 +1241,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 { id: 'time', label: 'Quanto tempo puoi dedicare?', type: 'text', placeholder: 'es. 10 ore a settimana' },
                 { id: 'why', label: 'Perché vuoi diventare un moderatore?', type: 'textarea', placeholder: 'es. Voglio aiutare a mantenere la community amichevole e organizzata' },
                 { id: 'modexp', label: 'Hai esperienza come moderatore? (se sì, dove?)', type: 'textarea', placeholder: 'es. Sono stato moderatore su un altro server per 6 mesi' },
-                { id: 'dyno', label: 'Hai esperienza con Dyno?', type: 'yesno' },
-                { id: 'dynocommands', label: 'Quali comandi conosci?', type: 'textarea', dependsOn: 'dyno', placeholder: 'es. !warn, !mute, !ban' }
+                { id: 'dyno', label: 'Hai esperienza con Dyno?', twitchLabel: 'Hai esperienza con StreamElements?', type: 'yesno' },
+                { id: 'dynocommands', label: 'Quali comandi conosci?', type: 'textarea', dependsOn: 'dyno', placeholder: 'es. !warn, !mute, !ban', twitchPlaceholder: '' }
             ],
             predcord: [
                 { id: 'age', label: 'Quanti anni hai?', type: 'text', placeholder: '18' },
@@ -1261,8 +1261,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 { id: 'time', label: 'How much time can you dedicate?', type: 'text', placeholder: 'e.g. 10 hours a week' },
                 { id: 'why', label: 'Why do you want to become a mod?', type: 'textarea', placeholder: 'e.g. I want to help keep the community friendly and organized' },
                 { id: 'modexp', label: 'Do you have any mod experience? (if yes, where?)', type: 'textarea', placeholder: 'e.g. I was a moderator on another server for 6 months' },
-                { id: 'dyno', label: 'Do you have any experience with Dyno?', type: 'yesno' },
-                { id: 'dynocommands', label: 'What commands do you know?', type: 'textarea', dependsOn: 'dyno', placeholder: 'e.g. !warn, !mute, !ban' }
+                { id: 'dyno', label: 'Do you have any experience with Dyno?', twitchLabel: 'Do you have any experience with StreamElements?', type: 'yesno' },
+                { id: 'dynocommands', label: 'What commands do you know?', type: 'textarea', dependsOn: 'dyno', placeholder: 'e.g. !warn, !mute, !ban', twitchPlaceholder: '' }
             ],
             predcord: [
                 { id: 'age', label: 'How old are you?', type: 'text', placeholder: '18' },
@@ -1281,8 +1281,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 { id: 'time', label: 'Wie viel Zeit kannst du investieren?', type: 'text', placeholder: 'z.B. 10 Stunden pro Woche' },
                 { id: 'why', label: 'Warum möchtest du Moderator werden?', type: 'textarea', placeholder: 'z.B. Ich möchte helfen, die Community freundlich und organisiert zu halten' },
                 { id: 'modexp', label: 'Hast du Moderator-Erfahrung? (wenn ja, wo?)', type: 'textarea', placeholder: 'z.B. Ich war 6 Monate lang Moderator auf einem anderen Server' },
-                { id: 'dyno', label: 'Hast du Erfahrung mit Dyno?', type: 'yesno' },
-                { id: 'dynocommands', label: 'Welche Befehle kennst du?', type: 'textarea', dependsOn: 'dyno', placeholder: 'z.B. !warn, !mute, !ban' }
+                { id: 'dyno', label: 'Hast du Erfahrung mit Dyno?', twitchLabel: 'Hast du Erfahrung mit StreamElements?', type: 'yesno' },
+                { id: 'dynocommands', label: 'Welche Befehle kennst du?', type: 'textarea', dependsOn: 'dyno', placeholder: 'z.B. !warn, !mute, !ban', twitchPlaceholder: '' }
             ],
             predcord: [
                 { id: 'age', label: 'Wie alt bist du?', type: 'text', placeholder: '18' },
@@ -1301,8 +1301,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 { id: 'time', label: '¿Cuánto tiempo puedes dedicar?', type: 'text', placeholder: 'p.ej. 10 horas a la semana' },
                 { id: 'why', label: '¿Por qué quieres convertirte en moderador?', type: 'textarea', placeholder: 'p.ej. Quiero ayudar a mantener la comunidad amigable y organizada' },
                 { id: 'modexp', label: '¿Tienes experiencia como moderador? (si es así, ¿dónde?)', type: 'textarea', placeholder: 'p.ej. Fui moderador en otro servidor durante 6 meses' },
-                { id: 'dyno', label: '¿Tienes experiencia con Dyno?', type: 'yesno' },
-                { id: 'dynocommands', label: '¿Qué comandos conoces?', type: 'textarea', dependsOn: 'dyno', placeholder: 'p.ej. !warn, !mute, !ban' }
+                { id: 'dyno', label: '¿Tienes experiencia con Dyno?', twitchLabel: '¿Tienes experiencia con StreamElements?', type: 'yesno' },
+                { id: 'dynocommands', label: '¿Qué comandos conoces?', type: 'textarea', dependsOn: 'dyno', placeholder: 'p.ej. !warn, !mute, !ban', twitchPlaceholder: '' }
             ],
             predcord: [
                 { id: 'age', label: '¿Cuántos años tienes?', type: 'text', placeholder: '18' },
@@ -1321,8 +1321,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 { id: 'time', label: 'Combien de temps peux-tu consacrer ?', type: 'text', placeholder: 'ex. 10 heures par semaine' },
                 { id: 'why', label: 'Pourquoi veux-tu devenir modérateur ?', type: 'textarea', placeholder: 'ex. Je veux aider à garder la communauté amicale et organisée' },
                 { id: 'modexp', label: 'As-tu de l\'expérience en modération ? (si oui, où ?)', type: 'textarea', placeholder: 'ex. J\'ai été modérateur sur un autre serveur pendant 6 mois' },
-                { id: 'dyno', label: 'As-tu de l\'expérience avec Dyno ?', type: 'yesno' },
-                { id: 'dynocommands', label: 'Quelles commandes connais-tu ?', type: 'textarea', dependsOn: 'dyno', placeholder: 'ex. !warn, !mute, !ban' }
+                { id: 'dyno', label: 'As-tu de l\'expérience avec Dyno ?', twitchLabel: 'As-tu de l\'expérience avec StreamElements ?', type: 'yesno' },
+                { id: 'dynocommands', label: 'Quelles commandes connais-tu ?', type: 'textarea', dependsOn: 'dyno', placeholder: 'ex. !warn, !mute, !ban', twitchPlaceholder: '' }
             ],
             predcord: [
                 { id: 'age', label: 'Quel âge as-tu ?', type: 'text', placeholder: '18' },
@@ -1559,6 +1559,22 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 if (depField) { depField.required = false; depField.value = ''; depField.classList.remove('field-invalid'); }
             }
         });
+
+        if (field === 'role') {
+            var team = form.getAttribute('data-team');
+            var questions = QUESTIONS_APPLY[currentLang][team] || [];
+            var dynoQ = questions.find(function(qq) { return qq.id === 'dyno'; });
+            var dynoCmdQ = questions.find(function(qq) { return qq.id === 'dynocommands'; });
+            var dynoHidden = form.querySelector('[name="dyno"]');
+            var dynoLabel = dynoHidden ? dynoHidden.closest('.form-group').querySelector('label') : null;
+            if (dynoLabel && dynoQ) {
+                dynoLabel.textContent = (value === 'twitch' && dynoQ.twitchLabel) ? dynoQ.twitchLabel : dynoQ.label;
+            }
+            var dynoCmdField = form.querySelector('[name="dynocommands"]');
+            if (dynoCmdField && dynoCmdQ) {
+                dynoCmdField.placeholder = (value === 'twitch' && dynoCmdQ.twitchPlaceholder !== undefined) ? dynoCmdQ.twitchPlaceholder : (dynoCmdQ.placeholder || '');
+            }
+        }
     });
 
     document.addEventListener('input', function(e) {
