@@ -129,6 +129,8 @@ header img {
 .header-nav a:hover { color: var(--text); }
 .header-nav a:hover::after { width: 100%; }
 .header-nav a.hidden { display: none; }
+.nav-videos-group { display: none; align-items: center; gap: 30px; }
+.nav-videos-group.visible { display: flex; }
 
 .header-brand span { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
 
@@ -450,8 +452,10 @@ header img {
         <a href="/" data-i18n="nav_home">Home</a>
         <span class="nav-dot">•</span>
         <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
-        <span class="nav-dot">•</span>
-        <a href="/videos" data-i18n="nav_videos">Videos</a>
+        <span class="nav-videos-group" id="navVideosGroup">
+            <span class="nav-dot">•</span>
+            <a href="/videos" data-i18n="nav_videos">Videos</a>
+        </span>
         <span class="nav-dot">•</span>
         <a href="/community" data-i18n="nav_community">Community</a>
         <span class="nav-dot">•</span>
@@ -687,9 +691,11 @@ header img {
     window.addEventListener('resize', syncHeaderSpacer);
 
     updateAuthBtn();
+    var navVideosGroup = document.getElementById('navVideosGroup');
     fetch('/api/site/me').then(function(res) { return res.json(); }).then(function(data) {
         loggedIn = !!data.loggedIn;
         canAccessDashboard = !!data.canAccessDashboard;
+        if (navVideosGroup) navVideosGroup.classList.toggle('visible', !!data.canViewVideos);
         if (loggedIn && data.avatar) userAvatar.src = data.avatar;
         updateAuthBtn();
     }).catch(function() {});
