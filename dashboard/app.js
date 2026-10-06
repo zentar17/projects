@@ -144,6 +144,51 @@ function showConfirmDialog(title, message, onConfirm) {
     modal.classList.remove('hidden');
 }
 
+function showReasonDialog(currentReason, onSave) {
+    const modal = document.getElementById('reasonModal');
+    const currentEl = document.getElementById('reasonModalCurrent');
+    const input = document.getElementById('reasonModalInput');
+    const okBtn = document.getElementById('reasonOkBtn');
+    const cancelBtn = document.getElementById('reasonCancelBtn');
+
+    if (!modal || !currentEl || !input || !okBtn || !cancelBtn) return;
+
+    currentEl.textContent = currentReason || 'No reason provided';
+    input.value = '';
+
+    const closeDialog = () => {
+        modal.classList.add('hidden');
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        modal.onclick = null;
+        input.onkeydown = null;
+    };
+
+    const submit = () => {
+        const value = input.value.trim();
+        if (!value) {
+            input.classList.add('field-invalid');
+            return;
+        }
+        closeDialog();
+        if (typeof onSave === 'function') onSave(value);
+    };
+
+    okBtn.onclick = submit;
+    cancelBtn.onclick = closeDialog;
+
+    input.onkeydown = (e) => {
+        if (e.key === 'Enter') submit();
+    };
+
+    modal.onclick = (e) => {
+        if (e.target.id === 'reasonModal') closeDialog();
+    };
+
+    modal.classList.remove('hidden');
+    setTimeout(() => input.focus(), 60);
+}
+
 function brightenColor(hex, percent = 45) {
     if (!hex || typeof hex !== 'string') return null;
     let c = hex.replace('#', '');
@@ -1943,31 +1988,17 @@ async function ensureKnownGuilds() {
 
 async function loadBans() {
     const list = document.getElementById('bansList');
+    if (!currentGuild) {
+        list.innerHTML = '<div class="empty-state"><h3>Not configured</h3><p>Missing guild ID for this server</p></div>';
+        return;
+    }
+
     list.innerHTML = '<div class="loading">Loading</div>';
-
     try {
-        await ensureKnownGuilds();
-        const entries = Object.entries(knownGuilds).filter(([, guildId]) => !!guildId);
-
-        const results = await Promise.all(entries.map(async ([key, guildId]) => {
-            try {
-                const res = await fetch(`/api/bans/${guildId}`);
-                if (!res.ok) return [];
-                const bans = await res.json();
-                return bans.map(ban => ({ ...ban, guildId, guildName: (SERVER_INFO[key] && SERVER_INFO[key].name) || key }));
-            } catch {
-                return [];
-            }
-        }));
-
-        const allBans = results.flat().sort((a, b) => {
-            if (!a.date && !b.date) return 0;
-            if (!a.date) return 1;
-            if (!b.date) return -1;
-            return new Date(b.date) - new Date(a.date);
-        });
-
-        renderBans(allBans);
+        const res = await fetch(`/api/bans/${currentGuild}`);
+        if (!res.ok) throw new Error('Failed to load');
+        const bans = await res.json();
+        renderBans(bans);
     } catch (e) {
         list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
     }
@@ -1984,11 +2015,10 @@ function renderBans(bans) {
     list.innerHTML = bans.map((ban, i) => {
         const date = ban.date ? new Date(ban.date).toLocaleString('en-US') : '';
         return `
-        <div class="modlog-card" data-idx="${i}" data-target-id="${escapeAttr(ban.targetId)}" data-guild-id="${escapeAttr(ban.guildId)}">
+        <div class="modlog-card" data-idx="${i}" data-target-id="${escapeAttr(ban.targetId)}">
             <div class="modlog-row">
                 <img class="ban-avatar" src="${escapeAttr(ban.avatarURL)}" alt="">
                 <span class="modlog-line"><span class="log-user">${escapeHtml(ban.targetTag || 'Unknown')}</span> (${escapeHtml(ban.targetId || '')})</span>
-                <span class="modlog-server-badge">${escapeHtml(ban.guildName || '')}</span>
                 <button class="modlog-arrow" type="button" aria-label="Details">&#9662;</button>
             </div>
             <div class="modlog-details">
@@ -2011,7 +2041,6 @@ function renderBans(bans) {
         });
 
         const targetId = card.getAttribute('data-target-id');
-        const guildId = card.getAttribute('data-guild-id');
 
         const unbanBtn = card.querySelector('[data-action="unban"]');
         if (unbanBtn) {
@@ -2019,7 +2048,7 @@ function renderBans(bans) {
                 e.stopPropagation();
                 showConfirmDialog('Unban user', 'Are you sure you want to unban this user?', async () => {
                     try {
-                        const res = await fetch(`/api/moderation/${guildId}`, {
+                        const res = await fetch(`/api/moderation/${currentGuild}`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ action: 'unban', userId: targetId, reason: 'Unbanned from dashboard' })
@@ -2042,20 +2071,20 @@ function renderBans(bans) {
             reasonBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const reasonEl = card.querySelector('.ban-reason-text');
-                const newReason = prompt('New reason:', reasonEl ? reasonEl.textContent : '');
-                if (!newReason) return;
-                fetch(`/api/moderation/${guildId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'change_reason', userId: targetId, reason: newReason })
-                }).then(async (res) => {
-                    if (!res.ok) {
-                        const err = await res.json().catch(() => ({}));
-                        throw new Error(err.error || 'Error');
-                    }
-                    if (reasonEl) reasonEl.textContent = newReason;
-                    showToast('Reason updated');
-                }).catch((err) => showToast(err.message, 'error'));
+                showReasonDialog(reasonEl ? reasonEl.textContent : '', (newReason) => {
+                    fetch(`/api/moderation/${currentGuild}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'change_reason', userId: targetId, reason: newReason })
+                    }).then(async (res) => {
+                        if (!res.ok) {
+                            const err = await res.json().catch(() => ({}));
+                            throw new Error(err.error || 'Error');
+                        }
+                        if (reasonEl) reasonEl.textContent = newReason;
+                        showToast('Reason updated');
+                    }).catch((err) => showToast(err.message, 'error'));
+                });
             });
         }
     });
@@ -2099,7 +2128,6 @@ function renderBlacklist(entries) {
                     <div><b>Date:</b> ${escapeHtml(date)}</div>
                     <div><b>Servers:</b> ${servers}</div>
                     <div class="modlog-actions">
-                        <button type="button" class="modlog-action-btn unban" data-action="unblacklist">Unban</button>
                         <button type="button" class="modlog-action-btn change-reason" data-action="change-reason">Change Reason</button>
                     </div>
                 </div>
@@ -2114,49 +2142,25 @@ function renderBlacklist(entries) {
 
         const targetId = card.getAttribute('data-target-id');
 
-        const unbanBtn = card.querySelector('[data-action="unblacklist"]');
-        if (unbanBtn) {
-            unbanBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                showConfirmDialog('Unban user', 'This will remove the user from the blacklist and unban them on every synced server. Continue?', async () => {
-                    try {
-                        const res = await fetch('/api/blacklist-action', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ action: 'unblacklist', userId: targetId, guildId: currentGuild })
-                        });
-                        if (!res.ok) {
-                            const err = await res.json().catch(() => ({}));
-                            throw new Error(err.error || 'Error');
-                        }
-                        showToast('User removed from blacklist');
-                        loadBlacklist();
-                    } catch (err) {
-                        showToast(err.message, 'error');
-                    }
-                });
-            });
-        }
-
         const reasonBtn = card.querySelector('[data-action="change-reason"]');
         if (reasonBtn) {
             reasonBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const reasonEl = card.querySelector('.ban-reason-text');
-                const newReason = prompt('New reason:', reasonEl ? reasonEl.textContent : '');
-                if (!newReason) return;
-                fetch('/api/blacklist-action', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'change_reason', userId: targetId, reason: newReason, guildId: currentGuild })
-                }).then(async (res) => {
-                    if (!res.ok) {
-                        const err = await res.json().catch(() => ({}));
-                        throw new Error(err.error || 'Error');
-                    }
-                    if (reasonEl) reasonEl.textContent = newReason;
-                    showToast('Reason updated');
-                }).catch((err) => showToast(err.message, 'error'));
+                showReasonDialog(reasonEl ? reasonEl.textContent : '', (newReason) => {
+                    fetch('/api/blacklist-action', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'change_reason', userId: targetId, reason: newReason, guildId: currentGuild })
+                    }).then(async (res) => {
+                        if (!res.ok) {
+                            const err = await res.json().catch(() => ({}));
+                            throw new Error(err.error || 'Error');
+                        }
+                        if (reasonEl) reasonEl.textContent = newReason;
+                        showToast('Reason updated');
+                    }).catch((err) => showToast(err.message, 'error'));
+                });
             });
         }
     });
@@ -2641,29 +2645,117 @@ function renderJoinLeaveChart(series) {
         joinLeaveChartInstance = null;
     }
 
+    const ctx = canvas.getContext('2d');
+    const chartHeight = canvas.parentElement ? canvas.parentElement.clientHeight : 320;
+
+    const joinsGradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
+    joinsGradient.addColorStop(0, 'rgba(52, 211, 153, 0.95)');
+    joinsGradient.addColorStop(1, 'rgba(52, 211, 153, 0.35)');
+
+    const leavesGradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
+    leavesGradient.addColorStop(0, 'rgba(239, 68, 68, 0.95)');
+    leavesGradient.addColorStop(1, 'rgba(239, 68, 68, 0.35)');
+
+    const netAreaGradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
+    netAreaGradient.addColorStop(0, 'rgba(230, 126, 34, 0.35)');
+    netAreaGradient.addColorStop(1, 'rgba(230, 126, 34, 0)');
+
     const labels = series.map(s => {
         const d = new Date(s.day);
         return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     });
 
-    joinLeaveChartInstance = new Chart(canvas.getContext('2d'), {
+    joinLeaveChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
             labels,
             datasets: [
-                { label: 'Joins', data: series.map(s => s.joins), backgroundColor: 'rgba(52, 211, 153, 0.75)', borderRadius: 4 },
-                { label: 'Leaves', data: series.map(s => s.leaves), backgroundColor: 'rgba(239, 68, 68, 0.75)', borderRadius: 4 }
+                {
+                    type: 'bar',
+                    label: 'Joins',
+                    data: series.map(s => s.joins),
+                    backgroundColor: joinsGradient,
+                    hoverBackgroundColor: 'rgba(52, 211, 153, 1)',
+                    borderRadius: { topLeft: 6, topRight: 6 },
+                    borderSkipped: false,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.6,
+                    order: 2
+                },
+                {
+                    type: 'bar',
+                    label: 'Leaves',
+                    data: series.map(s => s.leaves),
+                    backgroundColor: leavesGradient,
+                    hoverBackgroundColor: 'rgba(239, 68, 68, 1)',
+                    borderRadius: { topLeft: 6, topRight: 6 },
+                    borderSkipped: false,
+                    barPercentage: 0.7,
+                    categoryPercentage: 0.6,
+                    order: 2
+                },
+                {
+                    type: 'line',
+                    label: 'Net',
+                    data: series.map(s => s.joins - s.leaves),
+                    borderColor: '#E67E22',
+                    backgroundColor: netAreaGradient,
+                    borderWidth: 2.5,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#E67E22',
+                    pointBorderColor: '#15151c',
+                    pointBorderWidth: 1.5,
+                    pointHoverRadius: 5,
+                    tension: 0.4,
+                    fill: true,
+                    order: 1
+                }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            animation: { duration: 900, easing: 'easeOutQuart' },
             scales: {
-                x: { ticks: { color: '#9aa0ab' }, grid: { color: 'rgba(255,255,255,0.04)' } },
-                y: { beginAtZero: true, ticks: { color: '#9aa0ab', precision: 0 }, grid: { color: 'rgba(255,255,255,0.04)' } }
+                x: {
+                    ticks: { color: '#9aa0ab', font: { family: "'Manrope', sans-serif", size: 11 } },
+                    grid: { display: false },
+                    border: { color: 'rgba(255,255,255,0.08)' }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#9aa0ab', precision: 0, font: { family: "'Manrope', sans-serif", size: 11 } },
+                    grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+                    border: { display: false }
+                }
             },
             plugins: {
-                legend: { labels: { color: '#e4e6eb' } }
+                legend: {
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        color: '#e4e6eb',
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        boxWidth: 8,
+                        font: { family: "'Manrope', sans-serif", size: 12, weight: '600' },
+                        padding: 18
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#15151cf2',
+                    titleColor: '#fff',
+                    bodyColor: '#c7cad1',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 12,
+                    cornerRadius: 10,
+                    displayColors: true,
+                    usePointStyle: true,
+                    titleFont: { family: "'Manrope', sans-serif", weight: '700' },
+                    bodyFont: { family: "'Manrope', sans-serif" }
+                }
             }
         }
     });
