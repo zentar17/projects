@@ -1943,17 +1943,31 @@ async function ensureKnownGuilds() {
 
 async function loadBans() {
     const list = document.getElementById('bansList');
-    if (!currentGuild) {
-        list.innerHTML = '<div class="empty-state"><h3>Not configured</h3><p>Missing guild ID for this server</p></div>';
-        return;
-    }
-
     list.innerHTML = '<div class="loading">Loading</div>';
+
     try {
-        const res = await fetch(`/api/bans/${currentGuild}`);
-        if (!res.ok) throw new Error('Failed to load');
-        const bans = await res.json();
-        renderBans(bans);
+        await ensureKnownGuilds();
+        const entries = Object.entries(knownGuilds).filter(([, guildId]) => !!guildId);
+
+        const results = await Promise.all(entries.map(async ([key, guildId]) => {
+            try {
+                const res = await fetch(`/api/bans/${guildId}`);
+                if (!res.ok) return [];
+                const bans = await res.json();
+                return bans.map(ban => ({ ...ban, guildId, guildName: (SERVER_INFO[key] && SERVER_INFO[key].name) || key }));
+            } catch {
+                return [];
+            }
+        }));
+
+        const allBans = results.flat().sort((a, b) => {
+            if (!a.date && !b.date) return 0;
+            if (!a.date) return 1;
+            if (!b.date) return -1;
+            return new Date(b.date) - new Date(a.date);
+        });
+
+        renderBans(allBans);
     } catch (e) {
         list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
     }
@@ -1970,17 +1984,22 @@ function renderBans(bans) {
     list.innerHTML = bans.map((ban, i) => {
         const date = ban.date ? new Date(ban.date).toLocaleString('en-US') : '';
         return `
-        <div class="modlog-card" data-idx="${i}">
+        <div class="modlog-card" data-idx="${i}" data-target-id="${escapeAttr(ban.targetId)}" data-guild-id="${escapeAttr(ban.guildId)}">
             <div class="modlog-row">
                 <img class="ban-avatar" src="${escapeAttr(ban.avatarURL)}" alt="">
                 <span class="modlog-line"><span class="log-user">${escapeHtml(ban.targetTag || 'Unknown')}</span> (${escapeHtml(ban.targetId || '')})</span>
+                <span class="modlog-server-badge">${escapeHtml(ban.guildName || '')}</span>
                 <button class="modlog-arrow" type="button" aria-label="Details">&#9662;</button>
             </div>
             <div class="modlog-details">
                 <div class="modlog-details-inner">
-                    <div><b>Reason:</b> ${escapeHtml(ban.reason || 'No reason provided')}</div>
+                    <div><b>Reason:</b> <span class="ban-reason-text">${escapeHtml(ban.reason || 'No reason provided')}</span></div>
                     <div><b>Banned by:</b> ${escapeHtml(ban.moderatorTag || 'Unknown')}</div>
                     <div><b>Date:</b> ${escapeHtml(date)}</div>
+                    <div class="modlog-actions">
+                        <button type="button" class="modlog-action-btn unban" data-action="unban">Unban</button>
+                        <button type="button" class="modlog-action-btn change-reason" data-action="change-reason">Change Reason</button>
+                    </div>
                 </div>
             </div>
         </div>`;
@@ -1990,6 +2009,156 @@ function renderBans(bans) {
         card.querySelector('.modlog-row').addEventListener('click', () => {
             card.classList.toggle('open');
         });
+
+        const targetId = card.getAttribute('data-target-id');
+        const guildId = card.getAttribute('data-guild-id');
+
+        const unbanBtn = card.querySelector('[data-action="unban"]');
+        if (unbanBtn) {
+            unbanBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showConfirmDialog('Unban user', 'Are you sure you want to unban this user?', async () => {
+                    try {
+                        const res = await fetch(`/api/moderation/${guildId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'unban', userId: targetId, reason: 'Unbanned from dashboard' })
+                        });
+                        if (!res.ok) {
+                            const err = await res.json().catch(() => ({}));
+                            throw new Error(err.error || 'Error');
+                        }
+                        showToast('User unbanned');
+                        loadBans();
+                    } catch (err) {
+                        showToast(err.message, 'error');
+                    }
+                });
+            });
+        }
+
+        const reasonBtn = card.querySelector('[data-action="change-reason"]');
+        if (reasonBtn) {
+            reasonBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const reasonEl = card.querySelector('.ban-reason-text');
+                const newReason = prompt('New reason:', reasonEl ? reasonEl.textContent : '');
+                if (!newReason) return;
+                fetch(`/api/moderation/${guildId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'change_reason', userId: targetId, reason: newReason })
+                }).then(async (res) => {
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.error || 'Error');
+                    }
+                    if (reasonEl) reasonEl.textContent = newReason;
+                    showToast('Reason updated');
+                }).catch((err) => showToast(err.message, 'error'));
+            });
+        }
+    });
+}
+
+async function loadBlacklist() {
+    const list = document.getElementById('blacklistList');
+    list.innerHTML = '<div class="loading">Loading</div>';
+
+    try {
+        const res = await fetch(`/api/blacklist?guildId=${currentGuild}`);
+        if (!res.ok) throw new Error('Failed to load');
+        const entries = await res.json();
+        renderBlacklist(entries);
+    } catch (e) {
+        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
+    }
+}
+
+function renderBlacklist(entries) {
+    const list = document.getElementById('blacklistList');
+    const count = document.getElementById('blacklistCount');
+    if (count) count.textContent = `${entries ? entries.length : 0} blacklisted`;
+    if (!entries || entries.length === 0) {
+        list.innerHTML = '<div class="empty-state"><h3>Blacklist is empty</h3><p>No blacklisted users</p></div>';
+        return;
+    }
+    list.innerHTML = entries.map((entry, i) => {
+        const date = entry.date ? new Date(entry.date).toLocaleString('en-US') : '';
+        const servers = (entry.servers || []).length;
+        return `
+        <div class="modlog-card" data-idx="${i}" data-target-id="${escapeAttr(entry.userId)}">
+            <div class="modlog-row">
+                <span class="modlog-line"><span class="log-user">${escapeHtml(entry.userTag || entry.userId)}</span> (${escapeHtml(entry.userId || '')})</span>
+                <button class="modlog-arrow" type="button" aria-label="Details">&#9662;</button>
+            </div>
+            <div class="modlog-details">
+                <div class="modlog-details-inner">
+                    <div><b>Reason:</b> <span class="ban-reason-text">${escapeHtml(entry.reason || 'No reason provided')}</span></div>
+                    <div><b>Blacklisted by:</b> ${escapeHtml(entry.modTag || entry.modId || 'Unknown')}</div>
+                    <div><b>Date:</b> ${escapeHtml(date)}</div>
+                    <div><b>Servers:</b> ${servers}</div>
+                    <div class="modlog-actions">
+                        <button type="button" class="modlog-action-btn unban" data-action="unblacklist">Unban</button>
+                        <button type="button" class="modlog-action-btn change-reason" data-action="change-reason">Change Reason</button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('.modlog-card').forEach(card => {
+        card.querySelector('.modlog-row').addEventListener('click', () => {
+            card.classList.toggle('open');
+        });
+
+        const targetId = card.getAttribute('data-target-id');
+
+        const unbanBtn = card.querySelector('[data-action="unblacklist"]');
+        if (unbanBtn) {
+            unbanBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showConfirmDialog('Unban user', 'This will remove the user from the blacklist and unban them on every synced server. Continue?', async () => {
+                    try {
+                        const res = await fetch('/api/blacklist-action', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: 'unblacklist', userId: targetId, guildId: currentGuild })
+                        });
+                        if (!res.ok) {
+                            const err = await res.json().catch(() => ({}));
+                            throw new Error(err.error || 'Error');
+                        }
+                        showToast('User removed from blacklist');
+                        loadBlacklist();
+                    } catch (err) {
+                        showToast(err.message, 'error');
+                    }
+                });
+            });
+        }
+
+        const reasonBtn = card.querySelector('[data-action="change-reason"]');
+        if (reasonBtn) {
+            reasonBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const reasonEl = card.querySelector('.ban-reason-text');
+                const newReason = prompt('New reason:', reasonEl ? reasonEl.textContent : '');
+                if (!newReason) return;
+                fetch('/api/blacklist-action', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'change_reason', userId: targetId, reason: newReason, guildId: currentGuild })
+                }).then(async (res) => {
+                    if (!res.ok) {
+                        const err = await res.json().catch(() => ({}));
+                        throw new Error(err.error || 'Error');
+                    }
+                    if (reasonEl) reasonEl.textContent = newReason;
+                    showToast('Reason updated');
+                }).catch((err) => showToast(err.message, 'error'));
+            });
+        }
     });
 }
 
@@ -2454,9 +2623,50 @@ async function loadJoinLeaveStats() {
             <div class="permission-card stat-tile"><span class="stat-value">${data.totals.joins}</span><span class="stat-label">Total joins (all time)</span></div>
             <div class="permission-card stat-tile"><span class="stat-value">${data.totals.leaves}</span><span class="stat-label">Total leaves (all time)</span></div>
         `;
+
+        renderJoinLeaveChart(data.series || []);
     } catch (e) {
         grid.innerHTML = `<div class="permission-card"><h3>Error: ${e.message}</h3></div>`;
     }
+}
+
+let joinLeaveChartInstance = null;
+
+function renderJoinLeaveChart(series) {
+    const canvas = document.getElementById('joinLeaveChart');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    if (joinLeaveChartInstance) {
+        joinLeaveChartInstance.destroy();
+        joinLeaveChartInstance = null;
+    }
+
+    const labels = series.map(s => {
+        const d = new Date(s.day);
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+
+    joinLeaveChartInstance = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                { label: 'Joins', data: series.map(s => s.joins), backgroundColor: 'rgba(52, 211, 153, 0.75)', borderRadius: 4 },
+                { label: 'Leaves', data: series.map(s => s.leaves), backgroundColor: 'rgba(239, 68, 68, 0.75)', borderRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { ticks: { color: '#9aa0ab' }, grid: { color: 'rgba(255,255,255,0.04)' } },
+                y: { beginAtZero: true, ticks: { color: '#9aa0ab', precision: 0 }, grid: { color: 'rgba(255,255,255,0.04)' } }
+            },
+            plugins: {
+                legend: { labels: { color: '#e4e6eb' } }
+            }
+        }
+    });
 }
 
 async function loadTicketStats() {
@@ -2932,6 +3142,12 @@ function setupEvents() {
                         return;
                     }
                     loadBans();
+                } else if (target === 'blacklist') {
+                    if (!userHasDashboardPermission('viewLogsRoles')) {
+                        showAccessDenied();
+                        return;
+                    }
+                    loadBlacklist();
                 } else if (target === 'permissions') {
                     loadPermissionsSection();
                 } else if (target === 'config') {
