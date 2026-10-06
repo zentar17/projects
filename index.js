@@ -493,6 +493,108 @@ async function saveModLog(guild, action, target, moderator, reason, duration = n
     }
 }
 
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function getBlacklistTargetGuilds(currentGuild) {
+    const currentConfig = await getGuildConfig(currentGuild.id);
+    if (!currentConfig.blacklistSyncEnabled) return [currentGuild];
+
+    const syncedIds = await db.getBlacklistSyncGuildIdsDB();
+    const guilds = [];
+    for (const guildId of syncedIds) {
+        const guild = client.guilds.cache.get(guildId);
+        if (guild) guilds.push(guild);
+    }
+    if (!guilds.some(g => g.id === currentGuild.id)) guilds.push(currentGuild);
+    return guilds;
+}
+
+async function checkBanPermissions(guild) {
+    try {
+        const botMember = guild.members.me;
+        if (!botMember) return false;
+        return botMember.permissions.has(PermissionsBitField.Flags.BanMembers);
+    } catch {
+        return false;
+    }
+}
+
+async function checkRoleHierarchy(guild, userId) {
+    try {
+        const botMember = guild.members.me;
+        if (!botMember) return false;
+        const targetMember = await guild.members.fetch(userId).catch(() => null);
+        if (!targetMember) return true;
+        return botMember.roles.highest.position > targetMember.roles.highest.position;
+    } catch {
+        return false;
+    }
+}
+
+async function banFromAllGuilds(currentGuild, userId, reason) {
+    const results = [];
+    const errors = [];
+    const bannedGuildIds = [];
+    const targetGuilds = await getBlacklistTargetGuilds(currentGuild);
+
+    for (const guild of targetGuilds) {
+        const hasPerms = await checkBanPermissions(guild);
+        if (!hasPerms) {
+            errors.push(`${guild.name} - Missing Ban Members permission`);
+            continue;
+        }
+        const hasHigherRole = await checkRoleHierarchy(guild, userId);
+        if (!hasHigherRole) {
+            errors.push(`${guild.name} - Bot role is not higher than target`);
+            continue;
+        }
+        try {
+            await guild.bans.create(userId, { reason: `Blacklist: ${reason}`, deleteMessageSeconds: 86400 });
+            results.push(`${guild.name} - banned`);
+            bannedGuildIds.push(guild.id);
+            if (targetGuilds.length > 1) await delay(1000);
+        } catch (error) {
+            if (error.code === 10026) {
+                results.push(`${guild.name} - already banned`);
+                bannedGuildIds.push(guild.id);
+            } else if (error.code === 50013) {
+                errors.push(`${guild.name} - Missing Permissions`);
+            } else {
+                errors.push(`${guild.name} - ${error.message}`);
+            }
+        }
+    }
+
+    return { results, errors, bannedGuildIds };
+}
+
+async function unbanFromAllGuilds(currentGuild, userId, existingServerIds) {
+    const results = [];
+    const errors = [];
+    const targetGuilds = await getBlacklistTargetGuilds(currentGuild);
+    const guildIds = new Set([...(existingServerIds || []), ...targetGuilds.map(g => g.id)]);
+
+    for (const guildId of guildIds) {
+        const guild = client.guilds.cache.get(guildId);
+        if (!guild) continue;
+        try {
+            await guild.bans.remove(userId, 'Unblacklisted');
+            results.push(`${guild.name} - unbanned`);
+            if (guildIds.size > 1) await delay(1000);
+        } catch (error) {
+            if (error.code === 10026) {
+                results.push(`${guild.name} - was not banned`);
+            } else {
+                errors.push(`${guild.name} - ${error.message}`);
+            }
+        }
+    }
+
+    return { results, errors };
+}
+
 async function formatModerationHistory(userId, guildId, username, page = 1) {
     const totalLogs = await db.ModLog.countDocuments({ guildId, targetId: userId });
 
@@ -1110,33 +1212,59 @@ client.on('messageCreate', async (message) => {
                     await message.delete().catch(() => {});
                     return;
                 }
-                const result = await getUserFromInput(message.guild, input);
-                if (!result || !result.user) {
-                    const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR);
+
+                let userId;
+                const mentionMatch = input.match(/^<@!?(\d+)>$/);
+                if (mentionMatch) {
+                    userId = mentionMatch[1];
+                } else if (/^\d+$/.test(input)) {
+                    userId = input;
+                } else {
+                    const embed = new EmbedBuilder().setDescription('Invalid user ID.').setColor(COLORS.ERROR);
                     await message.channel.send({ embeds: [embed] });
                     await message.delete().catch(() => {});
                     return;
                 }
-                const user = result.user;
-                const member = result.member;
+
+                if (userId === message.author.id) {
+                    const embed = new EmbedBuilder().setDescription('You can\'t blacklist yourself.').setColor(COLORS.ERROR);
+                    await message.channel.send({ embeds: [embed] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+
+                let user;
+                try {
+                    user = await client.users.fetch(userId);
+                } catch {
+                    const embed = new EmbedBuilder().setDescription(`I can't blacklist **${userId}** - this is not a valid user ID.`).setColor(COLORS.ERROR);
+                    await message.channel.send({ embeds: [embed] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+
+                const existing = await db.getBlacklistEntryDB(user.id);
+                if (existing) {
+                    const embed = new EmbedBuilder().setDescription(`**${existing.userTag || user.tag}** is already blacklisted. Use \`-bll ${user.id}\` for more information.`).setColor(COLORS.ERROR);
+                    await message.channel.send({ embeds: [embed] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+
                 const reason = args.slice(1).join(' ') || 'No reason provided';
 
                 try {
-                    if (member) {
-                        if (!member.bannable) {
-                            const embed = new EmbedBuilder().setDescription('I cant moderate this user.').setColor(COLORS.ERROR);
-                            await message.channel.send({ embeds: [embed] });
-                            await message.delete().catch(() => {});
-                            return;
-                        }
-                        await member.ban({ reason: `Blacklist: ${reason}` });
-                    } else {
-                        await message.guild.bans.create(user.id, { reason: `Blacklist: ${reason}` });
+                    const banResult = await banFromAllGuilds(message.guild, user.id, reason);
+
+                    if (banResult.bannedGuildIds.length === 0) {
+                        const embed = new EmbedBuilder()
+                            .setDescription(`I can't blacklist **${user.tag}** - no servers available to ban in.\n\n**Errors:**\n${banResult.errors.map(e => `• ${e}`).join('\n')}`)
+                            .setColor(COLORS.ERROR);
+                        await message.channel.send({ embeds: [embed] });
+                        await message.delete().catch(() => {});
+                        return;
                     }
 
-                    const existing = await db.getBlacklistEntryDB(user.id);
-                    const servers = new Set(existing?.servers || []);
-                    servers.add(message.guild.id);
                     await db.addBlacklistEntryDB({
                         userId: user.id,
                         userTag: user.tag,
@@ -1144,7 +1272,8 @@ client.on('messageCreate', async (message) => {
                         modId: message.author.id,
                         modTag: message.author.tag,
                         date: new Date(),
-                        servers: Array.from(servers)
+                        servers: banResult.bannedGuildIds,
+                        lastErrors: banResult.errors
                     });
 
                     await saveModLog(message.guild, 'BLACKLIST', { id: user.id, tag: user.tag }, message.author, reason);
@@ -1161,9 +1290,11 @@ client.on('messageCreate', async (message) => {
                         channelId: message.channel.id
                     });
 
-                    const embed = new EmbedBuilder()
-                        .setDescription(`**${user.tag || user.username}** (${user.id}) has been blacklisted for the reason **${reason}**`)
-                        .setColor(BLACK);
+                    let description = `**${user.tag || user.username}** (${user.id}) has been blacklisted for the reason **${reason}**`;
+                    if (banResult.bannedGuildIds.length > 1) description += `\n\nBanned in ${banResult.bannedGuildIds.length} servers.`;
+                    if (banResult.errors.length > 0) description += `\n\n**Errors:**\n${banResult.errors.map(e => `• ${e}`).join('\n')}`;
+
+                    const embed = new EmbedBuilder().setDescription(description).setColor(BLACK);
                     await message.channel.send({ embeds: [embed] });
                 } catch (error) {
                     const embed = new EmbedBuilder().setDescription('Error during blacklist: ' + error.message).setColor(COLORS.ERROR);
@@ -1173,26 +1304,41 @@ client.on('messageCreate', async (message) => {
                 return;
             }
 
-            if (command === 'unbl') {
-                const userId = args[0];
-                if (!userId) {
-                    const embed = new EmbedBuilder().setDescription('Usage: `-unbl <ID>`').setColor(COLORS.ERROR);
+            if (command === 'unbl' || command === 'unblacklist') {
+                const input = args[0];
+                if (!input) {
+                    const embed = new EmbedBuilder().setDescription('Usage: `-unbl <@user/ID>`').setColor(COLORS.ERROR);
+                    await message.channel.send({ embeds: [embed] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+
+                let userId;
+                const mentionMatch = input.match(/^<@!?(\d+)>$/);
+                if (mentionMatch) {
+                    userId = mentionMatch[1];
+                } else if (/^\d+$/.test(input)) {
+                    userId = input;
+                } else {
+                    const embed = new EmbedBuilder().setDescription('Invalid user ID.').setColor(COLORS.ERROR);
+                    await message.channel.send({ embeds: [embed] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+
+                const entry = await db.getBlacklistEntryDB(userId);
+                if (!entry) {
+                    const embed = new EmbedBuilder().setDescription(`**${userId}** is not blacklisted.`).setColor(COLORS.ERROR);
                     await message.channel.send({ embeds: [embed] });
                     await message.delete().catch(() => {});
                     return;
                 }
 
                 try {
-                    const bans = await message.guild.bans.fetch();
-                    const bannedUser = bans.find(ban => ban.user.id === userId);
-                    if (bannedUser) {
-                        await message.guild.members.unban(userId);
-                    }
-
-                    const entry = await db.getBlacklistEntryDB(userId);
+                    const unbanResult = await unbanFromAllGuilds(message.guild, userId, entry.servers);
                     await db.removeBlacklistEntryDB(userId);
 
-                    const targetTag = entry?.userTag || bannedUser?.user?.tag || `Unknown User (${userId})`;
+                    const targetTag = entry.userTag || `Unknown User (${userId})`;
                     await saveModLog(message.guild, 'UNBLACKLIST', { id: userId, tag: targetTag }, message.author, 'Removed from blacklist');
                     await db.saveDashboardLogDB(message.guild.id, {
                         type: 'moderation',
@@ -1207,9 +1353,11 @@ client.on('messageCreate', async (message) => {
                         channelId: message.channel.id
                     });
 
-                    const embed = new EmbedBuilder()
-                        .setDescription(`**${targetTag}** has been removed from the blacklist${bannedUser ? ' and unbanned here' : ''}.`)
-                        .setColor(BLACK);
+                    const unbannedCount = unbanResult.results.filter(r => r.includes('unbanned')).length;
+                    let description = `**${targetTag}** has been removed from the blacklist${unbannedCount > 0 ? ` and unbanned in ${unbannedCount} server(s)` : ''}.`;
+                    if (unbanResult.errors.length > 0) description += `\n\n**Errors:**\n${unbanResult.errors.map(e => `• ${e}`).join('\n')}`;
+
+                    const embed = new EmbedBuilder().setDescription(description).setColor(BLACK);
                     await message.channel.send({ embeds: [embed] });
                 } catch (error) {
                     const embed = new EmbedBuilder().setDescription('Error during unblacklist: ' + error.message).setColor(COLORS.ERROR);
@@ -1220,6 +1368,27 @@ client.on('messageCreate', async (message) => {
             }
 
             if (command === 'bll') {
+                const input = args[0];
+                if (input) {
+                    const userId = input.replace(/[<@!>]/g, '');
+                    if (/^\d+$/.test(userId)) {
+                        const entry = await db.getBlacklistEntryDB(userId);
+                        if (!entry) {
+                            const embed = new EmbedBuilder().setDescription('User not blacklisted.').setColor(COLORS.ERROR);
+                            await message.channel.send({ embeds: [embed] });
+                            await message.delete().catch(() => {});
+                            return;
+                        }
+                        const embed = new EmbedBuilder()
+                            .setTitle('Blacklist Log')
+                            .setDescription(`**User**: ${entry.userTag || entry.userId} (${entry.userId})\n**Reason**: ${entry.reason || 'No reason provided'}\n**Blacklisted By**: ${entry.modTag || entry.modId || 'Unknown'}\n**Date**: ${formatFullDate(new Date(entry.date))}\n**Servers**: ${entry.servers?.length || 0}`)
+                            .setColor(COLORS.INFO);
+                        await message.channel.send({ embeds: [embed] });
+                        await message.delete().catch(() => {});
+                        return;
+                    }
+                }
+
                 const entries = await db.getAllBlacklistDB();
                 if (!entries.length) {
                     const embed = new EmbedBuilder().setDescription('The blacklist is empty.').setColor(COLORS.INFO);
