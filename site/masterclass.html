@@ -826,7 +826,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 
 .mc-tier-card.custom .mc-tier-name { color: var(--primary); margin-bottom: 10px; }
 
-.mc-tier-card.custom .mc-tier-body { justify-content: flex-start; }
+.mc-tier-card.custom .mc-tier-body { justify-content: center; }
 
 .mc-tier-card.custom p {
     font-size: 17px;
@@ -861,7 +861,16 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 .footer-col a::after { content: ''; position: absolute; left: 0; bottom: -2px; width: 0; height: 1px; background: var(--text); transition: width 0.25s ease; }
 .footer-col a:hover { color: var(--text); }
 .footer-col a:hover::after { width: 100%; }
+.footer-socials-row { display: flex; gap: 12px; margin-top: 18px; }
+.footer-social-icon { display: flex; align-items: center; justify-content: center; width: 54px; height: 54px; border-radius: 12px; color: #fff; opacity: 0.8; background: rgba(255,255,255,0.05); border: 1px solid var(--border); transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease; }
+.footer-social-icon svg { width: 28px; height: 28px; }
+.footer-social-icon:hover { opacity: 1; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); }
 .footer-bottom { border-top: 1px solid var(--border); padding: 18px 40px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; color: var(--text-dim); font-size: 13px; }
+.footer-bottom-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.footer-bottom-legal { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.footer-bottom-legal a { color: var(--text-dim); text-decoration: none; transition: color 0.2s ease; }
+.footer-bottom-legal a:hover { color: var(--text); }
+.footer-bottom-divider { opacity: 0.4; }
 .footer-disclaimer { opacity: 0.65; font-size: 11.5px; }
 
 @media (max-width: 1100px) {
@@ -878,6 +887,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     .mc-highlight { font-size: 14px; }
     .footer-inner { flex-direction: column; gap: 32px; }
     .footer-bottom { flex-direction: column; text-align: center; padding: 18px 20px; }
+    .footer-bottom-left { justify-content: center; }
+    .footer-socials-row { justify-content: center; }
 }
 
 @media (max-width: 640px) {
@@ -957,10 +968,16 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 <img src="/images/dragon-logo.png" alt="Predage">
                 <span>Predage</span>
             </div>
+            <div class="footer-socials-row">
+                <a class="footer-social-icon" href="https://x.com/Predage1" target="_blank" rel="noopener" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+                <a class="footer-social-icon" href="https://www.youtube.com/@predagefn" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg></a>
+                <a class="footer-social-icon" href="https://www.twitch.tv/predagefn" target="_blank" rel="noopener" aria-label="Twitch"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714z"/></svg></a>
+                <a class="footer-social-icon" href="https://www.instagram.com/predagefn/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" stroke="none"/></svg></a>
+            </div>
         </div>
         <div class="footer-cols">
             <div class="footer-col">
-                <h4 data-i18n="footer_platform">Platform</h4>
+                <h4 data-i18n="footer_platform">Navigation</h4>
                 <a href="/" data-i18n="nav_home">Home</a>
                 <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
                 <a href="/community" data-i18n="nav_community">Community</a>
@@ -973,15 +990,17 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 <a href="https://www.twitch.tv/predagefn" target="_blank" rel="noopener">Twitch</a>
                 <a href="https://www.instagram.com/predagefn/" target="_blank" rel="noopener">Instagram</a>
             </div>
-            <div class="footer-col">
-                <h4 data-i18n="footer_legal">Legal</h4>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <div class="footer-bottom-left">
+            <span data-i18n="footer_copyright">Predage © 2026. All rights reserved.</span>
+            <span class="footer-bottom-divider">•</span>
+            <div class="footer-bottom-legal">
                 <a href="/terms" data-i18n="footer_terms">Terms of Service</a>
                 <a href="/privacy" data-i18n="footer_privacy">Privacy Policy</a>
             </div>
         </div>
-    </div>
-    <div class="footer-bottom">
-        <span data-i18n="footer_copyright">Predage © 2026. All rights reserved.</span>
         <span class="footer-disclaimer" data-i18n="footer_disclaimer">Not affiliated with Epic Games, Inc.</span>
     </div>
 </footer>
@@ -1029,7 +1048,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             f_call_singular: 'Call mensile con Predage dove puoi fare tutte le domande che vuoi',
             f_vod_review: '1 ora di vod review con Predage al mese',
             f_custom_session_new: 'Una sessione di custom in cui puoi capire come gioca il Tier 1 e imparare a giocare come Predage',
-            footer_platform: 'Piattaforma',
+            footer_platform: 'Navigazione',
             footer_socials: 'Social',
             footer_legal: 'Legale', footer_terms: 'Termini di Servizio', footer_privacy: 'Informativa sulla Privacy',
             footer_copyright: 'Predage © 2026. Tutti i diritti riservati.',
@@ -1052,7 +1071,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             f_call_singular: 'Montly call with Predage where you can ask all of the question you want',
             f_vod_review: '1 Hour of vod review with Predage per month',
             f_custom_session_new: 'A session of customs from where you can understand how Tier 1 play and learn how to play like Predage',
-            footer_platform: 'Platform',
+            footer_platform: 'Navigation',
             footer_socials: 'Socials',
             footer_legal: 'Legal', footer_terms: 'Terms of Service', footer_privacy: 'Privacy Policy',
             footer_copyright: 'Predage © 2026. All rights reserved.',
@@ -1075,7 +1094,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             f_call_singular: 'Monatlicher Call mit Predage, bei dem du alle Fragen stellen kannst, die du willst',
             f_vod_review: '1 Stunde VOD-Review mit Predage pro Monat',
             f_custom_session_new: 'Eine Custom-Session, in der du verstehst, wie Tier 1 spielt, und lernst, wie Predage zu spielen',
-            footer_platform: 'Plattform',
+            footer_platform: 'Navigation',
             footer_socials: 'Soziale Medien',
             footer_legal: 'Rechtliches', footer_terms: 'Nutzungsbedingungen', footer_privacy: 'Datenschutzrichtlinie',
             footer_copyright: 'Predage © 2026. Alle Rechte vorbehalten.',
@@ -1098,7 +1117,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             f_call_singular: 'Llamada mensual con Predage donde puedes hacer todas las preguntas que quieras',
             f_vod_review: '1 hora de revisión de VOD con Predage al mes',
             f_custom_session_new: 'Una sesión de customs en la que puedes entender cómo juega el Tier 1 y aprender a jugar como Predage',
-            footer_platform: 'Plataforma',
+            footer_platform: 'Navegación',
             footer_socials: 'Redes Sociales',
             footer_legal: 'Legal', footer_terms: 'Términos de Servicio', footer_privacy: 'Política de Privacidad',
             footer_copyright: 'Predage © 2026. Todos los derechos reservados.',
@@ -1121,7 +1140,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             f_call_singular: 'Appel mensuel avec Predage où tu peux poser toutes les questions que tu veux',
             f_vod_review: '1 heure de revue de VOD avec Predage par mois',
             f_custom_session_new: 'Une session de customs où tu peux comprendre comment joue le Tier 1 et apprendre à jouer comme Predage',
-            footer_platform: 'Plateforme',
+            footer_platform: 'Navigation',
             footer_socials: 'Réseaux Sociaux',
             footer_legal: 'Mentions Légales', footer_terms: 'Conditions d\'Utilisation', footer_privacy: 'Politique de Confidentialité',
             footer_copyright: 'Predage © 2026. Tous droits réservés.',
