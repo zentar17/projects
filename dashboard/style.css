@@ -1565,12 +1565,13 @@ aside h3 {
 }
 
 .chart-container {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    border-radius: 14px;
-    padding: 20px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.015) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 24px 22px 18px;
     margin: 20px 0;
-    height: 320px;
+    height: 340px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .chart-container canvas {
@@ -2655,6 +2656,43 @@ aside h3 {
     justify-content: center;
     gap: 12px;
     margin-top: 26px;
+}
+
+.reason-modal-content {
+    width: 440px;
+    text-align: left;
+    padding: 34px 32px 30px;
+}
+
+.reason-modal-field {
+    margin-top: 20px;
+}
+
+.reason-modal-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+
+.reason-modal-current {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 13.5px;
+    line-height: 1.5;
+    max-height: 120px;
+    overflow-y: auto;
+    word-break: break-word;
+}
+
+.reason-modal-content .confirm-modal-actions {
+    justify-content: flex-end;
 }
 
 .confirm-modal-actions .btn-secondary,
