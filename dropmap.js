@@ -1,6 +1,7 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, AttachmentBuilder, PermissionsBitField } = require('discord.js');
 
 const DROPMAP_ROLE_ID = '1348738768223469695';
+const DROPMAP_GUILD_ID = '1341033385090486323';
 const DROPMAP_DURATION_DAYS = 30;
 const DROPMAP_COLOR = 0x6B6E73;
 const UPLOAD_PREFIX = 'upload:';
@@ -434,6 +435,7 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
     }
 
     async function handleMapCommand(message) {
+        if (!message.guild || message.guild.id !== DROPMAP_GUILD_ID) return;
         if (!(await canUseDropmap(message.member))) {
             await message.delete().catch(() => {});
             return;
@@ -511,6 +513,7 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
     }
 
     async function handleSetupCommand(message, args) {
+        if (!message.guild || message.guild.id !== DROPMAP_GUILD_ID) return;
         if (!(await canSetupDropmap(message.member))) {
             await message.delete().catch(() => {});
             return;
