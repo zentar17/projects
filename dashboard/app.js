@@ -2960,7 +2960,7 @@ async function refreshBlacklistSyncStatus() {
     const info = document.getElementById('blacklistSyncInfo');
     if (!btn || !info) return;
 
-    if (selectedServer !== 'masterclassServer' || !currentGuild) {
+    if (!['predcord', 'community', 'masterclassServer'].includes(selectedServer) || !currentGuild) {
         btn.classList.add('hidden');
         info.classList.add('hidden');
         return;
