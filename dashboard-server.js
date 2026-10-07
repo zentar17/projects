@@ -929,6 +929,7 @@ app.get('/api/me', requireAuth, async (req, res) => {
         canManageVideos: masterclass.canManage,
         canMcTickets: masterclass.canTickets,
         canRoleSync: await canManageRoleSync(req).catch(() => false),
+        canDropmaps: canManageDropmaps(req),
         canViewVideos: canViewVideos,
         access: access
     });
@@ -2045,6 +2046,304 @@ app.delete('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res)
         await afterRoleSyncChange();
         res.json({ success: true });
     } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+const DROPMAP_IMAGE_MAX_BYTES = 8 * 1024 * 1024;
+const DROPMAP_NAME_MAX = 90;
+const DROPMAP_TYPE_KEYS = ['poi', 'split'];
+
+const dropmapWriteLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 150,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please slow down.' }
+});
+
+const dropmapImageUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: DROPMAP_IMAGE_MAX_BYTES, files: 1 }
+});
+
+function canManageDropmaps(req) {
+    const role = getUserRole(req);
+    if (role === 'owner' || role === 'admin') return true;
+    return !!COMMUNITY_GUILD_ID && isOwner(req, COMMUNITY_GUILD_ID);
+}
+
+function requireDropmaps(req, res, next) {
+    if (!COMMUNITY_GUILD_ID) return res.status(500).json({ error: 'COMMUNITY_GUILD_ID is not configured' });
+    if (!canManageDropmaps(req)) return res.status(403).json({ error: 'Access Denied' });
+    next();
+}
+
+function cleanDropmapName(value) {
+    if (typeof value !== 'string') return null;
+    const name = value.trim().replace(/\s+/g, ' ');
+    if (!name || name.length > DROPMAP_NAME_MAX) return null;
+    if (/^[$]/.test(name) || name.includes('.') || name.includes('\u0000')) return null;
+    return name;
+}
+
+function cleanDropmapImage(value) {
+    if (typeof value !== 'string') return null;
+    const v = value.trim();
+    const { dropmap } = global.PredCord;
+    return dropmap && dropmap.isValidImageRef(v) ? v : null;
+}
+
+function dropmapImageSrc(ref) {
+    if (!ref) return null;
+    return `/api/dropmaps/image?ref=${encodeURIComponent(ref)}`;
+}
+
+function serializeDropmapCode(code) {
+    return code ? { type: code.type, number: code.number } : null;
+}
+
+async function buildDropmapPayload() {
+    const { db } = global.PredCord;
+    const [docs, codes] = await Promise.all([
+        db.getDropmapImagesDB(COMMUNITY_GUILD_ID),
+        db.listDropmapCodesDB(COMMUNITY_GUILD_ID)
+    ]);
+    const codeMap = new Map();
+    codes.forEach(c => codeMap.set(`${c.areaName}\u0000${c.subAreaName || ''}`, c));
+    const sortNames = (a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    const item = (doc) => ({
+        name: doc.areaName,
+        image: doc.imageUrl || null,
+        src: dropmapImageSrc(doc.imageUrl),
+        code: serializeDropmapCode(codeMap.get(`${doc.areaName}\u0000`)),
+        subAreas: doc.isMiniarea ? [] : Object.keys(doc.subAreas || {}).sort(sortNames).map(sub => ({
+            name: sub,
+            image: doc.subAreas[sub] || null,
+            src: dropmapImageSrc(doc.subAreas[sub]),
+            code: serializeDropmapCode(codeMap.get(`${doc.areaName}\u0000${sub}`))
+        }))
+    });
+    docs.sort((a, b) => sortNames(a.areaName, b.areaName));
+    return {
+        areas: docs.filter(d => !d.isMiniarea).map(item),
+        miniAreas: docs.filter(d => d.isMiniarea).map(item),
+        types: DROPMAP_TYPE_KEYS
+    };
+}
+
+async function removeDropmapUploadIfUnused(ref) {
+    if (!ref || !ref.startsWith('upload:')) return;
+    const { db } = global.PredCord;
+    const docs = await db.getDropmapImagesDB(COMMUNITY_GUILD_ID);
+    const used = docs.some(d => d.imageUrl === ref || Object.values(d.subAreas || {}).includes(ref));
+    if (!used) await db.deleteDropmapFileDB(ref.slice('upload:'.length)).catch(() => {});
+}
+
+app.get('/api/dropmaps', requireAuth, requireDropmaps, async (req, res) => {
+    try {
+        res.json(await buildDropmapPayload());
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get('/api/dropmaps/image', requireAuth, requireDropmaps, async (req, res) => {
+    try {
+        const ref = String(req.query.ref || '');
+        const { db, dropmap } = global.PredCord;
+        if (ref.startsWith('upload:')) {
+            const file = await db.getDropmapFileDB(ref.slice('upload:'.length));
+            if (!file || file.guildId !== COMMUNITY_GUILD_ID) return res.status(404).end();
+            const data = Buffer.isBuffer(file.data) ? file.data : Buffer.from(file.data.buffer || file.data);
+            res.set('Content-Type', file.contentType);
+            res.set('Content-Length', String(data.length));
+            res.set('Cache-Control', 'private, max-age=86400');
+            res.set('X-Content-Type-Options', 'nosniff');
+            return res.send(data);
+        }
+        if (!dropmap || !dropmap.isValidImageRef(ref)) return res.status(400).end();
+        const url = await dropmap.refreshDiscordUrl(ref);
+        res.set('Cache-Control', 'private, max-age=3600');
+        res.redirect(302, url);
+    } catch (e) {
+        res.status(500).end();
+    }
+});
+
+app.post('/api/dropmaps/upload', requireAuth, requireDropmaps, dropmapWriteLimiter, (req, res) => {
+    dropmapImageUpload.single('image')(req, res, async (err) => {
+        try {
+            if (err) return res.status(400).json({ error: err.code === 'LIMIT_FILE_SIZE' ? 'Image too large (max 8 MB)' : 'Upload failed' });
+            if (!req.file) return res.status(400).json({ error: 'No image' });
+            const type = sniffImageType(req.file.buffer);
+            if (!type) return res.status(400).json({ error: 'Only PNG, JPG, WEBP or GIF images' });
+            const id = await global.PredCord.db.createDropmapFileDB({
+                guildId: COMMUNITY_GUILD_ID,
+                uploaderId: (req.session.user && req.session.user.id) || null,
+                contentType: type,
+                size: req.file.size,
+                data: req.file.buffer
+            });
+            const ref = `upload:${id}`;
+            res.json({ ref, src: dropmapImageSrc(ref) });
+        } catch (e) {
+            res.status(500).json({ error: e.message });
+        }
+    });
+});
+
+app.post('/api/dropmaps/areas', requireAuth, requireDropmaps, dropmapWriteLimiter, async (req, res) => {
+    try {
+        const { db } = global.PredCord;
+        const name = cleanDropmapName(req.body.name);
+        const image = cleanDropmapImage(req.body.image);
+        const isMiniarea = req.body.kind === 'miniarea';
+        if (!name) return res.status(400).json({ error: 'Invalid name' });
+        if (!image) return res.status(400).json({ error: 'Add an image (URL or upload)' });
+        if (await db.getDropmapImageDB(COMMUNITY_GUILD_ID, name)) return res.status(409).json({ error: `"${name}" already exists` });
+        await db.saveDropmapImageDB({ guildId: COMMUNITY_GUILD_ID, areaName: name, imageUrl: image, isMiniarea, subAreas: {} });
+        res.json(await buildDropmapPayload());
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.patch('/api/dropmaps/areas/:name', requireAuth, requireDropmaps, dropmapWriteLimiter, async (req, res) => {
+    try {
+        const { db } = global.PredCord;
+        const area = await db.getDropmapImageDB(COMMUNITY_GUILD_ID, req.params.name);
+        if (!area) return res.status(404).json({ error: 'Not found' });
+        let currentName = area.areaName;
+        if (req.body.newName !== undefined) {
+            const newName = cleanDropmapName(req.body.newName);
+            if (!newName) return res.status(400).json({ error: 'Invalid name' });
+            if (newName !== currentName) {
+                if (await db.getDropmapImageDB(COMMUNITY_GUILD_ID, newName)) return res.status(409).json({ error: `"${newName}" already exists` });
+                await db.renameDropmapAreaDB(COMMUNITY_GUILD_ID, currentName, newName);
+                currentName = newName;
+            }
+        }
+        if (req.body.image !== undefined) {
+            const image = cleanDropmapImage(req.body.image);
+            if (!image) return res.status(400).json({ error: 'Invalid image' });
+            await db.saveDropmapImageDB({ guildId: COMMUNITY_GUILD_ID, areaName: currentName, imageUrl: image });
+            if (area.imageUrl !== image) await removeDropmapUploadIfUnused(area.imageUrl);
+        }
+        res.json(await buildDropmapPayload());
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.delete('/api/dropmaps/areas/:name', requireAuth, requireDropmaps, dropmapWriteLimiter, async (req, res) => {
+    try {
+        const { db } = global.PredCord;
+        const area = await db.getDropmapImageDB(COMMUNITY_GUILD_ID, req.params.name);
+        if (!area) return res.status(404).json({ error: 'Not found' });
+        await db.deleteDropmapImageDB(COMMUNITY_GUILD_ID, area.areaName);
+        await db.deleteDropmapCodesDB(COMMUNITY_GUILD_ID, area.areaName);
+        const refs = [area.imageUrl, ...Object.values(area.subAreas || {})];
+        for (const ref of refs) await removeDropmapUploadIfUnused(ref);
+        res.json(await buildDropmapPayload());
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/dropmaps/areas/:name/subareas', requireAuth, requireDropmaps, dropmapWriteLimiter, async (req, res) => {
+    try {
+        const { db } = global.PredCord;
+        const area = await db.getDropmapImageDB(COMMUNITY_GUILD_ID, req.params.name);
+        if (!area || area.isMiniarea) return res.status(404).json({ error: 'Area not found' });
+        const name = cleanDropmapName(req.body.name);
+        const image = cleanDropmapImage(req.body.image);
+        if (!name) return res.status(400).json({ error: 'Invalid name' });
+        if (!image) return res.status(400).json({ error: 'Add an image (URL or upload)' });
+        const subAreas = { ...(area.subAreas || {}) };
+        if (subAreas[name]) return res.status(409).json({ error: `"${name}" already exists in this area` });
+        subAreas[name] = image;
+        await db.setDropmapSubAreasDB(COMMUNITY_GUILD_ID, area.areaName, subAreas);
+        res.json(await buildDropmapPayload());
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.patch('/api/dropmaps/areas/:name/subareas/:sub', requireAuth, requireDropmaps, dropmapWriteLimiter, async (req, res) => {
+    try {
+        const { db } = global.PredCord;
+        const area = await db.getDropmapImageDB(COMMUNITY_GUILD_ID, req.params.name);
+        const oldSub = req.params.sub;
+        if (!area || !(area.subAreas || {})[oldSub]) return res.status(404).json({ error: 'Not found' });
+        const oldImage = area.subAreas[oldSub];
+        let newSub = oldSub;
+        if (req.body.newName !== undefined) {
+            newSub = cleanDropmapName(req.body.newName);
+            if (!newSub) return res.status(400).json({ error: 'Invalid name' });
+            if (newSub !== oldSub && area.subAreas[newSub]) return res.status(409).json({ error: `"${newSub}" already exists in this area` });
+        }
+        let image = oldImage;
+        if (req.body.image !== undefined) {
+            image = cleanDropmapImage(req.body.image);
+            if (!image) return res.status(400).json({ error: 'Invalid image' });
+        }
+        const subAreas = {};
+        for (const [k, v] of Object.entries(area.subAreas)) {
+            if (k === oldSub) subAreas[newSub] = image;
+            else subAreas[k] = v;
+        }
+        await db.setDropmapSubAreasDB(COMMUNITY_GUILD_ID, area.areaName, subAreas);
+        if (newSub !== oldSub) await db.renameDropmapSubAreaCodeDB(COMMUNITY_GUILD_ID, area.areaName, oldSub, newSub);
+        if (image !== oldImage) await removeDropmapUploadIfUnused(oldImage);
+        res.json(await buildDropmapPayload());
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.delete('/api/dropmaps/areas/:name/subareas/:sub', requireAuth, requireDropmaps, dropmapWriteLimiter, async (req, res) => {
+    try {
+        const { db } = global.PredCord;
+        const area = await db.getDropmapImageDB(COMMUNITY_GUILD_ID, req.params.name);
+        const sub = req.params.sub;
+        if (!area || !(area.subAreas || {})[sub]) return res.status(404).json({ error: 'Not found' });
+        const oldImage = area.subAreas[sub];
+        const subAreas = { ...area.subAreas };
+        delete subAreas[sub];
+        await db.setDropmapSubAreasDB(COMMUNITY_GUILD_ID, area.areaName, subAreas);
+        await db.deleteDropmapCodesDB(COMMUNITY_GUILD_ID, area.areaName, sub);
+        await removeDropmapUploadIfUnused(oldImage);
+        res.json(await buildDropmapPayload());
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.put('/api/dropmaps/code', requireAuth, requireDropmaps, dropmapWriteLimiter, async (req, res) => {
+    try {
+        const { db } = global.PredCord;
+        const areaName = String(req.body.areaName || '');
+        const subAreaName = req.body.subAreaName ? String(req.body.subAreaName) : null;
+        const area = await db.getDropmapImageDB(COMMUNITY_GUILD_ID, areaName);
+        if (!area) return res.status(404).json({ error: 'Not found' });
+        if (subAreaName && !(area.subAreas || {})[subAreaName]) return res.status(404).json({ error: 'Not found' });
+        const type = req.body.type ? String(req.body.type) : null;
+        if (type && !DROPMAP_TYPE_KEYS.includes(type)) return res.status(400).json({ error: 'Invalid type' });
+        let number = null;
+        if (type) {
+            number = parseInt(req.body.number, 10);
+            if (!Number.isInteger(number) || number < 1 || number > 9999) return res.status(400).json({ error: 'Invalid number' });
+            const taken = await db.getDropmapCodeDB(COMMUNITY_GUILD_ID, type, number);
+            if (taken && !(taken.areaName === areaName && (taken.subAreaName || null) === subAreaName)) {
+                const owner = taken.subAreaName ? `${taken.areaName} - ${taken.subAreaName}` : taken.areaName;
+                return res.status(409).json({ error: `${type === 'poi' ? 'POI' : 'Split'} #${number} is already used by "${owner}"` });
+            }
+        }
+        await db.setDropmapCodeDB(COMMUNITY_GUILD_ID, areaName, subAreaName, type, number);
+        res.json(await buildDropmapPayload());
+    } catch (e) {
+        if (e && e.code === 11000) return res.status(409).json({ error: 'This number is already used' });
         res.status(500).json({ error: e.message });
     }
 });
