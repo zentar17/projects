@@ -14,7 +14,7 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const { spawn } = require('child_process');
 const ffmpegPath = require('ffmpeg-static');
-const { ChannelType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ChannelType, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField } = require('discord.js');
 require('dotenv').config();
 
 require('./index.js');
@@ -928,6 +928,7 @@ app.get('/api/me', requireAuth, async (req, res) => {
         canUploadVideos: masterclass.canUpload,
         canManageVideos: masterclass.canManage,
         canMcTickets: masterclass.canTickets,
+        canRoleSync: await canManageRoleSync(req).catch(() => false),
         canViewVideos: canViewVideos,
         access: access
     });
@@ -1870,6 +1871,157 @@ app.get('/api/masterclass/tickets', requireAuth, async (req, res) => {
             lastMessageAt: t.lastMessageAt,
             deleteAt: (t.status === 'closed' && t.closedAt) ? new Date(new Date(t.closedAt).getTime() + MC_TICKET_DELETE_AFTER_MS) : null,
         })));
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+async function hasAdminInGuild(userId, guildId) {
+    const { client } = global.PredCord;
+    const guild = client.guilds.cache.get(guildId);
+    if (!guild) return false;
+    if (guild.ownerId === userId) return true;
+    const member = await guild.members.fetch(userId).catch(() => null);
+    return !!(member && member.permissions.has(PermissionsBitField.Flags.Administrator));
+}
+
+async function canManageRoleSync(req) {
+    if (isDashboardAdmin(req)) return true;
+    const user = req.session.user;
+    if (!user || !user.isDiscord || !user.id) return false;
+    const guildIds = [MAIN_GUILD_ID, COMMUNITY_GUILD_ID].filter(Boolean);
+    if (guildIds.length < 2) return false;
+    for (const guildId of guildIds) {
+        if (!(await hasAdminInGuild(user.id, guildId))) return false;
+    }
+    return true;
+}
+
+function roleSyncGuildRoles(guildId) {
+    const { client } = global.PredCord;
+    const guild = client.guilds.cache.get(guildId);
+    if (!guild) return [];
+    return guild.roles.cache
+        .filter(r => r.id !== guild.id)
+        .sort((a, b) => b.position - a.position)
+        .map(r => ({ id: r.id, name: r.name, color: r.hexColor, managed: r.managed }));
+}
+
+function roleSyncGuilds() {
+    const { client } = global.PredCord;
+    return [
+        { key: 'predcord', id: MAIN_GUILD_ID },
+        { key: 'community', id: COMMUNITY_GUILD_ID }
+    ].filter(g => g.id).map(g => {
+        const guild = client.guilds.cache.get(g.id);
+        return {
+            key: g.key,
+            id: g.id,
+            name: guild ? guild.name : g.key,
+            icon: guild ? guild.iconURL({ size: 128 }) : null
+        };
+    });
+}
+
+function serializeRoleSyncRule(rule) {
+    const { roleSync } = global.PredCord;
+    return {
+        id: String(rule._id),
+        sourceGuildId: rule.sourceGuildId,
+        sourceRoleId: rule.sourceRoleId || null,
+        targetGuildId: rule.targetGuildId,
+        targetRoleId: rule.targetRoleId || null,
+        warning: roleSync ? roleSync.diagnose(rule) : null
+    };
+}
+
+async function afterRoleSyncChange() {
+    const { roleSync } = global.PredCord;
+    if (!roleSync) return;
+    await roleSync.refresh();
+    roleSync.scheduleFullSync(5000);
+}
+
+app.get('/api/role-sync', requireAuth, async (req, res) => {
+    try {
+        if (!(await canManageRoleSync(req))) return res.status(403).json({ error: 'Access Denied' });
+        const rules = await global.PredCord.db.listRoleSyncRulesDB();
+        const guilds = roleSyncGuilds();
+        const roles = {};
+        guilds.forEach(g => { roles[g.id] = roleSyncGuildRoles(g.id); });
+        res.json({ guilds, roles, rules: rules.map(serializeRoleSyncRule) });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/role-sync', requireAuth, writeLimiter, async (req, res) => {
+    try {
+        if (!(await canManageRoleSync(req))) return res.status(403).json({ error: 'Access Denied' });
+        const guilds = roleSyncGuilds();
+        if (guilds.length < 2) return res.status(400).json({ error: 'Two servers are needed for Role Sync' });
+        const ids = guilds.map(g => g.id);
+        const sourceGuildId = ids.includes(req.body.sourceGuildId) ? req.body.sourceGuildId : ids[0];
+        const targetGuildId = ids.find(id => id !== sourceGuildId);
+        const rule = await global.PredCord.db.createRoleSyncRuleDB({
+            sourceGuildId,
+            targetGuildId,
+            sourceRoleId: null,
+            targetRoleId: null,
+            createdById: (req.session.user && req.session.user.id) || null
+        });
+        await afterRoleSyncChange();
+        res.json(serializeRoleSyncRule(rule));
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.patch('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res) => {
+    try {
+        if (!(await canManageRoleSync(req))) return res.status(403).json({ error: 'Access Denied' });
+        const { db, client } = global.PredCord;
+        const existing = await db.getRoleSyncRuleDB(req.params.ruleId);
+        if (!existing) return res.status(404).json({ error: 'Rule not found' });
+
+        const ids = roleSyncGuilds().map(g => g.id);
+        const next = {
+            sourceGuildId: existing.sourceGuildId,
+            sourceRoleId: existing.sourceRoleId,
+            targetGuildId: existing.targetGuildId,
+            targetRoleId: existing.targetRoleId
+        };
+        for (const key of Object.keys(next)) {
+            if (Object.prototype.hasOwnProperty.call(req.body, key)) next[key] = req.body[key] || null;
+        }
+
+        if (!ids.includes(next.sourceGuildId) || !ids.includes(next.targetGuildId)) return res.status(400).json({ error: 'Invalid server' });
+        if (next.sourceGuildId === next.targetGuildId) return res.status(400).json({ error: 'Source and target server must be different' });
+
+        const checkRole = (guildId, roleId) => {
+            if (!roleId) return true;
+            if (!/^\d+$/.test(roleId)) return false;
+            const guild = client.guilds.cache.get(guildId);
+            return !!(guild && guild.roles.cache.has(roleId) && roleId !== guild.id);
+        };
+        if (!checkRole(next.sourceGuildId, next.sourceRoleId)) return res.status(400).json({ error: 'Invalid source role' });
+        if (!checkRole(next.targetGuildId, next.targetRoleId)) return res.status(400).json({ error: 'Invalid target role' });
+
+        const updated = await db.updateRoleSyncRuleDB(req.params.ruleId, next);
+        await afterRoleSyncChange();
+        res.json(serializeRoleSyncRule(updated));
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.delete('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res) => {
+    try {
+        if (!(await canManageRoleSync(req))) return res.status(403).json({ error: 'Access Denied' });
+        const ok = await global.PredCord.db.deleteRoleSyncRuleDB(req.params.ruleId);
+        if (!ok) return res.status(404).json({ error: 'Rule not found' });
+        await afterRoleSyncChange();
+        res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
