@@ -106,6 +106,7 @@
         </nav>
         <nav class="nav-tabs hidden" id="masterclassNavTabs">
             <button class="nav-tab active" data-tab="videos" id="navTabVideos">Videos</button>
+            <button class="nav-tab hidden" data-tab="mc-tickets" id="navTabMcTickets">Tickets</button>
             <button class="nav-tab hidden" data-tab="masterclass-permissions" id="navTabMasterclassPermissions">Permissions</button>
         </nav>
     </aside>
@@ -589,7 +590,55 @@
                 </div>
             </div>
 
+            <div class="divider-thick"></div>
+
+            <h2 class="section-title">Tickets</h2>
+
+            <div class="permissions-grid">
+                <div class="permission-card">
+                    <h3>Ticket staff</h3>
+                    <p class="permission-desc">These Discord IDs can read and reply to every Masterclass ticket on the site and see the Tickets tab here.</p>
+
+                    <div class="special-user-input">
+                        <input type="text" id="mcTicketStaffInput" placeholder="Paste Discord ID..." maxlength="32">
+                        <button type="button" id="mcTicketStaffAdd" class="btn-add-user">Add</button>
+                    </div>
+
+                    <div id="mcTicketStaffList" class="special-users-list">
+                        <p class="loading-text">No users.</p>
+                    </div>
+                </div>
+
+                <div class="permission-card">
+                    <h3>New ticket notifications</h3>
+                    <p class="permission-desc">Discord channel ID where the bot posts a message every time a new Masterclass ticket is opened. Leave empty to disable.</p>
+
+                    <div class="special-user-input">
+                        <input type="text" id="mcTicketNotifyChannelInput" placeholder="Paste channel ID..." maxlength="32">
+                    </div>
+                </div>
+            </div>
+
             <button type="button" id="saveMasterclassPermissionsBtn" class="btn-primary" style="margin-top: 20px;">Save Permissions</button>
+        </div>
+
+        <div id="tab-mc-tickets" class="tab-content hidden">
+            <div class="panel-header">
+                <h2>Masterclass Tickets</h2>
+            </div>
+
+            <div class="stats-period-switch" id="mcTicketsFilter">
+                <button type="button" class="stats-period-btn active" data-status="open">Open</button>
+                <button type="button" class="stats-period-btn" data-status="closed">Closed</button>
+                <button type="button" class="stats-period-btn" data-status="all">All</button>
+                <button type="button" class="stats-period-btn" data-status="transcripts">Transcripts</button>
+            </div>
+
+            <p id="mcTicketsCount" class="bans-count"></p>
+
+            <div id="mcTicketsList" class="mc-tickets-list">
+                <div class="loading">Loading</div>
+            </div>
         </div>
 
         <div id="tab-bans" class="tab-content hidden">
