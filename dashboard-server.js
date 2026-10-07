@@ -1254,10 +1254,8 @@ async function notifyNewMcTicket(ticket) {
             .setAuthor({ name: `${ticket.userName} (${ticket.userId})`, iconURL: ticket.userAvatar || undefined })
             .addFields(
                 { name: 'Plan', value: ticket.price ? `${ticket.plan} (${ticket.price} / month)` : ticket.plan, inline: true },
-                { name: 'Email', value: ticket.email, inline: true },
                 { name: 'User', value: `<@${ticket.userId}>`, inline: true }
-            )
-            .setTimestamp();
+            );
         const origin = getSiteOrigin();
         const payload = { embeds: [embed] };
         if (origin) {
