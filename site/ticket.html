@@ -390,6 +390,14 @@ body {
     box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.1);
 }
 
+.composer textarea {
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.composer textarea::-webkit-scrollbar { display: none; }
+
 .composer textarea::placeholder { color: var(--text-dim); }
 
 .btn-send {
@@ -410,6 +418,117 @@ body {
 .btn-send:hover { transform: translateY(-1px); }
 .btn-send:disabled { opacity: 0.45; cursor: default; transform: none; }
 .btn-send svg { width: 19px; height: 19px; }
+
+.btn-attach {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-attach:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.25); }
+.btn-attach svg { width: 19px; height: 19px; }
+
+.attach-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 18px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.attach-preview img {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.attach-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.attach-name {
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.attach-size {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    margin-top: 2px;
+}
+
+.attach-remove {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.08);
+    color: #f87171;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.ticket-card.drag-over .chat-body {
+    outline: 2px dashed rgba(230, 126, 34, 0.6);
+    outline-offset: -10px;
+    background: rgba(230, 126, 34, 0.04);
+}
+
+.bubble.has-image { padding: 6px; }
+.bubble.has-image .bubble-text { padding: 6px 9px 4px; }
+
+.bubble-image {
+    display: block;
+    max-width: 100%;
+    width: auto;
+    max-height: 320px;
+    border-radius: 11px;
+    cursor: zoom-in;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    background: rgba(4, 4, 7, 0.92);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    cursor: zoom-out;
+}
+
+.lightbox.open { display: flex; }
+
+.lightbox img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 12px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
 
 .composer-hint {
     display: flex;
@@ -687,7 +806,20 @@ body {
 
             <div class="chat-banner hidden" id="chatBanner"></div>
 
+            <div class="attach-preview hidden" id="attachPreview">
+                <img id="attachThumb" alt="">
+                <div class="attach-info">
+                    <div class="attach-name" id="attachName"></div>
+                    <div class="attach-size" id="attachSize"></div>
+                </div>
+                <button type="button" class="attach-remove" id="attachRemove" aria-label="Remove image">&times;</button>
+            </div>
+
             <div class="composer hidden" id="composer">
+                <button type="button" class="btn-attach" id="attachBtn" aria-label="Attach image" title="Attach image">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.8"/><path d="M21 15l-5-5L5 21"/></svg>
+                </button>
+                <input type="file" id="attachInput" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden">
                 <textarea id="messageInput" placeholder="Write a message…" maxlength="2000" rows="1"></textarea>
                 <button type="button" class="btn-send" id="sendBtn" aria-label="Send">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
@@ -695,7 +827,7 @@ body {
             </div>
             <div class="composer-hint hidden" id="composerHint">
                 <span class="composer-error" id="composerError"></span>
-                <span>Enter to send · Shift + Enter for a new line</span>
+                <span>Enter to send · Shift + Enter for a new line · Paste or drop images</span>
             </div>
         </div>
 
@@ -750,6 +882,8 @@ body {
     </div>
 </div>
 
+<div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
+
 <script>
 (function() {
     var match = window.location.pathname.match(/\/ticket\/(\d+)/);
@@ -784,6 +918,20 @@ body {
     var statusBtn = document.getElementById('statusBtn');
     var staffNote = document.getElementById('staffNote');
     var staffError = document.getElementById('staffError');
+    var ticketCard = document.querySelector('.ticket-card');
+    var attachBtn = document.getElementById('attachBtn');
+    var attachInput = document.getElementById('attachInput');
+    var attachPreview = document.getElementById('attachPreview');
+    var attachThumb = document.getElementById('attachThumb');
+    var attachName = document.getElementById('attachName');
+    var attachSize = document.getElementById('attachSize');
+    var attachRemove = document.getElementById('attachRemove');
+    var lightbox = document.getElementById('lightbox');
+    var lightboxImg = document.getElementById('lightboxImg');
+    var attachedFile = null;
+    var attachedUrl = null;
+    var IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+    var IMAGE_MAX = 8 * 1024 * 1024;
 
     var ticket = null;
     var viewer = null;
@@ -877,6 +1025,7 @@ body {
         var canWrite = viewer && viewer.canWrite;
         composer.classList.toggle('hidden', !canWrite);
         composerHint.classList.toggle('hidden', !canWrite);
+        if (!canWrite) clearAttachment();
 
         if (ticket.isTranscript) {
             setBanner('transcript', 'Transcript · this ticket was deleted ' + (ticket.deletedAt ? 'on ' + fullDate(ticket.deletedAt) : '') + '. Only staff can see it.');
@@ -919,34 +1068,19 @@ body {
 
         var isOpen = ticket.status === 'open';
         var mine = ticket.claimedById && ticket.claimedById === viewer.id;
-        var other = ticket.claimedById && ticket.claimedById !== viewer.id;
 
-        claimBtn.classList.toggle('hidden', !isOpen);
-        if (mine) {
-            claimBtn.className = 'side-btn ghost';
-            claimBtn.textContent = 'Unclaim Ticket';
-            claimBtn.dataset.action = 'unclaim';
-            claimBtn.disabled = false;
-        } else if (other) {
-            claimBtn.className = 'side-btn ghost';
-            claimBtn.textContent = viewer.isSuperOwner ? 'Take Over Ticket' : 'Claimed by ' + ticket.claimedByName;
-            claimBtn.dataset.action = 'claim';
-            claimBtn.disabled = !viewer.isSuperOwner;
-        } else {
-            claimBtn.className = 'side-btn claim';
-            claimBtn.textContent = 'Claim Ticket';
-            claimBtn.dataset.action = 'claim';
-            claimBtn.disabled = false;
-        }
-        if (!isOpen) claimBtn.classList.add('hidden');
+        claimBtn.className = 'side-btn claim';
+        claimBtn.textContent = 'Claim Ticket';
+        claimBtn.disabled = false;
+        if (!isOpen || ticket.claimedById) claimBtn.classList.add('hidden');
 
         statusBtn.className = 'side-btn ' + (isOpen ? 'close' : 'reopen');
         statusBtn.textContent = isOpen ? 'Close Ticket' : 'Reopen Ticket';
 
         if (!isOpen) staffNote.textContent = 'Closed tickets are deleted 24 hours after closing. The transcript and logs are kept.';
         else if (!ticket.claimedById) staffNote.textContent = 'Claim the ticket to let the user know you are handling it. Once claimed, only you can reply.';
-        else if (mine) staffNote.textContent = 'You are handling this ticket.';
-        else staffNote.textContent = 'Another staff member is handling this ticket.';
+        else if (mine) staffNote.textContent = 'You claimed this ticket, you are handling it.';
+        else staffNote.textContent = 'This ticket was claimed by ' + (ticket.claimedByName || 'another staff member') + '.';
     }
 
     function renderIntro() {
@@ -988,7 +1122,26 @@ body {
         var head = mine ? (time + tag + name) : (name + tag + time);
         el.innerHTML = '<img class="msg-avatar" src="' + escapeHtml(avatar) + '" alt="" onerror="this.src=\'https://cdn.discordapp.com/embed/avatars/0.png\'">' +
             '<div class="msg-content"><div class="msg-head">' + head + '</div><div class="bubble"></div></div>';
-        el.querySelector('.bubble').textContent = m.content;
+        var bubble = el.querySelector('.bubble');
+        if (m.imageId) {
+            bubble.classList.add('has-image');
+            var img = document.createElement('img');
+            img.className = 'bubble-image';
+            img.alt = '';
+            img.loading = 'lazy';
+            img.src = '/api/site/mc-tickets/' + ticketNumber + '/images/' + encodeURIComponent(m.imageId);
+            img.addEventListener('load', function() { if (isNearBottom()) scrollToBottom(); });
+            img.addEventListener('click', function() { openLightbox(img.src); });
+            bubble.appendChild(img);
+            if (m.content) {
+                var text = document.createElement('div');
+                text.className = 'bubble-text';
+                text.textContent = m.content;
+                bubble.appendChild(text);
+            }
+        } else {
+            bubble.textContent = m.content;
+        }
         chatBody.appendChild(el);
     }
 
@@ -1052,6 +1205,7 @@ body {
     function autoGrow() {
         messageInput.style.height = '46px';
         messageInput.style.height = Math.min(messageInput.scrollHeight, 160) + 'px';
+        messageInput.style.overflowY = messageInput.scrollHeight > 160 ? 'auto' : 'hidden';
     }
 
     var ERRORS = {
@@ -1060,27 +1214,76 @@ body {
         empty_message: 'Write a message first.',
         claimed_by_other: 'This ticket is claimed by another staff member.',
         forbidden: 'You are not allowed to do this.',
-        conflict: 'Someone else changed this ticket, please retry.'
+        conflict: 'Someone else changed this ticket, please retry.',
+        image_too_large: 'Image is too large (max 8 MB).',
+        invalid_image: 'Only PNG, JPG, WEBP or GIF images are allowed.',
+        upload_failed: 'Could not upload the image.'
     };
+
+    function formatSize(bytes) {
+        if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function clearAttachment() {
+        attachedFile = null;
+        if (attachedUrl) URL.revokeObjectURL(attachedUrl);
+        attachedUrl = null;
+        attachInput.value = '';
+        attachPreview.classList.add('hidden');
+    }
+
+    function setAttachment(file) {
+        if (!file) return;
+        composerError.textContent = '';
+        if (IMAGE_TYPES.indexOf(file.type) === -1) {
+            composerError.textContent = ERRORS.invalid_image;
+            return;
+        }
+        if (file.size > IMAGE_MAX) {
+            composerError.textContent = ERRORS.image_too_large;
+            return;
+        }
+        if (attachedUrl) URL.revokeObjectURL(attachedUrl);
+        attachedFile = file;
+        attachedUrl = URL.createObjectURL(file);
+        attachThumb.src = attachedUrl;
+        attachName.textContent = file.name || 'image';
+        attachSize.textContent = formatSize(file.size);
+        attachPreview.classList.remove('hidden');
+        messageInput.focus();
+    }
+
+    function openLightbox(src) {
+        lightboxImg.src = src;
+        lightbox.classList.add('open');
+    }
 
     function sendMessage() {
         var content = messageInput.value.trim();
-        if (!content || sending || !ticket || !viewer || !viewer.canWrite) return;
+        if ((!content && !attachedFile) || sending || !ticket || !viewer || !viewer.canWrite) return;
         sending = true;
         sendBtn.disabled = true;
         composerError.textContent = '';
-        fetch('/api/site/mc-tickets/' + ticketNumber + '/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content: content })
-        }).then(function(res) {
-            return res.json().then(function(body) { return { ok: res.ok, body: body || {} }; });
+        var options = { method: 'POST' };
+        if (attachedFile) {
+            var form = new FormData();
+            form.append('content', content);
+            form.append('image', attachedFile, attachedFile.name || 'image');
+            options.body = form;
+        } else {
+            options.headers = { 'Content-Type': 'application/json' };
+            options.body = JSON.stringify({ content: content });
+        }
+        fetch('/api/site/mc-tickets/' + ticketNumber + '/messages', options).then(function(res) {
+            return res.json().catch(function() { return {}; }).then(function(body) { return { ok: res.ok, status: res.status, body: body || {} }; });
         }).then(function(r) {
             if (!r.ok) {
-                composerError.textContent = ERRORS[r.body.error] || r.body.error || 'Could not send the message.';
+                composerError.textContent = ERRORS[r.body.error] || (r.status === 413 ? ERRORS.image_too_large : r.body.error) || 'Could not send the message.';
                 return load(false);
             }
             messageInput.value = '';
+            clearAttachment();
             autoGrow();
             return load(false).then(scrollToBottom);
         }).catch(function() {
@@ -1123,9 +1326,65 @@ body {
 
     messageInput.addEventListener('input', autoGrow);
 
+    attachBtn.addEventListener('click', function() { attachInput.click(); });
+
+    attachInput.addEventListener('change', function() {
+        if (attachInput.files && attachInput.files[0]) setAttachment(attachInput.files[0]);
+    });
+
+    attachRemove.addEventListener('click', clearAttachment);
+
+    messageInput.addEventListener('paste', function(e) {
+        var items = (e.clipboardData && e.clipboardData.items) || [];
+        for (var i = 0; i < items.length; i++) {
+            if (items[i].kind === 'file' && items[i].type.indexOf('image/') === 0) {
+                e.preventDefault();
+                setAttachment(items[i].getAsFile());
+                return;
+            }
+        }
+    });
+
+    var dragDepth = 0;
+    ticketCard.addEventListener('dragenter', function(e) {
+        if (!viewer || !viewer.canWrite) return;
+        if (!e.dataTransfer || Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') === -1) return;
+        e.preventDefault();
+        dragDepth++;
+        ticketCard.classList.add('drag-over');
+    });
+    ticketCard.addEventListener('dragover', function(e) {
+        if (!viewer || !viewer.canWrite) return;
+        e.preventDefault();
+    });
+    ticketCard.addEventListener('dragleave', function() {
+        dragDepth = Math.max(0, dragDepth - 1);
+        if (!dragDepth) ticketCard.classList.remove('drag-over');
+    });
+    ticketCard.addEventListener('drop', function(e) {
+        if (!viewer || !viewer.canWrite) return;
+        e.preventDefault();
+        dragDepth = 0;
+        ticketCard.classList.remove('drag-over');
+        var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file) setAttachment(file);
+    });
+
+    lightbox.addEventListener('click', function() {
+        lightbox.classList.remove('open');
+        lightboxImg.src = '';
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && lightbox.classList.contains('open')) {
+            lightbox.classList.remove('open');
+            lightboxImg.src = '';
+        }
+    });
+
     claimBtn.addEventListener('click', function() {
-        if (!ticket) return;
-        staffAction('/claim', { action: claimBtn.dataset.action || 'claim' }, claimBtn);
+        if (!ticket || ticket.claimedById) return;
+        staffAction('/claim', { action: 'claim' }, claimBtn);
     });
 
     statusBtn.addEventListener('click', function() {
