@@ -1329,11 +1329,6 @@ async function loadMcTickets() {
         list.innerHTML = tickets.map(t => {
             const num = String(t.ticketNumber).padStart(4, '0');
             const price = t.price ? ` · ${escapeHtml(t.price)} / month` : '';
-            const preview = !t.lastMessage
-                ? '<span class="mc-ticket-preview-empty">No messages yet</span>'
-                : t.lastMessage.system
-                    ? `<span class="mc-ticket-preview-empty">${escapeHtml(t.lastMessage.content)}</span>`
-                    : `<span class="mc-ticket-preview-author">${escapeHtml(t.lastMessage.authorName || '')}${t.lastMessage.isStaff ? ' (Staff)' : ''}:</span> ${escapeHtml(t.lastMessage.content)}`;
             const statusLabel = t.status === 'open' ? 'Open' : t.status === 'closed' ? 'Closed' : 'Transcript';
             const claimChip = t.claimedByName
                 ? `<span class="mc-ticket-claim claimed">Claimed by ${escapeHtml(t.claimedByName)}</span>`
@@ -1353,7 +1348,6 @@ async function loadMcTickets() {
                         ${deleteInfo}
                     </div>
                     <div class="mc-ticket-user">${escapeHtml(t.userName || t.userId)} · ${escapeHtml(t.email || '')}</div>
-                    <div class="mc-ticket-preview">${preview}</div>
                 </div>
                 <div class="mc-ticket-time">${escapeHtml(timeAgo(t.lastMessageAt || t.createdAt))}</div>
             </a>`;
