@@ -376,6 +376,25 @@ const DropmapImageSchema = new mongoose.Schema({
 
 DropmapImageSchema.index({ guildId: 1, areaName: 1 }, { unique: true });
 
+const DropmapCodeSchema = new mongoose.Schema({
+    guildId: { type: String, required: true, index: true },
+    type: { type: String, required: true },
+    number: { type: Number, required: true },
+    areaName: { type: String, required: true },
+    subAreaName: { type: String, default: null }
+}, { timestamps: true });
+
+DropmapCodeSchema.index({ guildId: 1, type: 1, number: 1 }, { unique: true });
+DropmapCodeSchema.index({ guildId: 1, areaName: 1, subAreaName: 1 }, { unique: true });
+
+const DropmapFileSchema = new mongoose.Schema({
+    guildId: { type: String, required: true, index: true },
+    uploaderId: String,
+    contentType: { type: String, required: true },
+    size: Number,
+    data: { type: Buffer, required: true }
+}, { timestamps: true });
+
 const DropmapLogSchema = new mongoose.Schema({
     guildId: { type: String, required: true, index: true },
     guildName: String,
@@ -476,6 +495,8 @@ const TicketBlock = mongoose.model('TicketBlock', TicketBlockSchema);
 const TempRole = mongoose.model('TempRole', TempRoleSchema);
 const DropmapImage = mongoose.model('DropmapImage', DropmapImageSchema);
 const DropmapLog = mongoose.model('DropmapLog', DropmapLogSchema);
+const DropmapCode = mongoose.model('DropmapCode', DropmapCodeSchema);
+const DropmapFile = mongoose.model('DropmapFile', DropmapFileSchema);
 const ModInviteLog = mongoose.model('ModInviteLog', ModInviteLogSchema);
 const InviteTracking = mongoose.model('InviteTracking', InviteTrackingSchema);
 const JoinLeaveEvent = mongoose.model('JoinLeaveEvent', JoinLeaveEventSchema);
@@ -1157,6 +1178,74 @@ async function getDropmapImagesDB(guildId) {
     return DropmapImage.find({ guildId }).lean();
 }
 
+async function getDropmapImageDB(guildId, areaName) {
+    return DropmapImage.findOne({ guildId, areaName }).lean();
+}
+
+async function renameDropmapAreaDB(guildId, oldName, newName) {
+    const updated = await DropmapImage.findOneAndUpdate(
+        { guildId, areaName: oldName },
+        { $set: { areaName: newName } },
+        { new: true }
+    ).lean();
+    if (updated) await DropmapCode.updateMany({ guildId, areaName: oldName }, { $set: { areaName: newName } });
+    return updated;
+}
+
+async function setDropmapSubAreasDB(guildId, areaName, subAreas) {
+    return DropmapImage.findOneAndUpdate(
+        { guildId, areaName },
+        { $set: { subAreas } },
+        { new: true }
+    ).lean();
+}
+
+async function listDropmapCodesDB(guildId) {
+    return DropmapCode.find({ guildId }).lean();
+}
+
+async function getDropmapCodeDB(guildId, type, number) {
+    return DropmapCode.findOne({ guildId, type, number }).lean();
+}
+
+async function getDropmapCodeForItemDB(guildId, areaName, subAreaName) {
+    return DropmapCode.findOne({ guildId, areaName, subAreaName: subAreaName || null }).lean();
+}
+
+async function setDropmapCodeDB(guildId, areaName, subAreaName, type, number) {
+    const sub = subAreaName || null;
+    await DropmapCode.deleteOne({ guildId, areaName, subAreaName: sub });
+    if (!type) return null;
+    const doc = await DropmapCode.create({ guildId, areaName, subAreaName: sub, type, number });
+    return doc.toObject();
+}
+
+async function deleteDropmapCodesDB(guildId, areaName, subAreaName) {
+    const filter = { guildId, areaName };
+    if (subAreaName !== undefined) filter.subAreaName = subAreaName || null;
+    await DropmapCode.deleteMany(filter);
+}
+
+async function renameDropmapSubAreaCodeDB(guildId, areaName, oldSub, newSub) {
+    await DropmapCode.updateOne({ guildId, areaName, subAreaName: oldSub }, { $set: { subAreaName: newSub } });
+}
+
+async function createDropmapFileDB(data) {
+    const doc = await DropmapFile.create(data);
+    return String(doc._id);
+}
+
+async function getDropmapFileDB(fileId) {
+    if (!mongoose.Types.ObjectId.isValid(fileId)) return null;
+    return DropmapFile.findById(fileId).lean();
+}
+
+async function deleteDropmapFileDB(fileId) {
+    if (!mongoose.Types.ObjectId.isValid(fileId)) return false;
+    const result = await DropmapFile.findByIdAndDelete(fileId);
+    return !!result;
+}
+
 async function addDropmapLogDB(data) {
     const doc = await DropmapLog.create(data);
     return doc.toObject();
@@ -1377,6 +1466,20 @@ module.exports = {
     DropmapLog,
     addDropmapLogDB,
     getDropmapLogsDB,
+    DropmapCode,
+    DropmapFile,
+    getDropmapImageDB,
+    renameDropmapAreaDB,
+    setDropmapSubAreasDB,
+    listDropmapCodesDB,
+    getDropmapCodeDB,
+    getDropmapCodeForItemDB,
+    setDropmapCodeDB,
+    deleteDropmapCodesDB,
+    renameDropmapSubAreaCodeDB,
+    createDropmapFileDB,
+    getDropmapFileDB,
+    deleteDropmapFileDB,
     ModInviteLog,
     addModInviteLogDB,
     getModInviteLogsDB,
