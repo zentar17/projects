@@ -264,8 +264,17 @@ const McTicketMessageSchema = new mongoose.Schema({
     isStaff: { type: Boolean, default: false },
     system: { type: Boolean, default: false },
     content: String,
+    imageId: { type: String, default: null },
     date: { type: Date, default: Date.now }
 });
+
+const McTicketImageSchema = new mongoose.Schema({
+    ticketNumber: { type: Number, required: true, index: true },
+    uploaderId: String,
+    contentType: { type: String, required: true },
+    size: Number,
+    data: { type: Buffer, required: true }
+}, { timestamps: true });
 
 const McTicketSchema = new mongoose.Schema({
     ticketNumber: { type: Number, required: true, unique: true, index: true },
@@ -286,6 +295,8 @@ const McTicketSchema = new mongoose.Schema({
     claimedAt: { type: Date, default: null },
     lastMessageAt: { type: Date, default: Date.now, index: true }
 }, { timestamps: true });
+
+McTicketSchema.index({ userId: 1 }, { unique: true, partialFilterExpression: { status: 'open' } });
 
 const McTicketTranscriptSchema = new mongoose.Schema({
     ticketNumber: { type: Number, required: true, unique: true, index: true },
@@ -458,6 +469,7 @@ const MasterclassSettings = mongoose.model('MasterclassSettings', MasterclassSet
 const VideoWatch = mongoose.model('VideoWatch', VideoWatchSchema);
 const McTicket = mongoose.model('McTicket', McTicketSchema);
 const McTicketTranscript = mongoose.model('McTicketTranscript', McTicketTranscriptSchema);
+const McTicketImage = mongoose.model('McTicketImage', McTicketImageSchema);
 const BlacklistEntry = mongoose.model('BlacklistEntry', BlacklistEntrySchema);
 const TicketBlock = mongoose.model('TicketBlock', TicketBlockSchema);
 const TempRole = mongoose.model('TempRole', TempRoleSchema);
@@ -852,8 +864,8 @@ async function getMcTicketDB(ticketNumber) {
     return McTicket.findOne({ ticketNumber }).lean();
 }
 
-async function findOpenMcTicketDB(userId, planKey) {
-    return McTicket.findOne({ userId, planKey, status: 'open' }).lean();
+async function findOpenMcTicketDB(userId) {
+    return McTicket.findOne({ userId, status: 'open' }).lean();
 }
 
 async function listMcTicketsDB(status) {
@@ -914,6 +926,7 @@ async function saveMcTicketTranscriptDB(ticket, deletedAt) {
             isStaff: !!m.isStaff,
             system: !!m.system,
             content: m.content,
+            imageId: m.imageId || null,
             date: m.date
         }))
     };
@@ -923,6 +936,16 @@ async function saveMcTicketTranscriptDB(ticket, deletedAt) {
         { $set: data },
         { upsert: true, new: true }
     ).lean();
+}
+
+async function createMcTicketImageDB(data) {
+    const doc = await McTicketImage.create(data);
+    return String(doc._id);
+}
+
+async function getMcTicketImageDB(imageId) {
+    if (!mongoose.Types.ObjectId.isValid(imageId)) return null;
+    return McTicketImage.findById(imageId).lean();
 }
 
 async function getMcTicketTranscriptDB(ticketNumber) {
@@ -1281,6 +1304,9 @@ module.exports = {
     addMcTicketMessageDB,
     setMcTicketStatusDB,
     McTicketTranscript,
+    McTicketImage,
+    createMcTicketImageDB,
+    getMcTicketImageDB,
     claimMcTicketDB,
     saveMcTicketTranscriptDB,
     getMcTicketTranscriptDB,
