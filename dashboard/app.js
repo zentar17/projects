@@ -3336,6 +3336,8 @@ async function loadConfigSection() {
         if (targetGuildInput) targetGuildInput.value = config.targetInviteGuildId || '';
         const modTargetGuildInput = document.getElementById('cfgModTargetInviteGuildId');
         if (modTargetGuildInput) modTargetGuildInput.value = config.modTargetInviteGuildId || '';
+        const moderationDmInput = document.getElementById('cfgModerationDm');
+        if (moderationDmInput) moderationDmInput.checked = !!config.moderationDmEnabled;
 
         configLoaded = true;
     } catch (e) {
@@ -3729,7 +3731,8 @@ async function saveConfig() {
         inviteTriggerRoleId1: getSelectedValue('cfgInviteTrigger1List'),
         inviteTriggerRoleId2: getSelectedValue('cfgInviteTrigger2List'),
         targetInviteGuildId: (document.getElementById('cfgTargetInviteGuildId') || {}).value || null,
-        modTargetInviteGuildId: (document.getElementById('cfgModTargetInviteGuildId') || {}).value || null
+        modTargetInviteGuildId: (document.getElementById('cfgModTargetInviteGuildId') || {}).value || null,
+        moderationDmEnabled: !!(document.getElementById('cfgModerationDm') || {}).checked
     };
 
     try {
