@@ -2833,3 +2833,127 @@ aside h3 {
         font-size: 18px;
     }
 }
+
+
+.mc-tickets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mc-ticket-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.mc-ticket-card:hover {
+    border-color: rgba(230, 126, 34, 0.45);
+    background: rgba(230, 126, 34, 0.04);
+    transform: translateY(-1px);
+}
+
+.mc-ticket-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+.mc-ticket-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.mc-ticket-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.mc-ticket-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.mc-ticket-plan {
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.mc-ticket-status {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.mc-ticket-status.open { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.mc-ticket-status.closed { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+.mc-ticket-user {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mc-ticket-preview {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mc-ticket-preview-author {
+    color: var(--text);
+    font-weight: 700;
+}
+
+.mc-ticket-preview-empty { font-style: italic; }
+
+.mc-ticket-time {
+    font-size: 11.5px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.mc-ticket-status.transcript { background: rgba(56, 189, 248, 0.15); color: #38BDF8; }
+
+.mc-ticket-claim {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-dim);
+}
+
+.mc-ticket-claim.claimed {
+    background: rgba(230, 126, 34, 0.14);
+    color: var(--primary);
+}
+
+.mc-ticket-delete {
+    font-size: 11px;
+    font-weight: 700;
+    color: #f87171;
+}
