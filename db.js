@@ -252,7 +252,58 @@ const MasterclassSettingsSchema = new mongoose.Schema({
     key: { type: String, required: true, unique: true, default: 'global' },
     viewUserIds: { type: [String], default: [] },
     uploadUserIds: { type: [String], default: [] },
-    manageUserIds: { type: [String], default: [] }
+    manageUserIds: { type: [String], default: [] },
+    ticketStaffUserIds: { type: [String], default: [] },
+    ticketNotifyChannelId: { type: String, default: '' }
+}, { timestamps: true });
+
+const McTicketMessageSchema = new mongoose.Schema({
+    authorId: String,
+    authorName: String,
+    authorAvatar: String,
+    isStaff: { type: Boolean, default: false },
+    system: { type: Boolean, default: false },
+    content: String,
+    date: { type: Date, default: Date.now }
+});
+
+const McTicketSchema = new mongoose.Schema({
+    ticketNumber: { type: Number, required: true, unique: true, index: true },
+    userId: { type: String, required: true, index: true },
+    userName: String,
+    userAvatar: String,
+    email: { type: String, required: true },
+    planKey: String,
+    plan: String,
+    price: { type: String, default: null },
+    status: { type: String, enum: ['open', 'closed'], default: 'open', index: true },
+    messages: { type: [McTicketMessageSchema], default: [] },
+    closedAt: { type: Date, default: null },
+    closedById: { type: String, default: null },
+    closedByName: { type: String, default: null },
+    claimedById: { type: String, default: null },
+    claimedByName: { type: String, default: null },
+    claimedAt: { type: Date, default: null },
+    lastMessageAt: { type: Date, default: Date.now, index: true }
+}, { timestamps: true });
+
+const McTicketTranscriptSchema = new mongoose.Schema({
+    ticketNumber: { type: Number, required: true, unique: true, index: true },
+    userId: { type: String, index: true },
+    userName: String,
+    userAvatar: String,
+    email: String,
+    planKey: String,
+    plan: String,
+    price: { type: String, default: null },
+    claimedById: { type: String, default: null },
+    claimedByName: { type: String, default: null },
+    closedById: { type: String, default: null },
+    closedByName: { type: String, default: null },
+    openedAt: { type: Date, default: null },
+    closedAt: { type: Date, default: null, index: true },
+    deletedAt: { type: Date, default: null },
+    messages: { type: Array, default: [] }
 }, { timestamps: true });
 
 const VideoWatchSchema = new mongoose.Schema({
@@ -405,6 +456,8 @@ const Transcript = mongoose.model('Transcript', TranscriptSchema);
 const Video = mongoose.model('Video', VideoSchema);
 const MasterclassSettings = mongoose.model('MasterclassSettings', MasterclassSettingsSchema);
 const VideoWatch = mongoose.model('VideoWatch', VideoWatchSchema);
+const McTicket = mongoose.model('McTicket', McTicketSchema);
+const McTicketTranscript = mongoose.model('McTicketTranscript', McTicketTranscriptSchema);
 const BlacklistEntry = mongoose.model('BlacklistEntry', BlacklistEntrySchema);
 const TicketBlock = mongoose.model('TicketBlock', TicketBlockSchema);
 const TempRole = mongoose.model('TempRole', TempRoleSchema);
@@ -776,12 +829,120 @@ async function saveMasterclassSettingsDB(data) {
             $set: {
                 viewUserIds: filterIds(data.viewUserIds),
                 uploadUserIds: filterIds(data.uploadUserIds),
-                manageUserIds: filterIds(data.manageUserIds)
+                manageUserIds: filterIds(data.manageUserIds),
+                ticketStaffUserIds: filterIds(data.ticketStaffUserIds),
+                ticketNotifyChannelId: (typeof data.ticketNotifyChannelId === 'string' && /^\d+$/.test(data.ticketNotifyChannelId.trim())) ? data.ticketNotifyChannelId.trim() : ''
             }
         },
         { upsert: true, new: true }
     ).lean();
     return settings;
+}
+
+async function createMcTicketDB(data) {
+    const ticketNumber = await getNextSeq('mc_ticket', async () => {
+        const last = await McTicket.findOne({}).sort({ ticketNumber: -1 }).lean();
+        return last ? last.ticketNumber : 0;
+    });
+    const doc = await McTicket.create({ ...data, ticketNumber, lastMessageAt: new Date() });
+    return doc.toObject();
+}
+
+async function getMcTicketDB(ticketNumber) {
+    return McTicket.findOne({ ticketNumber }).lean();
+}
+
+async function findOpenMcTicketDB(userId, planKey) {
+    return McTicket.findOne({ userId, planKey, status: 'open' }).lean();
+}
+
+async function listMcTicketsDB(status) {
+    const filter = (status === 'open' || status === 'closed') ? { status } : {};
+    return McTicket.find(filter).select({ messages: { $slice: -1 } }).sort({ lastMessageAt: -1 }).limit(500).lean();
+}
+
+async function listUserMcTicketsDB(userId) {
+    return McTicket.find({ userId }).select({ messages: 0 }).sort({ lastMessageAt: -1 }).limit(50).lean();
+}
+
+async function addMcTicketMessageDB(ticketNumber, message) {
+    const doc = await McTicket.findOneAndUpdate(
+        { ticketNumber },
+        { $push: { messages: { ...message, date: new Date() } }, $set: { lastMessageAt: new Date() } },
+        { new: true, projection: { messages: { $slice: -1 } } }
+    ).lean();
+    return doc && doc.messages && doc.messages[0] ? doc.messages[0] : null;
+}
+
+async function setMcTicketStatusDB(ticketNumber, status, by) {
+    const update = status === 'closed'
+        ? { status: 'closed', closedAt: new Date(), closedById: by ? by.id : null, closedByName: by ? by.name : null }
+        : { status: 'open', closedAt: null, closedById: null, closedByName: null };
+    return McTicket.findOneAndUpdate({ ticketNumber }, { $set: update }, { new: true, projection: { messages: 0 } }).lean();
+}
+
+async function claimMcTicketDB(ticketNumber, by, expectedClaimerId) {
+    const filter = { ticketNumber };
+    if (expectedClaimerId !== undefined) filter.claimedById = expectedClaimerId;
+    const update = by
+        ? { claimedById: by.id, claimedByName: by.name, claimedAt: new Date() }
+        : { claimedById: null, claimedByName: null, claimedAt: null };
+    return McTicket.findOneAndUpdate(filter, { $set: update }, { new: true, projection: { messages: 0 } }).lean();
+}
+
+async function saveMcTicketTranscriptDB(ticket, deletedAt) {
+    const data = {
+        ticketNumber: ticket.ticketNumber,
+        userId: ticket.userId,
+        userName: ticket.userName,
+        userAvatar: ticket.userAvatar,
+        email: ticket.email,
+        planKey: ticket.planKey,
+        plan: ticket.plan,
+        price: ticket.price,
+        claimedById: ticket.claimedById || null,
+        claimedByName: ticket.claimedByName || null,
+        closedById: ticket.closedById || null,
+        closedByName: ticket.closedByName || null,
+        openedAt: ticket.createdAt || null,
+        closedAt: ticket.closedAt || new Date(),
+        messages: (ticket.messages || []).map(m => ({
+            _id: m._id,
+            authorId: m.authorId,
+            authorName: m.authorName,
+            authorAvatar: m.authorAvatar,
+            isStaff: !!m.isStaff,
+            system: !!m.system,
+            content: m.content,
+            date: m.date
+        }))
+    };
+    if (deletedAt) data.deletedAt = deletedAt;
+    return McTicketTranscript.findOneAndUpdate(
+        { ticketNumber: ticket.ticketNumber },
+        { $set: data },
+        { upsert: true, new: true }
+    ).lean();
+}
+
+async function getMcTicketTranscriptDB(ticketNumber) {
+    return McTicketTranscript.findOne({ ticketNumber }).lean();
+}
+
+async function listMcTicketTranscriptsDB() {
+    return McTicketTranscript.find({}).select({ messages: { $slice: -1 } }).sort({ closedAt: -1 }).limit(500).lean();
+}
+
+async function deleteExpiredMcTicketsDB(cutoff) {
+    const expired = await McTicket.find({ status: 'closed', closedAt: { $ne: null, $lte: cutoff } }).lean();
+    const deleted = [];
+    for (const ticket of expired) {
+        const saved = await saveMcTicketTranscriptDB(ticket, new Date());
+        if (!saved) continue;
+        await McTicket.deleteOne({ _id: ticket._id, status: 'closed' });
+        deleted.push(ticket);
+    }
+    return deleted;
 }
 
 async function markVideoWatchedDB(userId, videoId) {
@@ -1111,6 +1272,20 @@ module.exports = {
     getMasterclassSettingsDB,
     saveMasterclassSettingsDB,
     VideoWatch,
+    McTicket,
+    createMcTicketDB,
+    getMcTicketDB,
+    findOpenMcTicketDB,
+    listMcTicketsDB,
+    listUserMcTicketsDB,
+    addMcTicketMessageDB,
+    setMcTicketStatusDB,
+    McTicketTranscript,
+    claimMcTicketDB,
+    saveMcTicketTranscriptDB,
+    getMcTicketTranscriptDB,
+    listMcTicketTranscriptsDB,
+    deleteExpiredMcTicketsDB,
     markVideoWatchedDB,
     saveVideoProgressDB,
     getVideoProgressMapDB,
