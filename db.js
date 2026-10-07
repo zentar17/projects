@@ -109,6 +109,8 @@ const GuildConfigSchema = new mongoose.Schema({
     supportRoleIds: { type: [String], default: [] },
     blacklistSyncEnabled: { type: Boolean, default: false },
     moderationDmEnabled: { type: Boolean, default: null },
+    blacklistSyncLastRunAt: { type: Date, default: null },
+    blacklistSyncLastResult: { type: mongoose.Schema.Types.Mixed, default: null },
     dashboardPermissions: {
         createRoles: { type: [String], default: [] },
         editRoles: { type: [String], default: [] },
@@ -1104,6 +1106,37 @@ async function getBlacklistSyncGuildIdsDB() {
     return configs.map(c => c.guildId);
 }
 
+async function claimBlacklistSyncDB(guildId, cooldownMs) {
+    await getGuildConfigDB(guildId);
+    const now = new Date();
+    const threshold = new Date(now.getTime() - cooldownMs);
+    const claimed = await GuildConfig.findOneAndUpdate(
+        {
+            guildId,
+            $or: [
+                { blacklistSyncLastRunAt: null },
+                { blacklistSyncLastRunAt: { $exists: false } },
+                { blacklistSyncLastRunAt: { $lte: threshold } }
+            ]
+        },
+        { $set: { blacklistSyncLastRunAt: now } },
+        { new: false }
+    ).lean();
+    return claimed ? { previousRunAt: claimed.blacklistSyncLastRunAt || null, runAt: now } : null;
+}
+
+async function releaseBlacklistSyncDB(guildId, previousRunAt) {
+    await GuildConfig.updateOne({ guildId }, { $set: { blacklistSyncLastRunAt: previousRunAt || null } });
+}
+
+async function saveBlacklistSyncResultDB(guildId, result) {
+    await GuildConfig.updateOne({ guildId }, { $set: { blacklistSyncLastResult: result } });
+}
+
+async function addBlacklistEntryServerDB(userId, guildId) {
+    await BlacklistEntry.updateOne({ userId }, { $addToSet: { servers: guildId } });
+}
+
 async function updateBlacklistReasonDB(userId, newReason) {
     return BlacklistEntry.findOneAndUpdate({ userId }, { $set: { reason: newReason } }, { new: true }).lean();
 }
@@ -1406,6 +1439,10 @@ module.exports = {
     getBlacklistEntryDB,
     getAllBlacklistDB,
     getBlacklistSyncGuildIdsDB,
+    claimBlacklistSyncDB,
+    releaseBlacklistSyncDB,
+    saveBlacklistSyncResultDB,
+    addBlacklistEntryServerDB,
     updateBlacklistReasonDB,
     TicketBlock,
     addTicketBlockDB,
