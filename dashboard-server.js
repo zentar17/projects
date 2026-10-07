@@ -1935,6 +1935,13 @@ function serializeRoleSyncRule(rule) {
     };
 }
 
+function isValidRoleSyncRole(guildId, roleId) {
+    const { client } = global.PredCord;
+    if (!roleId || !/^\d+$/.test(roleId)) return false;
+    const guild = client.guilds.cache.get(guildId);
+    return !!(guild && guild.roles.cache.has(roleId) && roleId !== guild.id);
+}
+
 function canManageRule(rule, manageableIds) {
     return manageableIds.includes(rule.sourceGuildId) && manageableIds.includes(rule.targetGuildId);
 }
@@ -1967,15 +1974,23 @@ app.post('/api/role-sync', requireAuth, writeLimiter, async (req, res) => {
     try {
         const manageable = await getRoleSyncManageableGuildIds(req);
         if (manageable.length < 2) return res.status(403).json({ error: 'You need Administrator permission in at least two servers' });
-        const sourceGuildId = manageable.includes(req.body.sourceGuildId) ? req.body.sourceGuildId : manageable[0];
-        const targetGuildId = (manageable.includes(req.body.targetGuildId) && req.body.targetGuildId !== sourceGuildId)
-            ? req.body.targetGuildId
-            : manageable.find(id => id !== sourceGuildId);
+        const sourceGuildId = String(req.body.sourceGuildId || '');
+        const targetGuildId = String(req.body.targetGuildId || '');
+        const sourceRoleId = String(req.body.sourceRoleId || '');
+        const targetRoleId = String(req.body.targetRoleId || '');
+        if (!sourceGuildId || !targetGuildId) return res.status(400).json({ error: 'Select both servers' });
+        if (!manageable.includes(sourceGuildId) || !manageable.includes(targetGuildId)) {
+            return res.status(403).json({ error: 'You need Administrator permission in both servers of this rule' });
+        }
+        if (sourceGuildId === targetGuildId) return res.status(400).json({ error: 'Source and target server must be different' });
+        if (!sourceRoleId || !targetRoleId) return res.status(400).json({ error: 'Select both roles' });
+        if (!isValidRoleSyncRole(sourceGuildId, sourceRoleId)) return res.status(400).json({ error: 'Invalid source role' });
+        if (!isValidRoleSyncRole(targetGuildId, targetRoleId)) return res.status(400).json({ error: 'Invalid target role' });
         const rule = await global.PredCord.db.createRoleSyncRuleDB({
             sourceGuildId,
             targetGuildId,
-            sourceRoleId: null,
-            targetRoleId: null,
+            sourceRoleId,
+            targetRoleId,
             createdById: (req.session.user && req.session.user.id) || null
         });
         await afterRoleSyncChange();
@@ -1987,7 +2002,7 @@ app.post('/api/role-sync', requireAuth, writeLimiter, async (req, res) => {
 
 app.patch('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res) => {
     try {
-        const { db, client } = global.PredCord;
+        const { db } = global.PredCord;
         const manageable = await getRoleSyncManageableGuildIds(req);
         const existing = await db.getRoleSyncRuleDB(req.params.ruleId);
         if (!existing) return res.status(404).json({ error: 'Rule not found' });
@@ -2008,14 +2023,8 @@ app.patch('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res) 
         }
         if (next.sourceGuildId === next.targetGuildId) return res.status(400).json({ error: 'Source and target server must be different' });
 
-        const checkRole = (guildId, roleId) => {
-            if (!roleId) return true;
-            if (!/^\d+$/.test(roleId)) return false;
-            const guild = client.guilds.cache.get(guildId);
-            return !!(guild && guild.roles.cache.has(roleId) && roleId !== guild.id);
-        };
-        if (!checkRole(next.sourceGuildId, next.sourceRoleId)) return res.status(400).json({ error: 'Invalid source role' });
-        if (!checkRole(next.targetGuildId, next.targetRoleId)) return res.status(400).json({ error: 'Invalid target role' });
+        if (next.sourceRoleId && !isValidRoleSyncRole(next.sourceGuildId, next.sourceRoleId)) return res.status(400).json({ error: 'Invalid source role' });
+        if (next.targetRoleId && !isValidRoleSyncRole(next.targetGuildId, next.targetRoleId)) return res.status(400).json({ error: 'Invalid target role' });
 
         const updated = await db.updateRoleSyncRuleDB(req.params.ruleId, next);
         await afterRoleSyncChange();
