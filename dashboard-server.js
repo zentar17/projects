@@ -1885,16 +1885,32 @@ async function hasAdminInGuild(userId, guildId) {
     return !!(member && member.permissions.has(PermissionsBitField.Flags.Administrator));
 }
 
-async function canManageRoleSync(req) {
-    if (isDashboardAdmin(req)) return true;
+async function getRoleSyncManageableGuildIds(req) {
+    const { client } = global.PredCord;
+    const allIds = [...client.guilds.cache.keys()];
+    if (isDashboardAdmin(req)) return allIds;
     const user = req.session.user;
-    if (!user || !user.isDiscord || !user.id) return false;
-    const guildIds = [MAIN_GUILD_ID, COMMUNITY_GUILD_ID].filter(Boolean);
-    if (guildIds.length < 2) return false;
-    for (const guildId of guildIds) {
-        if (!(await hasAdminInGuild(user.id, guildId))) return false;
+    if (!user || !user.isDiscord || !user.id) return [];
+    const result = [];
+    for (const guildId of allIds) {
+        if (await hasAdminInGuild(user.id, guildId)) result.push(guildId);
     }
-    return true;
+    return result;
+}
+
+async function canManageRoleSync(req) {
+    const ids = await getRoleSyncManageableGuildIds(req);
+    return ids.length >= 2;
+}
+
+function roleSyncGuildInfo(guildId) {
+    const { client } = global.PredCord;
+    const guild = client.guilds.cache.get(guildId);
+    return {
+        id: guildId,
+        name: guild ? guild.name : 'Unknown server',
+        icon: guild ? guild.iconURL({ size: 128 }) : null
+    };
 }
 
 function roleSyncGuildRoles(guildId) {
@@ -1905,22 +1921,6 @@ function roleSyncGuildRoles(guildId) {
         .filter(r => r.id !== guild.id)
         .sort((a, b) => b.position - a.position)
         .map(r => ({ id: r.id, name: r.name, color: r.hexColor, managed: r.managed }));
-}
-
-function roleSyncGuilds() {
-    const { client } = global.PredCord;
-    return [
-        { key: 'predcord', id: MAIN_GUILD_ID },
-        { key: 'community', id: COMMUNITY_GUILD_ID }
-    ].filter(g => g.id).map(g => {
-        const guild = client.guilds.cache.get(g.id);
-        return {
-            key: g.key,
-            id: g.id,
-            name: guild ? guild.name : g.key,
-            icon: guild ? guild.iconURL({ size: 128 }) : null
-        };
-    });
 }
 
 function serializeRoleSyncRule(rule) {
@@ -1935,6 +1935,10 @@ function serializeRoleSyncRule(rule) {
     };
 }
 
+function canManageRule(rule, manageableIds) {
+    return manageableIds.includes(rule.sourceGuildId) && manageableIds.includes(rule.targetGuildId);
+}
+
 async function afterRoleSyncChange() {
     const { roleSync } = global.PredCord;
     if (!roleSync) return;
@@ -1944,12 +1948,16 @@ async function afterRoleSyncChange() {
 
 app.get('/api/role-sync', requireAuth, async (req, res) => {
     try {
-        if (!(await canManageRoleSync(req))) return res.status(403).json({ error: 'Access Denied' });
+        const manageable = await getRoleSyncManageableGuildIds(req);
+        if (manageable.length < 2) return res.status(403).json({ error: 'You need Administrator permission in at least two servers' });
         const rules = await global.PredCord.db.listRoleSyncRulesDB();
-        const guilds = roleSyncGuilds();
         const roles = {};
-        guilds.forEach(g => { roles[g.id] = roleSyncGuildRoles(g.id); });
-        res.json({ guilds, roles, rules: rules.map(serializeRoleSyncRule) });
+        manageable.forEach(id => { roles[id] = roleSyncGuildRoles(id); });
+        res.json({
+            guilds: manageable.map(roleSyncGuildInfo),
+            roles,
+            rules: rules.filter(r => canManageRule(r, manageable)).map(serializeRoleSyncRule)
+        });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -1957,12 +1965,12 @@ app.get('/api/role-sync', requireAuth, async (req, res) => {
 
 app.post('/api/role-sync', requireAuth, writeLimiter, async (req, res) => {
     try {
-        if (!(await canManageRoleSync(req))) return res.status(403).json({ error: 'Access Denied' });
-        const guilds = roleSyncGuilds();
-        if (guilds.length < 2) return res.status(400).json({ error: 'Two servers are needed for Role Sync' });
-        const ids = guilds.map(g => g.id);
-        const sourceGuildId = ids.includes(req.body.sourceGuildId) ? req.body.sourceGuildId : ids[0];
-        const targetGuildId = ids.find(id => id !== sourceGuildId);
+        const manageable = await getRoleSyncManageableGuildIds(req);
+        if (manageable.length < 2) return res.status(403).json({ error: 'You need Administrator permission in at least two servers' });
+        const sourceGuildId = manageable.includes(req.body.sourceGuildId) ? req.body.sourceGuildId : manageable[0];
+        const targetGuildId = (manageable.includes(req.body.targetGuildId) && req.body.targetGuildId !== sourceGuildId)
+            ? req.body.targetGuildId
+            : manageable.find(id => id !== sourceGuildId);
         const rule = await global.PredCord.db.createRoleSyncRuleDB({
             sourceGuildId,
             targetGuildId,
@@ -1979,12 +1987,12 @@ app.post('/api/role-sync', requireAuth, writeLimiter, async (req, res) => {
 
 app.patch('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res) => {
     try {
-        if (!(await canManageRoleSync(req))) return res.status(403).json({ error: 'Access Denied' });
         const { db, client } = global.PredCord;
+        const manageable = await getRoleSyncManageableGuildIds(req);
         const existing = await db.getRoleSyncRuleDB(req.params.ruleId);
         if (!existing) return res.status(404).json({ error: 'Rule not found' });
+        if (!canManageRule(existing, manageable)) return res.status(403).json({ error: 'You need Administrator permission in both servers of this rule' });
 
-        const ids = roleSyncGuilds().map(g => g.id);
         const next = {
             sourceGuildId: existing.sourceGuildId,
             sourceRoleId: existing.sourceRoleId,
@@ -1995,7 +2003,9 @@ app.patch('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res) 
             if (Object.prototype.hasOwnProperty.call(req.body, key)) next[key] = req.body[key] || null;
         }
 
-        if (!ids.includes(next.sourceGuildId) || !ids.includes(next.targetGuildId)) return res.status(400).json({ error: 'Invalid server' });
+        if (!manageable.includes(next.sourceGuildId) || !manageable.includes(next.targetGuildId)) {
+            return res.status(403).json({ error: 'You need Administrator permission in both servers of this rule' });
+        }
         if (next.sourceGuildId === next.targetGuildId) return res.status(400).json({ error: 'Source and target server must be different' });
 
         const checkRole = (guildId, roleId) => {
@@ -2017,9 +2027,12 @@ app.patch('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res) 
 
 app.delete('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res) => {
     try {
-        if (!(await canManageRoleSync(req))) return res.status(403).json({ error: 'Access Denied' });
-        const ok = await global.PredCord.db.deleteRoleSyncRuleDB(req.params.ruleId);
-        if (!ok) return res.status(404).json({ error: 'Rule not found' });
+        const { db } = global.PredCord;
+        const manageable = await getRoleSyncManageableGuildIds(req);
+        const existing = await db.getRoleSyncRuleDB(req.params.ruleId);
+        if (!existing) return res.status(404).json({ error: 'Rule not found' });
+        if (!canManageRule(existing, manageable)) return res.status(403).json({ error: 'You need Administrator permission in both servers of this rule' });
+        await db.deleteRoleSyncRuleDB(req.params.ruleId);
         await afterRoleSyncChange();
         res.json({ success: true });
     } catch (e) {
