@@ -2567,12 +2567,10 @@ async function loadRoleSync() {
     }
 }
 
-let dropmapData = { areas: [], miniAreas: [], types: ['poi', 'split'] };
+let dropmapData = { areas: [], miniAreas: [] };
 let dropmapExpanded = new Set();
 let dropmapStatusTimer = null;
 let dropmapModalState = null;
-
-const DROPMAP_TYPE_LABELS = { poi: 'POI', split: 'Split' };
 
 function setDropmapStatus(state, text) {
     const el = document.getElementById('dropmapStatus');
@@ -2587,99 +2585,6 @@ function setDropmapStatus(state, text) {
     else el.textContent = '';
 }
 
-function dropmapCodeText(code) {
-    return code ? `${DROPMAP_TYPE_LABELS[code.type] || code.type} #${code.number}` : '';
-}
-
-function dropmapAllCodes() {
-    const list = [];
-    dropmapData.areas.forEach(a => {
-        if (a.code) list.push(a.code);
-        a.subAreas.forEach(s => { if (s.code) list.push(s.code); });
-    });
-    dropmapData.miniAreas.forEach(m => { if (m.code) list.push(m.code); });
-    return list;
-}
-
-function dropmapNextNumber(type) {
-    const used = new Set(dropmapAllCodes().filter(c => c.type === type).map(c => c.number));
-    let n = 1;
-    while (used.has(n)) n++;
-    return n;
-}
-
-function dropmapCodeControl(areaName, subAreaName, code) {
-    const type = code ? code.type : '';
-    const label = code ? (DROPMAP_TYPE_LABELS[code.type] || code.type) : 'Add code';
-    return `
-        <div class="dm-code${code ? ` has-code type-${escapeAttr(type)}` : ''}" data-area="${escapeAttr(areaName)}" data-sub="${escapeAttr(subAreaName || '')}" data-type="${escapeAttr(type)}">
-            <button type="button" class="dm-code-trigger" aria-haspopup="listbox">
-                ${code ? '<span class="dm-code-dot"></span>' : '<span class="dm-code-plus">+</span>'}
-                <span class="dm-code-label">${escapeHtml(label)}</span>
-                <svg class="dm-code-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            ${code ? `<label class="dm-code-num"><span>#</span><input class="dm-code-number" type="number" min="1" max="9999" value="${code.number}" title="Dropmap number"></label>` : ''}
-        </div>`;
-}
-
-let dropmapTypeMenuEl = null;
-
-function closeDropmapTypeMenu() {
-    if (!dropmapTypeMenuEl) return;
-    dropmapTypeMenuEl.remove();
-    dropmapTypeMenuEl = null;
-    document.querySelectorAll('.dm-code.menu-open').forEach(el => el.classList.remove('menu-open'));
-    document.removeEventListener('mousedown', onDropmapMenuOutside, true);
-    window.removeEventListener('scroll', closeDropmapTypeMenu, true);
-    window.removeEventListener('resize', closeDropmapTypeMenu);
-}
-
-function onDropmapMenuOutside(e) {
-    if (dropmapTypeMenuEl && !dropmapTypeMenuEl.contains(e.target) && !e.target.closest('.dm-code-trigger')) closeDropmapTypeMenu();
-}
-
-function openDropmapTypeMenu(box, onPick) {
-    const wasOpen = box.classList.contains('menu-open');
-    closeDropmapTypeMenu();
-    if (wasOpen) return;
-    const current = box.dataset.type || '';
-    const items = [{ value: '', label: 'No code' }].concat(dropmapData.types.map(t => ({ value: t, label: DROPMAP_TYPE_LABELS[t] || t })));
-    const menu = document.createElement('div');
-    menu.className = 'dm-type-menu';
-    menu.setAttribute('role', 'listbox');
-    menu.innerHTML = items.map(it => `
-        <button type="button" class="dm-type-option type-${it.value || 'none'}${it.value === current ? ' selected' : ''}" data-value="${escapeAttr(it.value)}" role="option">
-            <span class="dm-type-dot"></span>
-            <span class="dm-type-label">${escapeHtml(it.label)}</span>
-            ${it.value ? `<span class="dm-type-next">#${it.value === current && box.querySelector('.dm-code-number') ? box.querySelector('.dm-code-number').value : dropmapNextNumber(it.value)}</span>` : ''}
-            <svg class="dm-type-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-        </button>`).join('');
-    document.body.appendChild(menu);
-    const trigger = box.querySelector('.dm-code-trigger');
-    const r = trigger.getBoundingClientRect();
-    const mw = menu.offsetWidth;
-    const mh = menu.offsetHeight;
-    let left = Math.min(r.left, window.innerWidth - mw - 8);
-    let top = r.bottom + 6;
-    if (top + mh > window.innerHeight - 8) top = r.top - mh - 6;
-    menu.style.left = `${Math.max(8, left)}px`;
-    menu.style.top = `${Math.max(8, top)}px`;
-    box.classList.add('menu-open');
-    dropmapTypeMenuEl = menu;
-    menu.querySelectorAll('.dm-type-option').forEach(opt => {
-        opt.onclick = () => {
-            const value = opt.dataset.value;
-            closeDropmapTypeMenu();
-            if (value !== current) onPick(value);
-        };
-    });
-    setTimeout(() => {
-        document.addEventListener('mousedown', onDropmapMenuOutside, true);
-        window.addEventListener('scroll', closeDropmapTypeMenu, true);
-        window.addEventListener('resize', closeDropmapTypeMenu);
-    }, 0);
-}
-
 function dropmapThumb(src, caption, extraClass) {
     if (!src) return `<div class="dm-thumb dm-thumb-empty ${extraClass || ''}">No image</div>`;
     return `<button type="button" class="dm-thumb ${extraClass || ''}" data-src="${escapeAttr(src)}" data-caption="${escapeAttr(caption)}"><img src="${escapeAttr(src)}" alt="" loading="lazy"></button>`;
@@ -2691,7 +2596,6 @@ function dropmapMatches(query, ...parts) {
 }
 
 function renderDropmaps() {
-    closeDropmapTypeMenu();
     const areasEl = document.getElementById('dropmapAreas');
     const minisEl = document.getElementById('dropmapMinis');
     const countsEl = document.getElementById('dropmapCounts');
@@ -2702,8 +2606,8 @@ function renderDropmaps() {
     if (countsEl) countsEl.textContent = `${dropmapData.areas.length} areas · ${subCount} sub-areas · ${dropmapData.miniAreas.length} mini areas`;
 
     const areaHtml = dropmapData.areas.map(area => {
-        const areaMatch = dropmapMatches(query, area.name, dropmapCodeText(area.code));
-        const subs = area.subAreas.filter(s => areaMatch || dropmapMatches(query, s.name, dropmapCodeText(s.code)));
+        const areaMatch = dropmapMatches(query, area.name);
+        const subs = area.subAreas.filter(s => areaMatch || dropmapMatches(query, s.name));
         if (query && !areaMatch && !subs.length) return '';
         const open = !!query || dropmapExpanded.has(area.name);
         const subsHtml = subs.map(sub => `
@@ -2711,7 +2615,6 @@ function renderDropmaps() {
                 ${dropmapThumb(sub.src, `${area.name} - ${sub.name}`)}
                 <div class="dm-tile-info">
                     <div class="dm-tile-name" title="${escapeAttr(sub.name)}">${escapeHtml(sub.name)}</div>
-                    ${dropmapCodeControl(area.name, sub.name, sub.code)}
                 </div>
                 <div class="dm-tile-actions">
                     <button type="button" class="dm-icon-btn" data-action="edit-sub" data-area="${escapeAttr(area.name)}" data-sub="${escapeAttr(sub.name)}" title="Edit">&#9998;</button>
@@ -2726,7 +2629,6 @@ function renderDropmaps() {
                     <span class="dm-area-name">${escapeHtml(area.name)}</span>
                     <span class="dm-area-sub">${area.subAreas.length} sub-area${area.subAreas.length === 1 ? '' : 's'}</span>
                 </div>
-                ${dropmapCodeControl(area.name, null, area.code)}
                 <div class="dm-area-actions">
                     <button type="button" class="dm-small-btn" data-action="add-sub" data-area="${escapeAttr(area.name)}">+ Sub-area</button>
                     <button type="button" class="dm-icon-btn" data-action="edit-area" data-area="${escapeAttr(area.name)}" title="Edit">&#9998;</button>
@@ -2743,13 +2645,12 @@ function renderDropmaps() {
     areasEl.innerHTML = areaHtml || `<div class="empty-state"><h3>${query ? 'No results' : 'No areas yet'}</h3><p>${query ? 'Try a different search' : 'Create an area to add its sub-areas'}</p></div>`;
 
     const miniHtml = dropmapData.miniAreas
-        .filter(m => dropmapMatches(query, m.name, dropmapCodeText(m.code)))
+        .filter(m => dropmapMatches(query, m.name))
         .map(mini => `
             <div class="dm-tile">
                 ${dropmapThumb(mini.src, mini.name)}
                 <div class="dm-tile-info">
                     <div class="dm-tile-name" title="${escapeAttr(mini.name)}">${escapeHtml(mini.name)}</div>
-                    ${dropmapCodeControl(mini.name, null, mini.code)}
                 </div>
                 <div class="dm-tile-actions">
                     <button type="button" class="dm-icon-btn" data-action="edit-mini" data-area="${escapeAttr(mini.name)}" title="Edit">&#9998;</button>
@@ -2767,7 +2668,7 @@ function bindDropmapEvents() {
 
     root.querySelectorAll('.dm-area-head').forEach(head => {
         head.onclick = (e) => {
-            if (e.target.closest('button, input, .dm-code')) return;
+            if (e.target.closest('button, input')) return;
             const name = head.dataset.toggle;
             if (dropmapExpanded.has(name)) dropmapExpanded.delete(name);
             else dropmapExpanded.add(name);
@@ -2780,37 +2681,6 @@ function bindDropmapEvents() {
             e.stopPropagation();
             openDropmapLightbox(btn.dataset.src, btn.dataset.caption);
         };
-    });
-
-    root.querySelectorAll('.dm-code').forEach(box => {
-        const trigger = box.querySelector('.dm-code-trigger');
-        const numInput = box.querySelector('.dm-code-number');
-        const areaName = box.dataset.area;
-        const subAreaName = box.dataset.sub || null;
-        trigger.onclick = (e) => {
-            e.stopPropagation();
-            openDropmapTypeMenu(box, (type) => {
-                if (!type) saveDropmapCode(areaName, subAreaName, null, null);
-                else saveDropmapCode(areaName, subAreaName, type, dropmapNextNumber(type));
-            });
-        };
-        if (numInput) {
-            numInput.onclick = (e) => e.stopPropagation();
-            numInput.onchange = () => {
-                const number = parseInt(numInput.value, 10);
-                if (!Number.isInteger(number) || number < 1) {
-                    renderDropmaps();
-                    return;
-                }
-                saveDropmapCode(areaName, subAreaName, box.dataset.type, number);
-            };
-            numInput.onkeydown = (e) => {
-                if (e.key === 'Enter') numInput.blur();
-                if (e.key === 'Escape') {
-                    renderDropmaps();
-                }
-            };
-        }
     });
 
     root.querySelectorAll('[data-action]').forEach(btn => {
@@ -2855,14 +2725,6 @@ async function dropmapRequest(method, url, body) {
     } catch (e) {
         setDropmapStatus('error', e.message);
         return { ok: false, error: e.message };
-    }
-}
-
-async function saveDropmapCode(areaName, subAreaName, type, number) {
-    const result = await dropmapRequest('PUT', '/api/dropmaps/code', { areaName, subAreaName, type, number });
-    if (!result.ok) {
-        showToast(result.error, 'error');
-        renderDropmaps();
     }
 }
 
@@ -4325,7 +4187,6 @@ function setupEvents() {
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            closeDropmapTypeMenu();
             closeModal();
         }
     });
