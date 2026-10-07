@@ -1041,6 +1041,43 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     text-decoration: underline;
 }
 
+.mc-tier-cta {
+    margin-top: auto;
+    width: 100%;
+    padding: 9px 16px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(56, 189, 248, 0.75);
+    background: rgba(56, 189, 248, 0.08);
+    color: var(--accent);
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(56, 189, 248, 0.18), inset 0 0 10px rgba(56, 189, 248, 0.06);
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease, color 0.2s ease;
+}
+
+.mc-tier-features + .mc-tier-cta,
+.mc-tier-body + .mc-tier-cta { margin-top: auto; }
+
+.mc-tier-features { margin-bottom: 16px; }
+
+.mc-tier-card { padding-bottom: 22px; }
+
+.mc-tier-cta:hover {
+    background: rgba(56, 189, 248, 0.16);
+    box-shadow: 0 0 22px rgba(56, 189, 248, 0.38), inset 0 0 12px rgba(56, 189, 248, 0.1);
+    color: #7dd3fc;
+}
+
+.mc-tier-cta:active { transform: scale(0.98); }
+
+.mc-tier-cta:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
 .mc-tier-card.custom {
     text-align: center;
     border-color: rgba(230, 126, 34, 0.3);
@@ -1054,8 +1091,10 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     font-size: 17px;
     font-weight: 600;
     color: #ffffff;
-    line-height: 2;
+    line-height: 1.62;
 }
+
+.mc-tier-card.custom .mc-tier-body { margin-bottom: 16px; }
 
 .site-footer {
     background: var(--bg-bar);
@@ -1269,6 +1308,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_description_highlight: 'Se vuoi migliorare, affidati a Predage, uno dei migliori IGL italiani di sempre. Scegli il tuo piano.',
             mc_results_btn: 'Risultati',
             mc_recommended_badge: 'Livello consigliato • {n} players hanno fatto lo stesso',
+            mc_subscribe: 'Iscriviti Ora',
             mc_month: '/mese',
             plan_title: 'Ottieni il tuo piano',
             plan_sub: 'Inserisci la tua email e apri un ticket. Il nostro team ti risponderà lì per completare l\'acquisto.',
@@ -1309,6 +1349,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_description_highlight: 'If you want to improve, trust Predage, one of the best Italian IGLs of all time. Choose your plan.',
             mc_results_btn: 'Results',
             mc_recommended_badge: 'Recommended Level • {n} players did the same',
+            mc_subscribe: 'Subscribe Now',
             mc_month: '/month',
             plan_title: 'Get your plan',
             plan_sub: 'Enter your email and open a ticket. Our team will reply there to complete your purchase.',
@@ -1349,6 +1390,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_description_highlight: 'Wenn du dich verbessern willst, vertraue auf Predage, einen der besten italienischen IGLs aller Zeiten. Wähle deinen Plan.',
             mc_results_btn: 'Ergebnisse',
             mc_recommended_badge: 'Empfohlene Stufe • {n} players haben dasselbe getan',
+            mc_subscribe: 'Jetzt abonnieren',
             mc_month: '/Monat',
             plan_title: 'Hol dir deinen Plan',
             plan_sub: 'Gib deine E-Mail ein und öffne ein Ticket. Unser Team antwortet dir dort, um den Kauf abzuschließen.',
@@ -1389,6 +1431,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_description_highlight: 'Si quieres mejorar, confía en Predage, uno de los mejores IGL italianos de todos los tiempos. Elige tu plan.',
             mc_results_btn: 'Resultados',
             mc_recommended_badge: 'Nivel recomendado • {n} players hicieron lo mismo',
+            mc_subscribe: 'Suscríbete ahora',
             mc_month: '/mes',
             plan_title: 'Consigue tu plan',
             plan_sub: 'Introduce tu email y abre un ticket. Nuestro equipo te responderá allí para completar la compra.',
@@ -1429,6 +1472,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_description_highlight: 'Si tu veux progresser, fais confiance à Predage, l\'un des meilleurs IGL italiens de tous les temps. Choisis ton plan.',
             mc_results_btn: 'Résultats',
             mc_recommended_badge: 'Niveau recommandé • {n} players ont fait de même',
+            mc_subscribe: 'Inscris-toi maintenant',
             mc_month: '/mois',
             plan_title: 'Obtiens ton plan',
             plan_sub: 'Entre ton email et ouvre un ticket. Notre équipe te répondra là-bas pour finaliser ton achat.',
@@ -1553,6 +1597,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 return '<div class="mc-tier-card custom" data-plan="' + t.key + '">' +
                     '<div class="mc-tier-name">' + I18N[currentLang][t.nameKey] + '</div>' +
                     '<div class="mc-tier-body"><p>' + I18N[currentLang].custom_desc + '</p></div>' +
+                    '<button type="button" class="mc-tier-cta">' + I18N[currentLang].mc_subscribe + '</button>' +
                 '</div>';
             }
             var featuresHtml = t.features.map(function(fKey) {
@@ -1565,6 +1610,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 '<div class="mc-tier-name">' + I18N[currentLang][t.nameKey] + '</div>' +
                 '<div class="mc-tier-price">' + t.price + ' ' + I18N[currentLang].mc_month + '</div>' +
                 '<ul class="mc-tier-features">' + featuresHtml + '</ul>' +
+                '<button type="button" class="mc-tier-cta">' + I18N[currentLang].mc_subscribe + '</button>' +
             '</div>';
         }).join('');
         setupTiersReveal();
