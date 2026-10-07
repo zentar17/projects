@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const db = require('./db');
 const botClients = require('./bot-clients');
+const createRoleSync = require('./role-sync');
 require('dotenv').config();
 
 const CRASH_LOG_FILE = './crash_log.json';
@@ -64,6 +65,8 @@ const client = new Client({
         GatewayIntentBits.DirectMessages
     ]
 });
+
+const roleSync = createRoleSync({ client, db, botClients, logCrash });
 
 client.on('error', (error) => logCrash('CLIENT_ERROR', error));
 client.on('shardError', (error) => logCrash('SHARD_ERROR', error));
@@ -973,14 +976,15 @@ async function sendCommunityTicketPanel(channel) {
     const embed = new EmbedBuilder()
         .setTitle('Support Tickets')
         .setDescription(
-            'Clicca "Create Ticket", dopo scegli il tipo di ticket che vuoi creare.\n\n' +
+            'Clicca il pulsante qui sotto per creare un ticket di supporto.\n\n' +
             'Tipi di ticket disponibili:\n' +
             '• General Support - Per domande generiche o problemi con il server\n' +
             '• Dropmap Request - Per richiedere una dropmap (una ogni 30 giorni)\n' +
-            '• Unban Request - Per fare richiesta di sblocco dal ban (twitch)\n' +
-            '• Masterclass Support - Per richiedere un invito al server masterclass\n\n'
+            '• Unban Request - Per fare richiesta di sblocco dal ban\n' +
+            '• Masterclass Support - Per richiedere un invito al server masterclass\n\n' +
+            'Nota: Dopo aver cliccato, dovrai selezionare il tipo di ticket e poi potrai aggiungere una descrizione opzionale.'
         )
-        .setColor('#5865F2')
+        .setColor(COLORS.TICKET)
         .setThumbnail(THUMBNAIL_URL);
 
     const buttons = new ActionRowBuilder()
@@ -1038,9 +1042,12 @@ client.once('clientReady', async () => {
         getBlacklistTargetGuilds,
         banFromAllGuilds,
         unbanFromAllGuilds,
+        roleSync,
         db
     };
     console.log('[DASHBOARD] global.PredCord API exposed');
+
+    roleSync.start().catch((err) => logCrash('ROLE_SYNC_START', err));
 
     try {
         const communityCommands = [
@@ -1087,7 +1094,21 @@ client.once('clientReady', async () => {
     }
 });
 
+client.on('guildMemberUpdate', (oldMember, newMember) => {
+    try {
+        roleSync.onMemberUpdate(oldMember, newMember);
+    } catch (error) {
+        logCrash('ROLE_SYNC_MEMBER_UPDATE', error, { userId: newMember?.id });
+    }
+});
+
 client.on('guildMemberAdd', async (member) => {
+    try {
+        roleSync.onMemberAdd(member);
+    } catch (error) {
+        logCrash('ROLE_SYNC_MEMBER_ADD', error, { userId: member?.id });
+    }
+
     try {
         await sendJoinLog(member);
     } catch (error) {
@@ -1113,6 +1134,12 @@ client.on('guildMemberAdd', async (member) => {
 });
 
 client.on('guildMemberRemove', async (member) => {
+    try {
+        roleSync.onMemberRemove(member);
+    } catch (error) {
+        logCrash('ROLE_SYNC_MEMBER_REMOVE', error, { userId: member?.id });
+    }
+
     try {
         await sendLeaveLog(member);
     } catch (error) {
