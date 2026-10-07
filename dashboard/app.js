@@ -27,6 +27,7 @@ let canAccessMasterclass = false;
 let canUploadVideos = false;
 let canManageVideos = false;
 let canMcTickets = false;
+let canRoleSync = false;
 let mcTicketsStatus = 'open';
 let selectedServer = null;
 let serverAccess = { predcord: true, community: true };
@@ -226,6 +227,7 @@ async function init() {
         canUploadVideos = !!meData.canUploadVideos;
         canManageVideos = !!meData.canManageVideos;
         canMcTickets = !!meData.canMcTickets;
+        canRoleSync = !!meData.canRoleSync;
 
         const navVideosGroup = document.getElementById('navVideosGroup');
         if (navVideosGroup) navVideosGroup.classList.toggle('visible', !!meData.canViewVideos);
@@ -491,6 +493,12 @@ function updatePermissionsTabVisibility() {
     if (ticketsTab) {
         if (!isCommunity && isOwner()) ticketsTab.classList.remove('hidden');
         else ticketsTab.classList.add('hidden');
+    }
+
+    const roleSyncTab = document.getElementById('navTabRoleSync');
+    if (roleSyncTab) {
+        if (canRoleSync) roleSyncTab.classList.remove('hidden');
+        else roleSyncTab.classList.add('hidden');
     }
 
     const statsTab = document.getElementById('navTabStats');
@@ -2212,6 +2220,184 @@ function renderBans(bans) {
     });
 }
 
+let roleSyncData = { guilds: [], rules: [] };
+let roleSyncRoles = {};
+let roleSyncStatusTimer = null;
+
+function setRoleSyncStatus(state, text) {
+    const el = document.getElementById('roleSyncStatus');
+    if (!el) return;
+    clearTimeout(roleSyncStatusTimer);
+    el.className = `role-sync-status ${state}`;
+    if (state === 'saving') el.textContent = 'Saving…';
+    else if (state === 'saved') el.innerHTML = '&#10003; All changes saved';
+    else if (state === 'error') el.textContent = text || 'Could not save';
+    else el.textContent = '';
+}
+
+function roleSyncGuild(guildId) {
+    return roleSyncData.guilds.find(g => g.id === guildId) || { id: guildId, name: 'Unknown server', key: '' };
+}
+
+function roleSyncGuildIcon(guild) {
+    if (guild.icon) return guild.icon;
+    if (SERVER_INFO[guild.key]) return SERVER_INFO[guild.key].img;
+    return '/images/dragon-logo.png';
+}
+
+function roleSyncRoleOptions(guildId, selectedId, forTarget) {
+    const roles = (roleSyncRoles[guildId] || []).filter(r => !forTarget || !r.managed);
+    const placeholder = `<option value="">Select a role…</option>`;
+    return placeholder + roles.map(r =>
+        `<option value="${escapeAttr(r.id)}"${r.id === selectedId ? ' selected' : ''}>${escapeHtml(r.name)}</option>`
+    ).join('');
+}
+
+function roleSyncRoleColor(guildId, roleId) {
+    const role = (roleSyncRoles[guildId] || []).find(r => r.id === roleId);
+    if (!role || !role.color || role.color === '#000000') return '#99aab5';
+    return role.color;
+}
+
+function renderRoleSync() {
+    const list = document.getElementById('roleSyncList');
+    if (!list) return;
+    const rules = roleSyncData.rules || [];
+
+    if (!rules.length) {
+        list.innerHTML = '<div class="empty-state"><h3>No rules yet</h3><p>Create a rule to start syncing roles between your servers</p></div>';
+        return;
+    }
+
+    list.innerHTML = rules.map(rule => {
+        const source = roleSyncGuild(rule.sourceGuildId);
+        const target = roleSyncGuild(rule.targetGuildId);
+        const side = (label, guild, roleId, field, forTarget) => `
+            <div class="role-sync-side">
+                <span class="role-sync-label">${label}</span>
+                <img class="role-sync-icon" src="${escapeAttr(roleSyncGuildIcon(guild))}" alt="" onerror="this.src='/images/dragon-logo.png'">
+                <span class="role-sync-guild">${escapeHtml(guild.name)}</span>
+                <label class="role-sync-pill">
+                    <span class="role-sync-dot" style="background:${escapeAttr(roleSyncRoleColor(guild.id, roleId))}"></span>
+                    <select data-rule-id="${escapeAttr(rule.id)}" data-field="${field}">${roleSyncRoleOptions(guild.id, roleId, forTarget)}</select>
+                </label>
+            </div>`;
+        return `
+        <div class="role-sync-card${rule.warning ? ' has-warning' : ''}">
+            <div class="role-sync-row">
+                ${side('Source server', source, rule.sourceRoleId, 'sourceRoleId', false)}
+                <div class="role-sync-middle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    <span class="role-sync-mode">One way</span>
+                    <button type="button" class="role-sync-swap" data-rule-id="${escapeAttr(rule.id)}" title="Swap source and target">&#8644; Swap</button>
+                </div>
+                ${side('Target server', target, rule.targetRoleId, 'targetRoleId', true)}
+            </div>
+            ${rule.warning ? `<div class="role-sync-warning">${escapeHtml(rule.warning)}</div>` : ''}
+            <button type="button" class="role-sync-delete" data-rule-id="${escapeAttr(rule.id)}">Delete</button>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('select[data-rule-id]').forEach(sel => {
+        sel.onchange = () => patchRoleSyncRule(sel.dataset.ruleId, { [sel.dataset.field]: sel.value || null });
+    });
+    list.querySelectorAll('.role-sync-swap').forEach(btn => {
+        btn.onclick = () => {
+            const rule = roleSyncData.rules.find(r => r.id === btn.dataset.ruleId);
+            if (!rule) return;
+            patchRoleSyncRule(rule.id, {
+                sourceGuildId: rule.targetGuildId,
+                sourceRoleId: rule.targetRoleId,
+                targetGuildId: rule.sourceGuildId,
+                targetRoleId: rule.sourceRoleId
+            });
+        };
+    });
+    list.querySelectorAll('.role-sync-delete').forEach(btn => {
+        btn.onclick = () => {
+            showConfirmDialog('Delete rule', 'Delete this Role Sync rule? Roles already given will not be removed.', () => deleteRoleSyncRule(btn.dataset.ruleId));
+        };
+    });
+}
+
+async function patchRoleSyncRule(ruleId, changes) {
+    setRoleSyncStatus('saving');
+    try {
+        const res = await fetch(`/api/role-sync/${encodeURIComponent(ruleId)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(changes)
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || 'Could not save');
+        roleSyncData.rules = roleSyncData.rules.map(r => r.id === ruleId ? body : r);
+        renderRoleSync();
+        setRoleSyncStatus('saved');
+    } catch (e) {
+        setRoleSyncStatus('error', e.message);
+        renderRoleSync();
+    }
+}
+
+async function createRoleSyncRule() {
+    setRoleSyncStatus('saving');
+    try {
+        const res = await fetch('/api/role-sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sourceGuildId: currentGuild })
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || 'Could not create the rule');
+        roleSyncData.rules.push(body);
+        renderRoleSync();
+        setRoleSyncStatus('saved');
+    } catch (e) {
+        setRoleSyncStatus('error', e.message);
+    }
+}
+
+async function deleteRoleSyncRule(ruleId) {
+    setRoleSyncStatus('saving');
+    try {
+        const res = await fetch(`/api/role-sync/${encodeURIComponent(ruleId)}`, { method: 'DELETE' });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || 'Could not delete the rule');
+        roleSyncData.rules = roleSyncData.rules.filter(r => r.id !== ruleId);
+        renderRoleSync();
+        setRoleSyncStatus('saved');
+    } catch (e) {
+        setRoleSyncStatus('error', e.message);
+    }
+}
+
+async function loadRoleSync() {
+    const list = document.getElementById('roleSyncList');
+    if (!list) return;
+    list.innerHTML = '<div class="loading">Loading</div>';
+    setRoleSyncStatus('');
+
+    const newBtn = document.getElementById('roleSyncNewBtn');
+    if (newBtn) newBtn.onclick = createRoleSyncRule;
+
+    try {
+        const res = await fetch('/api/role-sync');
+        if (res.status === 403) {
+            showAccessDenied();
+            list.innerHTML = '';
+            return;
+        }
+        if (!res.ok) throw new Error('Failed to load Role Sync');
+        roleSyncData = await res.json();
+
+        roleSyncRoles = roleSyncData.roles || {};
+
+        renderRoleSync();
+    } catch (e) {
+        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${escapeHtml(e.message)}</p></div>`;
+    }
+}
+
 async function loadBlacklist() {
     const list = document.getElementById('blacklistList');
     list.innerHTML = '<div class="loading">Loading</div>';
@@ -3401,6 +3587,12 @@ function setupEvents() {
                         return;
                     }
                     loadBans();
+                } else if (target === 'role-sync') {
+                    if (!canRoleSync) {
+                        showAccessDenied();
+                        return;
+                    }
+                    loadRoleSync();
                 } else if (target === 'blacklist') {
                     if (!userHasDashboardPermission('viewLogsRoles')) {
                         showAccessDenied();
