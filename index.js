@@ -971,15 +971,14 @@ function ticketTypeFromChannelName(name) {
 
 async function sendCommunityTicketPanel(channel) {
     const embed = new EmbedBuilder()
-        .setTitle('SUPPORT TICKET SYSTEM')
+        .setTitle('Support Tickets')
         .setDescription(
-            'Clicca il pulsante qui sotto per creare un ticket di supporto.\n\n' +
+            'Clicca "Create Ticket", dopo sceglie il tipo di ticket che vuoi creare.\n\n' +
             'Tipi di ticket disponibili:\n' +
             '• General Support - Per domande generiche o problemi con il server\n' +
             '• Dropmap Request - Per richiedere una dropmap (una ogni 30 giorni)\n' +
-            '• Unban Request - Per fare richiesta di sblocco dal ban\n' +
-            '• Masterclass Support - Per richiedere un invito al server masterclass\n\n' +
-            'Nota: Dopo aver cliccato, dovrai selezionare il tipo di ticket e poi potrai aggiungere una descrizione opzionale.'
+            '• Unban Request - Per fare richiesta di sblocco dal ban (twitch)\n' +
+            '• Masterclass Support - Per richiedere un invito al server masterclass\n\n'
         )
         .setColor('#5865F2')
         .setThumbnail(THUMBNAIL_URL);
