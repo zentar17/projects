@@ -1772,6 +1772,17 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         scrollToSection('#banAppealSection');
     });
 
+    function scrollToHashSection() {
+        var hash = (window.location.hash || '').toLowerCase();
+        var target = hash === '#ban-appeal' ? '#banAppealSection' : hash === '#join-team' ? '#staffTeamSection' : null;
+        if (!target) return;
+        setTimeout(function() { scrollToSection(target); }, 500);
+    }
+
+    if ('scrollRestoration' in history && window.location.hash) history.scrollRestoration = 'manual';
+    scrollToHashSection();
+    window.addEventListener('hashchange', scrollToHashSection);
+
     updateAuthBtn();
     refreshAuth();
 
