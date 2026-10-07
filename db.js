@@ -480,6 +480,41 @@ const ModInviteLog = mongoose.model('ModInviteLog', ModInviteLogSchema);
 const InviteTracking = mongoose.model('InviteTracking', InviteTrackingSchema);
 const JoinLeaveEvent = mongoose.model('JoinLeaveEvent', JoinLeaveEventSchema);
 
+const RoleSyncRuleSchema = new mongoose.Schema({
+    sourceGuildId: { type: String, required: true, index: true },
+    sourceRoleId: { type: String, default: null },
+    targetGuildId: { type: String, required: true, index: true },
+    targetRoleId: { type: String, default: null },
+    createdById: { type: String, default: null }
+}, { timestamps: true });
+
+const RoleSyncRule = mongoose.model('RoleSyncRule', RoleSyncRuleSchema);
+
+async function listRoleSyncRulesDB() {
+    return RoleSyncRule.find({}).sort({ createdAt: 1 }).lean();
+}
+
+async function createRoleSyncRuleDB(data) {
+    const doc = await RoleSyncRule.create(data);
+    return doc.toObject();
+}
+
+async function updateRoleSyncRuleDB(ruleId, data) {
+    if (!mongoose.Types.ObjectId.isValid(ruleId)) return null;
+    return RoleSyncRule.findByIdAndUpdate(ruleId, { $set: data }, { new: true }).lean();
+}
+
+async function deleteRoleSyncRuleDB(ruleId) {
+    if (!mongoose.Types.ObjectId.isValid(ruleId)) return false;
+    const res = await RoleSyncRule.deleteOne({ _id: ruleId });
+    return res.deletedCount > 0;
+}
+
+async function getRoleSyncRuleDB(ruleId) {
+    if (!mongoose.Types.ObjectId.isValid(ruleId)) return null;
+    return RoleSyncRule.findById(ruleId).lean();
+}
+
 async function createModLog(data) {
     const caseId = await getNextSeq(`modlog_${data.guildId}`, async () => {
         const last = await ModLog.findOne({ guildId: data.guildId }).sort({ caseId: -1 }).lean();
@@ -1355,4 +1390,10 @@ module.exports = {
     getJoinLeaveSeriesDB,
     getTicketStatsByModeratorDB,
     getModeratorActionStatsDB,
+    RoleSyncRule,
+    listRoleSyncRulesDB,
+    createRoleSyncRuleDB,
+    updateRoleSyncRuleDB,
+    deleteRoleSyncRuleDB,
+    getRoleSyncRuleDB,
 };
