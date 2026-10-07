@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="/dashboard/favicon.png">
 <link rel="shortcut icon" type="image/png" href="/dashboard/favicon.png">
 <link rel="apple-touch-icon" href="/dashboard/favicon.png">
-<link rel="stylesheet" href="/dashboard/style.css?v=20261007e">
+<link rel="stylesheet" href="/dashboard/style.css?v=20261007f">
 </head>
 <body>
 
@@ -914,6 +914,38 @@
     </div>
 </div>
 
+<div id="roleSyncModal" class="modal hidden">
+    <div class="modal-content role-sync-modal-content">
+        <div class="role-sync-modal-header">New role sync</div>
+        <div class="role-sync-modal-body">
+            <div class="role-sync-modal-side">
+                <span class="role-sync-modal-label">Source server</span>
+                <div class="role-sync-modal-icon" id="rsmSourceIcon">?</div>
+                <select id="rsmSourceGuild" class="role-sync-modal-select"></select>
+                <select id="rsmSourceRole" class="role-sync-modal-select"></select>
+            </div>
+            <div class="role-sync-modal-middle">
+                <span class="role-sync-modal-mode-label">Mode <span class="role-sync-help" title="One way: members who have the source role get the target role. If they lose the source role, the target role is removed.">?</span></span>
+                <select id="rsmMode" class="role-sync-modal-select role-sync-modal-mode">
+                    <option value="one_way">&#8594; One way</option>
+                </select>
+                <button type="button" id="rsmSwap" class="role-sync-modal-swap">&#8644; Swap</button>
+            </div>
+            <div class="role-sync-modal-side">
+                <span class="role-sync-modal-label">Target server</span>
+                <div class="role-sync-modal-icon" id="rsmTargetIcon">?</div>
+                <select id="rsmTargetGuild" class="role-sync-modal-select"></select>
+                <select id="rsmTargetRole" class="role-sync-modal-select"></select>
+            </div>
+        </div>
+        <div class="role-sync-modal-error hidden" id="rsmError"></div>
+        <div class="role-sync-modal-footer">
+            <button type="button" id="rsmCancel" class="role-sync-modal-cancel">Cancel</button>
+            <button type="button" id="rsmSave" class="role-sync-modal-save" disabled>Save</button>
+        </div>
+    </div>
+</div>
+
 <div id="accessDeniedToast" class="access-denied-toast hidden">
     <span class="access-denied-icon">&#10006;</span>
     <span class="access-denied-text">Access Denied</span>
@@ -925,7 +957,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="/dashboard/app.js?v=20261007e"></script>
+<script src="/dashboard/app.js?v=20261007f"></script>
 
 </body>
 </html>
