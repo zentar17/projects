@@ -1,5 +1,5 @@
 let currentGuild = null;
-let knownGuilds = { predcord: null, community: null };
+let knownGuilds = { predcord: null, community: null, masterclassServer: null };
 let currentCommands = {};
 let editingName = null;
 let currentMembers = [];
@@ -31,7 +31,7 @@ let canRoleSync = false;
 let canDropmaps = false;
 let mcTicketsStatus = 'open';
 let selectedServer = null;
-let serverAccess = { predcord: true, community: true };
+let serverAccess = { predcord: true, community: true, masterclassServer: true };
 let myPermissions = {
     createRoles: false,
     editRoles: false,
@@ -223,7 +223,7 @@ async function init() {
         isAdmin = !!meData.isAdmin;
         isDiscord = !!meData.isDiscord;
         myRole = meData.role || 'none';
-        serverAccess = meData.access || { predcord: true, community: true };
+        serverAccess = meData.access || { predcord: true, community: true, masterclassServer: true };
         canAccessMasterclass = !!meData.canAccessMasterclass;
         canUploadVideos = !!meData.canUploadVideos;
         canManageVideos = !!meData.canManageVideos;
@@ -253,6 +253,8 @@ function applyServerAccessRestrictions() {
     const communityCard = document.querySelector('.server-select-card[data-server="community"]');
     const predcordCard = document.querySelector('.server-select-card[data-server="predcord"]');
     const masterclassCard = document.getElementById('masterclassSelectCard');
+    const masterclassServerCard = document.querySelector('.server-select-card[data-server="masterclassServer"]');
+    if (masterclassServerCard) masterclassServerCard.classList.toggle('hidden', !serverAccess.masterclassServer);
     if (communityCard) communityCard.classList.toggle('hidden', !serverAccess.community);
     if (predcordCard) predcordCard.classList.toggle('hidden', !serverAccess.predcord);
     if (masterclassCard) masterclassCard.classList.toggle('hidden', !isOwner() && !canAccessMasterclass && !canMcTickets);
@@ -494,7 +496,7 @@ function updatePermissionsTabVisibility() {
     }
 
     if (ticketsTab) {
-        if (!isCommunity && isOwner()) ticketsTab.classList.remove('hidden');
+        if (selectedServer === 'predcord' && isOwner()) ticketsTab.classList.remove('hidden');
         else ticketsTab.classList.add('hidden');
     }
 
@@ -551,7 +553,8 @@ function updatePermissionsTabVisibility() {
 
 const SERVER_INFO = {
     community: { name: 'Predage Community', img: '/images/dragon-pfp.webp' },
-    predcord: { name: 'PredCord', img: '/images/predcord-pfp.webp' }
+    predcord: { name: 'PredCord', img: '/images/predcord-pfp.webp' },
+    masterclassServer: { name: 'Masterclass', img: '/images/dragon-logo.png' }
 };
 
 let masterclassGuildKey = 'community';
@@ -605,7 +608,7 @@ async function selectServer(server) {
     if (dashboardMain) dashboardMain.classList.remove('hidden');
 
     await ensureKnownGuilds();
-    currentGuild = server === 'community' ? knownGuilds.community : knownGuilds.predcord;
+    currentGuild = knownGuilds[server] || null;
 
     loadUserRolesForGuild(currentGuild);
 
@@ -2122,7 +2125,7 @@ function renderModlogs(logs) {
 }
 
 async function ensureKnownGuilds() {
-    if (knownGuilds.predcord || knownGuilds.community) return;
+    if (knownGuilds.predcord || knownGuilds.community || knownGuilds.masterclassServer) return;
     try {
         const res = await fetch('/api/known-guilds');
         if (res.ok) knownGuilds = await res.json();
@@ -2645,7 +2648,7 @@ function renderDropmaps() {
     areasEl.innerHTML = areaHtml || `<div class="empty-state"><h3>${query ? 'No results' : 'No areas yet'}</h3><p>${query ? 'Try a different search' : 'Create an area to add its sub-areas'}</p></div>`;
 
     const miniHtml = dropmapData.miniAreas
-        .filter(m => dropmapMatches(query, m.name))
+        .filter(mini => dropmapMatches(query, mini.name))
         .map(mini => `
             <div class="dm-tile">
                 ${dropmapThumb(mini.src, mini.name)}
@@ -2906,9 +2909,122 @@ async function loadDropmaps() {
     }
 }
 
+let blacklistSyncTimer = null;
+
+function formatSyncDate(value) {
+    return value ? new Date(value).toLocaleString('en-US') : '';
+}
+
+function stopBlacklistSyncPolling() {
+    if (blacklistSyncTimer) {
+        clearTimeout(blacklistSyncTimer);
+        blacklistSyncTimer = null;
+    }
+}
+
+function renderBlacklistSyncStatus(status) {
+    const btn = document.getElementById('blacklistSyncBtn');
+    const info = document.getElementById('blacklistSyncInfo');
+    if (!btn || !info) return;
+
+    btn.classList.remove('hidden');
+    btn.disabled = !status.available;
+
+    if (status.running) {
+        const p = status.progress || { processed: 0, total: 0 };
+        btn.textContent = 'Syncing...';
+        info.innerHTML = `Syncing blacklist: <b>${p.processed}/${p.total}</b> &middot; ${p.banned} banned &middot; ${p.alreadyBanned} already banned &middot; ${p.failed} failed`;
+        info.classList.remove('hidden');
+        return;
+    }
+
+    btn.textContent = 'Sync Blacklist';
+
+    const parts = [];
+    const r = status.lastResult;
+    if (r) {
+        parts.push(`Last sync: ${escapeHtml(formatSyncDate(r.finishedAt))} &middot; ${r.banned} banned &middot; ${r.alreadyBanned} already banned &middot; ${r.failed} failed`);
+        if (r.errors && r.errors.length) parts.push(`<span class="blacklist-sync-errors">${r.errors.map(escapeHtml).join('<br>')}</span>`);
+    }
+    if (!status.available && status.nextAvailableAt) {
+        parts.push(`Available again on ${escapeHtml(formatSyncDate(status.nextAvailableAt))}`);
+    }
+
+    info.innerHTML = parts.join('<br>');
+    info.classList.toggle('hidden', parts.length === 0);
+}
+
+async function refreshBlacklistSyncStatus() {
+    stopBlacklistSyncPolling();
+    const btn = document.getElementById('blacklistSyncBtn');
+    const info = document.getElementById('blacklistSyncInfo');
+    if (!btn || !info) return;
+
+    if (selectedServer !== 'masterclassServer' || !currentGuild) {
+        btn.classList.add('hidden');
+        info.classList.add('hidden');
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/blacklist/sync-status?guildId=${encodeURIComponent(currentGuild)}`);
+        if (!res.ok) {
+            btn.classList.add('hidden');
+            info.classList.add('hidden');
+            return;
+        }
+        const status = await res.json();
+        renderBlacklistSyncStatus(status);
+        if (status.running) {
+            blacklistSyncTimer = setTimeout(async () => {
+                const active = document.getElementById('tab-blacklist');
+                if (!active || active.classList.contains('hidden')) return;
+                await refreshBlacklistSyncStatus();
+            }, 2500);
+        } else if (blacklistSyncWasRunning) {
+            blacklistSyncWasRunning = false;
+            loadBlacklist();
+        }
+        if (status.running) blacklistSyncWasRunning = true;
+    } catch (e) {
+        btn.classList.add('hidden');
+        info.classList.add('hidden');
+    }
+}
+
+let blacklistSyncWasRunning = false;
+
+function startBlacklistSync() {
+    showConfirmDialog(
+        'Sync Blacklist',
+        'The bot will check every blacklisted user and ban the ones who are not banned in this server yet. This can be done only once every 14 days. Continue?',
+        async () => {
+            const btn = document.getElementById('blacklistSyncBtn');
+            if (btn) btn.disabled = true;
+            try {
+                const res = await fetch('/api/blacklist/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ guildId: currentGuild })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    showToast(data.error || 'Sync failed', 'error');
+                } else {
+                    showToast('Blacklist sync started');
+                }
+            } catch (e) {
+                showToast('Connection error', 'error');
+            }
+            await refreshBlacklistSyncStatus();
+        }
+    );
+}
+
 async function loadBlacklist() {
     const list = document.getElementById('blacklistList');
     list.innerHTML = '<div class="loading">Loading</div>';
+    refreshBlacklistSyncStatus();
 
     try {
         const res = await fetch(`/api/blacklist?guildId=${currentGuild}`);
@@ -3779,8 +3895,9 @@ async function loadStaffAppConfig() {
     if (!isOwner()) return;
 
     const isCommunity = selectedServer === 'community';
+    const isPredcord = selectedServer === 'predcord';
     document.getElementById('staffAppCommunityCard')?.classList.toggle('hidden', !isCommunity);
-    document.getElementById('staffAppPredcordCard')?.classList.toggle('hidden', isCommunity);
+    document.getElementById('staffAppPredcordCard')?.classList.toggle('hidden', !isPredcord);
 
     const containers = ['cfgStaffAppCommunityList', 'cfgStaffAppPredcordList'];
     containers.forEach(id => {
@@ -3817,8 +3934,9 @@ async function loadBanAppealConfig() {
     if (!isOwner()) return;
 
     const isCommunity = selectedServer === 'community';
+    const isPredcord = selectedServer === 'predcord';
     document.getElementById('banAppealCommunityCard')?.classList.toggle('hidden', !isCommunity);
-    document.getElementById('banAppealPredcordCard')?.classList.toggle('hidden', isCommunity);
+    document.getElementById('banAppealPredcordCard')?.classList.toggle('hidden', !isPredcord);
 
     const containers = ['cfgBanAppealCommunityList', 'cfgBanAppealPredcordList'];
     containers.forEach(id => {
@@ -3899,6 +4017,9 @@ function setupEvents() {
 
     const changeServerBtn = document.getElementById('changeServerBtn');
     if (changeServerBtn) changeServerBtn.onclick = showServerSelectScreen;
+
+    const blacklistSyncBtn = document.getElementById('blacklistSyncBtn');
+    if (blacklistSyncBtn) blacklistSyncBtn.onclick = startBlacklistSync;
 
     document.querySelectorAll('.masterclass-guild-pill').forEach(pill => {
         pill.onclick = () => setMasterclassGuild(pill.getAttribute('data-guild'));
