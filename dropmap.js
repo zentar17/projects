@@ -3,7 +3,6 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelect
 const DROPMAP_ROLE_ID = '1348738768223469695';
 const DROPMAP_DURATION_DAYS = 30;
 const DROPMAP_COLOR = 0x6B6E73;
-const DROPMAP_TYPES = { poi: 'POI', split: 'Split' };
 const UPLOAD_PREFIX = 'upload:';
 const MENU_TIMEOUT_MS = 60000;
 const URL_CACHE_MS = 6 * 60 * 60 * 1000;
@@ -84,21 +83,18 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
         return process.env.COMMUNITY_GUILD_ID || null;
     }
 
+    function sortNames(a, b) {
+        return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    }
+
     async function loadAreas(guildId) {
         const docs = await db.getDropmapImagesDB(guildId);
-        return docs.sort((a, b) => a.areaName.localeCompare(b.areaName, undefined, { numeric: true, sensitivity: 'base' }));
+        return docs.filter(d => !d.isMiniarea).sort((a, b) => sortNames(a.areaName, b.areaName))
+            .concat(docs.filter(d => d.isMiniarea).sort((a, b) => sortNames(a.areaName, b.areaName)));
     }
 
-    async function loadCodes(guildId) {
-        const codes = await db.listDropmapCodesDB(guildId);
-        const map = new Map();
-        for (const c of codes) map.set(`${c.areaName}\u0000${c.subAreaName || ''}`, c);
-        return map;
-    }
-
-    function codeLabel(code) {
-        if (!code) return null;
-        return `${DROPMAP_TYPES[code.type] || code.type} #${code.number}`;
+    function sortedSubs(area) {
+        return Object.keys(area.subAreas || {}).sort(sortNames);
     }
 
     function getItemImage(area, subAreaName) {
@@ -161,14 +157,13 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
             const logChannel = botClients.getLogsClient(client).channels.cache.get(config.dropmapLogChannelId)
                 || client.channels.cache.get(config.dropmapLogChannelId);
             if (!logChannel) return;
-            const code = await db.getDropmapCodeForItemDB(getCommunityGuildId() || sourceGuild.id, areaName, subAreaName);
             const embed = new EmbedBuilder()
                 .setTitle('Dropmap Sent')
                 .setColor(DROPMAP_COLOR)
                 .addFields(
                     { name: 'Sent by', value: `<@${requester.id}>`, inline: true },
                     { name: 'Received by', value: `<@${targetUser.id}>`, inline: true },
-                    { name: 'Dropmap', value: `${subAreaName ? `${areaName} - ${subAreaName}` : areaName}${code ? ` (${codeLabel(code)})` : ''}`, inline: true },
+                    { name: 'Dropmap', value: `${subAreaName ? `${areaName} - ${subAreaName}` : areaName}`, inline: true },
                     { name: 'Date', value: `<t:${Math.floor(Date.now() / 1000)}:F>`, inline: true }
                 );
             if (imageRef && isHttpUrl(imageRef)) embed.setThumbnail(await refreshDiscordUrl(imageRef));
@@ -247,44 +242,6 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
         return new EmbedBuilder().setDescription(text).setColor(DROPMAP_COLOR);
     }
 
-    async function handleSendCommand(interaction) {
-        if (!(await canUseDropmap(interaction.member))) {
-            return interaction.reply({ content: 'You do not have permission to use this command.', flags: 64 });
-        }
-        const type = interaction.options.getString('type', true);
-        const rawId = interaction.options.getString('id', true).trim().replace(/^<@!?(\d+)>$/, '$1');
-        const number = interaction.options.getInteger('dropmap', true);
-
-        if (!DROPMAP_TYPES[type]) return interaction.reply({ embeds: [errorEmbed('Invalid type.')], flags: 64 });
-        if (!/^\d{17,20}$/.test(rawId)) return interaction.reply({ embeds: [errorEmbed('Invalid user ID.')], flags: 64 });
-
-        await interaction.deferReply({ flags: 64 });
-
-        const dataGuildId = getCommunityGuildId() || interaction.guild.id;
-        const code = await db.getDropmapCodeDB(dataGuildId, type, number);
-        if (!code) {
-            return interaction.editReply({ embeds: [errorEmbed(`Dropmap **${DROPMAP_TYPES[type]} #${number}** does not exist.`)] });
-        }
-
-        const result = await sendDropmap({
-            dataGuildId,
-            sourceGuild: interaction.guild,
-            requester: interaction.user,
-            targetUserId: rawId,
-            areaName: code.areaName,
-            subAreaName: code.subAreaName
-        });
-
-        if (!result.ok) return interaction.editReply({ embeds: [errorEmbed(result.error)] });
-
-        const name = code.subAreaName ? `${code.areaName} - ${code.subAreaName}` : code.areaName;
-        const embed = new EmbedBuilder()
-            .setTitle('Dropmap Sent')
-            .setDescription(`**${DROPMAP_TYPES[type]} #${number}** (${name}) sent to <@${rawId}>.\nThe "Dropmap Riscattata" role was given for ${DROPMAP_DURATION_DAYS} days.${result.roleWarning ? `\n\n${result.roleWarning}` : ''}`)
-            .setColor(DROPMAP_COLOR);
-        return interaction.editReply({ embeds: [embed] });
-    }
-
     async function updateMenuMessage(channel, payload) {
         const existingId = activeMessages.get(channel.id);
         if (existingId) {
@@ -328,7 +285,6 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
 
     async function showMainMenu(channel, userId, dataGuildId) {
         const areas = await loadAreas(dataGuildId);
-        const codes = await loadCodes(dataGuildId);
 
         if (!areas.length) {
             const embed = new EmbedBuilder()
@@ -348,10 +304,9 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
                 .setValue(`a:${area.areaName}`.slice(0, 100)));
         }
         for (const mini of areas.filter(a => a.isMiniarea)) {
-            const code = codes.get(`${mini.areaName}\u0000`);
             options.push(new StringSelectMenuOptionBuilder()
                 .setLabel(mini.areaName.slice(0, 100))
-                .setDescription(`Mini area${code ? ` · ${codeLabel(code)}` : ''} · send it directly`.slice(0, 100))
+                .setDescription('Mini area · send it directly')
                 .setValue(`m:${mini.areaName}`.slice(0, 100)));
         }
 
@@ -371,8 +326,7 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
     async function showAreaDetail(channel, userId, dataGuildId, areaName) {
         const area = await db.getDropmapImageDB(dataGuildId, areaName);
         if (!area || area.isMiniarea) return showMainMenu(channel, userId, dataGuildId);
-        const codes = await loadCodes(dataGuildId);
-        const subNames = Object.keys(area.subAreas || {}).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+        const subNames = sortedSubs(area);
         const image = area.imageUrl ? await resolveImage(area.imageUrl) : null;
 
         const embed = new EmbedBuilder()
@@ -386,10 +340,9 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
         );
 
         const options = subNames.map(sub => {
-            const code = codes.get(`${areaName}\u0000${sub}`);
             return new StringSelectMenuOptionBuilder()
                 .setLabel(sub.slice(0, 100))
-                .setDescription(`${code ? `${codeLabel(code)} · ` : ''}Open ${sub}`.slice(0, 100))
+                .setDescription(`Open ${sub}`.slice(0, 100))
                 .setValue(sub.slice(0, 100));
         });
 
@@ -404,13 +357,12 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
         const imageRef = getItemImage(area, subAreaName);
         if (!imageRef) return showMainMenu(channel, requester.id, dataGuildId);
         const image = await resolveImage(imageRef);
-        const code = await db.getDropmapCodeForItemDB(dataGuildId, areaName, subAreaName);
         const name = subAreaName ? `${areaName} - ${subAreaName}` : areaName;
 
         stopSession(requester.id);
 
         const embed = new EmbedBuilder()
-            .setTitle(`${name}${code ? ` (${codeLabel(code)})` : ''}`.slice(0, 256))
+            .setTitle(name.slice(0, 256))
             .setDescription(`You selected **${name}**.\n\nType the ID of the user you want to send this dropmap to.\n\nExample: 123456789012345678`)
             .setColor(DROPMAP_COLOR);
         if (image) embed.setImage(image.url);
@@ -618,7 +570,6 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
                 const area = name ? await db.getDropmapImageDB(guildId, name) : null;
                 if (!area || area.isMiniarea !== (sub === 'deleteminiarea')) return reply(`${sub === 'deleteminiarea' ? 'Mini area' : 'Area'} **${name || '?'}** not found.`);
                 await db.deleteDropmapImageDB(guildId, name);
-                await db.deleteDropmapCodesDB(guildId, name);
                 return reply(`**${name}** deleted.`);
             }
 
@@ -629,7 +580,6 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
                 const subAreas = { ...area.subAreas };
                 delete subAreas[subName];
                 await db.setDropmapSubAreasDB(guildId, areaName, subAreas);
-                await db.deleteDropmapCodesDB(guildId, areaName, subName);
                 return reply(`Sub-area **${subName}** deleted from **${areaName}**.`);
             }
 
@@ -651,7 +601,6 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
 
             if (sub === 'list') {
                 const areas = await loadAreas(guildId);
-                const codes = await loadCodes(guildId);
                 if (!areas.length) return reply('No areas configured.');
                 const lines = [];
                 const normal = areas.filter(a => !a.isMiniarea);
@@ -659,20 +608,14 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
                 if (normal.length) {
                     lines.push('**Areas**');
                     for (const a of normal) {
-                        const subs = Object.keys(a.subAreas || {});
-                        const areaCode = codes.get(`${a.areaName}\u0000`);
-                        lines.push(`• ${a.areaName}${areaCode ? ` (${codeLabel(areaCode)})` : ''}`);
-                        for (const s of subs) {
-                            const c = codes.get(`${a.areaName}\u0000${s}`);
-                            lines.push(`  ◦ ${s}${c ? ` (${codeLabel(c)})` : ''}`);
-                        }
+                        lines.push(`• ${a.areaName}`);
+                        for (const sName of sortedSubs(a)) lines.push(`  ◦ ${sName}`);
                     }
                 }
                 if (minis.length) {
                     lines.push('', '**Mini areas**');
                     for (const m of minis) {
-                        const c = codes.get(`${m.areaName}\u0000`);
-                        lines.push(`• ${m.areaName}${c ? ` (${codeLabel(c)})` : ''}`);
+                        lines.push(`• ${m.areaName}`);
                     }
                 }
                 return reply(lines.join('\n'), 'Dropmap Configuration');
@@ -689,11 +632,9 @@ function createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumb
 
     return {
         DROPMAP_ROLE_ID,
-        DROPMAP_TYPES,
         UPLOAD_PREFIX,
         isValidImageRef,
         refreshDiscordUrl,
-        handleSendCommand,
         handleMapCommand,
         handleSetupCommand,
         handleInteraction
