@@ -26,6 +26,8 @@ let myRole = 'none';
 let canAccessMasterclass = false;
 let canUploadVideos = false;
 let canManageVideos = false;
+let canMcTickets = false;
+let mcTicketsStatus = 'open';
 let selectedServer = null;
 let serverAccess = { predcord: true, community: true };
 let myPermissions = {
@@ -223,6 +225,7 @@ async function init() {
         canAccessMasterclass = !!meData.canAccessMasterclass;
         canUploadVideos = !!meData.canUploadVideos;
         canManageVideos = !!meData.canManageVideos;
+        canMcTickets = !!meData.canMcTickets;
 
         const navVideosGroup = document.getElementById('navVideosGroup');
         if (navVideosGroup) navVideosGroup.classList.toggle('visible', !!meData.canViewVideos);
@@ -247,7 +250,7 @@ function applyServerAccessRestrictions() {
     const masterclassCard = document.getElementById('masterclassSelectCard');
     if (communityCard) communityCard.classList.toggle('hidden', !serverAccess.community);
     if (predcordCard) predcordCard.classList.toggle('hidden', !serverAccess.predcord);
-    if (masterclassCard) masterclassCard.classList.toggle('hidden', !isOwner() && !canAccessMasterclass);
+    if (masterclassCard) masterclassCard.classList.toggle('hidden', !isOwner() && !canAccessMasterclass && !canMcTickets);
 
     const allowed = Object.keys(serverAccess).filter(k => serverAccess[k]);
 
@@ -502,6 +505,12 @@ function updatePermissionsTabVisibility() {
         else videosTab.classList.add('hidden');
     }
 
+    const mcTicketsTab = document.getElementById('navTabMcTickets');
+    if (mcTicketsTab) {
+        if (isOwner() || canMcTickets) mcTicketsTab.classList.remove('hidden');
+        else mcTicketsTab.classList.add('hidden');
+    }
+
     const mcPermissionsTab = document.getElementById('navTabMasterclassPermissions');
     if (mcPermissionsTab) {
         if (isOwner()) mcPermissionsTab.classList.remove('hidden');
@@ -529,7 +538,7 @@ async function selectServer(server) {
     const mcNav = document.getElementById('masterclassNavTabs');
 
     if (server === 'masterclass') {
-        if (!isOwner() && !canAccessMasterclass) return;
+        if (!isOwner() && !canAccessMasterclass && !canMcTickets) return;
         selectedServer = 'masterclass';
 
         if (guildNav) guildNav.classList.add('hidden');
@@ -599,8 +608,13 @@ function setMasterclassGuild(key) {
 
     rolesLoaded = false;
 
-    const videosTab = document.getElementById('navTabVideos');
-    if (videosTab) videosTab.click();
+    if (isOwner() || canAccessMasterclass) {
+        const videosTab = document.getElementById('navTabVideos');
+        if (videosTab) videosTab.click();
+    } else {
+        const ticketsTab = document.getElementById('navTabMcTickets');
+        if (ticketsTab) ticketsTab.click();
+    }
 }
 
 function showServerSelectScreen() {
@@ -1111,12 +1125,13 @@ async function saveVideo(e) {
     }
 }
 
-let masterclassPermissions = { viewUserIds: [], uploadUserIds: [], manageUserIds: [] };
+let masterclassPermissions = { viewUserIds: [], uploadUserIds: [], manageUserIds: [], ticketStaffUserIds: [], ticketNotifyChannelId: '' };
 
 const MC_LIST_CONFIG = {
     view: { key: 'viewUserIds', containerId: 'mcViewUsersList', inputId: 'mcViewUserInput' },
     upload: { key: 'uploadUserIds', containerId: 'mcUploadUsersList', inputId: 'mcUploadUserInput' },
-    manage: { key: 'manageUserIds', containerId: 'mcManageUsersList', inputId: 'mcManageUserInput' }
+    manage: { key: 'manageUserIds', containerId: 'mcManageUsersList', inputId: 'mcManageUserInput' },
+    tickets: { key: 'ticketStaffUserIds', containerId: 'mcTicketStaffList', inputId: 'mcTicketStaffInput' }
 };
 
 async function renderMcUsers(type) {
@@ -1205,8 +1220,10 @@ async function loadMasterclassPermissions() {
         masterclassPermissions = await res.json();
     } catch (e) {
         console.error('[MC-PERMISSIONS] load error:', e);
-        masterclassPermissions = { viewUserIds: [], uploadUserIds: [], manageUserIds: [] };
+        masterclassPermissions = { viewUserIds: [], uploadUserIds: [], manageUserIds: [], ticketStaffUserIds: [], ticketNotifyChannelId: '' };
     }
+    const notifyInput = document.getElementById('mcTicketNotifyChannelInput');
+    if (notifyInput) notifyInput.value = masterclassPermissions.ticketNotifyChannelId || '';
     for (const type of Object.keys(MC_LIST_CONFIG)) {
         await renderMcUsers(type);
     }
@@ -1218,6 +1235,18 @@ async function saveMasterclassPermissions() {
     btn.textContent = 'Saving...';
     btn.disabled = true;
 
+    const notifyInput = document.getElementById('mcTicketNotifyChannelInput');
+    if (notifyInput) {
+        const channelId = notifyInput.value.trim();
+        if (channelId && !/^\d+$/.test(channelId)) {
+            showToast('Invalid channel ID (numbers only)', 'error');
+            btn.textContent = originalText;
+            btn.disabled = false;
+            return;
+        }
+        masterclassPermissions.ticketNotifyChannelId = channelId;
+    }
+
     try {
         const res = await fetch('/api/masterclass/permissions', {
             method: 'POST',
@@ -1226,12 +1255,111 @@ async function saveMasterclassPermissions() {
         });
         if (!res.ok) throw new Error(`POST /api/masterclass/permissions → status ${res.status}`);
         masterclassPermissions = await res.json();
+        if (notifyInput) notifyInput.value = masterclassPermissions.ticketNotifyChannelId || '';
         showToast('Permissions saved');
     } catch (e) {
         showToast(`Error: ${e.message}`, 'error');
     } finally {
         btn.textContent = originalText;
         btn.disabled = false;
+    }
+}
+
+function timeAgo(date) {
+    if (!date) return '';
+    const diff = Math.max(0, Date.now() - new Date(date).getTime());
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    if (d < 30) return `${d}d ago`;
+    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function timeUntil(date) {
+    const diff = new Date(date).getTime() - Date.now();
+    if (diff <= 0) return 'a moment';
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+async function loadMcTickets() {
+    const list = document.getElementById('mcTicketsList');
+    const count = document.getElementById('mcTicketsCount');
+    if (!list) return;
+
+    const filter = document.getElementById('mcTicketsFilter');
+    if (filter && !filter.dataset.bound) {
+        filter.dataset.bound = '1';
+        filter.querySelectorAll('.stats-period-btn').forEach(btn => {
+            btn.onclick = () => {
+                filter.querySelectorAll('.stats-period-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                mcTicketsStatus = btn.dataset.status;
+                loadMcTickets();
+            };
+        });
+    }
+
+    list.innerHTML = '<div class="loading">Loading</div>';
+    try {
+        const res = await fetch(`/api/masterclass/tickets?status=${encodeURIComponent(mcTicketsStatus)}`);
+        if (res.status === 403) {
+            showAccessDenied();
+            list.innerHTML = '';
+            return;
+        }
+        if (!res.ok) throw new Error('Failed to load tickets');
+        const tickets = await res.json();
+        const isTranscripts = mcTicketsStatus === 'transcripts';
+        if (count) count.textContent = isTranscripts
+            ? `${tickets.length} transcript${tickets.length === 1 ? '' : 's'} · closed tickets are deleted 24h after closing, transcripts are kept`
+            : `${tickets.length} ticket${tickets.length === 1 ? '' : 's'}`;
+
+        if (!tickets.length) {
+            list.innerHTML = isTranscripts
+                ? '<div class="empty-state"><h3>No transcripts</h3><p>Transcripts are saved when a ticket is closed</p></div>'
+                : '<div class="empty-state"><h3>No tickets</h3><p>No Masterclass tickets in this view</p></div>';
+            return;
+        }
+
+        list.innerHTML = tickets.map(t => {
+            const num = String(t.ticketNumber).padStart(4, '0');
+            const price = t.price ? ` · ${escapeHtml(t.price)} / month` : '';
+            const preview = !t.lastMessage
+                ? '<span class="mc-ticket-preview-empty">No messages yet</span>'
+                : t.lastMessage.system
+                    ? `<span class="mc-ticket-preview-empty">${escapeHtml(t.lastMessage.content)}</span>`
+                    : `<span class="mc-ticket-preview-author">${escapeHtml(t.lastMessage.authorName || '')}${t.lastMessage.isStaff ? ' (Staff)' : ''}:</span> ${escapeHtml(t.lastMessage.content)}`;
+            const statusLabel = t.status === 'open' ? 'Open' : t.status === 'closed' ? 'Closed' : 'Transcript';
+            const claimChip = t.claimedByName
+                ? `<span class="mc-ticket-claim claimed">Claimed by ${escapeHtml(t.claimedByName)}</span>`
+                : (t.status === 'open' ? '<span class="mc-ticket-claim">Unclaimed</span>' : '');
+            const deleteInfo = t.status === 'closed' && t.deleteAt
+                ? `<span class="mc-ticket-delete">Deleted in ${escapeHtml(timeUntil(t.deleteAt))}</span>`
+                : '';
+            return `
+            <a class="mc-ticket-card" href="/ticket/${t.ticketNumber}" target="_blank" rel="noopener">
+                <img class="mc-ticket-avatar" src="${escapeAttr(t.userAvatar || 'https://cdn.discordapp.com/embed/avatars/0.png')}" alt="" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+                <div class="mc-ticket-main">
+                    <div class="mc-ticket-top">
+                        <span class="mc-ticket-num">#${num}</span>
+                        <span class="mc-ticket-plan">${escapeHtml(t.plan || '')}${price}</span>
+                        <span class="mc-ticket-status ${escapeAttr(t.status)}">${statusLabel}</span>
+                        ${claimChip}
+                        ${deleteInfo}
+                    </div>
+                    <div class="mc-ticket-user">${escapeHtml(t.userName || t.userId)} · ${escapeHtml(t.email || '')}</div>
+                    <div class="mc-ticket-preview">${preview}</div>
+                </div>
+                <div class="mc-ticket-time">${escapeHtml(timeAgo(t.lastMessageAt || t.createdAt))}</div>
+            </a>`;
+        }).join('');
+    } catch (e) {
+        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${escapeHtml(e.message)}</p></div>`;
     }
 }
 
@@ -3303,6 +3431,12 @@ function setupEvents() {
                         return;
                     }
                     loadVideos();
+                } else if (target === 'mc-tickets') {
+                    if (!isOwner() && !canMcTickets) {
+                        showAccessDenied();
+                        return;
+                    }
+                    loadMcTickets();
                 } else if (target === 'masterclass-permissions') {
                     if (!isOwner()) {
                         showAccessDenied();
