@@ -1052,6 +1052,7 @@ client.once('clientReady', async () => {
     console.log('[DASHBOARD] global.PredCord API exposed');
 
     roleSync.start().catch((err) => logCrash('ROLE_SYNC_START', err));
+    warmInviteTriggerMembers().catch((err) => logCrash('INVITE_TRIGGER_WARM', err));
 
     try {
         const communityCommands = [
@@ -1059,26 +1060,6 @@ client.once('clientReady', async () => {
                 .setName('panel')
                 .setDescription('Send the ticket panel in this channel')
                 .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
-                .toJSON(),
-            new SlashCommandBuilder()
-                .setName('send')
-                .setDescription('Send a dropmap to a user')
-                .addStringOption(o => o
-                    .setName('type')
-                    .setDescription('Dropmap type')
-                    .setRequired(true)
-                    .addChoices({ name: 'POI', value: 'poi' }, { name: 'Split', value: 'split' }))
-                .addStringOption(o => o
-                    .setName('id')
-                    .setDescription('User ID of the person who receives the dropmap')
-                    .setRequired(true)
-                    .setMinLength(17)
-                    .setMaxLength(22))
-                .addIntegerOption(o => o
-                    .setName('dropmap')
-                    .setDescription('Dropmap number')
-                    .setRequired(true)
-                    .setMinValue(1))
                 .toJSON()
         ];
 
@@ -1091,6 +1072,13 @@ client.once('clientReady', async () => {
         ];
 
         const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+
+        try {
+            await rest.put(Routes.applicationCommands(client.user.id), { body: [] });
+            console.log('[SLASH] ✅ Global commands cleared');
+        } catch (globalErr) {
+            console.error('[SLASH] ❌ Global commands clear error', globalErr);
+        }
 
         const perGuildCommands = [
             { gid: process.env.COMMUNITY_GUILD_ID, commands: communityCommands },
@@ -1124,7 +1112,135 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
     } catch (error) {
         logCrash('ROLE_SYNC_MEMBER_UPDATE', error, { userId: newMember?.id });
     }
+    handleInviteTriggerRoles(oldMember, newMember).catch((error) => {
+        logCrash('INVITE_TRIGGER', error, { userId: newMember?.id });
+    });
 });
+
+const INVITE_TRIGGER_MAX_AGE_SECONDS = 24 * 60 * 60;
+const inviteTriggerInFlight = new Set();
+
+function findInviteChannel(guild) {
+    const me = guild.members.me;
+    if (!me) return null;
+    const canInvite = (ch) => ch && (ch.type === ChannelType.GuildText || ch.type === ChannelType.GuildAnnouncement)
+        && ch.permissionsFor(me)?.has(PermissionsBitField.Flags.CreateInstantInvite);
+    if (canInvite(guild.rulesChannel)) return guild.rulesChannel;
+    if (canInvite(guild.systemChannel)) return guild.systemChannel;
+    return guild.channels.cache
+        .filter(canInvite)
+        .sort((a, b) => a.rawPosition - b.rawPosition)
+        .first() || null;
+}
+
+async function handleInviteTriggerRoles(oldMember, newMember) {
+    if (!newMember || !newMember.guild || newMember.user?.bot) return;
+    const config = await getGuildConfig(newMember.guild.id);
+    const triggers = [config.inviteTriggerRoleId1, config.inviteTriggerRoleId2].filter(Boolean);
+    if (!triggers.length || !config.targetInviteGuildId) return;
+    if (config.targetInviteGuildId === newMember.guild.id) return;
+
+    const oldKnown = oldMember && !oldMember.partial && oldMember.roles && oldMember.roles.cache;
+    const gained = triggers.find(roleId => newMember.roles.cache.has(roleId) && (!oldKnown || !oldMember.roles.cache.has(roleId)));
+    if (!gained) return;
+
+    await sendTriggerInvite(newMember, gained, config);
+}
+
+async function sendTriggerInvite(member, triggerRoleId, config) {
+    const key = `${member.guild.id}:${member.id}`;
+    if (inviteTriggerInFlight.has(key)) return;
+    inviteTriggerInFlight.add(key);
+    try {
+        const targetGuild = client.guilds.cache.get(config.targetInviteGuildId);
+        if (!targetGuild) {
+            logCrash('INVITE_TRIGGER', new Error('Target server not found or bot not in it'), { targetGuildId: config.targetInviteGuildId });
+            return;
+        }
+
+        const alreadyIn = await targetGuild.members.fetch(member.id).catch(() => null);
+        if (alreadyIn) return;
+
+        const previous = await db.getInviteTrackingDB(member.guild.id, member.id);
+        if (previous && previous.date && Date.now() - new Date(previous.date).getTime() < INVITE_TRIGGER_MAX_AGE_SECONDS * 1000) return;
+
+        const channel = findInviteChannel(targetGuild);
+        if (!channel) {
+            logCrash('INVITE_TRIGGER', new Error('No channel where the bot can create invites'), { targetGuildId: targetGuild.id });
+            return;
+        }
+
+        const role = member.guild.roles.cache.get(triggerRoleId);
+        const roleName = role ? role.name : 'Role';
+        const invite = await channel.createInvite({
+            maxAge: INVITE_TRIGGER_MAX_AGE_SECONDS,
+            maxUses: 1,
+            unique: true,
+            reason: `Personal invite for ${member.user.tag} (${roleName})`
+        });
+        const expiresAt = Math.floor(Date.now() / 1000) + INVITE_TRIGGER_MAX_AGE_SECONDS;
+
+        const embed = new EmbedBuilder()
+            .setTitle('Your Exclusive Invite')
+            .setDescription(`You received the **${roleName}** role in **${member.guild.name}**.\nHere is your personal invite to **${targetGuild.name}**:`)
+            .addFields(
+                { name: 'Invite', value: invite.url, inline: false },
+                { name: 'Expires', value: `<t:${expiresAt}:R>`, inline: true },
+                { name: 'Uses', value: '1 (single use)', inline: true },
+                { name: 'Important', value: 'This invite is personal and works only once. Do not share it with anyone.', inline: false }
+            )
+            .setColor(BLACK)
+            .setThumbnail(THUMBNAIL_URL);
+
+        const dmSent = await member.send({ embeds: [embed] }).then(() => true).catch(() => false);
+        if (!dmSent) await invite.delete('Could not DM the user').catch(() => {});
+
+        if (dmSent) {
+            await db.addInviteTrackingDB({
+                guildId: member.guild.id,
+                userId: member.id,
+                userTag: member.user.tag,
+                inviteCode: invite.code,
+                triggerRoleId,
+                used: true,
+                date: new Date()
+            });
+        }
+
+        if (config.inviteLogChannelId) {
+            const logChannel = botClients.getLogsClient(client).channels.cache.get(config.inviteLogChannelId)
+                || client.channels.cache.get(config.inviteLogChannelId);
+            if (logChannel) {
+                const logEmbed = new EmbedBuilder()
+                    .setTitle(dmSent ? 'Invite Sent' : 'Invite Not Sent')
+                    .setDescription(dmSent ? `A personal invite was sent to <@${member.id}>.` : `<@${member.id}> has DMs closed, the invite was deleted.`)
+                    .addFields(
+                        { name: 'User', value: `<@${member.id}>`, inline: true },
+                        { name: 'Role', value: `<@&${triggerRoleId}>`, inline: true },
+                        { name: 'Target server', value: targetGuild.name, inline: true },
+                        { name: 'Expires', value: dmSent ? `<t:${expiresAt}:R>` : '-', inline: true }
+                    )
+                    .setColor(BLACK)
+                    .setTimestamp();
+                await logChannel.send({ embeds: [logEmbed] }).catch(() => {});
+            }
+        }
+    } finally {
+        inviteTriggerInFlight.delete(key);
+    }
+}
+
+async function warmInviteTriggerMembers() {
+    for (const guild of client.guilds.cache.values()) {
+        try {
+            const config = await getGuildConfig(guild.id);
+            if (!config.targetInviteGuildId || (!config.inviteTriggerRoleId1 && !config.inviteTriggerRoleId2)) continue;
+            await guild.members.fetch();
+        } catch (error) {
+            logCrash('INVITE_TRIGGER_WARM', error, { guildId: guild.id });
+        }
+    }
+}
 
 client.on('guildMemberAdd', async (member) => {
     try {
@@ -2749,11 +2865,6 @@ client.on('interactionCreate', async (interaction) => {
                 await sendCommunityTicketPanel(interaction.channel);
 
                 await interaction.reply({ content: 'Ticket Panel Sent', flags: 64 });
-                return;
-            }
-
-            if (interaction.commandName === 'send') {
-                await dropmap.handleSendCommand(interaction);
                 return;
             }
 
