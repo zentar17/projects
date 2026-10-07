@@ -293,9 +293,16 @@ function checkCustomCommandPermission(cmdData, member) {
     return true;
 }
 
+async function isModerationDmEnabled(guildId) {
+    if (!guildId) return true;
+    const config = await getGuildConfig(guildId);
+    if (typeof config.moderationDmEnabled === 'boolean') return config.moderationDmEnabled;
+    return guildId === process.env.MAIN_GUILD_ID;
+}
+
 async function sendActionDM(user, action, reason, moderator, duration = null) {
     try {
-        if (moderator?.guild?.id && moderator.guild.id !== process.env.MAIN_GUILD_ID) return;
+        if (!(await isModerationDmEnabled(moderator?.guild?.id))) return;
 
         const actionText = {
             'warned': 'warned',
@@ -315,7 +322,9 @@ async function sendActionDM(user, action, reason, moderator, duration = null) {
         } else if (action === 'unbanned' || action === 'unmuted') {
             description = `**You have been ${label} in ${moderator?.guild?.name || 'the server'}**`;
         } else {
-            description = `**You have been ${label} for ${reason || 'no reason provided'}**`;
+            const where = moderator?.guild?.name ? ` in ${moderator.guild.name}` : '';
+            const forHow = action === 'muted' && duration ? ` for ${duration}` : '';
+            description = `**You have been ${label}${where}${forHow}** for **${reason || 'no reason provided'}**`;
         }
 
         const embed = new EmbedBuilder()
