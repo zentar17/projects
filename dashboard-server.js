@@ -1272,6 +1272,29 @@ async function notifyNewMcTicket(ticket) {
 }
 
 const MC_TICKET_DELETE_AFTER_MS = 24 * 60 * 60 * 1000;
+const MC_TICKET_IMAGE_MAX_BYTES = 8 * 1024 * 1024;
+
+const mcImageUpload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: MC_TICKET_IMAGE_MAX_BYTES, files: 1 }
+});
+
+function sniffImageType(buf) {
+    if (!buf || buf.length < 12) return null;
+    if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47) return 'image/png';
+    if (buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF) return 'image/jpeg';
+    if (buf.slice(0, 4).toString('ascii') === 'GIF8') return 'image/gif';
+    if (buf.slice(0, 4).toString('ascii') === 'RIFF' && buf.slice(8, 12).toString('ascii') === 'WEBP') return 'image/webp';
+    return null;
+}
+
+function handleMcImageUpload(req, res, next) {
+    if (!req.session.siteUser) return res.status(401).json({ error: 'not_authenticated' });
+    mcImageUpload.single('image')(req, res, (err) => {
+        if (err) return res.status(400).json({ error: err.code === 'LIMIT_FILE_SIZE' ? 'image_too_large' : 'upload_failed' });
+        next();
+    });
+}
 
 function serializeMcTicket(ticket, messages, isTranscript) {
     const closedAt = ticket.closedAt ? new Date(ticket.closedAt) : null;
@@ -1304,6 +1327,7 @@ function serializeMcTicket(ticket, messages, isTranscript) {
             isStaff: !!m.isStaff,
             system: !!m.system,
             content: m.content,
+            imageId: m.imageId || null,
             date: m.date
         }))
     };
@@ -1366,18 +1390,27 @@ app.post('/api/site/mc-tickets/create', async (req, res) => {
         const { db } = global.PredCord;
         const u = req.session.siteUser;
 
-        const existing = await db.findOpenMcTicketDB(u.id, planKey);
-        if (existing) return res.json({ ticketNumber: existing.ticketNumber, existing: true });
+        const existing = await db.findOpenMcTicketDB(u.id);
+        if (existing) return res.status(409).json({ error: 'already_open', ticketNumber: existing.ticketNumber, plan: existing.plan });
 
-        const ticket = await db.createMcTicketDB({
-            userId: u.id,
-            userName: u.username,
-            userAvatar: siteUserAvatarUrl(u),
-            email: check.email,
-            planKey,
-            plan: plan.name,
-            price: plan.price
-        });
+        let ticket;
+        try {
+            ticket = await db.createMcTicketDB({
+                userId: u.id,
+                userName: u.username,
+                userAvatar: siteUserAvatarUrl(u),
+                email: check.email,
+                planKey,
+                plan: plan.name,
+                price: plan.price
+            });
+        } catch (err) {
+            if (err && err.code === 11000) {
+                const open = await db.findOpenMcTicketDB(u.id);
+                if (open) return res.status(409).json({ error: 'already_open', ticketNumber: open.ticketNumber, plan: open.plan });
+            }
+            throw err;
+        }
 
         logMcTicketEvent('mc_ticket_created', ticket, { id: u.id, name: u.username });
         notifyNewMcTicket(ticket);
@@ -1445,7 +1478,7 @@ app.get('/api/site/mc-tickets/:ticketNumber', async (req, res) => {
     }
 });
 
-app.post('/api/site/mc-tickets/:ticketNumber/messages', mcTicketMessageLimiter, async (req, res) => {
+app.post('/api/site/mc-tickets/:ticketNumber/messages', mcTicketMessageLimiter, handleMcImageUpload, async (req, res) => {
     try {
         const loaded = await loadMcTicketForSiteUser(req, res, false);
         if (!loaded) return;
@@ -1454,17 +1487,51 @@ app.post('/api/site/mc-tickets/:ticketNumber/messages', mcTicketMessageLimiter, 
         if (ticket.status !== 'open') return res.status(400).json({ error: 'ticket_closed' });
         const isOwnerAuthor = ticket.userId === u.id;
         if (!isOwnerAuthor && isStaff && !canStaffWrite(ticket, u.id)) return res.status(403).json({ error: 'claimed_by_other' });
-        const content = typeof req.body.content === 'string' ? req.body.content.trim() : '';
-        if (!content) return res.status(400).json({ error: 'empty_message' });
+        const content = typeof (req.body && req.body.content) === 'string' ? req.body.content.trim() : '';
+        const file = req.file || null;
+        if (!content && !file) return res.status(400).json({ error: 'empty_message' });
         if (content.length > 2000) return res.status(400).json({ error: 'message_too_long' });
-        const message = await global.PredCord.db.addMcTicketMessageDB(ticket.ticketNumber, {
+
+        const { db } = global.PredCord;
+        let imageId = null;
+        if (file) {
+            const contentType = sniffImageType(file.buffer);
+            if (!contentType) return res.status(400).json({ error: 'invalid_image' });
+            imageId = await db.createMcTicketImageDB({
+                ticketNumber: ticket.ticketNumber,
+                uploaderId: u.id,
+                contentType,
+                size: file.size,
+                data: file.buffer
+            });
+        }
+
+        const message = await db.addMcTicketMessageDB(ticket.ticketNumber, {
             authorId: u.id,
             authorName: u.username,
             authorAvatar: siteUserAvatarUrl(u),
             isStaff: isStaff && !isOwnerAuthor,
-            content
+            content,
+            imageId
         });
         res.json({ success: true, messageId: message ? String(message._id) : null });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get('/api/site/mc-tickets/:ticketNumber/images/:imageId', async (req, res) => {
+    try {
+        const loaded = await loadMcTicketForSiteUser(req, res, true);
+        if (!loaded) return;
+        const image = await global.PredCord.db.getMcTicketImageDB(req.params.imageId);
+        if (!image || image.ticketNumber !== loaded.ticket.ticketNumber) return res.status(404).json({ error: 'not_found' });
+        const data = Buffer.isBuffer(image.data) ? image.data : Buffer.from(image.data.buffer || image.data);
+        res.set('Content-Type', image.contentType);
+        res.set('Content-Length', String(data.length));
+        res.set('Cache-Control', 'private, max-age=86400');
+        res.set('X-Content-Type-Options', 'nosniff');
+        res.send(data);
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -1480,21 +1547,11 @@ app.post('/api/site/mc-tickets/:ticketNumber/claim', async (req, res) => {
         const { db } = global.PredCord;
         const u = req.session.siteUser;
         const actor = { id: u.id, name: u.username };
-        const isSuper = SUPER_OWNER_IDS.includes(u.id);
-
-        if (req.body.action === 'unclaim') {
-            if (!ticket.claimedById) return res.json({ success: true });
-            if (ticket.claimedById !== u.id && !isSuper) return res.status(403).json({ error: 'claimed_by_other' });
-            const updated = await db.claimMcTicketDB(ticket.ticketNumber, null, ticket.claimedById);
-            if (!updated) return res.status(409).json({ error: 'conflict' });
-            await addMcSystemMessage(ticket.ticketNumber, `${u.username} unclaimed this ticket`);
-            logMcTicketEvent('mc_ticket_unclaimed', ticket, actor);
-            return res.json({ success: true });
+        if (ticket.claimedById) {
+            if (ticket.claimedById === u.id) return res.json({ success: true });
+            return res.status(409).json({ error: 'claimed_by_other', claimedByName: ticket.claimedByName });
         }
-
-        if (ticket.claimedById === u.id) return res.json({ success: true });
-        if (ticket.claimedById && !isSuper) return res.status(409).json({ error: 'claimed_by_other', claimedByName: ticket.claimedByName });
-        const updated = await db.claimMcTicketDB(ticket.ticketNumber, actor, ticket.claimedById || null);
+        const updated = await db.claimMcTicketDB(ticket.ticketNumber, actor, null);
         if (!updated) return res.status(409).json({ error: 'claimed_by_other' });
         await addMcSystemMessage(ticket.ticketNumber, `${u.username} claimed this ticket`);
         logMcTicketEvent('mc_ticket_claimed', ticket, actor);
@@ -1755,7 +1812,7 @@ app.get('/api/masterclass/tickets', requireAuth, async (req, res) => {
         const flags = await getMasterclassFlags(req);
         if (!flags.canTickets) return res.status(403).json({ error: 'Access Denied' });
         const { db } = global.PredCord;
-        const preview = (last) => last ? { authorName: last.authorName, isStaff: !!last.isStaff, system: !!last.system, content: String(last.content || '').slice(0, 140) } : null;
+        const preview = (last) => last ? { authorName: last.authorName, isStaff: !!last.isStaff, system: !!last.system, content: String(last.content || (last.imageId ? '[Image]' : '')).slice(0, 140) } : null;
 
         if (req.query.status === 'transcripts') {
             const transcripts = await db.listMcTicketTranscriptsDB();
