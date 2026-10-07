@@ -2236,13 +2236,17 @@ function setRoleSyncStatus(state, text) {
 }
 
 function roleSyncGuild(guildId) {
-    return roleSyncData.guilds.find(g => g.id === guildId) || { id: guildId, name: 'Unknown server', key: '' };
+    return roleSyncData.guilds.find(g => g.id === guildId) || { id: guildId, name: 'Unknown server', icon: null };
 }
 
 function roleSyncGuildIcon(guild) {
-    if (guild.icon) return guild.icon;
-    if (SERVER_INFO[guild.key]) return SERVER_INFO[guild.key].img;
-    return '/images/dragon-logo.png';
+    return guild.icon || '/images/dragon-logo.png';
+}
+
+function roleSyncGuildOptions(selectedId) {
+    return roleSyncData.guilds.map(g =>
+        `<option value="${escapeAttr(g.id)}"${g.id === selectedId ? ' selected' : ''}>${escapeHtml(g.name)}</option>`
+    ).join('');
 }
 
 function roleSyncRoleOptions(guildId, selectedId, forTarget) {
@@ -2276,7 +2280,9 @@ function renderRoleSync() {
             <div class="role-sync-side">
                 <span class="role-sync-label">${label}</span>
                 <img class="role-sync-icon" src="${escapeAttr(roleSyncGuildIcon(guild))}" alt="" onerror="this.src='/images/dragon-logo.png'">
-                <span class="role-sync-guild">${escapeHtml(guild.name)}</span>
+                <label class="role-sync-guild-select">
+                    <select data-rule-id="${escapeAttr(rule.id)}" data-guild-field="${field === 'sourceRoleId' ? 'source' : 'target'}">${roleSyncGuildOptions(guild.id)}</select>
+                </label>
                 <label class="role-sync-pill">
                     <span class="role-sync-dot" style="background:${escapeAttr(roleSyncRoleColor(guild.id, roleId))}"></span>
                     <select data-rule-id="${escapeAttr(rule.id)}" data-field="${field}">${roleSyncRoleOptions(guild.id, roleId, forTarget)}</select>
@@ -2298,8 +2304,29 @@ function renderRoleSync() {
         </div>`;
     }).join('');
 
-    list.querySelectorAll('select[data-rule-id]').forEach(sel => {
+    list.querySelectorAll('select[data-field]').forEach(sel => {
         sel.onchange = () => patchRoleSyncRule(sel.dataset.ruleId, { [sel.dataset.field]: sel.value || null });
+    });
+    list.querySelectorAll('select[data-guild-field]').forEach(sel => {
+        sel.onchange = () => {
+            const rule = roleSyncData.rules.find(r => r.id === sel.dataset.ruleId);
+            if (!rule) return;
+            const isSource = sel.dataset.guildField === 'source';
+            const otherGuildId = isSource ? rule.targetGuildId : rule.sourceGuildId;
+            const changes = isSource
+                ? { sourceGuildId: sel.value, sourceRoleId: null }
+                : { targetGuildId: sel.value, targetRoleId: null };
+            if (sel.value === otherGuildId) {
+                if (isSource) {
+                    changes.targetGuildId = rule.sourceGuildId;
+                    changes.targetRoleId = null;
+                } else {
+                    changes.sourceGuildId = rule.targetGuildId;
+                    changes.sourceRoleId = null;
+                }
+            }
+            patchRoleSyncRule(rule.id, changes);
+        };
     });
     list.querySelectorAll('.role-sync-swap').forEach(btn => {
         btn.onclick = () => {
