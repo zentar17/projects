@@ -358,10 +358,10 @@ async function sendActionDM(user, action, reason, moderator, duration = null) {
 
         const payload = { embeds: [embed] };
 
-        if (action === 'banned') {
+        if (action === 'banned' || action === 'muted') {
             const row = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
-                    .setLabel('Appeal your ban')
+                    .setLabel(action === 'muted' ? 'Appeal your mute' : 'Appeal your ban')
                     .setStyle(ButtonStyle.Link)
                     .setURL('https://projects-1od2.onrender.com/community#ban-appeal')
             );
