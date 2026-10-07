@@ -2366,21 +2366,148 @@ async function patchRoleSyncRule(ruleId, changes) {
     }
 }
 
+let roleSyncDraft = null;
+
+function roleSyncSetIcon(el, guildId) {
+    if (!el) return;
+    if (!guildId) {
+        el.innerHTML = '?';
+        el.classList.add('empty');
+        return;
+    }
+    const guild = roleSyncGuild(guildId);
+    el.classList.remove('empty');
+    el.innerHTML = `<img src="${escapeAttr(roleSyncGuildIcon(guild))}" alt="" onerror="this.src='/images/dragon-logo.png'">`;
+}
+
+function renderRoleSyncModal() {
+    const d = roleSyncDraft;
+    if (!d) return;
+    const sourceGuild = document.getElementById('rsmSourceGuild');
+    const targetGuild = document.getElementById('rsmTargetGuild');
+    const sourceRole = document.getElementById('rsmSourceRole');
+    const targetRole = document.getElementById('rsmTargetRole');
+    const save = document.getElementById('rsmSave');
+
+    sourceGuild.innerHTML = `<option value="">Select a server…</option>` + roleSyncData.guilds.map(g =>
+        `<option value="${escapeAttr(g.id)}"${g.id === d.sourceGuildId ? ' selected' : ''}>${escapeHtml(g.name)}</option>`
+    ).join('');
+    targetGuild.innerHTML = `<option value="">Select other server…</option>` + roleSyncData.guilds
+        .filter(g => g.id !== d.sourceGuildId)
+        .map(g => `<option value="${escapeAttr(g.id)}"${g.id === d.targetGuildId ? ' selected' : ''}>${escapeHtml(g.name)}</option>`)
+        .join('');
+
+    sourceRole.innerHTML = d.sourceGuildId ? roleSyncRoleOptions(d.sourceGuildId, d.sourceRoleId, false) : `<option value="">Select a role…</option>`;
+    targetRole.innerHTML = d.targetGuildId ? roleSyncRoleOptions(d.targetGuildId, d.targetRoleId, true) : `<option value="">Select a role…</option>`;
+    sourceRole.disabled = !d.sourceGuildId;
+    targetRole.disabled = !d.targetGuildId;
+
+    sourceGuild.classList.toggle('placeholder', !d.sourceGuildId);
+    targetGuild.classList.toggle('placeholder', !d.targetGuildId);
+    sourceRole.classList.toggle('placeholder', !d.sourceRoleId);
+    targetRole.classList.toggle('placeholder', !d.targetRoleId);
+
+    roleSyncSetIcon(document.getElementById('rsmSourceIcon'), d.sourceGuildId);
+    roleSyncSetIcon(document.getElementById('rsmTargetIcon'), d.targetGuildId);
+
+    save.disabled = !(d.sourceGuildId && d.targetGuildId && d.sourceRoleId && d.targetRoleId) || d.saving;
+}
+
+function closeRoleSyncModal() {
+    const modal = document.getElementById('roleSyncModal');
+    if (modal) modal.classList.add('hidden');
+    roleSyncDraft = null;
+}
+
+function openRoleSyncModal() {
+    const modal = document.getElementById('roleSyncModal');
+    if (!modal) return;
+    const ids = roleSyncData.guilds.map(g => g.id);
+    roleSyncDraft = {
+        sourceGuildId: ids.includes(currentGuild) ? currentGuild : (ids[0] || null),
+        sourceRoleId: null,
+        targetGuildId: null,
+        targetRoleId: null,
+        saving: false
+    };
+    const error = document.getElementById('rsmError');
+    error.classList.add('hidden');
+    error.textContent = '';
+
+    document.getElementById('rsmSourceGuild').onchange = (e) => {
+        roleSyncDraft.sourceGuildId = e.target.value || null;
+        roleSyncDraft.sourceRoleId = null;
+        if (roleSyncDraft.targetGuildId === roleSyncDraft.sourceGuildId) {
+            roleSyncDraft.targetGuildId = null;
+            roleSyncDraft.targetRoleId = null;
+        }
+        renderRoleSyncModal();
+    };
+    document.getElementById('rsmTargetGuild').onchange = (e) => {
+        roleSyncDraft.targetGuildId = e.target.value || null;
+        roleSyncDraft.targetRoleId = null;
+        renderRoleSyncModal();
+    };
+    document.getElementById('rsmSourceRole').onchange = (e) => {
+        roleSyncDraft.sourceRoleId = e.target.value || null;
+        renderRoleSyncModal();
+    };
+    document.getElementById('rsmTargetRole').onchange = (e) => {
+        roleSyncDraft.targetRoleId = e.target.value || null;
+        renderRoleSyncModal();
+    };
+    document.getElementById('rsmSwap').onclick = () => {
+        const d = roleSyncDraft;
+        const targetRoleOk = d.sourceRoleId && (roleSyncRoles[d.sourceGuildId] || []).some(r => r.id === d.sourceRoleId && !r.managed);
+        roleSyncDraft = {
+            sourceGuildId: d.targetGuildId,
+            sourceRoleId: d.targetRoleId,
+            targetGuildId: d.sourceGuildId,
+            targetRoleId: targetRoleOk ? d.sourceRoleId : null,
+            saving: false
+        };
+        renderRoleSyncModal();
+    };
+    document.getElementById('rsmCancel').onclick = closeRoleSyncModal;
+    document.getElementById('rsmSave').onclick = createRoleSyncRule;
+    modal.onclick = (e) => {
+        if (e.target.id === 'roleSyncModal') closeRoleSyncModal();
+    };
+
+    renderRoleSyncModal();
+    modal.classList.remove('hidden');
+}
+
 async function createRoleSyncRule() {
-    setRoleSyncStatus('saving');
+    const d = roleSyncDraft;
+    if (!d || !(d.sourceGuildId && d.targetGuildId && d.sourceRoleId && d.targetRoleId)) return;
+    const error = document.getElementById('rsmError');
+    d.saving = true;
+    renderRoleSyncModal();
     try {
         const res = await fetch('/api/role-sync', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sourceGuildId: currentGuild })
+            body: JSON.stringify({
+                sourceGuildId: d.sourceGuildId,
+                sourceRoleId: d.sourceRoleId,
+                targetGuildId: d.targetGuildId,
+                targetRoleId: d.targetRoleId
+            })
         });
         const body = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(body.error || 'Could not create the rule');
         roleSyncData.rules.push(body);
+        closeRoleSyncModal();
         renderRoleSync();
         setRoleSyncStatus('saved');
     } catch (e) {
-        setRoleSyncStatus('error', e.message);
+        if (roleSyncDraft) {
+            roleSyncDraft.saving = false;
+            renderRoleSyncModal();
+        }
+        error.textContent = e.message;
+        error.classList.remove('hidden');
     }
 }
 
@@ -2405,7 +2532,7 @@ async function loadRoleSync() {
     setRoleSyncStatus('');
 
     const newBtn = document.getElementById('roleSyncNewBtn');
-    if (newBtn) newBtn.onclick = createRoleSyncRule;
+    if (newBtn) newBtn.onclick = openRoleSyncModal;
 
     try {
         const res = await fetch('/api/role-sync');
