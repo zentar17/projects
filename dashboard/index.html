@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="/dashboard/favicon.png">
 <link rel="shortcut icon" type="image/png" href="/dashboard/favicon.png">
 <link rel="apple-touch-icon" href="/dashboard/favicon.png">
-<link rel="stylesheet" href="/dashboard/style.css?v=20261007k">
+<link rel="stylesheet" href="/dashboard/style.css?v=20261007n">
 </head>
 <body>
 
@@ -78,6 +78,10 @@
         <button type="button" class="server-select-card" data-server="predcord">
             <img src="/images/predcord-pfp.webp" alt="PredCord">
             <span class="server-select-name">PredCord</span>
+        </button>
+        <button type="button" class="server-select-card" data-server="masterclassServer">
+            <img src="/images/dragon-logo.png" alt="Masterclass">
+            <span class="server-select-name">Masterclass</span>
         </button>
         <button type="button" class="server-select-card hidden" data-server="masterclass" id="masterclassSelectCard">
             <img src="/images/dragon-logo.png" alt="Masterclass Control">
@@ -715,8 +719,10 @@
         <div id="tab-blacklist" class="tab-content hidden">
             <div class="panel-header">
                 <h2>Blacklist</h2>
+                <button type="button" id="blacklistSyncBtn" class="btn-primary hidden">Sync Blacklist</button>
             </div>
 
+            <p id="blacklistSyncInfo" class="blacklist-sync-info hidden"></p>
             <p id="blacklistCount" class="bans-count"></p>
 
             <div class="logs-container">
@@ -1024,7 +1030,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="/dashboard/app.js?v=20261007k"></script>
+<script src="/dashboard/app.js?v=20261007n"></script>
 
 </body>
 </html>
