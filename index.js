@@ -293,6 +293,31 @@ function checkCustomCommandPermission(cmdData, member) {
     return true;
 }
 
+const MAX_TIMEOUT_MINUTES = 28 * 24 * 60;
+
+function parseMuteDuration(token) {
+    const match = /^(\d+)\s*(m|min|h|d|w)?$/i.exec(String(token || '').trim());
+    if (!match) return null;
+    const value = parseInt(match[1], 10);
+    const unit = (match[2] || 'm').toLowerCase();
+    const factor = unit === 'h' ? 60 : unit === 'd' ? 1440 : unit === 'w' ? 10080 : 1;
+    const minutes = value * factor;
+    if (!value || minutes < 1 || minutes > MAX_TIMEOUT_MINUTES) return { invalid: true };
+    const names = { m: 'minute', min: 'minute', h: 'hour', d: 'day', w: 'week' };
+    const name = names[unit];
+    return { minutes, ms: minutes * 60 * 1000, text: `${value} ${name}${value === 1 ? '' : 's'}` };
+}
+
+function extractMuteDuration(args) {
+    if (args.length > 1) {
+        const last = parseMuteDuration(args[args.length - 1]);
+        if (last) return { duration: last, rest: args.slice(1, -1) };
+        const second = parseMuteDuration(args[1]);
+        if (second) return { duration: second, rest: args.slice(2) };
+    }
+    return { duration: null, rest: args.slice(1) };
+}
+
 async function isModerationDmEnabled(guildId) {
     if (!guildId) return true;
     const config = await getGuildConfig(guildId);
@@ -338,7 +363,7 @@ async function sendActionDM(user, action, reason, moderator, duration = null) {
                 new ButtonBuilder()
                     .setLabel('Appeal your ban')
                     .setStyle(ButtonStyle.Link)
-                    .setURL('https://dyno.gg/account')
+                    .setURL('https://projects-1od2.onrender.com/community#ban-appeal')
             );
             payload.components = [row];
         }
@@ -2087,20 +2112,21 @@ async function handleNativeCommand(message, command, args) {
         const user = result.user;
         const member = result.member;
         if (await projectedRoleBlock(message, member)) return;
-        const duration = parseInt(args[1]);
-        if (isNaN(duration)) {
-            const embed = new EmbedBuilder().setDescription('You need to specify the duration in minutes.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+        const parsed = extractMuteDuration(args);
+        if (!parsed.duration) {
+            const embed = new EmbedBuilder().setDescription('Usage: `*mute @user reason duration`\n`10` = 10 minutes, `10h` = 10 hours, `10d` = 10 days.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
             await message.channel.send({ embeds: [embed] });
             await message.delete().catch(() => {});
             return;
         }
-        if (duration < 1 || duration > 40320) {
-            const embed = new EmbedBuilder().setDescription('Duration must be between 1 and 40320 minutes.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+        if (parsed.duration.invalid) {
+            const embed = new EmbedBuilder().setDescription('The duration must be between 1 minute and 28 days.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
             await message.channel.send({ embeds: [embed] });
             await message.delete().catch(() => {});
             return;
         }
-        const reason = args.slice(2).join(' ') || 'No reason provided';
+        const duration = parsed.duration;
+        const reason = parsed.rest.join(' ') || 'No reason provided';
         if (!member || !member.moderatable) {
             const embed = new EmbedBuilder().setDescription('I cannot mute this user.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
             await message.channel.send({ embeds: [embed] });
@@ -2108,14 +2134,14 @@ async function handleNativeCommand(message, command, args) {
             return;
         }
         try {
-            await member.timeout(duration * 60 * 1000, reason);
-            const durationText = `${duration} minute${duration !== 1 ? 's' : ''}`;
+            await member.timeout(duration.ms, reason);
+            const durationText = duration.text;
             await sendActionDM(user, 'muted', reason, { tag: message.author.tag, guild: message.guild }, durationText);
             const embed = new EmbedBuilder()
-                .setDescription(`**${user.username}** (${user.id}) has been muted for the reason **${reason}**`)
+                .setDescription(`**${user.username}** (${user.id}) has been muted for **${durationText}** for the reason **${reason}**`)
                 .setColor(BLACK);
             await message.channel.send({ embeds: [embed] });
-            await saveModLog(message.guild, 'User muted', user, message.author, reason, `${duration} minutes`);
+            await saveModLog(message.guild, 'User muted', user, message.author, reason, durationText);
 
             await db.saveDashboardLogDB(message.guild.id, {
                 type: 'moderation',
@@ -2127,7 +2153,7 @@ async function handleNativeCommand(message, command, args) {
                 moderatorId: message.author.id,
                 moderatorTag: message.author.tag,
                 reason: reason,
-                details: `${duration} minutes`,
+                details: durationText,
                 channelId: message.channel.id
             });
         } catch (error) {
@@ -2678,9 +2704,25 @@ async function handleCustomCommand(message, command, args, cmdData) {
         if (isNaN(durationDays) || durationDays < 1) durationDays = 28;
         if (durationDays > 28) durationDays = 28;
 
-        const durationMs = durationDays * 24 * 60 * 60 * 1000;
+        let durationMs = durationDays * 24 * 60 * 60 * 1000;
+        let durationText = `${durationDays} day${durationDays === 1 ? '' : 's'}`;
+        let reasonArgs = args.slice(1);
+        if (args.length > 1) {
+            const lastDuration = parseMuteDuration(args[args.length - 1]);
+            if (lastDuration && lastDuration.invalid) {
+                const embed = new EmbedBuilder().setDescription('The duration must be between 1 minute and 28 days.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+                await message.channel.send({ embeds: [embed] });
+                await message.delete().catch(() => {});
+                return;
+            }
+            if (lastDuration) {
+                durationMs = lastDuration.ms;
+                durationText = lastDuration.text;
+                reasonArgs = args.slice(1, -1);
+            }
+        }
 
-        let reason = args.slice(1).join(' ');
+        let reason = reasonArgs.join(' ');
         if (!reason) {
             reason = (cmdData.response || 'No reason provided')
                 .replace(/{user}/g, user.toString())
@@ -2703,10 +2745,9 @@ async function handleCustomCommand(message, command, args, cmdData) {
         }
         try {
             await member.timeout(durationMs, reason);
-            const durationText = `${durationDays} day${durationDays === 1 ? '' : 's'}`;
             await sendActionDM(user, 'muted', reason, { tag: message.author.tag, guild: message.guild }, durationText);
             const embed = new EmbedBuilder()
-                .setDescription(`**${user.username}** (${user.id}) has been muted for the reason **${reason}**`)
+                .setDescription(`**${user.username}** (${user.id}) has been muted for **${durationText}** for the reason **${reason}**`)
                 .setColor(BLACK);
             await message.channel.send({ embeds: [embed] });
             await saveModLog(message.guild, 'User muted', user, message.author, reason, durationText);
