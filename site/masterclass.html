@@ -1134,6 +1134,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             <span class="nav-dot">•</span>
             <a href="/videos" data-i18n="nav_videos">Videos</a>
         </span>
+        <script>try{if(localStorage.getItem('pdCanViewVideos')==='1')document.getElementById('navVideosGroup').classList.add('visible');}catch(e){}</script>
         <span class="nav-dot">•</span>
         <a href="/community" data-i18n="nav_community">Community</a>
         <span class="nav-dot">•</span>
@@ -1647,12 +1648,14 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         loggedIn = !!data.loggedIn;
         canAccessDashboard = !!data.canAccessDashboard;
         if (navVideosGroup) navVideosGroup.classList.toggle('visible', !!data.canViewVideos);
+        try { localStorage.setItem('pdCanViewVideos', data.canViewVideos ? '1' : '0'); } catch (e) {}
         if (loggedIn && data.avatar) userAvatar.src = data.avatar;
         updateAuthBtn();
     }).catch(function() {});
 
     authBtn.addEventListener('click', function() {
         if (loggedIn) {
+            try { localStorage.removeItem('pdCanViewVideos'); } catch (e) {}
             fetch('/api/site/logout', { method: 'POST' }).then(function() {
                 window.location.reload();
             });
