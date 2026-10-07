@@ -2052,7 +2052,6 @@ app.delete('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res)
 
 const DROPMAP_IMAGE_MAX_BYTES = 8 * 1024 * 1024;
 const DROPMAP_NAME_MAX = 90;
-const DROPMAP_TYPE_KEYS = ['poi', 'split'];
 
 const dropmapWriteLimiter = rateLimit({
     windowMs: 60 * 1000,
@@ -2099,36 +2098,23 @@ function dropmapImageSrc(ref) {
     return `/api/dropmaps/image?ref=${encodeURIComponent(ref)}`;
 }
 
-function serializeDropmapCode(code) {
-    return code ? { type: code.type, number: code.number } : null;
-}
-
 async function buildDropmapPayload() {
     const { db } = global.PredCord;
-    const [docs, codes] = await Promise.all([
-        db.getDropmapImagesDB(COMMUNITY_GUILD_ID),
-        db.listDropmapCodesDB(COMMUNITY_GUILD_ID)
-    ]);
-    const codeMap = new Map();
-    codes.forEach(c => codeMap.set(`${c.areaName}\u0000${c.subAreaName || ''}`, c));
     const sortNames = (a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+    const docs = (await db.getDropmapImagesDB(COMMUNITY_GUILD_ID)).sort((a, b) => sortNames(a.areaName, b.areaName));
     const item = (doc) => ({
         name: doc.areaName,
         image: doc.imageUrl || null,
         src: dropmapImageSrc(doc.imageUrl),
-        code: serializeDropmapCode(codeMap.get(`${doc.areaName}\u0000`)),
         subAreas: doc.isMiniarea ? [] : Object.keys(doc.subAreas || {}).sort(sortNames).map(sub => ({
             name: sub,
             image: doc.subAreas[sub] || null,
-            src: dropmapImageSrc(doc.subAreas[sub]),
-            code: serializeDropmapCode(codeMap.get(`${doc.areaName}\u0000${sub}`))
+            src: dropmapImageSrc(doc.subAreas[sub])
         }))
     });
-    docs.sort((a, b) => sortNames(a.areaName, b.areaName));
     return {
         areas: docs.filter(d => !d.isMiniarea).map(item),
-        miniAreas: docs.filter(d => d.isMiniarea).map(item),
-        types: DROPMAP_TYPE_KEYS
+        miniAreas: docs.filter(d => d.isMiniarea).map(item)
     };
 }
 
@@ -2242,7 +2228,6 @@ app.delete('/api/dropmaps/areas/:name', requireAuth, requireDropmaps, dropmapWri
         const area = await db.getDropmapImageDB(COMMUNITY_GUILD_ID, req.params.name);
         if (!area) return res.status(404).json({ error: 'Not found' });
         await db.deleteDropmapImageDB(COMMUNITY_GUILD_ID, area.areaName);
-        await db.deleteDropmapCodesDB(COMMUNITY_GUILD_ID, area.areaName);
         const refs = [area.imageUrl, ...Object.values(area.subAreas || {})];
         for (const ref of refs) await removeDropmapUploadIfUnused(ref);
         res.json(await buildDropmapPayload());
@@ -2294,7 +2279,6 @@ app.patch('/api/dropmaps/areas/:name/subareas/:sub', requireAuth, requireDropmap
             else subAreas[k] = v;
         }
         await db.setDropmapSubAreasDB(COMMUNITY_GUILD_ID, area.areaName, subAreas);
-        if (newSub !== oldSub) await db.renameDropmapSubAreaCodeDB(COMMUNITY_GUILD_ID, area.areaName, oldSub, newSub);
         if (image !== oldImage) await removeDropmapUploadIfUnused(oldImage);
         res.json(await buildDropmapPayload());
     } catch (e) {
@@ -2312,38 +2296,9 @@ app.delete('/api/dropmaps/areas/:name/subareas/:sub', requireAuth, requireDropma
         const subAreas = { ...area.subAreas };
         delete subAreas[sub];
         await db.setDropmapSubAreasDB(COMMUNITY_GUILD_ID, area.areaName, subAreas);
-        await db.deleteDropmapCodesDB(COMMUNITY_GUILD_ID, area.areaName, sub);
         await removeDropmapUploadIfUnused(oldImage);
         res.json(await buildDropmapPayload());
     } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
-app.put('/api/dropmaps/code', requireAuth, requireDropmaps, dropmapWriteLimiter, async (req, res) => {
-    try {
-        const { db } = global.PredCord;
-        const areaName = String(req.body.areaName || '');
-        const subAreaName = req.body.subAreaName ? String(req.body.subAreaName) : null;
-        const area = await db.getDropmapImageDB(COMMUNITY_GUILD_ID, areaName);
-        if (!area) return res.status(404).json({ error: 'Not found' });
-        if (subAreaName && !(area.subAreas || {})[subAreaName]) return res.status(404).json({ error: 'Not found' });
-        const type = req.body.type ? String(req.body.type) : null;
-        if (type && !DROPMAP_TYPE_KEYS.includes(type)) return res.status(400).json({ error: 'Invalid type' });
-        let number = null;
-        if (type) {
-            number = parseInt(req.body.number, 10);
-            if (!Number.isInteger(number) || number < 1 || number > 9999) return res.status(400).json({ error: 'Invalid number' });
-            const taken = await db.getDropmapCodeDB(COMMUNITY_GUILD_ID, type, number);
-            if (taken && !(taken.areaName === areaName && (taken.subAreaName || null) === subAreaName)) {
-                const owner = taken.subAreaName ? `${taken.areaName} - ${taken.subAreaName}` : taken.areaName;
-                return res.status(409).json({ error: `${type === 'poi' ? 'POI' : 'Split'} #${number} is already used by "${owner}"` });
-            }
-        }
-        await db.setDropmapCodeDB(COMMUNITY_GUILD_ID, areaName, subAreaName, type, number);
-        res.json(await buildDropmapPayload());
-    } catch (e) {
-        if (e && e.code === 11000) return res.status(409).json({ error: 'This number is already used' });
         res.status(500).json({ error: e.message });
     }
 });
