@@ -1568,15 +1568,32 @@ aside h3 {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.015) 100%);
     border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 16px;
-    padding: 24px 22px 18px;
+    padding: 22px 22px 16px;
     margin: 20px 0;
-    height: 340px;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    overflow: hidden;
 }
 
-.chart-container canvas {
-    width: 100% !important;
-    height: 100% !important;
+.chart-header {
+    flex-shrink: 0;
+    margin-bottom: 6px;
+}
+
+.chart-header h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+}
+
+.chart-canvas-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
 }
 
 .modlog-details-inner {
