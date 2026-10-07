@@ -439,54 +439,61 @@ body {
 
 .attach-preview {
     display: flex;
-    align-items: center;
+    flex-wrap: wrap;
     gap: 12px;
-    margin: 0 18px;
-    padding: 10px 12px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.03);
+    align-self: flex-start;
+    margin: 6px 18px 14px;
+    flex-shrink: 0;
+}
+
+.attach-item {
+    position: relative;
+    padding: 5px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
-    flex-shrink: 0;
+    line-height: 0;
 }
 
-.attach-preview img {
-    width: 52px;
-    height: 52px;
-    border-radius: 8px;
+.attach-item img {
+    width: 76px;
+    height: 76px;
+    border-radius: 10px;
     object-fit: cover;
-    flex-shrink: 0;
-}
-
-.attach-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.attach-name {
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.attach-size {
-    font-size: 11.5px;
-    color: var(--text-dim);
-    margin-top: 2px;
+    display: block;
 }
 
 .attach-remove {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    background: rgba(239, 68, 68, 0.08);
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid rgba(239, 68, 68, 0.6);
+    background: #2a1416;
     color: #f87171;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    flex-shrink: 0;
+    opacity: 0;
+    transform: scale(0.8);
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.attach-item:hover .attach-remove,
+.attach-item:focus-within .attach-remove {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+@media (hover: none) {
+    .attach-remove { opacity: 1; transform: scale(1); pointer-events: auto; }
 }
 
 .ticket-card.drag-over .chat-body {
@@ -496,13 +503,28 @@ body {
 }
 
 .bubble.has-image { padding: 6px; }
+
+.bubble-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-width: 318px;
+}
+
+.bubble-images .bubble-image {
+    width: 102px;
+    height: 102px;
+    max-width: none;
+    max-height: none;
+    object-fit: cover;
+}
 .bubble.has-image .bubble-text { padding: 6px 9px 4px; }
 
 .bubble-image {
     display: block;
-    max-width: 100%;
+    max-width: min(100%, 240px);
     width: auto;
-    max-height: 320px;
+    max-height: 170px;
     border-radius: 11px;
     cursor: zoom-in;
     background: rgba(255, 255, 255, 0.03);
@@ -806,20 +828,13 @@ body {
 
             <div class="chat-banner hidden" id="chatBanner"></div>
 
-            <div class="attach-preview hidden" id="attachPreview">
-                <img id="attachThumb" alt="">
-                <div class="attach-info">
-                    <div class="attach-name" id="attachName"></div>
-                    <div class="attach-size" id="attachSize"></div>
-                </div>
-                <button type="button" class="attach-remove" id="attachRemove" aria-label="Remove image">&times;</button>
-            </div>
+            <div class="attach-preview hidden" id="attachPreview"></div>
 
             <div class="composer hidden" id="composer">
                 <button type="button" class="btn-attach" id="attachBtn" aria-label="Attach image" title="Attach image">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.8"/><path d="M21 15l-5-5L5 21"/></svg>
                 </button>
-                <input type="file" id="attachInput" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden">
+                <input type="file" id="attachInput" accept="image/png,image/jpeg,image/webp,image/gif" multiple class="hidden">
                 <textarea id="messageInput" placeholder="Write a message…" maxlength="2000" rows="1"></textarea>
                 <button type="button" class="btn-send" id="sendBtn" aria-label="Send">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
@@ -922,14 +937,10 @@ body {
     var attachBtn = document.getElementById('attachBtn');
     var attachInput = document.getElementById('attachInput');
     var attachPreview = document.getElementById('attachPreview');
-    var attachThumb = document.getElementById('attachThumb');
-    var attachName = document.getElementById('attachName');
-    var attachSize = document.getElementById('attachSize');
-    var attachRemove = document.getElementById('attachRemove');
     var lightbox = document.getElementById('lightbox');
     var lightboxImg = document.getElementById('lightboxImg');
-    var attachedFile = null;
-    var attachedUrl = null;
+    var attachments = [];
+    var MAX_IMAGES = 5;
     var IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
     var IMAGE_MAX = 8 * 1024 * 1024;
 
@@ -1076,8 +1087,11 @@ body {
 
         statusBtn.className = 'side-btn ' + (isOpen ? 'close' : 'reopen');
         statusBtn.textContent = isOpen ? 'Close Ticket' : 'Reopen Ticket';
+        var canReopen = !ticket.claimedById || mine;
+        if (!isOpen && !canReopen) statusBtn.classList.add('hidden');
 
-        if (!isOpen) staffNote.textContent = 'Closed tickets are deleted 24 hours after closing. The transcript and logs are kept.';
+        if (!isOpen && !canReopen) staffNote.textContent = 'Only ' + (ticket.claimedByName || 'the staff member who claimed it') + ' can reopen this ticket. It will be deleted 24 hours after closing, the transcript and logs are kept.';
+        else if (!isOpen) staffNote.textContent = 'Closed tickets are deleted 24 hours after closing. The transcript and logs are kept.';
         else if (!ticket.claimedById) staffNote.textContent = 'Claim the ticket to let the user know you are handling it. Once claimed, only you can reply.';
         else if (mine) staffNote.textContent = 'You claimed this ticket, you are handling it.';
         else staffNote.textContent = 'This ticket was claimed by ' + (ticket.claimedByName || 'another staff member') + '.';
@@ -1123,16 +1137,25 @@ body {
         el.innerHTML = '<img class="msg-avatar" src="' + escapeHtml(avatar) + '" alt="" onerror="this.src=\'https://cdn.discordapp.com/embed/avatars/0.png\'">' +
             '<div class="msg-content"><div class="msg-head">' + head + '</div><div class="bubble"></div></div>';
         var bubble = el.querySelector('.bubble');
-        if (m.imageId) {
+        var imageIds = (m.imageIds && m.imageIds.length) ? m.imageIds : (m.imageId ? [m.imageId] : []);
+        if (imageIds.length) {
             bubble.classList.add('has-image');
-            var img = document.createElement('img');
-            img.className = 'bubble-image';
-            img.alt = '';
-            img.loading = 'lazy';
-            img.src = '/api/site/mc-tickets/' + ticketNumber + '/images/' + encodeURIComponent(m.imageId);
-            img.addEventListener('load', function() { if (isNearBottom()) scrollToBottom(); });
-            img.addEventListener('click', function() { openLightbox(img.src); });
-            bubble.appendChild(img);
+            var holder = bubble;
+            if (imageIds.length > 1) {
+                holder = document.createElement('div');
+                holder.className = 'bubble-images';
+                bubble.appendChild(holder);
+            }
+            imageIds.forEach(function(id) {
+                var img = document.createElement('img');
+                img.className = 'bubble-image';
+                img.alt = '';
+                img.loading = 'lazy';
+                img.src = '/api/site/mc-tickets/' + ticketNumber + '/images/' + encodeURIComponent(id);
+                img.addEventListener('load', function() { if (isNearBottom()) scrollToBottom(); });
+                img.addEventListener('click', function() { openLightbox(img.src); });
+                holder.appendChild(img);
+            });
             if (m.content) {
                 var text = document.createElement('div');
                 text.className = 'bubble-text';
@@ -1215,43 +1238,64 @@ body {
         claimed_by_other: 'This ticket is claimed by another staff member.',
         forbidden: 'You are not allowed to do this.',
         conflict: 'Someone else changed this ticket, please retry.',
+        only_claimer_reopen: 'Only the staff member who claimed this ticket can reopen it.',
         image_too_large: 'Image is too large (max 8 MB).',
         invalid_image: 'Only PNG, JPG, WEBP or GIF images are allowed.',
-        upload_failed: 'Could not upload the image.'
+        upload_failed: 'Could not upload the image.',
+        too_many_images: 'You can attach up to 5 images per message.'
     };
 
-    function formatSize(bytes) {
-        if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + ' KB';
-        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    function renderAttachments() {
+        var stick = isNearBottom();
+        attachPreview.innerHTML = '';
+        attachments.forEach(function(att, index) {
+            var item = document.createElement('div');
+            item.className = 'attach-item';
+            var img = document.createElement('img');
+            img.alt = '';
+            img.src = att.url;
+            var remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'attach-remove';
+            remove.setAttribute('aria-label', 'Remove image');
+            remove.innerHTML = '&times;';
+            remove.addEventListener('click', function() { removeAttachment(index); });
+            item.appendChild(img);
+            item.appendChild(remove);
+            attachPreview.appendChild(item);
+        });
+        attachPreview.classList.toggle('hidden', attachments.length === 0);
+        if (stick) scrollToBottom();
+    }
+
+    function removeAttachment(index) {
+        var att = attachments[index];
+        if (att) URL.revokeObjectURL(att.url);
+        attachments.splice(index, 1);
+        renderAttachments();
     }
 
     function clearAttachment() {
-        attachedFile = null;
-        if (attachedUrl) URL.revokeObjectURL(attachedUrl);
-        attachedUrl = null;
+        attachments.forEach(function(att) { URL.revokeObjectURL(att.url); });
+        attachments = [];
         attachInput.value = '';
-        attachPreview.classList.add('hidden');
+        renderAttachments();
     }
 
-    function setAttachment(file) {
-        if (!file) return;
+    function addAttachments(files) {
         composerError.textContent = '';
-        if (IMAGE_TYPES.indexOf(file.type) === -1) {
-            composerError.textContent = ERRORS.invalid_image;
-            return;
+        var list = Array.prototype.slice.call(files || []);
+        for (var i = 0; i < list.length; i++) {
+            var file = list[i];
+            if (!file) continue;
+            if (IMAGE_TYPES.indexOf(file.type) === -1) { composerError.textContent = ERRORS.invalid_image; continue; }
+            if (file.size > IMAGE_MAX) { composerError.textContent = ERRORS.image_too_large; continue; }
+            if (attachments.length >= MAX_IMAGES) { composerError.textContent = ERRORS.too_many_images; break; }
+            attachments.push({ file: file, url: URL.createObjectURL(file) });
         }
-        if (file.size > IMAGE_MAX) {
-            composerError.textContent = ERRORS.image_too_large;
-            return;
-        }
-        if (attachedUrl) URL.revokeObjectURL(attachedUrl);
-        attachedFile = file;
-        attachedUrl = URL.createObjectURL(file);
-        attachThumb.src = attachedUrl;
-        attachName.textContent = file.name || 'image';
-        attachSize.textContent = formatSize(file.size);
-        attachPreview.classList.remove('hidden');
-        messageInput.focus();
+        attachInput.value = '';
+        renderAttachments();
+        if (attachments.length) messageInput.focus();
     }
 
     function openLightbox(src) {
@@ -1261,15 +1305,15 @@ body {
 
     function sendMessage() {
         var content = messageInput.value.trim();
-        if ((!content && !attachedFile) || sending || !ticket || !viewer || !viewer.canWrite) return;
+        if ((!content && !attachments.length) || sending || !ticket || !viewer || !viewer.canWrite) return;
         sending = true;
         sendBtn.disabled = true;
         composerError.textContent = '';
         var options = { method: 'POST' };
-        if (attachedFile) {
+        if (attachments.length) {
             var form = new FormData();
             form.append('content', content);
-            form.append('image', attachedFile, attachedFile.name || 'image');
+            attachments.forEach(function(att) { form.append('images', att.file, att.file.name || 'image'); });
             options.body = form;
         } else {
             options.headers = { 'Content-Type': 'application/json' };
@@ -1329,19 +1373,18 @@ body {
     attachBtn.addEventListener('click', function() { attachInput.click(); });
 
     attachInput.addEventListener('change', function() {
-        if (attachInput.files && attachInput.files[0]) setAttachment(attachInput.files[0]);
+        if (attachInput.files && attachInput.files.length) addAttachments(attachInput.files);
     });
-
-    attachRemove.addEventListener('click', clearAttachment);
 
     messageInput.addEventListener('paste', function(e) {
         var items = (e.clipboardData && e.clipboardData.items) || [];
+        var files = [];
         for (var i = 0; i < items.length; i++) {
-            if (items[i].kind === 'file' && items[i].type.indexOf('image/') === 0) {
-                e.preventDefault();
-                setAttachment(items[i].getAsFile());
-                return;
-            }
+            if (items[i].kind === 'file' && items[i].type.indexOf('image/') === 0) files.push(items[i].getAsFile());
+        }
+        if (files.length) {
+            e.preventDefault();
+            addAttachments(files);
         }
     });
 
@@ -1366,8 +1409,7 @@ body {
         e.preventDefault();
         dragDepth = 0;
         ticketCard.classList.remove('drag-over');
-        var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-        if (file) setAttachment(file);
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) addAttachments(e.dataTransfer.files);
     });
 
     lightbox.addEventListener('click', function() {
