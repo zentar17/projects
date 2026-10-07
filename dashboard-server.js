@@ -2727,7 +2727,10 @@ app.get('/api/guildconfig/:guildId', requireAuth, async (req, res) => {
 
         const { db } = global.PredCord;
         const config = await db.getGuildConfigDB(req.params.guildId);
-        res.json(config);
+        res.json({
+            ...config,
+            moderationDmEnabled: typeof config.moderationDmEnabled === 'boolean' ? config.moderationDmEnabled : req.params.guildId === MAIN_GUILD_ID
+        });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -2767,6 +2770,7 @@ app.post('/api/guildconfig/:guildId', requireAuth, writeLimiter, async (req, res
         for (const key of arrayFields) {
             if (body[key] !== undefined) updates[key] = filterIds(body[key]);
         }
+        if (typeof body.moderationDmEnabled === 'boolean') updates.moderationDmEnabled = body.moderationDmEnabled;
 
         for (const [key, value] of Object.entries(updates)) {
             await db.saveGuildConfigDB(guildId, key, value);
