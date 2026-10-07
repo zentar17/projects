@@ -262,8 +262,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     position: relative;
     overflow: hidden;
     text-align: center;
-    padding: 190px 24px 90px;
-    min-height: 100vh;
+    padding: 150px 24px 30px;
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -653,48 +652,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     margin-top: 28px;
 }
 
-.view-plans-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(56, 189, 248, 0.08);
-    border: 1px solid transparent;
-    color: var(--accent);
-    font-family: inherit;
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: 0.4px;
-    padding: 15px 0;
-    border-radius: 14px;
-    cursor: pointer;
-    text-shadow: 0 0 5px rgba(56,189,248,0.95), 0 0 12px rgba(56,189,248,0.75), 0 0 24px rgba(56,189,248,0.5);
-    box-shadow: none;
-    opacity: 0;
-    max-width: 0;
-    margin-left: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    pointer-events: none;
-    transition: opacity 0.6s ease, max-width 0.6s ease, padding 0.6s ease, margin-left 0.6s ease, border-color 0.4s ease, box-shadow 0.4s ease;
-}
-
-.view-plans-btn.visible {
-    opacity: 1;
-    max-width: 260px;
-    padding: 15px 42px;
-    margin-left: 18px;
-    border-color: rgba(56,189,248,0.5);
-    box-shadow: 0 0 14px rgba(56,189,248,0.25), inset 0 0 14px rgba(56,189,248,0.08);
-    pointer-events: auto;
-}
-
-.view-plans-btn.visible:hover {
-    border-color: rgba(56,189,248,0.9);
-    box-shadow: 0 0 22px rgba(56,189,248,0.4), inset 0 0 18px rgba(56,189,248,0.14);
-}
-
 .mc-tiers-section {
-    padding: 70px 24px 110px;
+    padding: 10px 24px 110px;
 }
 
 .mc-tiers-grid {
@@ -731,6 +690,244 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 .mc-tier-card.in-view { opacity: 1; transform: translateY(0); }
 
 .mc-tier-card:hover { border-color: rgba(255,255,255,0.25); }
+.mc-tier-card[data-plan] { cursor: pointer; }
+
+.plan-modal-box {
+    max-width: 430px;
+    padding: 30px 28px 26px;
+    background: linear-gradient(180deg, #1a1a22 0%, #14141a 100%);
+    border-radius: 20px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 80px rgba(230, 126, 34, 0.12);
+}
+
+.plan-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(230, 126, 34, 0.12);
+    border: 1px solid rgba(230, 126, 34, 0.35);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.plan-modal-title {
+    font-size: 22px;
+    font-weight: 900;
+    margin: 14px 0 6px;
+}
+
+.plan-modal-sub {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    line-height: 1.55;
+    margin-bottom: 22px;
+}
+
+.plan-field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+
+.plan-input-wrap { position: relative; }
+
+.plan-input-wrap input {
+    width: 100%;
+    padding: 13px 44px 13px 15px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plan-input-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.1); }
+.plan-input-wrap.valid input { border-color: rgba(52, 211, 153, 0.6); box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.08); }
+.plan-input-wrap.invalid input { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08); }
+
+.plan-input-status {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    margin-top: -10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.plan-input-status svg { width: 12px; height: 12px; }
+.plan-input-wrap.valid .plan-input-status { display: flex; background: #34d399; }
+.plan-input-wrap.invalid .plan-input-status { display: flex; background: #ef4444; }
+
+.plan-input-wrap.checking .plan-input-status {
+    display: block;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-top-color: var(--primary);
+    animation: planSpin 0.7s linear infinite;
+}
+
+@keyframes planSpin { to { transform: rotate(360deg); } }
+
+.plan-field-hint {
+    min-height: 18px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 7px;
+    color: var(--text-dim);
+}
+
+.plan-field-hint.valid { color: #34d399; }
+.plan-field-hint.invalid { color: #f87171; }
+
+.plan-check-row {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin: 14px 0 22px;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.2s ease;
+}
+
+.plan-check-row:hover { border-color: rgba(255, 255, 255, 0.18); }
+.plan-check-row input { position: absolute; opacity: 0; pointer-events: none; }
+
+.plan-checkbox {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.plan-checkbox svg { width: 12px; height: 12px; opacity: 0; transition: opacity 0.15s ease; }
+.plan-check-row input:checked + .plan-checkbox { background: var(--primary); border-color: var(--primary); }
+.plan-check-row input:checked + .plan-checkbox svg { opacity: 1; }
+.plan-check-row input:focus-visible + .plan-checkbox { box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.35); }
+
+.plan-check-text {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.plan-check-text a {
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(230, 126, 34, 0.4);
+}
+
+.plan-check-text a:hover { border-bottom-color: var(--primary); }
+
+.plan-create-btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #E67E22, #c96a14);
+    color: #fff;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(230, 126, 34, 0.3);
+    transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.plan-create-btn:hover:not(:disabled) { transform: translateY(-1px); }
+.plan-create-btn:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
+
+.plan-form-error {
+    min-height: 16px;
+    margin-top: 10px;
+    text-align: center;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #f87171;
+}
+
+.plan-existing {
+    margin-top: 14px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.plan-existing.hidden { display: none; }
+
+.plan-existing-title {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+}
+
+.plan-existing a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    transition: border-color 0.2s ease;
+}
+
+.plan-existing a:hover { border-color: rgba(230, 126, 34, 0.5); }
+.plan-existing a span:last-child { color: var(--primary); font-size: 12px; }
+
+.plan-signin-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 13px;
+    background: #5865F2;
+    color: #fff;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.plan-signin-btn:hover { background: #4752c4; }
+
 
 .mc-tier-card.recommended {
     border-color: var(--accent);
@@ -884,7 +1081,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     .header-nav { gap: 24px; flex-wrap: wrap; justify-content: center; }
     .header-auth { justify-content: center; }
     .mc-title { font-size: 30px; }
-    .mc-hero { padding: 140px 20px 70px; min-height: 560px; }
+    .mc-hero { padding: 120px 20px 24px; }
     .mc-description { font-size: 14px; }
     .mc-highlight { font-size: 14px; }
     .footer-inner { flex-direction: column; gap: 32px; }
@@ -956,7 +1153,6 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         <p class="mc-highlight"><span id="mcDescHighlight"></span><span class="mc-cursor" id="mcCursorHighlight">|</span></p>
         <div class="mc-cta-row">
             <button class="results-btn" id="resultsMoreBtn" type="button" data-i18n="mc_results_btn">Results</button>
-            <button class="view-plans-btn" id="viewPlansBtn" type="button"><span data-i18n="mc_view_plans_btn">View Plans</span></button>
         </div>
     </div>
 </section>
@@ -1009,6 +1205,13 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     </div>
 </footer>
 
+<div class="modal-overlay" id="planModal">
+    <div class="modal-box plan-modal-box">
+        <button class="modal-close" id="planModalClose">&times;</button>
+        <div id="planModalContent"></div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="resultModal">
     <div class="modal-box modal-box-wide">
         <button class="modal-close" id="resultModalClose">&times;</button>
@@ -1041,9 +1244,23 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_description: 'Da qualche mese, Predage mette a disposizione la sua vasta esperienza come fortnite pro player per aiutare a migliorare tutti i fan che lo supportano ogni giorno. Predage compete nel mondo del Fortnite competitivo da diversi anni, raggiungendo sempre i massimi livelli e portando l\'Italia in alto.',
             mc_description_highlight: 'Se vuoi migliorare, affidati a Predage, uno dei migliori IGL italiani di sempre. Scegli il tuo piano.',
             mc_results_btn: 'Risultati',
-            mc_view_plans_btn: 'Vedi i Piani',
             mc_recommended_badge: 'Livello consigliato • {n} players hanno fatto lo stesso',
             mc_month: '/mese',
+            plan_title: 'Ottieni il tuo piano',
+            plan_sub: 'Inserisci la tua email e apri un ticket. Il nostro team ti risponderà lì per completare l\'acquisto.',
+            plan_email_label: 'Inserisci la tua email',
+            plan_checking: 'Controllo email…',
+            plan_valid: 'Email verificata',
+            plan_invalid_format: 'Questa email non è valida',
+            plan_no_mail: 'Questo dominio non può ricevere email',
+            plan_terms: 'Accetto i {tos} e la {privacy}',
+            plan_create: 'Crea Ticket',
+            plan_creating: 'Creazione…',
+            plan_signin_text: 'Accedi con Discord per aprire un ticket per questo piano.',
+            plan_signin_btn: 'Accedi con Discord',
+            plan_your_tickets: 'I tuoi ticket aperti',
+            plan_error: 'Qualcosa è andato storto, riprova.',
+            plan_open_label: 'Apri',
             tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personalizzato',
             custom_desc: 'Scegli e combina liberamente le cose che ti servono per creare un pacchetto su misura, pensato in base alle tue esigenze e alle tue preferenze. Puoi selezionare i servizi di Predage che desideri, costruisci la combinazione perfetta per te. Personalizza il tuo pacchetto come vuoi, scegli ciò che ti serve, aggiungi i tuoi preferiti e crea una soluzione unica, proprio come la vuoi tu.',
             f_all_videos: 'Tutti i video del nostro sito',
@@ -1064,9 +1281,23 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_description: 'For a few months now, Predage has been sharing his extensive experience as a Fortnite pro player to help improve every fan who supports him every day. Predage has competed in the world of competitive Fortnite for several years, always reaching the highest levels and flying Italy\'s flag high.',
             mc_description_highlight: 'If you want to improve, trust Predage, one of the best Italian IGLs of all time. Choose your plan.',
             mc_results_btn: 'Results',
-            mc_view_plans_btn: 'View Plans',
             mc_recommended_badge: 'Recommended Level • {n} players did the same',
             mc_month: '/month',
+            plan_title: 'Get your plan',
+            plan_sub: 'Enter your email and open a ticket. Our team will reply there to complete your purchase.',
+            plan_email_label: 'Enter Your Email',
+            plan_checking: 'Checking email…',
+            plan_valid: 'Email verified',
+            plan_invalid_format: 'This email is not valid',
+            plan_no_mail: 'This email domain can\'t receive emails',
+            plan_terms: 'Accept our {tos} & {privacy}',
+            plan_create: 'Create Ticket',
+            plan_creating: 'Creating…',
+            plan_signin_text: 'Sign in with Discord to open a ticket for this plan.',
+            plan_signin_btn: 'Sign in with Discord',
+            plan_your_tickets: 'Your open tickets',
+            plan_error: 'Something went wrong, please try again.',
+            plan_open_label: 'Open',
             tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Custom',
             custom_desc: 'Freely choose and combine what you need to build a package tailored to you, designed around your needs and preferences. Pick the Predage services you want and build the perfect combination for yourself. Customize your package however you like, add what you need, add your favorites, and create a unique solution, exactly the way you want it.',
             f_all_videos: 'All the videos on our site',
@@ -1087,9 +1318,23 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_description: 'Seit einigen Monaten stellt Predage seine umfangreiche Erfahrung als Fortnite-Pro-Spieler zur Verfügung, um allen Fans, die ihn jeden Tag unterstützen, beim Verbessern zu helfen. Predage tritt seit mehreren Jahren in der Welt des competitiven Fortnite an, erreicht dabei stets Höchstleistungen und trägt Italiens Namen ganz nach oben.',
             mc_description_highlight: 'Wenn du dich verbessern willst, vertraue auf Predage, einen der besten italienischen IGLs aller Zeiten. Wähle deinen Plan.',
             mc_results_btn: 'Ergebnisse',
-            mc_view_plans_btn: 'Pläne ansehen',
             mc_recommended_badge: 'Empfohlene Stufe • {n} players haben dasselbe getan',
             mc_month: '/Monat',
+            plan_title: 'Hol dir deinen Plan',
+            plan_sub: 'Gib deine E-Mail ein und öffne ein Ticket. Unser Team antwortet dir dort, um den Kauf abzuschließen.',
+            plan_email_label: 'Gib deine E-Mail ein',
+            plan_checking: 'E-Mail wird geprüft…',
+            plan_valid: 'E-Mail bestätigt',
+            plan_invalid_format: 'Diese E-Mail ist ungültig',
+            plan_no_mail: 'Diese Domain kann keine E-Mails empfangen',
+            plan_terms: 'Ich akzeptiere die {tos} & {privacy}',
+            plan_create: 'Ticket erstellen',
+            plan_creating: 'Wird erstellt…',
+            plan_signin_text: 'Melde dich mit Discord an, um ein Ticket für diesen Plan zu öffnen.',
+            plan_signin_btn: 'Mit Discord anmelden',
+            plan_your_tickets: 'Deine offenen Tickets',
+            plan_error: 'Etwas ist schiefgelaufen, bitte versuche es erneut.',
+            plan_open_label: 'Öffnen',
             tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Individuell',
             custom_desc: 'Wähle und kombiniere frei das, was du brauchst, um dir ein maßgeschneidertes Paket zu erstellen, abgestimmt auf deine Bedürfnisse und Vorlieben. Wähle die Predage-Leistungen aus, die du möchtest, und baue dir die perfekte Kombination. Personalisiere dein Paket genau wie du es willst, füge deine Favoriten hinzu und erschaffe eine einzigartige Lösung, ganz nach deinem Geschmack.',
             f_all_videos: 'Alle Videos auf unserer Seite',
@@ -1110,9 +1355,23 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_description: 'Desde hace algunos meses, Predage pone a disposición su amplia experiencia como jugador profesional de Fortnite para ayudar a mejorar a todos los fans que lo apoyan cada día. Predage compite en el mundo del Fortnite competitivo desde hace varios años, alcanzando siempre los niveles más altos y llevando a Italia a lo más alto.',
             mc_description_highlight: 'Si quieres mejorar, confía en Predage, uno de los mejores IGL italianos de todos los tiempos. Elige tu plan.',
             mc_results_btn: 'Resultados',
-            mc_view_plans_btn: 'Ver Planes',
             mc_recommended_badge: 'Nivel recomendado • {n} players hicieron lo mismo',
             mc_month: '/mes',
+            plan_title: 'Consigue tu plan',
+            plan_sub: 'Introduce tu email y abre un ticket. Nuestro equipo te responderá allí para completar la compra.',
+            plan_email_label: 'Introduce tu email',
+            plan_checking: 'Comprobando email…',
+            plan_valid: 'Email verificado',
+            plan_invalid_format: 'Este email no es válido',
+            plan_no_mail: 'Este dominio no puede recibir emails',
+            plan_terms: 'Acepto los {tos} y la {privacy}',
+            plan_create: 'Crear Ticket',
+            plan_creating: 'Creando…',
+            plan_signin_text: 'Inicia sesión con Discord para abrir un ticket para este plan.',
+            plan_signin_btn: 'Iniciar sesión con Discord',
+            plan_your_tickets: 'Tus tickets abiertos',
+            plan_error: 'Algo salió mal, inténtalo de nuevo.',
+            plan_open_label: 'Abrir',
             tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personalizado',
             custom_desc: 'Elige y combina libremente lo que necesites para crear un paquete a tu medida, pensado según tus necesidades y preferencias. Puedes seleccionar los servicios de Predage que quieras y construir la combinación perfecta para ti. Personaliza tu paquete como quieras, añade lo que necesites, suma tus favoritos y crea una solución única, tal como la quieres.',
             f_all_videos: 'Todos los vídeos de nuestro sitio',
@@ -1133,9 +1392,23 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_description: 'Depuis quelques mois, Predage met à disposition sa vaste expérience de joueur professionnel Fortnite pour aider à progresser tous les fans qui le soutiennent chaque jour. Predage évolue dans le monde du Fortnite compétitif depuis plusieurs années, atteignant toujours les plus hauts niveaux et portant l\'Italie au sommet.',
             mc_description_highlight: 'Si tu veux progresser, fais confiance à Predage, l\'un des meilleurs IGL italiens de tous les temps. Choisis ton plan.',
             mc_results_btn: 'Résultats',
-            mc_view_plans_btn: 'Voir les Plans',
             mc_recommended_badge: 'Niveau recommandé • {n} players ont fait de même',
             mc_month: '/mois',
+            plan_title: 'Obtiens ton plan',
+            plan_sub: 'Entre ton email et ouvre un ticket. Notre équipe te répondra là-bas pour finaliser ton achat.',
+            plan_email_label: 'Entre ton email',
+            plan_checking: 'Vérification de l\'email…',
+            plan_valid: 'Email vérifié',
+            plan_invalid_format: 'Cet email n\'est pas valide',
+            plan_no_mail: 'Ce domaine ne peut pas recevoir d\'emails',
+            plan_terms: 'J\'accepte les {tos} et la {privacy}',
+            plan_create: 'Créer un Ticket',
+            plan_creating: 'Création…',
+            plan_signin_text: 'Connecte-toi avec Discord pour ouvrir un ticket pour ce plan.',
+            plan_signin_btn: 'Se connecter avec Discord',
+            plan_your_tickets: 'Tes tickets ouverts',
+            plan_error: 'Une erreur est survenue, réessaie.',
+            plan_open_label: 'Ouvrir',
             tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personnalisé',
             custom_desc: 'Choisis et combine librement ce dont tu as besoin pour créer un pack sur mesure, pensé selon tes besoins et tes préférences. Sélectionne les services Predage que tu souhaites et construis la combinaison parfaite pour toi. Personnalise ton pack comme tu le souhaites, ajoute ce qu\'il te faut, ajoute tes favoris et crée une solution unique, exactement comme tu la veux.',
             f_all_videos: 'Toutes les vidéos de notre site',
@@ -1155,11 +1428,11 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     var DROPCALC_LINK = '<a href="https://www.droppingcalc.com/it" target="_blank" rel="noopener">DropCalc</a>';
 
     var TIERS = [
-        { nameKey: 'tier_name_1', price: '9.99', features: ['f_all_videos', 'f_dropmap_calc'] },
-        { nameKey: 'tier_name_2', price: '19.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural'], recommended: true },
-        { nameKey: 'tier_name_3', price: '49.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural', 'f_vod_review'] },
-        { nameKey: 'tier_name_4', price: '99.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_call_singular', 'f_vod_review', 'f_custom_session_new'] },
-        { nameKey: 'tier_name_custom', custom: true }
+        { key: 'starter', nameKey: 'tier_name_1', price: '9.99', features: ['f_all_videos', 'f_dropmap_calc'] },
+        { key: 'igl', nameKey: 'tier_name_2', price: '19.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural'], recommended: true },
+        { key: 'premium', nameKey: 'tier_name_3', price: '49.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural', 'f_vod_review'] },
+        { key: 'pro', nameKey: 'tier_name_4', price: '99.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_call_singular', 'f_vod_review', 'f_custom_session_new'] },
+        { key: 'custom', nameKey: 'tier_name_custom', custom: true }
     ];
 
     var recommendedCount = Math.floor(Math.random() * (30 - 16 + 1)) + 16;
@@ -1179,7 +1452,6 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     var mcDescHighlight = document.getElementById('mcDescHighlight');
     var mcCursorMain = document.getElementById('mcCursorMain');
     var mcCursorHighlight = document.getElementById('mcCursorHighlight');
-    var viewPlansBtn = document.getElementById('viewPlansBtn');
     var typeTimer = null;
 
     function typewriterStart(mainText, highlightText) {
@@ -1188,7 +1460,6 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         mcDescHighlight.textContent = '';
         mcCursorMain.style.display = 'inline-block';
         mcCursorHighlight.style.display = 'none';
-        viewPlansBtn.classList.remove('visible');
         var i = 0;
         typeTimer = setInterval(function() {
             if (i < mainText.length) {
@@ -1203,32 +1474,9 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             i++;
             if (i >= mainText.length + highlightText.length) {
                 clearInterval(typeTimer);
-                setTimeout(function() { viewPlansBtn.classList.add('visible'); }, 300);
             }
         }, 7);
     }
-
-    function smoothScrollTo(targetY, duration) {
-        var startY = window.scrollY;
-        var diff = targetY - startY;
-        var startTime = null;
-        function step(timestamp) {
-            if (startTime === null) startTime = timestamp;
-            var time = timestamp - startTime;
-            var percent = Math.min(time / duration, 1);
-            var eased = percent < 0.5 ? 2 * percent * percent : -1 + (4 - 2 * percent) * percent;
-            window.scrollTo(0, startY + diff * eased);
-            if (time < duration) requestAnimationFrame(step);
-        }
-        requestAnimationFrame(step);
-    }
-
-    viewPlansBtn.addEventListener('click', function() {
-        var target = document.querySelector('.mc-tiers-section');
-        if (!target) return;
-        var targetY = target.getBoundingClientRect().top + window.scrollY - headerEl.offsetHeight - 20;
-        smoothScrollTo(targetY, 1500);
-    });
 
     function renderLangUI() {
         langBtnFlag.innerHTML = FLAGS[currentLang];
@@ -1263,7 +1511,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     function renderTiers() {
         mcTiersGrid.innerHTML = TIERS.map(function(t) {
             if (t.custom) {
-                return '<div class="mc-tier-card custom">' +
+                return '<div class="mc-tier-card custom" data-plan="' + t.key + '">' +
                     '<div class="mc-tier-name">' + I18N[currentLang][t.nameKey] + '</div>' +
                     '<div class="mc-tier-body"><p>' + I18N[currentLang].custom_desc + '</p></div>' +
                 '</div>';
@@ -1273,7 +1521,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 return '<li><span class="mc-feat-dot">•</span><span class="mc-feat-text">' + text + '</span></li>';
             }).join('');
             var ribbonHtml = t.recommended ? '<div class="mc-tier-ribbon">' + I18N[currentLang].mc_recommended_badge.replace('{n}', recommendedCount) + '</div>' : '';
-            return '<div class="mc-tier-card' + (t.recommended ? ' recommended' : '') + '">' +
+            return '<div class="mc-tier-card' + (t.recommended ? ' recommended' : '') + '" data-plan="' + t.key + '">' +
                 ribbonHtml +
                 '<div class="mc-tier-name">' + I18N[currentLang][t.nameKey] + '</div>' +
                 '<div class="mc-tier-price">' + t.price + ' ' + I18N[currentLang].mc_month + '</div>' +
@@ -1510,7 +1758,210 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     }
 
     if (resultModalClose) resultModalClose.addEventListener('click', closeResultModal);
+    var planModal = document.getElementById('planModal');
+    var planModalContent = document.getElementById('planModalContent');
+    var planModalClose = document.getElementById('planModalClose');
+    var planState = { key: null, emailValid: false, checkTimer: null, checkSeq: 0 };
+    var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0f" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+    var CROSS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+    function planText(key) {
+        return I18N[currentLang]['plan_' + key] || I18N.en['plan_' + key] || '';
+    }
+
+    function planChipText(tier) {
+        var name = I18N[currentLang][tier.nameKey];
+        return tier.price ? name + ' · ' + tier.price + ' ' + I18N[currentLang].mc_month : name;
+    }
+
+    function closePlanModal() {
+        if (planModal) planModal.classList.remove('open');
+        clearTimeout(planState.checkTimer);
+        planState.checkSeq++;
+        planState.key = null;
+    }
+
+    function updateCreateBtn() {
+        var btn = document.getElementById('planCreateBtn');
+        var terms = document.getElementById('planTermsInput');
+        if (!btn || !terms) return;
+        btn.disabled = !(planState.emailValid && terms.checked);
+    }
+
+    function setEmailState(state, message) {
+        var wrap = document.getElementById('planEmailWrap');
+        var hint = document.getElementById('planEmailHint');
+        var status = document.getElementById('planEmailStatus');
+        if (!wrap || !hint || !status) return;
+        wrap.classList.remove('valid', 'invalid', 'checking');
+        hint.classList.remove('valid', 'invalid');
+        status.innerHTML = '';
+        if (state === 'valid') { wrap.classList.add('valid'); hint.classList.add('valid'); status.innerHTML = CHECK_SVG; }
+        if (state === 'invalid') { wrap.classList.add('invalid'); hint.classList.add('invalid'); status.innerHTML = CROSS_SVG; }
+        if (state === 'checking') wrap.classList.add('checking');
+        hint.textContent = message || '';
+        planState.emailValid = state === 'valid';
+        updateCreateBtn();
+    }
+
+    function runEmailCheck() {
+        var input = document.getElementById('planEmailInput');
+        if (!input) return;
+        var value = input.value.trim();
+        if (!value) { setEmailState('idle', ''); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) { setEmailState('invalid', planText('invalid_format')); return; }
+        var seq = ++planState.checkSeq;
+        setEmailState('checking', planText('checking'));
+        fetch('/api/site/mc-tickets/check-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: value })
+        }).then(function(res) { return res.json(); }).then(function(data) {
+            if (seq !== planState.checkSeq) return;
+            if (data.valid) setEmailState('valid', planText('valid'));
+            else setEmailState('invalid', data.reason === 'domain_no_mail' ? planText('no_mail') : planText('invalid_format'));
+        }).catch(function() {
+            if (seq !== planState.checkSeq) return;
+            setEmailState('invalid', planText('error'));
+        });
+    }
+
+    function renderPlanSignIn(tier) {
+        planModalContent.innerHTML =
+            '<span class="plan-chip">' + planChipText(tier) + '</span>' +
+            '<h3 class="plan-modal-title">' + planText('title') + '</h3>' +
+            '<p class="plan-modal-sub">' + planText('signin_text') + '</p>' +
+            '<button type="button" class="plan-signin-btn" id="planSignInBtn">' + planText('signin_btn') + '</button>';
+        document.getElementById('planSignInBtn').addEventListener('click', function() {
+            window.location.href = '/site-auth/discord?next=' + encodeURIComponent('/masterclass');
+        });
+    }
+
+    function renderPlanForm(tier) {
+        var termsHtml = planText('terms')
+            .replace('{tos}', '<a href="/terms" target="_blank" rel="noopener">' + I18N[currentLang].footer_terms + '</a>')
+            .replace('{privacy}', '<a href="/privacy" target="_blank" rel="noopener">' + I18N[currentLang].footer_privacy + '</a>');
+        planModalContent.innerHTML =
+            '<span class="plan-chip">' + planChipText(tier) + '</span>' +
+            '<h3 class="plan-modal-title">' + planText('title') + '</h3>' +
+            '<p class="plan-modal-sub">' + planText('sub') + '</p>' +
+            '<label class="plan-field-label" for="planEmailInput">' + planText('email_label') + '</label>' +
+            '<div class="plan-input-wrap" id="planEmailWrap">' +
+                '<input type="email" id="planEmailInput" placeholder="you@example.com" autocomplete="email" maxlength="254">' +
+                '<span class="plan-input-status" id="planEmailStatus"></span>' +
+            '</div>' +
+            '<p class="plan-field-hint" id="planEmailHint"></p>' +
+            '<label class="plan-check-row" id="planTermsRow">' +
+                '<input type="checkbox" id="planTermsInput">' +
+                '<span class="plan-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>' +
+                '<span class="plan-check-text">' + termsHtml + '</span>' +
+            '</label>' +
+            '<button type="button" class="plan-create-btn" id="planCreateBtn" disabled>' + planText('create') + '</button>' +
+            '<p class="plan-form-error" id="planFormError"></p>' +
+            '<div class="plan-existing hidden" id="planExisting"></div>';
+
+        var input = document.getElementById('planEmailInput');
+        var terms = document.getElementById('planTermsInput');
+        var createBtn = document.getElementById('planCreateBtn');
+
+        input.addEventListener('input', function() {
+            clearTimeout(planState.checkTimer);
+            planState.checkSeq++;
+            setEmailState('idle', '');
+            planState.checkTimer = setTimeout(runEmailCheck, 650);
+        });
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(planState.checkTimer);
+                if (!planState.emailValid) runEmailCheck();
+            }
+        });
+
+        terms.addEventListener('change', updateCreateBtn);
+
+        planModalContent.querySelectorAll('.plan-check-text a').forEach(function(a) {
+            a.addEventListener('click', function(e) { e.stopPropagation(); });
+        });
+
+        createBtn.addEventListener('click', function() {
+            if (createBtn.disabled) return;
+            var errorEl = document.getElementById('planFormError');
+            errorEl.textContent = '';
+            createBtn.disabled = true;
+            createBtn.textContent = planText('creating');
+            fetch('/api/site/mc-tickets/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: input.value.trim(), planKey: tier.key, acceptTerms: terms.checked })
+            }).then(function(res) {
+                return res.json().then(function(body) { return { ok: res.ok, status: res.status, body: body || {} }; });
+            }).then(function(r) {
+                if (r.ok && r.body.ticketNumber) {
+                    window.location.href = '/ticket/' + r.body.ticketNumber;
+                    return;
+                }
+                if (r.status === 401) {
+                    renderPlanSignIn(tier);
+                    return;
+                }
+                if (r.body.error === 'domain_no_mail' || r.body.error === 'invalid_format') {
+                    setEmailState('invalid', r.body.error === 'domain_no_mail' ? planText('no_mail') : planText('invalid_format'));
+                } else {
+                    errorEl.textContent = (r.status === 429 && r.body.error) ? r.body.error : planText('error');
+                }
+                createBtn.textContent = planText('create');
+                updateCreateBtn();
+            }).catch(function() {
+                errorEl.textContent = planText('error');
+                createBtn.textContent = planText('create');
+                updateCreateBtn();
+            });
+        });
+
+        fetch('/api/site/mc-tickets/mine').then(function(res) { return res.ok ? res.json() : null; }).then(function(data) {
+            var box = document.getElementById('planExisting');
+            if (!box || !data || !Array.isArray(data.tickets)) return;
+            var open = data.tickets.filter(function(t) { return t.status === 'open'; });
+            if (!open.length) return;
+            box.innerHTML = '<div class="plan-existing-title">' + planText('your_tickets') + '</div>' +
+                open.map(function(t) {
+                    return '<a href="/ticket/' + t.ticketNumber + '"><span>#' + String(t.ticketNumber).padStart(4, '0') + ' · ' + String(t.plan || '').replace(/</g, '&lt;') + '</span><span>' + planText('open_label') + ' →</span></a>';
+                }).join('');
+            box.classList.remove('hidden');
+        }).catch(function() {});
+
+        setTimeout(function() { input.focus(); }, 80);
+    }
+
+    function openPlanModal(planKey) {
+        var tier = TIERS.filter(function(t) { return t.key === planKey; })[0];
+        if (!tier || !planModal) return;
+        planState.key = planKey;
+        planState.emailValid = false;
+        if (loggedIn) renderPlanForm(tier);
+        else renderPlanSignIn(tier);
+        planModal.classList.add('open');
+    }
+
+    mcTiersGrid.addEventListener('click', function(e) {
+        if (e.target.closest('a')) return;
+        var card = e.target.closest('.mc-tier-card[data-plan]');
+        if (!card) return;
+        openPlanModal(card.getAttribute('data-plan'));
+    });
+
+    if (planModalClose) planModalClose.addEventListener('click', closePlanModal);
+
+    if (planModal) {
+        planModal.addEventListener('click', function(e) {
+            if (e.target === planModal) closePlanModal();
+        });
+    }
+
     document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && planModal && planModal.classList.contains('open')) closePlanModal();
         if (e.key === 'Escape' && resultModal && resultModal.classList.contains('open')) closeResultModal();
     });
 
