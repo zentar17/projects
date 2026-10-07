@@ -2634,6 +2634,26 @@ async function loadJoinLeaveStats() {
     }
 }
 
+function fillJoinLeaveSeries(series) {
+    if (!series || series.length === 0) return [];
+    const byDay = {};
+    series.forEach(s => { byDay[s.day] = s; });
+    const sorted = series.map(s => s.day).sort();
+    const start = new Date(sorted[0] + 'T00:00:00Z');
+    let end = new Date(sorted[sorted.length - 1] + 'T00:00:00Z');
+    if (statsPeriod !== 'ieri') {
+        const now = new Date();
+        const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        if (today > end) end = today;
+    }
+    const out = [];
+    for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+        const key = d.toISOString().slice(0, 10);
+        out.push(byDay[key] || { day: key, joins: 0, leaves: 0 });
+    }
+    return out;
+}
+
 let joinLeaveChartInstance = null;
 
 function renderJoinLeaveChart(series) {
@@ -2645,8 +2665,12 @@ function renderJoinLeaveChart(series) {
         joinLeaveChartInstance = null;
     }
 
+    const filled = fillJoinLeaveSeries(series);
+    const days = filled.map(s => s.day);
+    const longRange = filled.length > 7;
+
     const ctx = canvas.getContext('2d');
-    const chartHeight = canvas.parentElement ? canvas.parentElement.clientHeight : 320;
+    const chartHeight = canvas.parentElement ? canvas.parentElement.clientHeight : 300;
 
     const joinsGradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
     joinsGradient.addColorStop(0, 'rgba(52, 211, 153, 0.95)');
@@ -2657,13 +2681,20 @@ function renderJoinLeaveChart(series) {
     leavesGradient.addColorStop(1, 'rgba(239, 68, 68, 0.35)');
 
     const netAreaGradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
-    netAreaGradient.addColorStop(0, 'rgba(230, 126, 34, 0.35)');
+    netAreaGradient.addColorStop(0, 'rgba(230, 126, 34, 0.3)');
     netAreaGradient.addColorStop(1, 'rgba(230, 126, 34, 0)');
 
-    const labels = series.map(s => {
-        const d = new Date(s.day);
-        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    });
+    const series_ = filled;
+    const labels = days;
+
+    const tickLabel = (index) => {
+        const day = days[index];
+        if (!day) return '';
+        const d = new Date(day + 'T00:00:00Z');
+        if (!longRange) return d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
+        if (index === 0 || d.getUTCDate() === 1) return d.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
+        return '';
+    };
 
     joinLeaveChartInstance = new Chart(ctx, {
         type: 'bar',
@@ -2673,35 +2704,35 @@ function renderJoinLeaveChart(series) {
                 {
                     type: 'bar',
                     label: 'Joins',
-                    data: series.map(s => s.joins),
+                    data: series_.map(s => s.joins),
                     backgroundColor: joinsGradient,
                     hoverBackgroundColor: 'rgba(52, 211, 153, 1)',
                     borderRadius: { topLeft: 6, topRight: 6 },
                     borderSkipped: false,
-                    barPercentage: 0.7,
-                    categoryPercentage: 0.6,
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.7,
                     order: 2
                 },
                 {
                     type: 'bar',
                     label: 'Leaves',
-                    data: series.map(s => s.leaves),
+                    data: series_.map(s => s.leaves),
                     backgroundColor: leavesGradient,
                     hoverBackgroundColor: 'rgba(239, 68, 68, 1)',
                     borderRadius: { topLeft: 6, topRight: 6 },
                     borderSkipped: false,
-                    barPercentage: 0.7,
-                    categoryPercentage: 0.6,
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.7,
                     order: 2
                 },
                 {
                     type: 'line',
                     label: 'Net',
-                    data: series.map(s => s.joins - s.leaves),
+                    data: series_.map(s => s.joins - s.leaves),
                     borderColor: '#E67E22',
                     backgroundColor: netAreaGradient,
                     borderWidth: 2.5,
-                    pointRadius: 3,
+                    pointRadius: 0,
                     pointBackgroundColor: '#E67E22',
                     pointBorderColor: '#15151c',
                     pointBorderWidth: 1.5,
@@ -2719,7 +2750,14 @@ function renderJoinLeaveChart(series) {
             animation: { duration: 900, easing: 'easeOutQuart' },
             scales: {
                 x: {
-                    ticks: { color: '#9aa0ab', font: { family: "'Manrope', sans-serif", size: 11 } },
+                    ticks: {
+                        color: '#9aa0ab',
+                        autoSkip: false,
+                        maxRotation: 0,
+                        minRotation: 0,
+                        font: { family: "'Manrope', sans-serif", size: 11, weight: '600' },
+                        callback: (value, index) => tickLabel(index)
+                    },
                     grid: { display: false },
                     border: { color: 'rgba(255,255,255,0.08)' }
                 },
@@ -2754,7 +2792,14 @@ function renderJoinLeaveChart(series) {
                     displayColors: true,
                     usePointStyle: true,
                     titleFont: { family: "'Manrope', sans-serif", weight: '700' },
-                    bodyFont: { family: "'Manrope', sans-serif" }
+                    bodyFont: { family: "'Manrope', sans-serif" },
+                    callbacks: {
+                        title: (items) => {
+                            const day = items.length ? days[items[0].dataIndex] : null;
+                            if (!day) return '';
+                            return new Date(day + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+                        }
+                    }
                 }
             }
         }
