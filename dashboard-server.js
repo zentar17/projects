@@ -3289,6 +3289,10 @@ app.post('/api/blacklist-action', requireAuth, writeLimiter, async (req, res) =>
 
 const blacklistSyncJobs = new Map();
 
+function isDashboardGuildId(guildId) {
+    return [MAIN_GUILD_ID, COMMUNITY_GUILD_ID, MASTERCLASS_GUILD_ID].filter(Boolean).includes(guildId);
+}
+
 function blacklistSyncDelay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -3399,7 +3403,7 @@ async function buildBlacklistSyncStatus(guildId) {
 app.get('/api/blacklist/sync-status', requireAuth, async (req, res) => {
     try {
         const guildId = req.query.guildId;
-        if (!guildId || guildId !== MASTERCLASS_GUILD_ID) return res.status(404).json({ error: 'Not available for this server' });
+        if (!guildId || !isDashboardGuildId(guildId)) return res.status(404).json({ error: 'Not available for this server' });
         if (!isOwner(req, guildId)) return res.status(403).json({ error: 'Access Denied' });
         res.json(await buildBlacklistSyncStatus(guildId));
     } catch (e) {
@@ -3410,7 +3414,7 @@ app.get('/api/blacklist/sync-status', requireAuth, async (req, res) => {
 app.post('/api/blacklist/sync', requireAuth, writeLimiter, async (req, res) => {
     try {
         const guildId = req.body && req.body.guildId;
-        if (!guildId || guildId !== MASTERCLASS_GUILD_ID) return res.status(404).json({ error: 'Not available for this server' });
+        if (!guildId || !isDashboardGuildId(guildId)) return res.status(404).json({ error: 'Not available for this server' });
         if (!isOwner(req, guildId)) return res.status(403).json({ error: 'Access Denied' });
 
         const { client, db } = global.PredCord;
