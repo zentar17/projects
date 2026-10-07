@@ -973,7 +973,7 @@ async function sendCommunityTicketPanel(channel) {
     const embed = new EmbedBuilder()
         .setTitle('Support Tickets')
         .setDescription(
-            'Clicca "Create Ticket", dopo sceglie il tipo di ticket che vuoi creare.\n\n' +
+            'Clicca "Create Ticket", dopo scegli il tipo di ticket che vuoi creare.\n\n' +
             'Tipi di ticket disponibili:\n' +
             '• General Support - Per domande generiche o problemi con il server\n' +
             '• Dropmap Request - Per richiedere una dropmap (una ogni 30 giorni)\n' +
