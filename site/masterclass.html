@@ -262,7 +262,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     position: relative;
     overflow: hidden;
     text-align: center;
-    padding: 150px 24px 30px;
+    padding: 70px 24px 30px;
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -281,18 +281,10 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     height: 100%;
     object-fit: cover;
     opacity: 0;
-    transform: scale(1.08);
     transition: opacity 1.8s ease;
-    animation: mcClipMove 10s ease-in-out infinite;
 }
 
 .mc-hero-clip.active { opacity: 1; }
-
-@keyframes mcClipMove {
-    0% { transform: scale(1.08) translate3d(0, 0, 0); }
-    50% { transform: scale(1.17) translate3d(0, -2%, 0); }
-    100% { transform: scale(1.08) translate3d(0, 0, 0); }
-}
 
 .mc-hero::before {
     content: '';
@@ -305,7 +297,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 .mc-hero-content {
     position: relative;
     z-index: 2;
-    max-width: 1150px;
+    max-width: 1320px;
     margin: 0 auto;
     padding: 0 24px;
 }
@@ -330,6 +322,31 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     text-shadow: 0 4px 24px rgba(0,0,0,0.6);
 }
 
+.mc-title-wrap,
+.mc-description,
+.mc-highlight,
+.mc-cta-row {
+    opacity: 0;
+    animation: mcTextReveal 0.8s ease forwards;
+}
+
+.mc-title-wrap { animation-delay: 0.05s; }
+.mc-description { animation-delay: 0.25s; }
+.mc-highlight { animation-delay: 0.6s; }
+.mc-cta-row { animation-duration: 0.6s; animation-delay: 1s; }
+
+@keyframes mcTextReveal {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mc-title-wrap,
+    .mc-description,
+    .mc-highlight,
+    .mc-cta-row { animation: none; opacity: 1; }
+}
+
 .mc-title-white { color: #ffffff; }
 .mc-title-orange { color: var(--primary); }
 
@@ -339,32 +356,33 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     color: #f0f0f3;
     line-height: 1.55;
     max-width: 640px;
-    margin: 0 auto 16px;
+    margin: 0 auto;
     text-shadow: 0 2px 14px rgba(0,0,0,0.7);
-    min-height: 3.1em;
 }
 
 .mc-highlight {
-    font-size: 20px;
+    position: relative;
+    font-size: clamp(14px, 1.15vw, 19px);
     font-weight: 700;
     color: var(--accent);
     text-shadow: 0 0 12px rgba(56,189,248,0.65), 0 2px 10px rgba(0,0,0,0.7);
-    max-width: 640px;
-    line-height: 1.55;
-    margin: 0 auto 24px;
-    min-height: 1.55em;
+    white-space: nowrap;
+    line-height: 1.5;
+    margin: 34px auto 30px;
+    padding-top: 26px;
 }
 
-.mc-cursor {
-    display: inline-block;
-    margin-left: 2px;
-    color: var(--accent);
-    animation: mcBlink 1s step-end infinite;
-}
-
-@keyframes mcBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+.mc-highlight::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 90px;
+    height: 2px;
+    transform: translateX(-50%);
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    box-shadow: 0 0 10px rgba(56,189,248,0.6);
 }
 
 .results-btn {
@@ -1143,13 +1161,17 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     .header-nav { gap: 24px; flex-wrap: wrap; justify-content: center; }
     .header-auth { justify-content: center; }
     .mc-title { font-size: 30px; }
-    .mc-hero { padding: 120px 20px 24px; }
+    .mc-hero { padding: 40px 20px 24px; }
     .mc-description { font-size: 14px; }
-    .mc-highlight { font-size: 14px; }
+    .mc-highlight { font-size: 14px; white-space: normal; margin: 24px auto 24px; padding-top: 20px; }
     .footer-inner { flex-direction: column; gap: 32px; }
     .footer-bottom { flex-direction: column; text-align: center; padding: 18px 20px; }
     .footer-bottom-left { justify-content: center; }
     .footer-socials-row { justify-content: center; }
+}
+
+@media (max-width: 1000px) {
+    .mc-highlight { white-space: normal; max-width: 640px; }
 }
 
 @media (max-width: 640px) {
@@ -1212,8 +1234,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         <div class="mc-title-wrap">
             <h1 class="mc-title"><span class="mc-title-white">Master</span><span class="mc-title-orange">class</span></h1>
         </div>
-        <p class="mc-description"><span id="mcDescMain"></span><span class="mc-cursor" id="mcCursorMain">|</span></p>
-        <p class="mc-highlight"><span id="mcDescHighlight"></span><span class="mc-cursor" id="mcCursorHighlight">|</span></p>
+        <p class="mc-description" id="mcDescMain"></p>
+        <p class="mc-highlight" id="mcDescHighlight"></p>
         <div class="mc-cta-row">
             <button class="results-btn" id="resultsMoreBtn" type="button" data-i18n="mc_results_btn">Results</button>
         </div>
@@ -1533,32 +1555,19 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     var mcTiersGrid = document.getElementById('mcTiersGrid');
     var mcDescMain = document.getElementById('mcDescMain');
     var mcDescHighlight = document.getElementById('mcDescHighlight');
-    var mcCursorMain = document.getElementById('mcCursorMain');
-    var mcCursorHighlight = document.getElementById('mcCursorHighlight');
-    var typeTimer = null;
+    var heroTextSet = false;
 
-    function typewriterStart(mainText, highlightText) {
-        if (typeTimer) clearInterval(typeTimer);
-        mcDescMain.textContent = '';
-        mcDescHighlight.textContent = '';
-        mcCursorMain.style.display = 'inline-block';
-        mcCursorHighlight.style.display = 'none';
-        var i = 0;
-        typeTimer = setInterval(function() {
-            if (i < mainText.length) {
-                mcDescMain.textContent += mainText.charAt(i);
-            } else {
-                if (mcCursorMain.style.display !== 'none') {
-                    mcCursorMain.style.display = 'none';
-                    mcCursorHighlight.style.display = 'inline-block';
-                }
-                mcDescHighlight.textContent += highlightText.charAt(i - mainText.length);
-            }
-            i++;
-            if (i >= mainText.length + highlightText.length) {
-                clearInterval(typeTimer);
-            }
-        }, 7);
+    function setHeroText(mainText, highlightText) {
+        mcDescMain.textContent = mainText;
+        mcDescHighlight.textContent = highlightText;
+        if (heroTextSet) {
+            [mcDescMain, mcDescHighlight].forEach(function(el, i) {
+                el.style.animation = 'none';
+                void el.offsetWidth;
+                el.style.animation = 'mcTextReveal 0.6s ease ' + (i * 0.15) + 's forwards';
+            });
+        }
+        heroTextSet = true;
     }
 
     function renderLangUI() {
@@ -1641,7 +1650,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         applyStaticTranslations();
         updateAuthBtn();
         renderTiers();
-        typewriterStart(I18N[currentLang].mc_description, I18N[currentLang].mc_description_highlight);
+        setHeroText(I18N[currentLang].mc_description, I18N[currentLang].mc_description_highlight);
     }
 
     langBtn.addEventListener('click', function(e) {
@@ -1664,7 +1673,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     renderLangUI();
     applyStaticTranslations();
     renderTiers();
-    typewriterStart(I18N[currentLang].mc_description, I18N[currentLang].mc_description_highlight);
+    setHeroText(I18N[currentLang].mc_description, I18N[currentLang].mc_description_highlight);
 
     var headerEl = document.querySelector('header');
     var headerSpacer = document.getElementById('headerSpacer');
