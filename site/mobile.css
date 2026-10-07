@@ -1,0 +1,214 @@
+.mobile-menu-btn,
+.mobile-auth-item {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    body > header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        row-gap: 0;
+        padding: 10px 16px;
+    }
+
+    body > header img.brand-logo {
+        width: 34px;
+        height: 34px;
+    }
+
+    body > header .header-brand {
+        gap: 10px;
+        min-width: 0;
+    }
+
+    body > header .header-brand span {
+        font-size: 18px;
+    }
+
+    body > header .header-auth {
+        gap: 10px;
+        justify-content: flex-end;
+        flex-shrink: 0;
+    }
+
+    body > header .header-auth .auth-btn.logged-in {
+        display: none;
+    }
+
+    body > header .header-auth .auth-btn {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    body > header .lang-btn {
+        height: 38px;
+    }
+
+    body > header .user-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .mobile-menu-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        width: 40px;
+        height: 38px;
+        padding: 0;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.04);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .mobile-menu-btn span {
+        display: block;
+        width: 18px;
+        height: 2px;
+        border-radius: 2px;
+        background: #fff;
+        transition: transform 0.25s ease, opacity 0.2s ease;
+    }
+
+    body > header.menu-open .mobile-menu-btn span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+
+    body > header.menu-open .mobile-menu-btn span:nth-child(2) {
+        opacity: 0;
+    }
+
+    body > header.menu-open .mobile-menu-btn span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+
+    body > header .header-nav {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        gap: 0;
+        padding: 4px 16px 14px;
+        background: var(--bg-dark, #0b0b0f);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 24px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    body > header.menu-open .header-nav {
+        display: flex;
+        animation: mobileMenuIn 0.2s ease;
+    }
+
+    @keyframes mobileMenuIn {
+        from { opacity: 0; transform: translateY(-6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    body > header .header-nav .nav-dot {
+        display: none;
+    }
+
+    body > header .header-nav .nav-videos-group {
+        display: none;
+    }
+
+    body > header .header-nav .nav-videos-group.visible {
+        display: block;
+    }
+
+    body > header .header-nav a {
+        display: block;
+        font-size: 17px;
+        padding: 15px 6px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    body > header .header-nav a::after {
+        display: none;
+    }
+
+    body > header .header-nav a.active {
+        color: var(--primary, #e67e22);
+    }
+
+    body > header.is-logged .mobile-auth-item {
+        display: block;
+        margin-top: 12px;
+        width: 100%;
+        padding: 13px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.04);
+        color: #fff;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .tournament-row,
+    .tournament-row.reverse {
+        align-items: stretch;
+        gap: 22px;
+        margin-bottom: 56px;
+    }
+
+    .tournament-image {
+        flex: none;
+        width: 100%;
+        height: 230px;
+    }
+
+    .tournament-info {
+        flex: none;
+        width: 100%;
+        min-width: 0;
+    }
+
+    .tournament-name {
+        font-size: 24px;
+        overflow-wrap: anywhere;
+    }
+
+    .tournament-name-line {
+        width: 100% !important;
+        max-width: 100%;
+        margin-left: 0 !important;
+    }
+
+    .tournament-desc {
+        font-size: 15px;
+        line-height: 1.65;
+        max-width: none;
+        overflow-wrap: anywhere;
+    }
+
+    .tournament-stats {
+        gap: 10px;
+    }
+
+    .tournament-stat {
+        padding: 12px 16px;
+        flex: 1 1 calc(50% - 10px);
+    }
+
+    .tournament-stat-value {
+        font-size: 18px;
+    }
+
+    .best-results-title {
+        font-size: 30px;
+        margin-bottom: 40px;
+    }
+}
