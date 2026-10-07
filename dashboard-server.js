@@ -1833,7 +1833,6 @@ app.get('/api/masterclass/tickets', requireAuth, async (req, res) => {
         const flags = await getMasterclassFlags(req);
         if (!flags.canTickets) return res.status(403).json({ error: 'Access Denied' });
         const { db } = global.PredCord;
-        const preview = (last) => last ? { authorName: last.authorName, isStaff: !!last.isStaff, system: !!last.system, content: String(last.content || ((last.imageId || (last.imageIds && last.imageIds.length)) ? '[Image]' : '')).slice(0, 140) } : null;
 
         if (req.query.status === 'transcripts') {
             const transcripts = await db.listMcTicketTranscriptsDB();
@@ -1851,7 +1850,6 @@ app.get('/api/masterclass/tickets', requireAuth, async (req, res) => {
                 createdAt: t.openedAt,
                 lastMessageAt: t.closedAt,
                 deletedAt: t.deletedAt || null,
-                lastMessage: preview((t.messages || [])[0])
             })));
         }
 
@@ -1871,7 +1869,6 @@ app.get('/api/masterclass/tickets', requireAuth, async (req, res) => {
             createdAt: t.createdAt,
             lastMessageAt: t.lastMessageAt,
             deleteAt: (t.status === 'closed' && t.closedAt) ? new Date(new Date(t.closedAt).getTime() + MC_TICKET_DELETE_AFTER_MS) : null,
-            lastMessage: preview((t.messages || [])[0])
         })));
     } catch (e) {
         res.status(500).json({ error: e.message });
