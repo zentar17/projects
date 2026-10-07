@@ -265,6 +265,7 @@ const McTicketMessageSchema = new mongoose.Schema({
     system: { type: Boolean, default: false },
     content: String,
     imageId: { type: String, default: null },
+    imageIds: { type: [String], default: [] },
     date: { type: Date, default: Date.now }
 });
 
@@ -927,6 +928,7 @@ async function saveMcTicketTranscriptDB(ticket, deletedAt) {
             system: !!m.system,
             content: m.content,
             imageId: m.imageId || null,
+            imageIds: m.imageIds || [],
             date: m.date
         }))
     };
