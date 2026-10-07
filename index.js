@@ -4,6 +4,7 @@ const path = require('path');
 const db = require('./db');
 const botClients = require('./bot-clients');
 const createRoleSync = require('./role-sync');
+const createDropmap = require('./dropmap');
 require('dotenv').config();
 
 const CRASH_LOG_FILE = './crash_log.json';
@@ -95,6 +96,8 @@ const PROJECTED_ERROR = 0xED4245;
 const RED = 0xED4245;
 const GOLD = 0xFFD700;
 const GREEN = 0x57F287;
+
+const dropmap = createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumbnailUrl: THUMBNAIL_URL });
 
 const SOCIAL_LINKS = {
     twitch: "https://www.twitch.tv/predagefn",
@@ -1043,6 +1046,7 @@ client.once('clientReady', async () => {
         banFromAllGuilds,
         unbanFromAllGuilds,
         roleSync,
+        dropmap,
         db
     };
     console.log('[DASHBOARD] global.PredCord API exposed');
@@ -1055,6 +1059,26 @@ client.once('clientReady', async () => {
                 .setName('panel')
                 .setDescription('Send the ticket panel in this channel')
                 .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+                .toJSON(),
+            new SlashCommandBuilder()
+                .setName('send')
+                .setDescription('Send a dropmap to a user')
+                .addStringOption(o => o
+                    .setName('type')
+                    .setDescription('Dropmap type')
+                    .setRequired(true)
+                    .addChoices({ name: 'POI', value: 'poi' }, { name: 'Split', value: 'split' }))
+                .addStringOption(o => o
+                    .setName('id')
+                    .setDescription('User ID of the person who receives the dropmap')
+                    .setRequired(true)
+                    .setMinLength(17)
+                    .setMaxLength(22))
+                .addIntegerOption(o => o
+                    .setName('dropmap')
+                    .setDescription('Dropmap number')
+                    .setRequired(true)
+                    .setMinValue(1))
                 .toJSON()
         ];
 
@@ -1445,6 +1469,16 @@ client.on('messageCreate', async (message) => {
 });
 
 async function handleNativeCommand(message, command, args) {
+    if (command === 'map') {
+        await dropmap.handleMapCommand(message);
+        return;
+    }
+
+    if (command === 'setupdropmap') {
+        await dropmap.handleSetupCommand(message, args);
+        return;
+    }
+
     if (command === 'page') {
         const canUse = await canUsePageCommand(message.member, message.guild.id);
         if (!canUse) { await message.delete().catch(() => {}); return; }
@@ -2296,33 +2330,6 @@ async function handleNativeCommand(message, command, args) {
         await message.delete().catch(() => {});
         return;
     }
-
-    if (command === 'ms') {
-        if (!(await hasModPerms(message.member))) { await message.delete().catch(() => {}); return; }
-        const input = args[0];
-        const result = input ? await getUserFromInput(message.guild, input) : { user: message.author };
-        if (!result || !result.user) {
-            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
-            await message.channel.send({ embeds: [embed] });
-            await message.delete().catch(() => {});
-            return;
-        }
-        const target = result.user;
-        const stats = await db.getModeratorActionStatsDB(message.guild.id, target.id);
-        const embed = new EmbedBuilder()
-            .setTitle(`Moderation statistics for ${target.tag || target.username}`)
-            .addFields(
-                { name: 'Mutes', value: `7d: **${stats.mute.day7}** · 30d: **${stats.mute.day30}** · All-time: **${stats.mute.all}**`, inline: false },
-                { name: 'Bans', value: `7d: **${stats.ban.day7}** · 30d: **${stats.ban.day30}** · All-time: **${stats.ban.all}**`, inline: false },
-                { name: 'Kicks', value: `7d: **${stats.kick.day7}** · 30d: **${stats.kick.day30}** · All-time: **${stats.kick.all}**`, inline: false },
-                { name: 'Warns', value: `7d: **${stats.warn.day7}** · 30d: **${stats.warn.day30}** · All-time: **${stats.warn.all}**`, inline: false }
-            )
-            .setColor(COLORS.INFO)
-            .setThumbnail(THUMBNAIL_URL);
-        await message.channel.send({ embeds: [embed] });
-        await message.delete().catch(() => {});
-        return;
-    }
 }
 
 async function checkExpiredTempRolesAllGuilds() {
@@ -2745,6 +2752,11 @@ client.on('interactionCreate', async (interaction) => {
                 return;
             }
 
+            if (interaction.commandName === 'send') {
+                await dropmap.handleSendCommand(interaction);
+                return;
+            }
+
             if (interaction.commandName === 'panell') {
                 if (!(await isAdminSafe(interaction.member))) {
                     return interaction.reply({ content: 'You do not have permission to use this command.', flags: 64 });
@@ -2756,6 +2768,10 @@ client.on('interactionCreate', async (interaction) => {
                 return;
             }
             return;
+        }
+
+        if ((interaction.isButton() || interaction.isStringSelectMenu()) && interaction.customId && interaction.customId.startsWith('dropmap_')) {
+            if (await dropmap.handleInteraction(interaction)) return;
         }
 
         if (interaction.isButton() && interaction.customId === 'open_ticket_panel') {
