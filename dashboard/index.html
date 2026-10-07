@@ -7,7 +7,7 @@
 <link rel="icon" type="image/png" href="/dashboard/favicon.png">
 <link rel="shortcut icon" type="image/png" href="/dashboard/favicon.png">
 <link rel="apple-touch-icon" href="/dashboard/favicon.png">
-<link rel="stylesheet" href="/dashboard/style.css?v=20261007f">
+<link rel="stylesheet" href="/dashboard/style.css?v=20261007g">
 </head>
 <body>
 
@@ -25,6 +25,7 @@
             <span class="nav-dot">•</span>
             <a href="/videos">Videos</a>
         </span>
+        <script>try{if(localStorage.getItem('pdCanViewVideos')==='1')document.getElementById('navVideosGroup').classList.add('visible');}catch(e){}</script>
         <span class="nav-dot">•</span>
         <a href="#">Community</a>
         <span class="nav-dot">•</span>
@@ -103,6 +104,7 @@
             <button class="nav-tab" data-tab="bans">Ban</button>
             <button class="nav-tab" data-tab="blacklist">Blacklist</button>
             <button class="nav-tab hidden" data-tab="role-sync" id="navTabRoleSync">Role Sync</button>
+            <button class="nav-tab hidden" data-tab="dropmaps" id="navTabDropmaps">Dropmaps</button>
             <button class="nav-tab" data-tab="logs">Logs</button>
         </nav>
         <nav class="nav-tabs hidden" id="masterclassNavTabs">
@@ -672,6 +674,34 @@
             </div>
         </div>
 
+        <div id="tab-dropmaps" class="tab-content hidden">
+            <div class="panel-header">
+                <div class="role-sync-title">
+                    <h2>Dropmaps</h2>
+                    <span class="role-sync-status" id="dropmapStatus"></span>
+                </div>
+                <div class="dropmap-header-actions">
+                    <button type="button" id="dropmapNewAreaBtn" class="btn-secondary">+ Area</button>
+                    <button type="button" id="dropmapNewMiniBtn" class="btn-primary">+ Mini area</button>
+                </div>
+            </div>
+
+            <p class="role-sync-intro">Give each dropmap a type (POI or Split) and a number. Staff send it with <code>/send type id dropmap</code>: the user gets the image in DM and the "Dropmap Riscattata" role for 30 days. <code>!map</code> still works in Discord.</p>
+
+            <div class="dropmap-toolbar">
+                <input type="text" id="dropmapSearch" class="dropmap-search" placeholder="Search areas, sub-areas or numbers...">
+                <span id="dropmapCounts" class="dropmap-counts"></span>
+            </div>
+
+            <h3 class="dropmap-section-title">Areas</h3>
+            <div id="dropmapAreas" class="dropmap-areas">
+                <div class="loading">Loading</div>
+            </div>
+
+            <h3 class="dropmap-section-title">Mini areas</h3>
+            <div id="dropmapMinis" class="dropmap-grid"></div>
+        </div>
+
         <div id="tab-blacklist" class="tab-content hidden">
             <div class="panel-header">
                 <h2>Blacklist</h2>
@@ -946,6 +976,33 @@
     </div>
 </div>
 
+<div id="dropmapModal" class="modal hidden">
+    <div class="modal-content dropmap-modal-content">
+        <div class="role-sync-modal-header" id="dropmapModalTitle">New area</div>
+        <div class="dropmap-modal-body">
+            <label class="dropmap-field-label" for="dropmapModalName">Name</label>
+            <input type="text" id="dropmapModalName" maxlength="90" placeholder="e.g. Tilted Towers">
+            <label class="dropmap-field-label" for="dropmapModalUrl">Image</label>
+            <div class="dropmap-image-input">
+                <input type="text" id="dropmapModalUrl" placeholder="Paste an image URL...">
+                <button type="button" id="dropmapModalUploadBtn" class="dropmap-upload-btn">Upload</button>
+                <input type="file" id="dropmapModalFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+            </div>
+            <div class="dropmap-modal-preview" id="dropmapModalPreview"><span>No image</span></div>
+            <div class="role-sync-modal-error hidden" id="dropmapModalError"></div>
+        </div>
+        <div class="role-sync-modal-footer">
+            <button type="button" id="dropmapModalCancel" class="role-sync-modal-cancel">Cancel</button>
+            <button type="button" id="dropmapModalSave" class="role-sync-modal-save">Save</button>
+        </div>
+    </div>
+</div>
+
+<div id="dropmapLightbox" class="dropmap-lightbox hidden">
+    <img id="dropmapLightboxImg" alt="">
+    <div class="dropmap-lightbox-caption" id="dropmapLightboxCaption"></div>
+</div>
+
 <div id="accessDeniedToast" class="access-denied-toast hidden">
     <span class="access-denied-icon">&#10006;</span>
     <span class="access-denied-text">Access Denied</span>
@@ -957,7 +1014,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="/dashboard/app.js?v=20261007f"></script>
+<script src="/dashboard/app.js?v=20261007g"></script>
 
 </body>
 </html>
