@@ -879,6 +879,29 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 
 .plan-existing.hidden { display: none; }
 
+.plan-loading {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 50px 0 40px;
+}
+
+.plan-loading span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary);
+    animation: planBlink 1.2s infinite;
+}
+
+.plan-loading span:nth-child(2) { animation-delay: 0.2s; }
+.plan-loading span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes planBlink {
+    0%, 80%, 100% { opacity: 0.25; }
+    40% { opacity: 1; }
+}
+
 .plan-existing-title {
     font-size: 11px;
     font-weight: 800;
@@ -1261,6 +1284,9 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             plan_your_tickets: 'I tuoi ticket aperti',
             plan_error: 'Qualcosa è andato storto, riprova.',
             plan_open_label: 'Apri',
+            plan_already_title: 'Hai già un ticket aperto',
+            plan_already_text: 'Puoi avere un solo ticket aperto alla volta. Potrai aprirne uno nuovo quando questo verrà chiuso.',
+            plan_go_ticket: 'Vai al mio ticket',
             tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personalizzato',
             custom_desc: 'Scegli e combina liberamente le cose che ti servono per creare un pacchetto su misura, pensato in base alle tue esigenze e alle tue preferenze. Puoi selezionare i servizi di Predage che desideri, costruisci la combinazione perfetta per te. Personalizza il tuo pacchetto come vuoi, scegli ciò che ti serve, aggiungi i tuoi preferiti e crea una soluzione unica, proprio come la vuoi tu.',
             f_all_videos: 'Tutti i video del nostro sito',
@@ -1298,6 +1324,9 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             plan_your_tickets: 'Your open tickets',
             plan_error: 'Something went wrong, please try again.',
             plan_open_label: 'Open',
+            plan_already_title: 'You already have an open ticket',
+            plan_already_text: 'You can only have one ticket open at a time. You can open a new one once this one is closed.',
+            plan_go_ticket: 'Go to my ticket',
             tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Custom',
             custom_desc: 'Freely choose and combine what you need to build a package tailored to you, designed around your needs and preferences. Pick the Predage services you want and build the perfect combination for yourself. Customize your package however you like, add what you need, add your favorites, and create a unique solution, exactly the way you want it.',
             f_all_videos: 'All the videos on our site',
@@ -1335,6 +1364,9 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             plan_your_tickets: 'Deine offenen Tickets',
             plan_error: 'Etwas ist schiefgelaufen, bitte versuche es erneut.',
             plan_open_label: 'Öffnen',
+            plan_already_title: 'Du hast bereits ein offenes Ticket',
+            plan_already_text: 'Du kannst nur ein Ticket gleichzeitig offen haben. Ein neues kannst du öffnen, sobald dieses geschlossen ist.',
+            plan_go_ticket: 'Zu meinem Ticket',
             tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Individuell',
             custom_desc: 'Wähle und kombiniere frei das, was du brauchst, um dir ein maßgeschneidertes Paket zu erstellen, abgestimmt auf deine Bedürfnisse und Vorlieben. Wähle die Predage-Leistungen aus, die du möchtest, und baue dir die perfekte Kombination. Personalisiere dein Paket genau wie du es willst, füge deine Favoriten hinzu und erschaffe eine einzigartige Lösung, ganz nach deinem Geschmack.',
             f_all_videos: 'Alle Videos auf unserer Seite',
@@ -1372,6 +1404,9 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             plan_your_tickets: 'Tus tickets abiertos',
             plan_error: 'Algo salió mal, inténtalo de nuevo.',
             plan_open_label: 'Abrir',
+            plan_already_title: 'Ya tienes un ticket abierto',
+            plan_already_text: 'Solo puedes tener un ticket abierto a la vez. Podrás abrir uno nuevo cuando este se cierre.',
+            plan_go_ticket: 'Ir a mi ticket',
             tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personalizado',
             custom_desc: 'Elige y combina libremente lo que necesites para crear un paquete a tu medida, pensado según tus necesidades y preferencias. Puedes seleccionar los servicios de Predage que quieras y construir la combinación perfecta para ti. Personaliza tu paquete como quieras, añade lo que necesites, suma tus favoritos y crea una solución única, tal como la quieres.',
             f_all_videos: 'Todos los vídeos de nuestro sitio',
@@ -1409,6 +1444,9 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             plan_your_tickets: 'Tes tickets ouverts',
             plan_error: 'Une erreur est survenue, réessaie.',
             plan_open_label: 'Ouvrir',
+            plan_already_title: 'Tu as déjà un ticket ouvert',
+            plan_already_text: 'Tu ne peux avoir qu\'un seul ticket ouvert à la fois. Tu pourras en ouvrir un nouveau une fois celui-ci fermé.',
+            plan_go_ticket: 'Aller à mon ticket',
             tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personnalisé',
             custom_desc: 'Choisis et combine librement ce dont tu as besoin pour créer un pack sur mesure, pensé selon tes besoins et tes préférences. Sélectionne les services Predage que tu souhaites et construis la combinaison parfaite pour toi. Personnalise ton pack comme tu le souhaites, ajoute ce qu\'il te faut, ajoute tes favoris et crée une solution unique, exactement comme tu la veux.',
             f_all_videos: 'Toutes les vidéos de notre site',
@@ -1857,8 +1895,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 '<span class="plan-check-text">' + termsHtml + '</span>' +
             '</label>' +
             '<button type="button" class="plan-create-btn" id="planCreateBtn" disabled>' + planText('create') + '</button>' +
-            '<p class="plan-form-error" id="planFormError"></p>' +
-            '<div class="plan-existing hidden" id="planExisting"></div>';
+            '<p class="plan-form-error" id="planFormError"></p>';
 
         var input = document.getElementById('planEmailInput');
         var terms = document.getElementById('planTermsInput');
@@ -1906,6 +1943,10 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                     renderPlanSignIn(tier);
                     return;
                 }
+                if (r.body.error === 'already_open' && r.body.ticketNumber) {
+                    renderPlanAlreadyOpen(tier, { ticketNumber: r.body.ticketNumber, plan: r.body.plan });
+                    return;
+                }
                 if (r.body.error === 'domain_no_mail' || r.body.error === 'invalid_format') {
                     setEmailState('invalid', r.body.error === 'domain_no_mail' ? planText('no_mail') : planText('invalid_format'));
                 } else {
@@ -1920,19 +1961,23 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             });
         });
 
-        fetch('/api/site/mc-tickets/mine').then(function(res) { return res.ok ? res.json() : null; }).then(function(data) {
-            var box = document.getElementById('planExisting');
-            if (!box || !data || !Array.isArray(data.tickets)) return;
-            var open = data.tickets.filter(function(t) { return t.status === 'open'; });
-            if (!open.length) return;
-            box.innerHTML = '<div class="plan-existing-title">' + planText('your_tickets') + '</div>' +
-                open.map(function(t) {
-                    return '<a href="/ticket/' + t.ticketNumber + '"><span>#' + String(t.ticketNumber).padStart(4, '0') + ' · ' + String(t.plan || '').replace(/</g, '&lt;') + '</span><span>' + planText('open_label') + ' →</span></a>';
-                }).join('');
-            box.classList.remove('hidden');
-        }).catch(function() {});
-
         setTimeout(function() { input.focus(); }, 80);
+    }
+
+    function renderPlanAlreadyOpen(tier, ticket) {
+        var num = String(ticket.ticketNumber).padStart(4, '0');
+        var plan = String(ticket.plan || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+        planModalContent.innerHTML =
+            '<span class="plan-chip">' + planChipText(tier) + '</span>' +
+            '<h3 class="plan-modal-title">' + planText('already_title') + '</h3>' +
+            '<p class="plan-modal-sub">' + planText('already_text') + '</p>' +
+            '<div class="plan-existing">' +
+                '<a href="/ticket/' + ticket.ticketNumber + '"><span>#' + num + (plan ? ' · ' + plan : '') + '</span><span>' + planText('open_label') + ' →</span></a>' +
+            '</div>' +
+            '<button type="button" class="plan-create-btn" id="planGoTicketBtn" style="margin-top: 14px;">' + planText('go_ticket') + '</button>';
+        document.getElementById('planGoTicketBtn').addEventListener('click', function() {
+            window.location.href = '/ticket/' + ticket.ticketNumber;
+        });
     }
 
     function openPlanModal(planKey) {
@@ -1940,9 +1985,25 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         if (!tier || !planModal) return;
         planState.key = planKey;
         planState.emailValid = false;
-        if (loggedIn) renderPlanForm(tier);
-        else renderPlanSignIn(tier);
+        if (!loggedIn) {
+            renderPlanSignIn(tier);
+            planModal.classList.add('open');
+            return;
+        }
+        planModalContent.innerHTML = '<span class="plan-chip">' + planChipText(tier) + '</span><div class="plan-loading"><span></span><span></span><span></span></div>';
         planModal.classList.add('open');
+        fetch('/api/site/mc-tickets/mine').then(function(res) {
+            if (res.status === 401) return { unauthorized: true };
+            return res.ok ? res.json() : null;
+        }).then(function(data) {
+            if (planState.key !== planKey) return;
+            if (data && data.unauthorized) { renderPlanSignIn(tier); return; }
+            var open = (data && Array.isArray(data.tickets)) ? data.tickets.filter(function(t) { return t.status === 'open'; }) : [];
+            if (open.length) renderPlanAlreadyOpen(tier, open[0]);
+            else renderPlanForm(tier);
+        }).catch(function() {
+            if (planState.key === planKey) renderPlanForm(tier);
+        });
     }
 
     mcTiersGrid.addEventListener('click', function(e) {
