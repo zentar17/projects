@@ -8,6 +8,7 @@ const DiscordStrategy = require('passport-discord').Strategy;
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const dns = require('dns').promises;
 const os = require('os');
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -114,6 +115,14 @@ const siteFormLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many submissions, please try again later.' }
+});
+
+const mcTicketMessageLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many messages, please slow down.' }
 });
 
 const VIDEO_UPLOAD_TMP_DIR = path.join(os.tmpdir(), 'predcord-video-uploads');
@@ -272,6 +281,7 @@ async function authorizeVideoAccess(req, video) {
 app.use('/api/', apiLimiter);
 app.use(['/login', '/auth/discord', '/site-auth/discord'], authLimiter);
 app.use(['/api/site/apply', '/api/site/appeal'], siteFormLimiter);
+app.use('/api/site/mc-tickets/create', siteFormLimiter);
 
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
@@ -916,6 +926,7 @@ app.get('/api/me', requireAuth, async (req, res) => {
         canAccessMasterclass: masterclass.canAccess,
         canUploadVideos: masterclass.canUpload,
         canManageVideos: masterclass.canManage,
+        canMcTickets: masterclass.canTickets,
         canViewVideos: canViewVideos,
         access: access
     });
@@ -1173,13 +1184,366 @@ app.get('/api/roles/:guildId', requireAuth, (req, res) => {
 
 async function getMasterclassFlags(req) {
     const role = getUserRole(req);
-    if (role === 'owner') return { canUpload: true, canManage: true, canAccess: true };
+    if (role === 'owner') return { canUpload: true, canManage: true, canAccess: true, canTickets: true };
     const userId = req.session.user && req.session.user.id;
-    if (!userId) return { canUpload: false, canManage: false, canAccess: false };
+    if (!userId) return { canUpload: false, canManage: false, canAccess: false, canTickets: false };
     const settings = await global.PredCord.db.getMasterclassSettingsDB();
     const canUpload = (settings.uploadUserIds || []).includes(userId);
     const canManage = (settings.manageUserIds || []).includes(userId);
-    return { canUpload, canManage, canAccess: canUpload || canManage };
+    const canTickets = SUPER_OWNER_IDS.includes(userId) || (settings.ticketStaffUserIds || []).includes(userId);
+    return { canUpload, canManage, canAccess: canUpload || canManage, canTickets };
+}
+
+const MC_TICKET_PLANS = {
+    starter: { name: 'Starter Pack', price: '9.99' },
+    igl: { name: 'IGL Pack', price: '19.99' },
+    premium: { name: 'Premium Pack', price: '49.99' },
+    pro: { name: 'Pro Pack', price: '99.99' },
+    custom: { name: 'Custom', price: null }
+};
+
+function siteUserAvatarUrl(u) {
+    return u.avatar
+        ? `https://cdn.discordapp.com/avatars/${u.id}/${u.avatar}.png?size=64`
+        : `https://cdn.discordapp.com/embed/avatars/${(parseInt(u.discriminator, 10) || 0) % 5}.png`;
+}
+
+async function isMcTicketStaff(userId) {
+    if (!userId) return false;
+    if (SUPER_OWNER_IDS.includes(userId)) return true;
+    const settings = await global.PredCord.db.getMasterclassSettingsDB();
+    return (settings.ticketStaffUserIds || []).includes(userId);
+}
+
+async function checkEmailDeliverable(email) {
+    if (typeof email !== 'string') return { valid: false, reason: 'invalid_format' };
+    const clean = email.trim().toLowerCase();
+    if (clean.length > 254 || !/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/.test(clean)) {
+        return { valid: false, reason: 'invalid_format' };
+    }
+    const domain = clean.split('@').pop();
+    try {
+        const records = await Promise.race([
+            dns.resolveMx(domain),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+        ]);
+        const usable = (records || []).filter(r => r.exchange && r.exchange !== '.');
+        if (usable.length > 0) return { valid: true, email: clean };
+    } catch (e) {}
+    return { valid: false, reason: 'domain_no_mail' };
+}
+
+function getSiteOrigin() {
+    try {
+        return new URL(DISCORD_SITE_REDIRECT_URI).origin;
+    } catch {
+        return '';
+    }
+}
+
+async function notifyNewMcTicket(ticket) {
+    try {
+        const { client, db } = global.PredCord;
+        const settings = await db.getMasterclassSettingsDB();
+        if (!settings.ticketNotifyChannelId) return;
+        const channel = await client.channels.fetch(settings.ticketNotifyChannelId).catch(() => null);
+        if (!channel || !channel.isTextBased()) return;
+        const embed = new EmbedBuilder()
+            .setColor(0xE67E22)
+            .setTitle(`New Masterclass Ticket #${ticket.ticketNumber}`)
+            .setAuthor({ name: `${ticket.userName} (${ticket.userId})`, iconURL: ticket.userAvatar || undefined })
+            .addFields(
+                { name: 'Plan', value: ticket.price ? `${ticket.plan} (${ticket.price} / month)` : ticket.plan, inline: true },
+                { name: 'Email', value: ticket.email, inline: true },
+                { name: 'User', value: `<@${ticket.userId}>`, inline: true }
+            )
+            .setTimestamp();
+        const origin = getSiteOrigin();
+        const payload = { embeds: [embed] };
+        if (origin) {
+            payload.components = [new ActionRowBuilder().addComponents(
+                new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Open Ticket').setURL(`${origin}/ticket/${ticket.ticketNumber}`)
+            )];
+        }
+        await channel.send(payload);
+    } catch (e) {
+        console.error('[MC TICKET] notify failed:', e.message);
+    }
+}
+
+const MC_TICKET_DELETE_AFTER_MS = 24 * 60 * 60 * 1000;
+
+function serializeMcTicket(ticket, messages, isTranscript) {
+    const closedAt = ticket.closedAt ? new Date(ticket.closedAt) : null;
+    return {
+        ticketNumber: ticket.ticketNumber,
+        userId: ticket.userId,
+        userName: ticket.userName,
+        userAvatar: ticket.userAvatar,
+        email: ticket.email,
+        planKey: ticket.planKey,
+        plan: ticket.plan,
+        price: ticket.price,
+        status: isTranscript ? 'closed' : ticket.status,
+        isTranscript: !!isTranscript,
+        createdAt: isTranscript ? ticket.openedAt : ticket.createdAt,
+        closedAt: ticket.closedAt,
+        closedByName: ticket.closedByName,
+        claimedById: ticket.claimedById || null,
+        claimedByName: ticket.claimedByName || null,
+        claimedAt: ticket.claimedAt || null,
+        deletedAt: isTranscript ? (ticket.deletedAt || null) : null,
+        deleteAt: (!isTranscript && ticket.status === 'closed' && closedAt) ? new Date(closedAt.getTime() + MC_TICKET_DELETE_AFTER_MS) : null,
+        lastMessageAt: ticket.lastMessageAt,
+        messageCount: (ticket.messages || []).length,
+        messages: (messages || []).map(m => ({
+            id: String(m._id),
+            authorId: m.authorId,
+            authorName: m.authorName,
+            authorAvatar: m.authorAvatar,
+            isStaff: !!m.isStaff,
+            system: !!m.system,
+            content: m.content,
+            date: m.date
+        }))
+    };
+}
+
+async function logMcTicketEvent(action, ticket, actor, details) {
+    try {
+        await global.PredCord.db.saveDashboardLogDB('masterclass', {
+            type: 'ticket',
+            action,
+            userId: actor ? actor.id : null,
+            userTag: actor ? actor.name : null,
+            targetId: ticket.userId,
+            targetTag: ticket.userName,
+            details: details || `Masterclass ticket #${ticket.ticketNumber} (${ticket.plan})`
+        });
+    } catch (e) {
+        console.error('[MC TICKET] log failed:', e.message);
+    }
+}
+
+async function addMcSystemMessage(ticketNumber, content) {
+    return global.PredCord.db.addMcTicketMessageDB(ticketNumber, {
+        authorId: null,
+        authorName: 'System',
+        authorAvatar: null,
+        isStaff: false,
+        system: true,
+        content
+    });
+}
+
+app.post('/api/site/mc-tickets/check-email', async (req, res) => {
+    if (!req.session.siteUser) return res.status(401).json({ error: 'not_authenticated' });
+    const result = await checkEmailDeliverable(req.body && req.body.email);
+    res.json({ valid: result.valid, reason: result.reason || null });
+});
+
+app.get('/api/site/mc-tickets/mine', async (req, res) => {
+    if (!req.session.siteUser) return res.status(401).json({ error: 'not_authenticated' });
+    try {
+        const tickets = await global.PredCord.db.listUserMcTicketsDB(req.session.siteUser.id);
+        res.json({ tickets: tickets.map(t => ({ ticketNumber: t.ticketNumber, plan: t.plan, status: t.status, lastMessageAt: t.lastMessageAt })) });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/site/mc-tickets/create', async (req, res) => {
+    if (!req.session.siteUser) return res.status(401).json({ error: 'not_authenticated' });
+    try {
+        const { email, planKey, acceptTerms } = req.body || {};
+        const plan = MC_TICKET_PLANS[planKey];
+        if (!plan) return res.status(400).json({ error: 'invalid_plan' });
+        if (acceptTerms !== true) return res.status(400).json({ error: 'terms_not_accepted' });
+
+        const check = await checkEmailDeliverable(email);
+        if (!check.valid) return res.status(400).json({ error: check.reason });
+
+        const { db } = global.PredCord;
+        const u = req.session.siteUser;
+
+        const existing = await db.findOpenMcTicketDB(u.id, planKey);
+        if (existing) return res.json({ ticketNumber: existing.ticketNumber, existing: true });
+
+        const ticket = await db.createMcTicketDB({
+            userId: u.id,
+            userName: u.username,
+            userAvatar: siteUserAvatarUrl(u),
+            email: check.email,
+            planKey,
+            plan: plan.name,
+            price: plan.price
+        });
+
+        logMcTicketEvent('mc_ticket_created', ticket, { id: u.id, name: u.username });
+        notifyNewMcTicket(ticket);
+        res.json({ ticketNumber: ticket.ticketNumber, existing: false });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+async function loadMcTicketForSiteUser(req, res, allowTranscript) {
+    if (!req.session.siteUser) {
+        res.status(401).json({ error: 'not_authenticated' });
+        return null;
+    }
+    const ticketNumber = parseInt(req.params.ticketNumber, 10);
+    if (!Number.isInteger(ticketNumber) || ticketNumber < 1) {
+        res.status(404).json({ error: 'not_found' });
+        return null;
+    }
+    const { db } = global.PredCord;
+    const isStaff = await isMcTicketStaff(req.session.siteUser.id);
+    const ticket = await db.getMcTicketDB(ticketNumber);
+    if (ticket) {
+        if (!isStaff && ticket.userId !== req.session.siteUser.id) {
+            res.status(404).json({ error: 'not_found' });
+            return null;
+        }
+        return { ticket, isStaff, isTranscript: false };
+    }
+    if (allowTranscript && isStaff) {
+        const transcript = await db.getMcTicketTranscriptDB(ticketNumber);
+        if (transcript) return { ticket: transcript, isStaff, isTranscript: true };
+    }
+    res.status(404).json({ error: 'not_found' });
+    return null;
+}
+
+function canStaffWrite(ticket, userId) {
+    if (!ticket.claimedById) return true;
+    if (ticket.claimedById === userId) return true;
+    return SUPER_OWNER_IDS.includes(userId);
+}
+
+app.get('/api/site/mc-tickets/:ticketNumber', async (req, res) => {
+    try {
+        const loaded = await loadMcTicketForSiteUser(req, res, true);
+        if (!loaded) return;
+        const { ticket, isStaff, isTranscript } = loaded;
+        const since = Math.max(0, parseInt(req.query.since, 10) || 0);
+        const messages = (ticket.messages || []).slice(since);
+        const viewerId = req.session.siteUser.id;
+        res.json({
+            ticket: serializeMcTicket(ticket, messages, isTranscript),
+            since,
+            viewer: {
+                id: viewerId,
+                isStaff,
+                isOwner: ticket.userId === viewerId,
+                isSuperOwner: SUPER_OWNER_IDS.includes(viewerId),
+                canWrite: !isTranscript && ticket.status === 'open' && (ticket.userId === viewerId || (isStaff && canStaffWrite(ticket, viewerId)))
+            }
+        });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/site/mc-tickets/:ticketNumber/messages', mcTicketMessageLimiter, async (req, res) => {
+    try {
+        const loaded = await loadMcTicketForSiteUser(req, res, false);
+        if (!loaded) return;
+        const { ticket, isStaff } = loaded;
+        const u = req.session.siteUser;
+        if (ticket.status !== 'open') return res.status(400).json({ error: 'ticket_closed' });
+        const isOwnerAuthor = ticket.userId === u.id;
+        if (!isOwnerAuthor && isStaff && !canStaffWrite(ticket, u.id)) return res.status(403).json({ error: 'claimed_by_other' });
+        const content = typeof req.body.content === 'string' ? req.body.content.trim() : '';
+        if (!content) return res.status(400).json({ error: 'empty_message' });
+        if (content.length > 2000) return res.status(400).json({ error: 'message_too_long' });
+        const message = await global.PredCord.db.addMcTicketMessageDB(ticket.ticketNumber, {
+            authorId: u.id,
+            authorName: u.username,
+            authorAvatar: siteUserAvatarUrl(u),
+            isStaff: isStaff && !isOwnerAuthor,
+            content
+        });
+        res.json({ success: true, messageId: message ? String(message._id) : null });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/site/mc-tickets/:ticketNumber/claim', async (req, res) => {
+    try {
+        const loaded = await loadMcTicketForSiteUser(req, res, false);
+        if (!loaded) return;
+        if (!loaded.isStaff) return res.status(403).json({ error: 'forbidden' });
+        const { ticket } = loaded;
+        if (ticket.status !== 'open') return res.status(400).json({ error: 'ticket_closed' });
+        const { db } = global.PredCord;
+        const u = req.session.siteUser;
+        const actor = { id: u.id, name: u.username };
+        const isSuper = SUPER_OWNER_IDS.includes(u.id);
+
+        if (req.body.action === 'unclaim') {
+            if (!ticket.claimedById) return res.json({ success: true });
+            if (ticket.claimedById !== u.id && !isSuper) return res.status(403).json({ error: 'claimed_by_other' });
+            const updated = await db.claimMcTicketDB(ticket.ticketNumber, null, ticket.claimedById);
+            if (!updated) return res.status(409).json({ error: 'conflict' });
+            await addMcSystemMessage(ticket.ticketNumber, `${u.username} unclaimed this ticket`);
+            logMcTicketEvent('mc_ticket_unclaimed', ticket, actor);
+            return res.json({ success: true });
+        }
+
+        if (ticket.claimedById === u.id) return res.json({ success: true });
+        if (ticket.claimedById && !isSuper) return res.status(409).json({ error: 'claimed_by_other', claimedByName: ticket.claimedByName });
+        const updated = await db.claimMcTicketDB(ticket.ticketNumber, actor, ticket.claimedById || null);
+        if (!updated) return res.status(409).json({ error: 'claimed_by_other' });
+        await addMcSystemMessage(ticket.ticketNumber, `${u.username} claimed this ticket`);
+        logMcTicketEvent('mc_ticket_claimed', ticket, actor);
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/site/mc-tickets/:ticketNumber/status', async (req, res) => {
+    try {
+        const loaded = await loadMcTicketForSiteUser(req, res, false);
+        if (!loaded) return;
+        if (!loaded.isStaff) return res.status(403).json({ error: 'forbidden' });
+        const { db } = global.PredCord;
+        const u = req.session.siteUser;
+        const actor = { id: u.id, name: u.username };
+        const status = req.body.status === 'closed' ? 'closed' : 'open';
+        if (loaded.ticket.status === status) return res.json({ success: true, status });
+
+        if (status === 'closed') {
+            await addMcSystemMessage(loaded.ticket.ticketNumber, `${u.username} closed this ticket. It will be deleted in 24 hours.`);
+        }
+        const updated = await db.setMcTicketStatusDB(loaded.ticket.ticketNumber, status, actor);
+        if (status === 'open') {
+            await addMcSystemMessage(loaded.ticket.ticketNumber, `${u.username} reopened this ticket`);
+            logMcTicketEvent('mc_ticket_reopened', loaded.ticket, actor);
+        } else {
+            const full = await db.getMcTicketDB(loaded.ticket.ticketNumber);
+            if (full) await db.saveMcTicketTranscriptDB(full);
+            logMcTicketEvent('mc_ticket_closed', loaded.ticket, actor);
+        }
+        res.json({ success: true, status: updated ? updated.status : status });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+async function cleanupExpiredMcTickets() {
+    try {
+        const { db } = global.PredCord;
+        const deleted = await db.deleteExpiredMcTicketsDB(new Date(Date.now() - MC_TICKET_DELETE_AFTER_MS));
+        for (const ticket of deleted) {
+            await logMcTicketEvent('mc_ticket_deleted', ticket, null, `Masterclass ticket #${ticket.ticketNumber} (${ticket.plan}) deleted 24h after closing, transcript kept`);
+        }
+        if (deleted.length) console.log(`[MC TICKET] deleted ${deleted.length} closed ticket(s), transcripts kept`);
+    } catch (e) {
+        console.error('[MC TICKET] cleanup failed:', e.message);
+    }
 }
 
 app.get('/api/videos', requireAuth, async (req, res) => {
@@ -1355,7 +1719,9 @@ app.get('/api/masterclass/permissions', requireAuth, async (req, res) => {
         res.json({
             viewUserIds: settings.viewUserIds || [],
             uploadUserIds: settings.uploadUserIds || [],
-            manageUserIds: settings.manageUserIds || []
+            manageUserIds: settings.manageUserIds || [],
+            ticketStaffUserIds: settings.ticketStaffUserIds || [],
+            ticketNotifyChannelId: settings.ticketNotifyChannelId || ''
         });
     } catch (e) {
         res.status(500).json({ error: e.message });
@@ -1368,13 +1734,67 @@ app.post('/api/masterclass/permissions', requireAuth, writeLimiter, async (req, 
         const settings = await global.PredCord.db.saveMasterclassSettingsDB({
             viewUserIds: req.body.viewUserIds,
             uploadUserIds: req.body.uploadUserIds,
-            manageUserIds: req.body.manageUserIds
+            manageUserIds: req.body.manageUserIds,
+            ticketStaffUserIds: req.body.ticketStaffUserIds,
+            ticketNotifyChannelId: req.body.ticketNotifyChannelId
         });
         res.json({
             viewUserIds: settings.viewUserIds || [],
             uploadUserIds: settings.uploadUserIds || [],
-            manageUserIds: settings.manageUserIds || []
+            manageUserIds: settings.manageUserIds || [],
+            ticketStaffUserIds: settings.ticketStaffUserIds || [],
+            ticketNotifyChannelId: settings.ticketNotifyChannelId || ''
         });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.get('/api/masterclass/tickets', requireAuth, async (req, res) => {
+    try {
+        const flags = await getMasterclassFlags(req);
+        if (!flags.canTickets) return res.status(403).json({ error: 'Access Denied' });
+        const { db } = global.PredCord;
+        const preview = (last) => last ? { authorName: last.authorName, isStaff: !!last.isStaff, system: !!last.system, content: String(last.content || '').slice(0, 140) } : null;
+
+        if (req.query.status === 'transcripts') {
+            const transcripts = await db.listMcTicketTranscriptsDB();
+            return res.json(transcripts.map(t => ({
+                ticketNumber: t.ticketNumber,
+                userId: t.userId,
+                userName: t.userName,
+                userAvatar: t.userAvatar,
+                email: t.email,
+                plan: t.plan,
+                price: t.price,
+                status: 'transcript',
+                claimedByName: t.claimedByName || null,
+                closedByName: t.closedByName || null,
+                createdAt: t.openedAt,
+                lastMessageAt: t.closedAt,
+                deletedAt: t.deletedAt || null,
+                lastMessage: preview((t.messages || [])[0])
+            })));
+        }
+
+        const status = ['open', 'closed'].includes(req.query.status) ? req.query.status : 'all';
+        const tickets = await db.listMcTicketsDB(status);
+        res.json(tickets.map(t => ({
+            ticketNumber: t.ticketNumber,
+            userId: t.userId,
+            userName: t.userName,
+            userAvatar: t.userAvatar,
+            email: t.email,
+            plan: t.plan,
+            price: t.price,
+            status: t.status,
+            claimedByName: t.claimedByName || null,
+            closedByName: t.closedByName || null,
+            createdAt: t.createdAt,
+            lastMessageAt: t.lastMessageAt,
+            deleteAt: (t.status === 'closed' && t.closedAt) ? new Date(new Date(t.closedAt).getTime() + MC_TICKET_DELETE_AFTER_MS) : null,
+            lastMessage: preview((t.messages || [])[0])
+        })));
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -2549,6 +2969,14 @@ app.get('/community', (req, res) => {
     res.sendFile(path.join(SITE_DIR, 'community.html'));
 });
 
+app.get('/ticket/:ticketNumber', (req, res) => {
+    if (!req.session.siteUser) {
+        return res.redirect('/site-auth/discord?next=' + encodeURIComponent('/ticket/' + String(req.params.ticketNumber).replace(/[^0-9]/g, '')));
+    }
+    res.set('Cache-Control', 'no-store');
+    res.sendFile(path.join(SITE_DIR, 'ticket.html'));
+});
+
 app.get('/terms', (req, res) => {
     res.set('Cache-Control', 'no-store');
     res.sendFile(path.join(SITE_DIR, 'terms.html'));
@@ -2565,6 +2993,8 @@ app.get('/dashboard', requireAuth, (req, res) => {
 });
 
 waitForBot().then(() => {
+    cleanupExpiredMcTickets();
+    setInterval(cleanupExpiredMcTickets, 10 * 60 * 1000);
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`Dashboard running on http://0.0.0.0:${PORT}`);
     });
