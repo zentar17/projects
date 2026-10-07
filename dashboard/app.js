@@ -28,6 +28,7 @@ let canUploadVideos = false;
 let canManageVideos = false;
 let canMcTickets = false;
 let canRoleSync = false;
+let canDropmaps = false;
 let mcTicketsStatus = 'open';
 let selectedServer = null;
 let serverAccess = { predcord: true, community: true };
@@ -228,9 +229,11 @@ async function init() {
         canManageVideos = !!meData.canManageVideos;
         canMcTickets = !!meData.canMcTickets;
         canRoleSync = !!meData.canRoleSync;
+        canDropmaps = !!meData.canDropmaps;
 
         const navVideosGroup = document.getElementById('navVideosGroup');
         if (navVideosGroup) navVideosGroup.classList.toggle('visible', !!meData.canViewVideos);
+        try { localStorage.setItem('pdCanViewVideos', meData.canViewVideos ? '1' : '0'); } catch (e) {}
 
         await loadMyPermissions();
         await loadGuilds();
@@ -501,6 +504,12 @@ function updatePermissionsTabVisibility() {
         else roleSyncTab.classList.add('hidden');
     }
 
+    const dropmapsTab = document.getElementById('navTabDropmaps');
+    if (dropmapsTab) {
+        if (canDropmaps && isCommunity) dropmapsTab.classList.remove('hidden');
+        else dropmapsTab.classList.add('hidden');
+    }
+
     const statsTab = document.getElementById('navTabStats');
     if (statsTab) {
         if (isOwner()) statsTab.classList.remove('hidden');
@@ -528,6 +537,12 @@ function updatePermissionsTabVisibility() {
     if (isCommunity) {
         const activeTab = document.querySelector('.nav-tab.active');
         if (activeTab && (activeTab.dataset.tab === 'config' || activeTab.dataset.tab === 'tickets')) {
+            const commandsTab = document.querySelector('.nav-tab[data-tab="commands"]');
+            if (commandsTab) commandsTab.click();
+        }
+    } else {
+        const activeTab = document.querySelector('.nav-tab.active');
+        if (activeTab && activeTab.dataset.tab === 'dropmaps') {
             const commandsTab = document.querySelector('.nav-tab[data-tab="commands"]');
             if (commandsTab) commandsTab.click();
         }
@@ -2552,6 +2567,423 @@ async function loadRoleSync() {
     }
 }
 
+let dropmapData = { areas: [], miniAreas: [], types: ['poi', 'split'] };
+let dropmapExpanded = new Set();
+let dropmapStatusTimer = null;
+let dropmapModalState = null;
+
+const DROPMAP_TYPE_LABELS = { poi: 'POI', split: 'Split' };
+
+function setDropmapStatus(state, text) {
+    const el = document.getElementById('dropmapStatus');
+    if (!el) return;
+    clearTimeout(dropmapStatusTimer);
+    el.className = `role-sync-status ${state}`;
+    if (state === 'saving') el.textContent = 'Saving…';
+    else if (state === 'saved') {
+        el.innerHTML = '&#10003; Saved';
+        dropmapStatusTimer = setTimeout(() => { el.textContent = ''; }, 2500);
+    } else if (state === 'error') el.textContent = text || 'Could not save';
+    else el.textContent = '';
+}
+
+function dropmapCodeText(code) {
+    return code ? `${DROPMAP_TYPE_LABELS[code.type] || code.type} #${code.number}` : '';
+}
+
+function dropmapAllCodes() {
+    const list = [];
+    dropmapData.areas.forEach(a => {
+        if (a.code) list.push(a.code);
+        a.subAreas.forEach(s => { if (s.code) list.push(s.code); });
+    });
+    dropmapData.miniAreas.forEach(m => { if (m.code) list.push(m.code); });
+    return list;
+}
+
+function dropmapNextNumber(type) {
+    const used = new Set(dropmapAllCodes().filter(c => c.type === type).map(c => c.number));
+    let n = 1;
+    while (used.has(n)) n++;
+    return n;
+}
+
+function dropmapCodeControl(areaName, subAreaName, code) {
+    const typeOptions = ['<option value="">No code</option>']
+        .concat(dropmapData.types.map(t => `<option value="${t}"${code && code.type === t ? ' selected' : ''}>${DROPMAP_TYPE_LABELS[t] || t}</option>`))
+        .join('');
+    return `
+        <div class="dm-code${code ? ' has-code' : ''}" data-area="${escapeAttr(areaName)}" data-sub="${escapeAttr(subAreaName || '')}">
+            <select class="dm-code-type" title="Type">${typeOptions}</select>
+            <span class="dm-code-hash">#</span>
+            <input class="dm-code-number" type="number" min="1" max="9999" value="${code ? code.number : ''}" ${code ? '' : 'disabled'} title="Dropmap number">
+        </div>`;
+}
+
+function dropmapThumb(src, caption, extraClass) {
+    if (!src) return `<div class="dm-thumb dm-thumb-empty ${extraClass || ''}">No image</div>`;
+    return `<button type="button" class="dm-thumb ${extraClass || ''}" data-src="${escapeAttr(src)}" data-caption="${escapeAttr(caption)}"><img src="${escapeAttr(src)}" alt="" loading="lazy"></button>`;
+}
+
+function dropmapMatches(query, ...parts) {
+    if (!query) return true;
+    return parts.filter(Boolean).some(p => String(p).toLowerCase().includes(query));
+}
+
+function renderDropmaps() {
+    const areasEl = document.getElementById('dropmapAreas');
+    const minisEl = document.getElementById('dropmapMinis');
+    const countsEl = document.getElementById('dropmapCounts');
+    if (!areasEl || !minisEl) return;
+    const query = (document.getElementById('dropmapSearch')?.value || '').trim().toLowerCase();
+
+    const subCount = dropmapData.areas.reduce((n, a) => n + a.subAreas.length, 0);
+    if (countsEl) countsEl.textContent = `${dropmapData.areas.length} areas · ${subCount} sub-areas · ${dropmapData.miniAreas.length} mini areas`;
+
+    const areaHtml = dropmapData.areas.map(area => {
+        const areaMatch = dropmapMatches(query, area.name, dropmapCodeText(area.code));
+        const subs = area.subAreas.filter(s => areaMatch || dropmapMatches(query, s.name, dropmapCodeText(s.code)));
+        if (query && !areaMatch && !subs.length) return '';
+        const open = !!query || dropmapExpanded.has(area.name);
+        const subsHtml = subs.map(sub => `
+            <div class="dm-tile">
+                ${dropmapThumb(sub.src, `${area.name} - ${sub.name}`)}
+                <div class="dm-tile-info">
+                    <div class="dm-tile-name" title="${escapeAttr(sub.name)}">${escapeHtml(sub.name)}</div>
+                    ${dropmapCodeControl(area.name, sub.name, sub.code)}
+                </div>
+                <div class="dm-tile-actions">
+                    <button type="button" class="dm-icon-btn" data-action="edit-sub" data-area="${escapeAttr(area.name)}" data-sub="${escapeAttr(sub.name)}" title="Edit">&#9998;</button>
+                    <button type="button" class="dm-icon-btn danger" data-action="delete-sub" data-area="${escapeAttr(area.name)}" data-sub="${escapeAttr(sub.name)}" title="Delete">&#10005;</button>
+                </div>
+            </div>`).join('');
+        return `
+        <div class="dm-area${open ? ' open' : ''}">
+            <div class="dm-area-head" data-toggle="${escapeAttr(area.name)}">
+                ${dropmapThumb(area.src, area.name, 'dm-thumb-small')}
+                <div class="dm-area-title">
+                    <span class="dm-area-name">${escapeHtml(area.name)}</span>
+                    <span class="dm-area-sub">${area.subAreas.length} sub-area${area.subAreas.length === 1 ? '' : 's'}</span>
+                </div>
+                ${dropmapCodeControl(area.name, null, area.code)}
+                <div class="dm-area-actions">
+                    <button type="button" class="dm-small-btn" data-action="add-sub" data-area="${escapeAttr(area.name)}">+ Sub-area</button>
+                    <button type="button" class="dm-icon-btn" data-action="edit-area" data-area="${escapeAttr(area.name)}" title="Edit">&#9998;</button>
+                    <button type="button" class="dm-icon-btn danger" data-action="delete-area" data-area="${escapeAttr(area.name)}" title="Delete">&#10005;</button>
+                    <span class="dm-chevron">&#9662;</span>
+                </div>
+            </div>
+            <div class="dm-area-body">
+                ${subsHtml ? `<div class="dropmap-grid">${subsHtml}</div>` : '<p class="dm-empty">No sub-areas yet.</p>'}
+            </div>
+        </div>`;
+    }).join('');
+
+    areasEl.innerHTML = areaHtml || `<div class="empty-state"><h3>${query ? 'No results' : 'No areas yet'}</h3><p>${query ? 'Try a different search' : 'Create an area to add its sub-areas'}</p></div>`;
+
+    const miniHtml = dropmapData.miniAreas
+        .filter(m => dropmapMatches(query, m.name, dropmapCodeText(m.code)))
+        .map(mini => `
+            <div class="dm-tile">
+                ${dropmapThumb(mini.src, mini.name)}
+                <div class="dm-tile-info">
+                    <div class="dm-tile-name" title="${escapeAttr(mini.name)}">${escapeHtml(mini.name)}</div>
+                    ${dropmapCodeControl(mini.name, null, mini.code)}
+                </div>
+                <div class="dm-tile-actions">
+                    <button type="button" class="dm-icon-btn" data-action="edit-mini" data-area="${escapeAttr(mini.name)}" title="Edit">&#9998;</button>
+                    <button type="button" class="dm-icon-btn danger" data-action="delete-mini" data-area="${escapeAttr(mini.name)}" title="Delete">&#10005;</button>
+                </div>
+            </div>`).join('');
+    minisEl.innerHTML = miniHtml || `<div class="empty-state"><h3>${query ? 'No results' : 'No mini areas yet'}</h3></div>`;
+
+    bindDropmapEvents();
+}
+
+function bindDropmapEvents() {
+    const root = document.getElementById('tab-dropmaps');
+    if (!root) return;
+
+    root.querySelectorAll('.dm-area-head').forEach(head => {
+        head.onclick = (e) => {
+            if (e.target.closest('button, select, input, .dm-code')) return;
+            const name = head.dataset.toggle;
+            if (dropmapExpanded.has(name)) dropmapExpanded.delete(name);
+            else dropmapExpanded.add(name);
+            head.parentElement.classList.toggle('open');
+        };
+    });
+
+    root.querySelectorAll('.dm-thumb[data-src]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            openDropmapLightbox(btn.dataset.src, btn.dataset.caption);
+        };
+    });
+
+    root.querySelectorAll('.dm-code').forEach(box => {
+        const typeSel = box.querySelector('.dm-code-type');
+        const numInput = box.querySelector('.dm-code-number');
+        const areaName = box.dataset.area;
+        const subAreaName = box.dataset.sub || null;
+        typeSel.onchange = () => {
+            const type = typeSel.value;
+            if (!type) {
+                numInput.value = '';
+                numInput.disabled = true;
+                saveDropmapCode(areaName, subAreaName, null, null);
+                return;
+            }
+            numInput.disabled = false;
+            const number = dropmapNextNumber(type);
+            numInput.value = number;
+            saveDropmapCode(areaName, subAreaName, type, number);
+        };
+        const commitNumber = () => {
+            const type = typeSel.value;
+            if (!type) return;
+            const number = parseInt(numInput.value, 10);
+            if (!Number.isInteger(number) || number < 1) {
+                renderDropmaps();
+                return;
+            }
+            saveDropmapCode(areaName, subAreaName, type, number);
+        };
+        numInput.onchange = commitNumber;
+        numInput.onkeydown = (e) => { if (e.key === 'Enter') numInput.blur(); };
+    });
+
+    root.querySelectorAll('[data-action]').forEach(btn => {
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            const action = btn.dataset.action;
+            const area = btn.dataset.area;
+            const sub = btn.dataset.sub;
+            const findArea = () => dropmapData.areas.find(a => a.name === area) || dropmapData.miniAreas.find(m => m.name === area);
+            if (action === 'add-sub') openDropmapModal({ mode: 'add-sub', area });
+            else if (action === 'edit-area' || action === 'edit-mini') {
+                const item = findArea();
+                if (item) openDropmapModal({ mode: action, area, name: item.name, image: item.image, src: item.src });
+            } else if (action === 'edit-sub') {
+                const parent = dropmapData.areas.find(a => a.name === area);
+                const item = parent && parent.subAreas.find(s => s.name === sub);
+                if (item) openDropmapModal({ mode: 'edit-sub', area, sub, name: item.name, image: item.image, src: item.src });
+            } else if (action === 'delete-area' || action === 'delete-mini') {
+                const label = action === 'delete-area' ? `Delete the area "${area}" and all its sub-areas?` : `Delete the mini area "${area}"?`;
+                showConfirmDialog('Delete dropmap', label, () => dropmapRequest('DELETE', `/api/dropmaps/areas/${encodeURIComponent(area)}`));
+            } else if (action === 'delete-sub') {
+                showConfirmDialog('Delete sub-area', `Delete "${sub}" from "${area}"?`, () => dropmapRequest('DELETE', `/api/dropmaps/areas/${encodeURIComponent(area)}/subareas/${encodeURIComponent(sub)}`));
+            }
+        };
+    });
+}
+
+async function dropmapRequest(method, url, body) {
+    setDropmapStatus('saving');
+    try {
+        const res = await fetch(url, {
+            method,
+            headers: body ? { 'Content-Type': 'application/json' } : undefined,
+            body: body ? JSON.stringify(body) : undefined
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Could not save');
+        dropmapData = data;
+        renderDropmaps();
+        setDropmapStatus('saved');
+        return { ok: true };
+    } catch (e) {
+        setDropmapStatus('error', e.message);
+        return { ok: false, error: e.message };
+    }
+}
+
+async function saveDropmapCode(areaName, subAreaName, type, number) {
+    const result = await dropmapRequest('PUT', '/api/dropmaps/code', { areaName, subAreaName, type, number });
+    if (!result.ok) {
+        showToast(result.error, 'error');
+        renderDropmaps();
+    }
+}
+
+function openDropmapLightbox(src, caption) {
+    const box = document.getElementById('dropmapLightbox');
+    const img = document.getElementById('dropmapLightboxImg');
+    const cap = document.getElementById('dropmapLightboxCaption');
+    if (!box || !img) return;
+    img.src = src;
+    cap.textContent = caption || '';
+    box.classList.remove('hidden');
+    box.onclick = () => box.classList.add('hidden');
+}
+
+function setDropmapModalPreview(src) {
+    const preview = document.getElementById('dropmapModalPreview');
+    if (!preview) return;
+    preview.innerHTML = src ? `<img src="${escapeAttr(src)}" alt="">` : '<span>No image</span>';
+    const img = preview.querySelector('img');
+    if (img) img.onerror = () => { preview.innerHTML = '<span>Image could not be loaded</span>'; };
+}
+
+function closeDropmapModal() {
+    document.getElementById('dropmapModal')?.classList.add('hidden');
+    dropmapModalState = null;
+}
+
+function openDropmapModal(state) {
+    const modal = document.getElementById('dropmapModal');
+    if (!modal) return;
+    dropmapModalState = { ...state, imageRef: state.image || null, uploading: false };
+    const titles = {
+        'add-area': 'New area',
+        'add-mini': 'New mini area',
+        'add-sub': `New sub-area · ${state.area}`,
+        'edit-area': 'Edit area',
+        'edit-mini': 'Edit mini area',
+        'edit-sub': `Edit sub-area · ${state.area}`
+    };
+    document.getElementById('dropmapModalTitle').textContent = titles[state.mode] || 'Dropmap';
+    const nameInput = document.getElementById('dropmapModalName');
+    const urlInput = document.getElementById('dropmapModalUrl');
+    const fileInput = document.getElementById('dropmapModalFile');
+    const error = document.getElementById('dropmapModalError');
+    const saveBtn = document.getElementById('dropmapModalSave');
+    nameInput.value = state.name || '';
+    urlInput.value = state.image && !state.image.startsWith('upload:') ? state.image : '';
+    urlInput.placeholder = state.image && state.image.startsWith('upload:') ? 'Uploaded image (paste a URL to replace it)' : 'Paste an image URL...';
+    error.classList.add('hidden');
+    saveBtn.disabled = false;
+    setDropmapModalPreview(state.src || null);
+
+    urlInput.oninput = () => {
+        const v = urlInput.value.trim();
+        if (v) {
+            dropmapModalState.imageRef = v;
+            setDropmapModalPreview(/^https?:\/\//i.test(v) ? `/api/dropmaps/image?ref=${encodeURIComponent(v)}` : null);
+        } else {
+            dropmapModalState.imageRef = state.image && state.image.startsWith('upload:') ? state.image : null;
+            setDropmapModalPreview(dropmapModalState.imageRef ? state.src : null);
+        }
+    };
+
+    document.getElementById('dropmapModalUploadBtn').onclick = () => fileInput.click();
+    fileInput.value = '';
+    fileInput.onchange = async () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        if (file.size > 8 * 1024 * 1024) {
+            error.textContent = 'Image too large (max 8 MB)';
+            error.classList.remove('hidden');
+            return;
+        }
+        const form = new FormData();
+        form.append('image', file);
+        dropmapModalState.uploading = true;
+        saveBtn.disabled = true;
+        error.classList.add('hidden');
+        document.getElementById('dropmapModalPreview').innerHTML = '<span>Uploading…</span>';
+        try {
+            const res = await fetch('/api/dropmaps/upload', { method: 'POST', body: form });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Upload failed');
+            if (!dropmapModalState) return;
+            dropmapModalState.imageRef = data.ref;
+            urlInput.value = '';
+            urlInput.placeholder = 'Uploaded image (paste a URL to replace it)';
+            setDropmapModalPreview(data.src);
+        } catch (e) {
+            error.textContent = e.message;
+            error.classList.remove('hidden');
+            setDropmapModalPreview(dropmapModalState && dropmapModalState.imageRef ? state.src : null);
+        } finally {
+            if (dropmapModalState) dropmapModalState.uploading = false;
+            saveBtn.disabled = false;
+        }
+    };
+
+    saveBtn.onclick = submitDropmapModal;
+    document.getElementById('dropmapModalCancel').onclick = closeDropmapModal;
+    nameInput.onkeydown = (e) => { if (e.key === 'Enter') submitDropmapModal(); };
+    modal.onclick = (e) => { if (e.target.id === 'dropmapModal') closeDropmapModal(); };
+
+    modal.classList.remove('hidden');
+    setTimeout(() => nameInput.focus(), 60);
+}
+
+async function submitDropmapModal() {
+    const st = dropmapModalState;
+    if (!st || st.uploading) return;
+    const error = document.getElementById('dropmapModalError');
+    const saveBtn = document.getElementById('dropmapModalSave');
+    const name = document.getElementById('dropmapModalName').value.trim();
+    const image = st.imageRef;
+    const fail = (msg) => {
+        error.textContent = msg;
+        error.classList.remove('hidden');
+    };
+    if (!name) return fail('Enter a name');
+    if (!image) return fail('Add an image (URL or upload)');
+
+    let method = 'POST';
+    let url = '/api/dropmaps/areas';
+    let body;
+    const areaPath = `/api/dropmaps/areas/${encodeURIComponent(st.area || '')}`;
+    if (st.mode === 'add-area' || st.mode === 'add-mini') {
+        body = { name, image, kind: st.mode === 'add-mini' ? 'miniarea' : 'area' };
+    } else if (st.mode === 'add-sub') {
+        url = `${areaPath}/subareas`;
+        body = { name, image };
+    } else if (st.mode === 'edit-area' || st.mode === 'edit-mini') {
+        method = 'PATCH';
+        url = areaPath;
+        body = { newName: name, image };
+    } else if (st.mode === 'edit-sub') {
+        method = 'PATCH';
+        url = `${areaPath}/subareas/${encodeURIComponent(st.sub)}`;
+        body = { newName: name, image };
+    }
+
+    saveBtn.disabled = true;
+    const result = await dropmapRequest(method, url, body);
+    saveBtn.disabled = false;
+    if (!result.ok) return fail(result.error);
+    if (st.mode === 'add-sub') dropmapExpanded.add(st.area);
+    if (st.mode === 'edit-area' && st.area !== name && dropmapExpanded.has(st.area)) {
+        dropmapExpanded.delete(st.area);
+        dropmapExpanded.add(name);
+        renderDropmaps();
+    }
+    closeDropmapModal();
+}
+
+async function loadDropmaps() {
+    const areasEl = document.getElementById('dropmapAreas');
+    if (!areasEl) return;
+    areasEl.innerHTML = '<div class="loading">Loading</div>';
+    document.getElementById('dropmapMinis').innerHTML = '';
+    setDropmapStatus('');
+
+    document.getElementById('dropmapNewAreaBtn').onclick = () => openDropmapModal({ mode: 'add-area' });
+    document.getElementById('dropmapNewMiniBtn').onclick = () => openDropmapModal({ mode: 'add-mini' });
+    const search = document.getElementById('dropmapSearch');
+    if (search) search.oninput = () => renderDropmaps();
+
+    try {
+        const res = await fetch('/api/dropmaps');
+        if (res.status === 403) {
+            showAccessDenied();
+            areasEl.innerHTML = '';
+            return;
+        }
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Failed to load dropmaps');
+        dropmapData = data;
+        renderDropmaps();
+    } catch (e) {
+        areasEl.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${escapeHtml(e.message)}</p></div>`;
+    }
+}
+
 async function loadBlacklist() {
     const list = document.getElementById('blacklistList');
     list.innerHTML = '<div class="loading">Loading</div>';
@@ -3709,6 +4141,7 @@ function setupEvents() {
 
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) logoutBtn.onclick = async () => {
+        try { localStorage.removeItem('pdCanViewVideos'); } catch (e) {}
         await fetch('/api/logout', { method: 'POST' });
         window.location.href = '/login';
     };
@@ -3747,6 +4180,12 @@ function setupEvents() {
                         return;
                     }
                     loadRoleSync();
+                } else if (target === 'dropmaps') {
+                    if (!canDropmaps || selectedServer !== 'community') {
+                        showAccessDenied();
+                        return;
+                    }
+                    loadDropmaps();
                 } else if (target === 'blacklist') {
                     if (!userHasDashboardPermission('viewLogsRoles')) {
                         showAccessDenied();
