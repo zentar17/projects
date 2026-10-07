@@ -2609,15 +2609,75 @@ function dropmapNextNumber(type) {
 }
 
 function dropmapCodeControl(areaName, subAreaName, code) {
-    const typeOptions = ['<option value="">No code</option>']
-        .concat(dropmapData.types.map(t => `<option value="${t}"${code && code.type === t ? ' selected' : ''}>${DROPMAP_TYPE_LABELS[t] || t}</option>`))
-        .join('');
+    const type = code ? code.type : '';
+    const label = code ? (DROPMAP_TYPE_LABELS[code.type] || code.type) : 'Add code';
     return `
-        <div class="dm-code${code ? ' has-code' : ''}" data-area="${escapeAttr(areaName)}" data-sub="${escapeAttr(subAreaName || '')}">
-            <select class="dm-code-type" title="Type">${typeOptions}</select>
-            <span class="dm-code-hash">#</span>
-            <input class="dm-code-number" type="number" min="1" max="9999" value="${code ? code.number : ''}" ${code ? '' : 'disabled'} title="Dropmap number">
+        <div class="dm-code${code ? ` has-code type-${escapeAttr(type)}` : ''}" data-area="${escapeAttr(areaName)}" data-sub="${escapeAttr(subAreaName || '')}" data-type="${escapeAttr(type)}">
+            <button type="button" class="dm-code-trigger" aria-haspopup="listbox">
+                ${code ? '<span class="dm-code-dot"></span>' : '<span class="dm-code-plus">+</span>'}
+                <span class="dm-code-label">${escapeHtml(label)}</span>
+                <svg class="dm-code-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            ${code ? `<label class="dm-code-num"><span>#</span><input class="dm-code-number" type="number" min="1" max="9999" value="${code.number}" title="Dropmap number"></label>` : ''}
         </div>`;
+}
+
+let dropmapTypeMenuEl = null;
+
+function closeDropmapTypeMenu() {
+    if (!dropmapTypeMenuEl) return;
+    dropmapTypeMenuEl.remove();
+    dropmapTypeMenuEl = null;
+    document.querySelectorAll('.dm-code.menu-open').forEach(el => el.classList.remove('menu-open'));
+    document.removeEventListener('mousedown', onDropmapMenuOutside, true);
+    window.removeEventListener('scroll', closeDropmapTypeMenu, true);
+    window.removeEventListener('resize', closeDropmapTypeMenu);
+}
+
+function onDropmapMenuOutside(e) {
+    if (dropmapTypeMenuEl && !dropmapTypeMenuEl.contains(e.target) && !e.target.closest('.dm-code-trigger')) closeDropmapTypeMenu();
+}
+
+function openDropmapTypeMenu(box, onPick) {
+    const wasOpen = box.classList.contains('menu-open');
+    closeDropmapTypeMenu();
+    if (wasOpen) return;
+    const current = box.dataset.type || '';
+    const items = [{ value: '', label: 'No code' }].concat(dropmapData.types.map(t => ({ value: t, label: DROPMAP_TYPE_LABELS[t] || t })));
+    const menu = document.createElement('div');
+    menu.className = 'dm-type-menu';
+    menu.setAttribute('role', 'listbox');
+    menu.innerHTML = items.map(it => `
+        <button type="button" class="dm-type-option type-${it.value || 'none'}${it.value === current ? ' selected' : ''}" data-value="${escapeAttr(it.value)}" role="option">
+            <span class="dm-type-dot"></span>
+            <span class="dm-type-label">${escapeHtml(it.label)}</span>
+            ${it.value ? `<span class="dm-type-next">#${it.value === current && box.querySelector('.dm-code-number') ? box.querySelector('.dm-code-number').value : dropmapNextNumber(it.value)}</span>` : ''}
+            <svg class="dm-type-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+        </button>`).join('');
+    document.body.appendChild(menu);
+    const trigger = box.querySelector('.dm-code-trigger');
+    const r = trigger.getBoundingClientRect();
+    const mw = menu.offsetWidth;
+    const mh = menu.offsetHeight;
+    let left = Math.min(r.left, window.innerWidth - mw - 8);
+    let top = r.bottom + 6;
+    if (top + mh > window.innerHeight - 8) top = r.top - mh - 6;
+    menu.style.left = `${Math.max(8, left)}px`;
+    menu.style.top = `${Math.max(8, top)}px`;
+    box.classList.add('menu-open');
+    dropmapTypeMenuEl = menu;
+    menu.querySelectorAll('.dm-type-option').forEach(opt => {
+        opt.onclick = () => {
+            const value = opt.dataset.value;
+            closeDropmapTypeMenu();
+            if (value !== current) onPick(value);
+        };
+    });
+    setTimeout(() => {
+        document.addEventListener('mousedown', onDropmapMenuOutside, true);
+        window.addEventListener('scroll', closeDropmapTypeMenu, true);
+        window.addEventListener('resize', closeDropmapTypeMenu);
+    }, 0);
 }
 
 function dropmapThumb(src, caption, extraClass) {
@@ -2631,6 +2691,7 @@ function dropmapMatches(query, ...parts) {
 }
 
 function renderDropmaps() {
+    closeDropmapTypeMenu();
     const areasEl = document.getElementById('dropmapAreas');
     const minisEl = document.getElementById('dropmapMinis');
     const countsEl = document.getElementById('dropmapCounts');
@@ -2706,7 +2767,7 @@ function bindDropmapEvents() {
 
     root.querySelectorAll('.dm-area-head').forEach(head => {
         head.onclick = (e) => {
-            if (e.target.closest('button, select, input, .dm-code')) return;
+            if (e.target.closest('button, input, .dm-code')) return;
             const name = head.dataset.toggle;
             if (dropmapExpanded.has(name)) dropmapExpanded.delete(name);
             else dropmapExpanded.add(name);
@@ -2722,35 +2783,34 @@ function bindDropmapEvents() {
     });
 
     root.querySelectorAll('.dm-code').forEach(box => {
-        const typeSel = box.querySelector('.dm-code-type');
+        const trigger = box.querySelector('.dm-code-trigger');
         const numInput = box.querySelector('.dm-code-number');
         const areaName = box.dataset.area;
         const subAreaName = box.dataset.sub || null;
-        typeSel.onchange = () => {
-            const type = typeSel.value;
-            if (!type) {
-                numInput.value = '';
-                numInput.disabled = true;
-                saveDropmapCode(areaName, subAreaName, null, null);
-                return;
-            }
-            numInput.disabled = false;
-            const number = dropmapNextNumber(type);
-            numInput.value = number;
-            saveDropmapCode(areaName, subAreaName, type, number);
+        trigger.onclick = (e) => {
+            e.stopPropagation();
+            openDropmapTypeMenu(box, (type) => {
+                if (!type) saveDropmapCode(areaName, subAreaName, null, null);
+                else saveDropmapCode(areaName, subAreaName, type, dropmapNextNumber(type));
+            });
         };
-        const commitNumber = () => {
-            const type = typeSel.value;
-            if (!type) return;
-            const number = parseInt(numInput.value, 10);
-            if (!Number.isInteger(number) || number < 1) {
-                renderDropmaps();
-                return;
-            }
-            saveDropmapCode(areaName, subAreaName, type, number);
-        };
-        numInput.onchange = commitNumber;
-        numInput.onkeydown = (e) => { if (e.key === 'Enter') numInput.blur(); };
+        if (numInput) {
+            numInput.onclick = (e) => e.stopPropagation();
+            numInput.onchange = () => {
+                const number = parseInt(numInput.value, 10);
+                if (!Number.isInteger(number) || number < 1) {
+                    renderDropmaps();
+                    return;
+                }
+                saveDropmapCode(areaName, subAreaName, box.dataset.type, number);
+            };
+            numInput.onkeydown = (e) => {
+                if (e.key === 'Enter') numInput.blur();
+                if (e.key === 'Escape') {
+                    renderDropmaps();
+                }
+            };
+        }
     });
 
     root.querySelectorAll('[data-action]').forEach(btn => {
@@ -4265,6 +4325,7 @@ function setupEvents() {
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+            closeDropmapTypeMenu();
             closeModal();
         }
     });
