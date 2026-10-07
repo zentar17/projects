@@ -3757,3 +3757,40 @@ aside h3 {
     .dropmap-header-actions { width: 100%; }
     .dm-tile-actions { opacity: 1; }
 }
+
+.toggle-row.config-toggle-row {
+    justify-content: space-between;
+    max-width: 520px;
+    margin-top: 6px !important;
+    padding: 14px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: var(--text) !important;
+    transition: border-color 0.2s ease;
+}
+
+.toggle-row.config-toggle-row:hover { border-color: var(--border-hover); }
+
+.toggle-row.config-toggle-row .toggle-switch {
+    width: 40px;
+    height: 22px;
+    border-radius: 11px;
+}
+
+.toggle-row.config-toggle-row .toggle-switch::after {
+    width: 18px;
+    height: 18px;
+}
+
+.toggle-row.config-toggle-row .toggle-input:checked + .toggle-switch::after {
+    transform: translateX(18px);
+}
+
+.toggle-row.config-toggle-row .toggle-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+}
