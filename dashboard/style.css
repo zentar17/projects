@@ -5255,3 +5255,5 @@ main .mc-ticket-num, main .mc-ticket-claim.claimed, main .modlog-server-badge { 
 .bl-count-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
 .bl-count-row .bans-count { margin: 0; }
 #blacklistSyncBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.confirm-modal-actions .btn-primary { flex: 1; height: 36px; font-family: 'Montserrat', sans-serif; font-weight: 600; }
