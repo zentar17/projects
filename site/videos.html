@@ -837,7 +837,10 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 .footer-bottom-legal a { color: var(--text-dim); text-decoration: none; transition: color 0.2s ease; }
 .footer-bottom-legal a:hover { color: var(--text); }
 .footer-bottom-divider { opacity: 0.4; }
-.footer-disclaimer { opacity: 0.65; font-size: 11.5px; }
+.footer-disclaimer { opacity: 0.65; font-size: 11.5px; margin-left: 10px; }
+.footer-dev { color: var(--text-dim); text-decoration: none; font-size: 12px; transition: color 0.2s ease; }
+.footer-dev b { font-weight: 700; color: var(--text); }
+.footer-dev:hover b { text-decoration: underline; }
 
 @media (max-width: 900px) {
     header { grid-template-columns: 1fr; row-gap: 14px; padding: 16px 20px; }
@@ -960,8 +963,9 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 <a href="/terms" data-i18n="footer_terms">Terms of Service</a>
                 <a href="/privacy" data-i18n="footer_privacy">Privacy Policy</a>
             </div>
+            <span class="footer-disclaimer" data-i18n="footer_disclaimer">Not affiliated with or endorsed by Epic Games, Inc., Twitch Interactive, Inc., or Discord Inc.</span>
         </div>
-        <span class="footer-disclaimer" data-i18n="footer_disclaimer">Not affiliated with Epic Games, Inc.</span>
+        <a class="footer-dev" href="/hexora"><span data-i18n="footer_dev">Developed by</span> <b>@HexoraCompany</b></a>
     </div>
 </footer>
 
@@ -994,7 +998,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             footer_socials: 'Social',
             footer_legal: 'Legale', footer_terms: 'Termini di Servizio', footer_privacy: 'Informativa sulla Privacy',
             footer_copyright: 'Predage © 2026. Tutti i diritti riservati.',
-            footer_disclaimer: 'Non affiliato con Epic Games, Inc.'
+            footer_disclaimer: 'Non affiliato né approvato da Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Sviluppato da'
         },
         en: {
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
@@ -1005,7 +1009,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             footer_socials: 'Socials',
             footer_legal: 'Legal', footer_terms: 'Terms of Service', footer_privacy: 'Privacy Policy',
             footer_copyright: 'Predage © 2026. All rights reserved.',
-            footer_disclaimer: 'Not affiliated with Epic Games, Inc.'
+            footer_disclaimer: 'Not affiliated with or endorsed by Epic Games, Inc., Twitch Interactive, Inc., or Discord Inc.', footer_dev: 'Developed by'
         },
         de: {
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
@@ -1016,7 +1020,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             footer_socials: 'Soziale Medien',
             footer_legal: 'Rechtliches', footer_terms: 'Nutzungsbedingungen', footer_privacy: 'Datenschutzrichtlinie',
             footer_copyright: 'Predage © 2026. Alle Rechte vorbehalten.',
-            footer_disclaimer: 'Nicht verbunden mit Epic Games, Inc.'
+            footer_disclaimer: 'Nicht verbunden mit oder unterstützt von Epic Games, Inc., Twitch Interactive, Inc. oder Discord Inc.', footer_dev: 'Entwickelt von'
         },
         es: {
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
@@ -1027,7 +1031,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             footer_socials: 'Redes Sociales',
             footer_legal: 'Legal', footer_terms: 'Términos de Servicio', footer_privacy: 'Política de Privacidad',
             footer_copyright: 'Predage © 2026. Todos los derechos reservados.',
-            footer_disclaimer: 'No afiliado con Epic Games, Inc.'
+            footer_disclaimer: 'No afiliado ni respaldado por Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Desarrollado por'
         },
         fr: {
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
@@ -1038,7 +1042,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             footer_socials: 'Réseaux Sociaux',
             footer_legal: 'Mentions Légales', footer_terms: 'Conditions d\'Utilisation', footer_privacy: 'Politique de Confidentialité',
             footer_copyright: 'Predage © 2026. Tous droits réservés.',
-            footer_disclaimer: 'Non affilié à Epic Games, Inc.'
+            footer_disclaimer: 'Non affilié à ni approuvé par Epic Games, Inc., Twitch Interactive, Inc. ou Discord Inc.', footer_dev: 'Développé par'
         }
     };
 
