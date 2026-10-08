@@ -671,6 +671,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 }
 
 .mc-tiers-section {
+    position: relative;
+    z-index: 1;
     padding: 10px 24px 110px;
 }
 
@@ -1066,6 +1068,20 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     line-height: 1.5;
 }
 
+.mc-tier-features li.is-new { position: relative; }
+
+.mc-tier-features li.is-new::before {
+    content: '';
+    position: absolute;
+    left: -13px;
+    top: 2px;
+    bottom: 2px;
+    width: 3px;
+    border-radius: 3px;
+    background: rgb(var(--tc));
+    box-shadow: 0 0 10px rgba(var(--tc), 0.9);
+}
+
 .mc-feat-dot {
     flex-shrink: 0;
     color: var(--primary);
@@ -1130,7 +1146,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     border-color: rgba(230, 126, 34, 0.3);
 }
 
-.mc-tier-card.custom .mc-tier-name { color: var(--primary); margin-bottom: 10px; }
+.mc-tier-card.custom .mc-tier-name { color: #ffffff; margin-bottom: 10px; }
 
 .mc-tier-card.custom .mc-tier-body { justify-content: center; }
 
@@ -1142,6 +1158,44 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 }
 
 .mc-tier-card.custom .mc-tier-body { margin-bottom: 16px; }
+
+.mc-tier-card[data-plan="starter"] { --tc: 45, 212, 191; }
+.mc-tier-card[data-plan="igl"] { --tc: 56, 189, 248; }
+.mc-tier-card[data-plan="premium"] { --tc: 244, 114, 182; }
+.mc-tier-card[data-plan="pro"] { --tc: 230, 126, 34; }
+.mc-tier-card[data-plan="custom"] { --tc: 255, 255, 255; }
+
+.mc-tier-card[data-plan] {
+    border: 2px solid rgb(var(--tc));
+    box-shadow: 0 0 34px rgba(var(--tc), 0.45), 0 0 90px rgba(var(--tc), 0.2), inset 0 0 34px rgba(var(--tc), 0.12);
+    animation: tierGlow 3.2s ease-in-out infinite;
+}
+
+@keyframes tierGlow {
+    0%, 100% { box-shadow: 0 0 30px rgba(var(--tc), 0.4), 0 0 80px rgba(var(--tc), 0.16), inset 0 0 30px rgba(var(--tc), 0.1); }
+    50% { box-shadow: 0 0 46px rgba(var(--tc), 0.65), 0 0 110px rgba(var(--tc), 0.3), inset 0 0 40px rgba(var(--tc), 0.17); }
+}
+
+.mc-tier-card[data-plan]:hover {
+    border-color: rgb(var(--tc));
+    animation: none;
+    box-shadow: 0 0 56px rgba(var(--tc), 0.75), 0 0 130px rgba(var(--tc), 0.38), inset 0 0 44px rgba(var(--tc), 0.2);
+}
+
+.mc-tier-card[data-plan] .mc-tier-cta {
+    border-color: rgb(var(--tc));
+    background: rgba(var(--tc), 0.14);
+    color: rgb(var(--tc));
+    box-shadow: 0 0 22px rgba(var(--tc), 0.4), inset 0 0 14px rgba(var(--tc), 0.12);
+}
+
+.mc-tier-card[data-plan] .mc-tier-cta:hover {
+    background: rgb(var(--tc));
+    box-shadow: 0 0 34px rgba(var(--tc), 0.7), inset 0 0 12px rgba(255, 255, 255, 0.15);
+    color: #0a0a0f;
+}
+
+.mc-tier-card.recommended[data-plan] .mc-tier-ribbon { background: rgb(var(--tc)); }
 
 .site-footer {
     background: var(--bg-bar);
@@ -1609,9 +1663,9 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 
     var TIERS = [
         { key: 'starter', nameKey: 'tier_name_1', price: '9.99', features: ['f_all_videos', 'f_dropmap_calc'] },
-        { key: 'igl', nameKey: 'tier_name_2', price: '19.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural'], recommended: true },
-        { key: 'premium', nameKey: 'tier_name_3', price: '49.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural', 'f_vod_review'] },
-        { key: 'pro', nameKey: 'tier_name_4', price: '99.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_call_singular', 'f_vod_review', 'f_custom_session_new'] },
+        { key: 'igl', nameKey: 'tier_name_2', price: '19.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural'], newFeatures: ['f_calls_plural'], recommended: true },
+        { key: 'premium', nameKey: 'tier_name_3', price: '49.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural', 'f_vod_review'], newFeatures: ['f_vod_review'] },
+        { key: 'pro', nameKey: 'tier_name_4', price: '99.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_call_singular', 'f_vod_review', 'f_custom_session_new'], newFeatures: ['f_custom_session_new'] },
         { key: 'custom', nameKey: 'tier_name_custom', custom: true }
     ];
 
@@ -1686,7 +1740,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             }
             var featuresHtml = t.features.map(function(fKey) {
                 var text = I18N[currentLang][fKey].replace('{link}', DROPCALC_LINK);
-                return '<li><span class="mc-feat-dot">•</span><span class="mc-feat-text">' + text + '</span></li>';
+                var isNew = t.newFeatures && t.newFeatures.indexOf(fKey) !== -1;
+                return '<li' + (isNew ? ' class="is-new"' : '') + '><span class="mc-feat-dot">•</span><span class="mc-feat-text">' + text + '</span></li>';
             }).join('');
             var ribbonHtml = t.recommended ? '<div class="mc-tier-ribbon">' + I18N[currentLang].mc_recommended_badge.replace('{n}', recommendedCount) + '</div>' : '';
             return '<div class="mc-tier-card' + (t.recommended ? ' recommended' : '') + '" data-plan="' + t.key + '">' +
