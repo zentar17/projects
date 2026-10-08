@@ -2,7 +2,6 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const DiscordStrategy = require('passport-discord').Strategy;
 const path = require('path');
@@ -35,9 +34,10 @@ function waitForBot(timeout = 300000) {
     });
 }
 
-const ADMIN_USERNAME = process.env.DASH_USER || 'admin';
-const ADMIN_PASSWORD = process.env.DASH_PASS || 'predcord2024';
-const ADMIN_PASSWORD_HASH = bcrypt.hashSync(ADMIN_PASSWORD, 10);
+const ADMIN_USERNAME = process.env.DASH_USER || null;
+
+const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(48).toString('hex');
+if (!process.env.SESSION_SECRET) console.warn('[SECURITY] SESSION_SECRET is not set, a temporary secret is used and sessions will reset on every restart');
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
@@ -57,6 +57,82 @@ const APPLY_BLOCKED_ROLE_IDS = {
     predcord: ['1549506505487941643', '1498132188552761545']
 };
 
+const isSnowflake = (v) => typeof v === 'string' && /^\d{15,25}$/.test(v);
+
+function serverError(res, e) {
+    console.error('[API ERROR]', e && e.stack ? e.stack.split('\n').slice(0, 3).join(' | ') : e);
+    if (res.headersSent) return;
+    res.status(500).json({ error: 'Internal server error' });
+}
+
+function cleanHttpUrl(value, maxLength = 2000) {
+    if (typeof value !== 'string') return null;
+    const t = value.trim();
+    if (!t || t.length > maxLength) return null;
+    try {
+        const u = new URL(t);
+        return (u.protocol === 'https:' || u.protocol === 'http:') ? t : null;
+    } catch {
+        return null;
+    }
+}
+
+function cleanThumbnailValue(value) {
+    if (typeof value !== 'string') return '';
+    const t = value.trim();
+    if (!t) return '';
+    if (t.length <= 2000000 && /^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(t)) return t;
+    return cleanHttpUrl(t) || '';
+}
+
+function cleanDiscordColor(value, fallback) {
+    return Number.isInteger(value) && value >= 0 && value <= 0xFFFFFF ? value : fallback;
+}
+
+function buildApplicationFields(answers) {
+    const fields = [];
+    let total = 0;
+    for (const [question, answer] of Object.entries(answers)) {
+        if (fields.length >= 20) break;
+        const name = String(question).trim().slice(0, 256);
+        if (!name) continue;
+        const value = String(answer === undefined || answer === null || answer === '' ? 'N/A' : answer).trim().slice(0, 1024) || 'N/A';
+        total += name.length + value.length;
+        if (total > 5000) break;
+        fields.push({ name, value });
+    }
+    return fields;
+}
+
+function isMp4Magic(filePath) {
+    let fd;
+    try {
+        fd = fs.openSync(filePath, 'r');
+        const buf = Buffer.alloc(12);
+        const read = fs.readSync(fd, buf, 0, 12, 0);
+        return read >= 12 && buf.slice(4, 8).toString('ascii') === 'ftyp';
+    } catch {
+        return false;
+    } finally {
+        if (fd !== undefined) { try { fs.closeSync(fd); } catch {} }
+    }
+}
+
+function requireMasterclassFlag(flag) {
+    return async (req, res, next) => {
+        try {
+            const flags = await getMasterclassFlags(req);
+            if (!flags[flag]) return res.status(403).json({ error: 'Access Denied' });
+            next();
+        } catch (e) {
+            serverError(res, e);
+        }
+    };
+}
+
+const roleSyncAccessCache = new Map();
+const bansCache = new Map();
+
 const MAX_BASE_COMMANDS = 10;
 const SUBMISSION_COOLDOWN_SECONDS = 36 * 60 * 60;
 
@@ -66,21 +142,67 @@ const DASHBOARD_DIR = path.join(__dirname, 'dashboard');
 const SITE_DIR = path.join(__dirname, 'site');
 
 app.set('trust proxy', 1);
+app.set('query parser', 'simple');
+app.disable('x-powered-by');
+
+const globalLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 600,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' }
+});
+
+app.use(globalLimiter);
+
+app.use((req, res, next) => {
+    res.set({
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'SAMEORIGIN',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups'
+    });
+    if (req.secure) res.set('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
+    next();
+});
+
+app.use((req, res, next) => {
+    for (const key of Object.keys(req.query)) {
+        if (typeof req.query[key] !== 'string') return res.status(400).json({ error: 'Invalid query' });
+    }
+    next();
+});
+
+app.use((req, res, next) => {
+    if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
+    const origin = req.get('origin');
+    if (origin) {
+        let originHost = null;
+        try { originHost = new URL(origin).host; } catch {}
+        if (!originHost || originHost !== req.get('host')) return res.status(403).json({ error: 'Forbidden origin' });
+    } else if (req.get('sec-fetch-site') && req.get('sec-fetch-site') !== 'same-origin' && req.get('sec-fetch-site') !== 'none') {
+        return res.status(403).json({ error: 'Forbidden origin' });
+    }
+    next();
+});
 
 app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false, limit: '100kb' }));
 app.use(session({
     store: MongoStore.create({
         mongoUrl: process.env.MONGODB_URI,
         ttl: 60 * 60 * 24 * 7,
         collectionName: 'sessions'
     }),
-    secret: process.env.SESSION_SECRET || 'predcord-secret',
+    secret: SESSION_SECRET,
+    name: 'predcord.sid',
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 7,
-        secure: false,
+        secure: 'auto',
         httpOnly: true,
         sameSite: 'lax'
     }
@@ -116,6 +238,21 @@ const siteFormLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many submissions, please try again later.' }
+});
+
+const uploadLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many uploads, please try again later.' }
+});
+
+const mediaLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 1500,
+    standardHeaders: true,
+    legacyHeaders: false
 });
 
 const mcTicketMessageLimiter = rateLimit({
@@ -156,6 +293,7 @@ function runFfmpegHls(inputPath, outputDir) {
     return new Promise((resolve, reject) => {
         const manifestPath = path.join(outputDir, 'index.m3u8');
         const args = [
+            '-protocol_whitelist', 'file',
             '-i', inputPath,
             '-c', 'copy',
             '-map', '0',
@@ -166,6 +304,8 @@ function runFfmpegHls(inputPath, outputDir) {
             manifestPath
         ];
         const proc = spawn(ffmpegPath, args);
+        const killTimer = setTimeout(() => { try { proc.kill('SIGKILL'); } catch {} }, 20 * 60 * 1000);
+        proc.on('close', () => clearTimeout(killTimer));
         let stderr = '';
         proc.stderr.on('data', (d) => { stderr += d.toString(); });
         proc.on('error', reject);
@@ -240,7 +380,7 @@ async function processVideoToHls(db, inputPath) {
     }
 }
 
-const HLS_TOKEN_SECRET = process.env.SESSION_SECRET || 'predcord-secret';
+const HLS_TOKEN_SECRET = crypto.createHmac('sha256', SESSION_SECRET).update('hls-segment-token').digest('hex');
 const HLS_TOKEN_TTL_MS = 6 * 60 * 60 * 1000;
 
 function signSegmentToken(videoId) {
@@ -280,6 +420,7 @@ async function authorizeVideoAccess(req, video) {
 }
 
 app.use('/api/', apiLimiter);
+app.use('/media/', mediaLimiter);
 app.use(['/login', '/auth/discord', '/site-auth/discord'], authLimiter);
 app.use(['/api/site/apply', '/api/site/appeal'], siteFormLimiter);
 app.use('/api/site/mc-tickets/create', siteFormLimiter);
@@ -341,7 +482,8 @@ passport.use(new DiscordStrategy({
     clientID: DISCORD_CLIENT_ID,
     clientSecret: DISCORD_CLIENT_SECRET,
     callbackURL: DISCORD_REDIRECT_URI,
-    scope: ['identify', 'guilds']
+    scope: ['identify', 'guilds'],
+    state: true
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         const access = await resolveGuildAccess(profile.id);
@@ -350,31 +492,13 @@ passport.use(new DiscordStrategy({
             return done(null, false, { message: 'You do not have the authorized roles on any server' });
         }
 
-        const globalRole = access.predcord.role === 'owner' ? 'owner'
-            : access.predcord.role === 'admin' ? 'admin'
-            : null;
-
-        return done(null, {
+        return done(null, buildDiscordSessionUser({
             id: profile.id,
             username: profile.username,
             discriminator: profile.discriminator,
             avatar: profile.avatar,
-            isDiscord: true,
-            role: globalRole,
-            roles: access.predcord.roles,
-            predcordAccess: access.predcord.access,
-            predcordRole: access.predcord.role,
-            community: {
-                access: access.community.access,
-                role: access.community.role,
-                roles: access.community.roles
-            },
-            masterclassServer: {
-                access: access.masterclassServer.access,
-                role: access.masterclassServer.role,
-                roles: access.masterclassServer.roles
-            }
-        });
+            isDiscord: true
+        }, access));
     } catch (err) {
         return done(err, null);
     }
@@ -384,7 +508,8 @@ passport.use('discord-site', new DiscordStrategy({
     clientID: DISCORD_CLIENT_ID,
     clientSecret: DISCORD_CLIENT_SECRET,
     callbackURL: DISCORD_SITE_REDIRECT_URI,
-    scope: ['identify']
+    scope: ['identify'],
+    state: true
 }, (accessToken, refreshToken, profile, done) => {
     return done(null, {
         id: profile.id,
@@ -409,8 +534,17 @@ app.get('/videos.html', async (req, res, next) => {
     next();
 });
 
-app.use('/dashboard', express.static(DASHBOARD_DIR));
-app.use(express.static(SITE_DIR));
+const DASHBOARD_PROTECTED_FILES = new Set(['/index.html', '/transcript.html', '/app.js']);
+
+app.use('/dashboard', (req, res, next) => {
+    if (req.path === '/' || DASHBOARD_PROTECTED_FILES.has(req.path.toLowerCase())) {
+        return requireAuth(req, res, next);
+    }
+    next();
+});
+
+app.use('/dashboard', express.static(DASHBOARD_DIR, { index: false }));
+app.use(express.static(SITE_DIR, { index: false, dotfiles: 'ignore' }));
 
 async function trySiteUserAsAdmin(req) {
     if (!req.session.siteUser) return false;
@@ -471,8 +605,90 @@ async function trySiteUserAsAdmin(req) {
     }
 }
 
+const ACCESS_RECHECK_MS = 5 * 60 * 1000;
+const ACCESS_MAX_FAILED_CHECKS = 2;
+
+function buildDiscordSessionUser(base, access) {
+    const globalRole = access.predcord.role === 'owner' ? 'owner'
+        : access.predcord.role === 'admin' ? 'admin'
+        : null;
+    return {
+        ...base,
+        role: globalRole,
+        roles: access.predcord.roles,
+        predcordAccess: access.predcord.access,
+        predcordRole: access.predcord.role,
+        community: {
+            access: access.community.access,
+            role: access.community.role,
+            roles: access.community.roles
+        },
+        masterclassServer: {
+            access: access.masterclassServer.access,
+            role: access.masterclassServer.role,
+            roles: access.masterclassServer.roles
+        }
+    };
+}
+
+async function revalidateSessionAccess(req) {
+    const last = req.session.accessCheckedAt || 0;
+    if (Date.now() - last < ACCESS_RECHECK_MS) return true;
+
+    if (req.user && req.user.isDiscord && req.user.id) {
+        const access = await resolveGuildAccess(req.user.id);
+        const hasAny = access.predcord.access || access.community.access || access.masterclassServer.access;
+        if (!hasAny) {
+            req.session.accessFailedChecks = (req.session.accessFailedChecks || 0) + 1;
+            if (req.session.accessFailedChecks >= ACCESS_MAX_FAILED_CHECKS) return false;
+            req.session.accessCheckedAt = Date.now();
+            return true;
+        }
+        const updated = buildDiscordSessionUser(req.user, access);
+        req.user = updated;
+        if (req.session.passport) req.session.passport.user = updated;
+        if (req.session.user) req.session.user.role = updated.role;
+        req.session.accessFailedChecks = 0;
+        req.session.accessCheckedAt = Date.now();
+        return true;
+    }
+
+    if (req.session.user && req.session.user.isDiscord && req.session.siteUser) {
+        const previous = req.session.user;
+        delete req.session.user;
+        const ok = await trySiteUserAsAdmin(req);
+        if (!ok) {
+            req.session.accessFailedChecks = (req.session.accessFailedChecks || 0) + 1;
+            if (req.session.accessFailedChecks >= ACCESS_MAX_FAILED_CHECKS) return false;
+            req.session.user = previous;
+        } else {
+            req.session.accessFailedChecks = 0;
+        }
+        req.session.accessCheckedAt = Date.now();
+        return true;
+    }
+
+    return true;
+}
+
+function denyExpiredSession(req, res) {
+    req.session.destroy(() => {
+        if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'Not authenticated' });
+        res.redirect('/login');
+    });
+}
+
 function requireAuth(req, res, next) {
-    if (req.session.user || (req.user && req.user.isDiscord)) return next();
+    if (req.session.user || (req.user && req.user.isDiscord)) {
+        revalidateSessionAccess(req).then((ok) => {
+            if (!ok) return denyExpiredSession(req, res);
+            next();
+        }).catch((e) => {
+            console.error('[AUTH] revalidate failed:', e.message);
+            next();
+        });
+        return;
+    }
 
     trySiteUserAsAdmin(req).then((ok) => {
         if (!ok) {
@@ -585,6 +801,8 @@ app.get('/auth/discord/callback',
             role: req.user.role,
             isDiscord: true
         };
+        req.session.accessCheckedAt = Date.now();
+        req.session.accessFailedChecks = 0;
         req.session.save((err) => {
             if (err) console.error('[SESSION] save error:', err);
             res.redirect('/dashboard');
@@ -592,8 +810,14 @@ app.get('/auth/discord/callback',
     }
 );
 
+function safeReturnPath(value) {
+    if (typeof value !== 'string' || value.length > 200) return '/';
+    if (!/^\/(?![\/\\])[A-Za-z0-9\-._~!$&'()*+,;=:@%\/?#]*$/.test(value)) return '/';
+    return value;
+}
+
 app.get('/site-auth/discord', (req, res, next) => {
-    req.session.siteReturnTo = (req.query.next && req.query.next.startsWith('/')) ? req.query.next : '/';
+    req.session.siteReturnTo = safeReturnPath(req.query.next);
     next();
 }, passport.authenticate('discord-site'));
 
@@ -607,7 +831,7 @@ app.get('/site-auth/discord/callback',
             discriminator: req.user.discriminator,
             avatar: req.user.avatar
         };
-        const returnTo = req.session.siteReturnTo || '/';
+        const returnTo = safeReturnPath(req.session.siteReturnTo);
         delete req.session.siteReturnTo;
         req.session.save((err) => {
             if (err) console.error('[SESSION] site save error:', err);
@@ -749,7 +973,7 @@ app.get('/api/site/eligibility', async (req, res) => {
 
         res.json({ isMember, isBanned, isMuted, hasBlockedRole });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -758,7 +982,7 @@ app.post('/api/site/apply', async (req, res) => {
 
     const { team, answers } = req.body;
     if (!['community', 'predcord'].includes(team)) return res.status(400).json({ error: 'invalid_team' });
-    if (!answers || typeof answers !== 'object') return res.status(400).json({ error: 'invalid_answers' });
+    if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return res.status(400).json({ error: 'invalid_answers' });
 
     try {
         const { client, db } = global.PredCord;
@@ -796,9 +1020,7 @@ app.post('/api/site/apply', async (req, res) => {
             .setAuthor({ name: `${user.username} (${user.id})`, iconURL: avatarUrl })
             .setTitle(team === 'community' ? 'Predage Community Staff Application' : 'PredCord Staff Application');
 
-        for (const [question, answer] of Object.entries(answers)) {
-            embed.addFields({ name: String(question).slice(0, 256), value: String(answer || 'N/A').slice(0, 1024) });
-        }
+        embed.addFields(buildApplicationFields(answers));
 
         embed.addFields({ name: 'User Info', value: await buildUserInfoField(client, targetGuildId, user.id) });
 
@@ -811,7 +1033,7 @@ app.post('/api/site/apply', async (req, res) => {
         await db.setCommandCooldownDB(user.id, targetGuildId, 'staff_application', SUBMISSION_COOLDOWN_SECONDS);
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -820,7 +1042,7 @@ app.post('/api/site/appeal', async (req, res) => {
 
     const { team, answers } = req.body;
     if (!['community', 'predcord'].includes(team)) return res.status(400).json({ error: 'invalid_team' });
-    if (!answers || typeof answers !== 'object') return res.status(400).json({ error: 'invalid_answers' });
+    if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return res.status(400).json({ error: 'invalid_answers' });
 
     try {
         const { client, db } = global.PredCord;
@@ -856,9 +1078,7 @@ app.post('/api/site/appeal', async (req, res) => {
             .setAuthor({ name: `${user.username} (${user.id})`, iconURL: avatarUrl })
             .setTitle(team === 'community' ? 'Predage Community Ban Appeal' : 'PredCord Ban Appeal');
 
-        for (const [question, answer] of Object.entries(answers)) {
-            embed.addFields({ name: String(question).slice(0, 256), value: String(answer || 'N/A').slice(0, 1024) });
-        }
+        embed.addFields(buildApplicationFields(answers));
 
         embed.addFields({ name: 'User Info', value: await buildUserInfoField(client, targetGuildId, user.id) });
 
@@ -872,7 +1092,7 @@ app.post('/api/site/appeal', async (req, res) => {
         await db.setCommandCooldownDB(user.id, targetGuildId, 'ban_appeal', SUBMISSION_COOLDOWN_SECONDS);
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -993,7 +1213,7 @@ app.get('/api/me/full', requireAuth, async (req, res) => {
             roles: roles
         });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1036,7 +1256,7 @@ app.get('/api/me/guild-info', requireAuth, async (req, res) => {
         });
     } catch (e) {
         console.error('[ME-GUILD-INFO]', e);
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1119,7 +1339,7 @@ app.get('/api/my-permissions', requireAuth, async (req, res) => {
             isOwner: false
         });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1142,7 +1362,7 @@ app.get('/api/guilds', requireAuth, (req, res) => {
             }));
         res.json(guilds);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1174,7 +1394,7 @@ app.get('/api/roles/:guildId', requireAuth, async (req, res) => {
 
         res.json(roles);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1390,7 +1610,7 @@ app.get('/api/site/mc-tickets/mine', async (req, res) => {
         const tickets = await global.PredCord.db.listUserMcTicketsDB(req.session.siteUser.id);
         res.json({ tickets: tickets.map(t => ({ ticketNumber: t.ticketNumber, plan: t.plan, status: t.status, lastMessageAt: t.lastMessageAt })) });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1435,7 +1655,7 @@ app.post('/api/site/mc-tickets/create', async (req, res) => {
         notifyNewMcTicket(ticket);
         res.json({ ticketNumber: ticket.ticketNumber, existing: false });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1493,7 +1713,7 @@ app.get('/api/site/mc-tickets/:ticketNumber', async (req, res) => {
             }
         });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1535,7 +1755,7 @@ app.post('/api/site/mc-tickets/:ticketNumber/messages', mcTicketMessageLimiter, 
         });
         res.json({ success: true, messageId: message ? String(message._id) : null });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1552,7 +1772,7 @@ app.get('/api/site/mc-tickets/:ticketNumber/images/:imageId', async (req, res) =
         res.set('X-Content-Type-Options', 'nosniff');
         res.send(data);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1576,7 +1796,7 @@ app.post('/api/site/mc-tickets/:ticketNumber/claim', async (req, res) => {
         logMcTicketEvent('mc_ticket_claimed', ticket, actor);
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1608,7 +1828,7 @@ app.post('/api/site/mc-tickets/:ticketNumber/status', async (req, res) => {
         }
         res.json({ success: true, status: updated ? updated.status : status });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1632,16 +1852,17 @@ app.get('/api/videos', requireAuth, async (req, res) => {
         const videos = await global.PredCord.db.listVideosDB();
         res.json(videos);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
-app.post('/api/videos/upload', requireAuth, writeLimiter, uploadVideoMiddleware, async (req, res) => {
+app.post('/api/videos/upload', requireAuth, requireMasterclassFlag('canUpload'), writeLimiter, uploadLimiter, uploadVideoMiddleware, async (req, res) => {
     const cleanup = () => { if (req.file) fs.unlink(req.file.path, () => {}); };
     try {
         const flags = await getMasterclassFlags(req);
         if (!flags.canUpload) { cleanup(); return res.status(403).json({ error: 'Access Denied' }); }
         if (!req.file) return res.status(400).json({ error: 'Missing video file' });
+        if (!isMp4Magic(req.file.path)) { cleanup(); return res.status(400).json({ error: 'Invalid MP4 file' }); }
 
         const title = String(req.body.title || '').trim().slice(0, 150);
         if (title.length < 5) { cleanup(); return res.status(400).json({ error: 'Title must be at least 5 characters' }); }
@@ -1668,7 +1889,7 @@ app.post('/api/videos/upload', requireAuth, writeLimiter, uploadVideoMiddleware,
             contentType: req.file.mimetype,
             fileSize: req.file.size,
             duration,
-            thumbnailUrl: String(req.body.thumbnailUrl || '').trim().slice(0, 2000000),
+            thumbnailUrl: cleanThumbnailValue(req.body.thumbnailUrl),
             requiredRoleIds: filterIds(requiredRoleIds),
             uploadedBy: req.session.user.id,
             uploadedByTag: req.session.user.username || '',
@@ -1679,11 +1900,11 @@ app.post('/api/videos/upload', requireAuth, writeLimiter, uploadVideoMiddleware,
         res.json(video);
     } catch (e) {
         cleanup();
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
-app.patch('/api/videos/:videoId', requireAuth, writeLimiter, uploadVideoMiddleware, async (req, res) => {
+app.patch('/api/videos/:videoId', requireAuth, requireMasterclassFlag('canManage'), writeLimiter, uploadLimiter, uploadVideoMiddleware, async (req, res) => {
     const cleanup = () => { if (req.file) fs.unlink(req.file.path, () => {}); };
     try {
         const flags = await getMasterclassFlags(req);
@@ -1706,11 +1927,12 @@ app.patch('/api/videos/:videoId', requireAuth, writeLimiter, uploadVideoMiddlewa
         const update = {
             title,
             description,
-            thumbnailUrl: String(req.body.thumbnailUrl || '').trim().slice(0, 2000000),
+            thumbnailUrl: cleanThumbnailValue(req.body.thumbnailUrl),
             requiredRoleIds: filterIds(requiredRoleIds)
         };
 
         if (req.file) {
+            if (!isMp4Magic(req.file.path)) { cleanup(); return res.status(400).json({ error: 'Invalid MP4 file' }); }
             const hlsSegments = await processVideoToHls(db, req.file.path);
             cleanup();
 
@@ -1734,7 +1956,7 @@ app.patch('/api/videos/:videoId', requireAuth, writeLimiter, uploadVideoMiddlewa
         res.json(video);
     } catch (e) {
         cleanup();
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1755,7 +1977,7 @@ app.delete('/api/videos/:videoId', requireAuth, writeLimiter, async (req, res) =
         await global.PredCord.db.deleteVideoDB(req.params.videoId);
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1787,7 +2009,7 @@ app.post('/api/videos/migrate-hls', requireAuth, writeLimiter, async (req, res) 
 
         res.json({ migrated, failed, total: pending.length });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1803,7 +2025,7 @@ app.get('/api/masterclass/permissions', requireAuth, async (req, res) => {
             ticketNotifyChannelId: settings.ticketNotifyChannelId || ''
         });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1825,7 +2047,7 @@ app.post('/api/masterclass/permissions', requireAuth, writeLimiter, async (req, 
             ticketNotifyChannelId: settings.ticketNotifyChannelId || ''
         });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1872,7 +2094,7 @@ app.get('/api/masterclass/tickets', requireAuth, async (req, res) => {
             deleteAt: (t.status === 'closed' && t.closedAt) ? new Date(new Date(t.closedAt).getTime() + MC_TICKET_DELETE_AFTER_MS) : null,
         })));
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1891,10 +2113,16 @@ async function getRoleSyncManageableGuildIds(req) {
     if (isDashboardAdmin(req)) return allIds;
     const user = req.session.user;
     if (!user || !user.isDiscord || !user.id) return [];
+    const cached = roleSyncAccessCache.get(user.id);
+    if (cached && Date.now() - cached.at < 60000) {
+        return cached.ids.filter(id => client.guilds.cache.has(id));
+    }
     const result = [];
     for (const guildId of allIds) {
         if (await hasAdminInGuild(user.id, guildId)) result.push(guildId);
     }
+    roleSyncAccessCache.set(user.id, { at: Date.now(), ids: result });
+    if (roleSyncAccessCache.size > 500) roleSyncAccessCache.delete(roleSyncAccessCache.keys().next().value);
     return result;
 }
 
@@ -1966,7 +2194,7 @@ app.get('/api/role-sync', requireAuth, async (req, res) => {
             rules: rules.filter(r => canManageRule(r, manageable)).map(serializeRoleSyncRule)
         });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -1996,7 +2224,7 @@ app.post('/api/role-sync', requireAuth, writeLimiter, async (req, res) => {
         await afterRoleSyncChange();
         res.json(serializeRoleSyncRule(rule));
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2030,7 +2258,7 @@ app.patch('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res) 
         await afterRoleSyncChange();
         res.json(serializeRoleSyncRule(updated));
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2045,7 +2273,7 @@ app.delete('/api/role-sync/:ruleId', requireAuth, writeLimiter, async (req, res)
         await afterRoleSyncChange();
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2129,7 +2357,7 @@ app.get('/api/dropmaps', requireAuth, requireDropmaps, async (req, res) => {
     try {
         res.json(await buildDropmapPayload());
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2173,7 +2401,7 @@ app.post('/api/dropmaps/upload', requireAuth, requireDropmaps, dropmapWriteLimit
             const ref = `upload:${id}`;
             res.json({ ref, src: dropmapImageSrc(ref) });
         } catch (e) {
-            res.status(500).json({ error: e.message });
+            serverError(res, e);
         }
     });
 });
@@ -2190,7 +2418,7 @@ app.post('/api/dropmaps/areas', requireAuth, requireDropmaps, dropmapWriteLimite
         await db.saveDropmapImageDB({ guildId: COMMUNITY_GUILD_ID, areaName: name, imageUrl: image, isMiniarea, subAreas: {} });
         res.json(await buildDropmapPayload());
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2217,7 +2445,7 @@ app.patch('/api/dropmaps/areas/:name', requireAuth, requireDropmaps, dropmapWrit
         }
         res.json(await buildDropmapPayload());
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2231,7 +2459,7 @@ app.delete('/api/dropmaps/areas/:name', requireAuth, requireDropmaps, dropmapWri
         for (const ref of refs) await removeDropmapUploadIfUnused(ref);
         res.json(await buildDropmapPayload());
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2250,7 +2478,7 @@ app.post('/api/dropmaps/areas/:name/subareas', requireAuth, requireDropmaps, dro
         await db.setDropmapSubAreasDB(COMMUNITY_GUILD_ID, area.areaName, subAreas);
         res.json(await buildDropmapPayload());
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2281,7 +2509,7 @@ app.patch('/api/dropmaps/areas/:name/subareas/:sub', requireAuth, requireDropmap
         if (image !== oldImage) await removeDropmapUploadIfUnused(oldImage);
         res.json(await buildDropmapPayload());
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2298,7 +2526,7 @@ app.delete('/api/dropmaps/areas/:name/subareas/:sub', requireAuth, requireDropma
         await removeDropmapUploadIfUnused(oldImage);
         res.json(await buildDropmapPayload());
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2308,17 +2536,18 @@ app.get('/api/video-access/:guildId', requireAuth, async (req, res) => {
         const roleIds = await global.PredCord.db.getVideoAccessRolesDB(req.params.guildId);
         res.json({ roleIds });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
 app.post('/api/video-access/:guildId', requireAuth, writeLimiter, async (req, res) => {
     try {
         if (getUserRole(req) !== 'owner') return res.status(403).json({ error: 'Access Denied' });
+        if (!isSnowflake(req.params.guildId)) return res.status(400).json({ error: 'Invalid guild id' });
         await global.PredCord.db.saveVideoAccessRolesDB(req.params.guildId, req.body.roleIds);
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2371,7 +2600,7 @@ app.get('/api/site/videos', async (req, res) => {
         visible.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         res.json({ videos: visible });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2395,7 +2624,7 @@ app.post('/api/site/videos/:videoId/progress', async (req, res) => {
         const result = await db.saveVideoProgressDB(u.id, req.params.videoId, progressRaw, positionRaw);
         res.json({ success: true, progress: result.progress, positionSeconds: result.positionSeconds, completed: result.completed });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2440,26 +2669,52 @@ app.get('/media/videos/:fileId', async (req, res) => {
         const range = req.headers.range;
         const bucket = db.getVideoBucket();
 
+        const pipeStream = (stream) => {
+            stream.on('error', () => { res.destroy(); });
+            res.on('close', () => { stream.destroy(); });
+            stream.pipe(res);
+        };
+
         if (range) {
-            const match = /bytes=(\d+)-(\d*)/.exec(range);
-            const start = match ? parseInt(match[1], 10) : 0;
-            const end = match && match[2] ? parseInt(match[2], 10) : fileSize - 1;
+            const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+            if (!match || (match[1] === '' && match[2] === '')) {
+                res.set('Content-Range', `bytes */${fileSize}`);
+                return res.status(416).end();
+            }
+            let start;
+            let end;
+            if (match[1] === '') {
+                const suffix = parseInt(match[2], 10);
+                start = Math.max(0, fileSize - suffix);
+                end = fileSize - 1;
+            } else {
+                start = parseInt(match[1], 10);
+                end = match[2] ? Math.min(parseInt(match[2], 10), fileSize - 1) : fileSize - 1;
+            }
+            if (!Number.isFinite(start) || !Number.isFinite(end) || start >= fileSize || start > end) {
+                res.set('Content-Range', `bytes */${fileSize}`);
+                return res.status(416).end();
+            }
             const chunkSize = (end - start) + 1;
 
             res.writeHead(206, {
                 'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                 'Accept-Ranges': 'bytes',
                 'Content-Length': chunkSize,
-                'Content-Type': contentType
+                'Content-Type': contentType,
+                'Cache-Control': 'private, no-store',
+                'X-Content-Type-Options': 'nosniff'
             });
-            bucket.openDownloadStream(fileObjectId, { start, end: end + 1 }).pipe(res);
+            pipeStream(bucket.openDownloadStream(fileObjectId, { start, end: end + 1 }));
         } else {
             res.writeHead(200, {
                 'Content-Length': fileSize,
                 'Content-Type': contentType,
-                'Accept-Ranges': 'bytes'
+                'Accept-Ranges': 'bytes',
+                'Cache-Control': 'private, no-store',
+                'X-Content-Type-Options': 'nosniff'
             });
-            bucket.openDownloadStream(fileObjectId).pipe(res);
+            pipeStream(bucket.openDownloadStream(fileObjectId));
         }
     } catch (e) {
         res.status(500).end();
@@ -2532,7 +2787,10 @@ app.get('/media/videos/:videoId/segment/:index', async (req, res) => {
             'Content-Length': fileMeta.length,
             'Cache-Control': 'private, no-store'
         });
-        db.getVideoBucket().openDownloadStream(segment.fileId).pipe(res);
+        const segmentStream = db.getVideoBucket().openDownloadStream(segment.fileId);
+        segmentStream.on('error', () => { res.destroy(); });
+        res.on('close', () => { segmentStream.destroy(); });
+        segmentStream.pipe(res);
     } catch (e) {
         res.status(500).end();
     }
@@ -2570,7 +2828,7 @@ app.get('/api/channels/:guildId', requireAuth, (req, res) => {
 
         res.json(channels);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2620,7 +2878,7 @@ app.get('/api/staff-app-config', requireAuth, async (req, res) => {
 
         res.json({ community, predcord });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2642,7 +2900,7 @@ app.post('/api/staff-app-config', requireAuth, writeLimiter, async (req, res) =>
 
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2692,7 +2950,7 @@ app.get('/api/ban-appeal-config', requireAuth, async (req, res) => {
 
         res.json({ community, predcord });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2714,7 +2972,7 @@ app.post('/api/ban-appeal-config', requireAuth, writeLimiter, async (req, res) =
 
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2731,7 +2989,7 @@ app.get('/api/guildconfig/:guildId', requireAuth, async (req, res) => {
             moderationDmEnabled: typeof config.moderationDmEnabled === 'boolean' ? config.moderationDmEnabled : req.params.guildId === MAIN_GUILD_ID
         });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2777,7 +3035,7 @@ app.post('/api/guildconfig/:guildId', requireAuth, writeLimiter, async (req, res
 
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2833,7 +3091,7 @@ app.get('/api/stats/joinleave/:guildId', requireAuth, async (req, res) => {
             memberCount: guild ? guild.memberCount : null
         });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2847,7 +3105,7 @@ app.get('/api/stats/tickets/:guildId', requireAuth, async (req, res) => {
         const rows = await db.getTicketStatsByModeratorDB(req.params.guildId);
         res.json({ moderators: rows });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2861,7 +3119,7 @@ app.get('/api/stats/moderator/:guildId/:userId', requireAuth, async (req, res) =
         const stats = await db.getModeratorActionStatsDB(req.params.guildId, req.params.userId);
         res.json(stats);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2882,7 +3140,7 @@ app.get('/api/permissions/:guildId', requireAuth, async (req, res) => {
             projectedRoles: projectedRoles
         });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2914,12 +3172,13 @@ app.post('/api/permissions/:guildId', requireAuth, writeLimiter, async (req, res
 
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
 app.get('/api/user-info/:userId', requireAuth, async (req, res) => {
     try {
+        if (!isSnowflake(req.params.userId)) return res.status(400).json({ error: 'Invalid user id' });
         if (!canAccessGuild(req, MAIN_GUILD_ID) && !canAccessGuild(req, COMMUNITY_GUILD_ID) && !isDashboardAdmin(req)) {
             return res.status(403).json({ error: 'Access Denied' });
         }
@@ -2952,7 +3211,7 @@ app.get('/api/user-info/:userId', requireAuth, async (req, res) => {
             }
         }
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2966,7 +3225,7 @@ app.get('/api/commands/:guildId', requireAuth, async (req, res) => {
         const cmds = await db.loadCustomCommandsDB(req.params.guildId);
         res.json(cmds || {});
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -2985,8 +3244,11 @@ app.post('/api/commands/:guildId', requireAuth, writeLimiter, async (req, res) =
         const { guildId } = req.params;
         const { name, data } = req.body;
 
-        if (!name || !/^[a-z0-9]{1,32}$/i.test(name)) {
+        if (typeof name !== 'string' || !/^[a-z0-9]{1,32}$/i.test(name)) {
             return res.status(400).json({ error: 'Invalid command name' });
+        }
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
+            return res.status(400).json({ error: 'Invalid command data' });
         }
 
         const RESERVED_COMMAND_NAMES = ['page', 'md', 'modlogs', 'help', 'av', 'w', 'server', 'social', 'warnings', 'clearwarns', 'tickets', 'ban', 'unban', 'kick', 'mute', 'unmute', 'warn', 'purge'];
@@ -3057,36 +3319,36 @@ app.post('/api/commands/:guildId', requireAuth, writeLimiter, async (req, res) =
         let buttons = [];
         if (Array.isArray(data.buttons)) {
             buttons = data.buttons
-                .filter(b => b && typeof b.label === 'string' && b.label.trim() && typeof b.url === 'string' && b.url.trim())
+                .filter(b => b && typeof b.label === 'string' && b.label.trim() && cleanHttpUrl(b.url))
                 .slice(0, 5)
-                .map(b => ({ label: b.label.trim().slice(0, 80), url: b.url.trim() }));
+                .map(b => ({ label: b.label.trim().slice(0, 80), url: cleanHttpUrl(b.url) }));
         }
 
         let extraEmbeds = [];
         if (Array.isArray(data.extraEmbeds)) {
-            extraEmbeds = data.extraEmbeds.slice(0, 9).map(e => ({
-                title: typeof e.title === 'string' ? e.title : '',
-                response: typeof e.response === 'string' ? e.response : '',
-                color: typeof e.color === 'number' ? e.color : 0x7289DA,
-                thumbnail: e.thumbnail || null,
-                image: e.image || null
+            extraEmbeds = data.extraEmbeds.filter(e => e && typeof e === 'object').slice(0, 9).map(e => ({
+                title: typeof e.title === 'string' ? e.title.slice(0, 256) : '',
+                response: typeof e.response === 'string' ? e.response.slice(0, 4000) : '',
+                color: cleanDiscordColor(e.color, 0x7289DA),
+                thumbnail: cleanHttpUrl(e.thumbnail),
+                image: cleanHttpUrl(e.image)
             }));
         }
 
         await db.saveCustomCommandDB(guildId, lowerName, {
             prefix: prefix,
             type: data.type || 'text',
-            title: data.title || '',
-            response: data.response || '',
-            color: typeof data.color === 'number' ? data.color : 0xE67E22,
+            title: typeof data.title === 'string' ? data.title.slice(0, 256) : '',
+            response: typeof data.response === 'string' ? data.response.slice(0, (data.type || 'text') === 'text' ? 2000 : 4000) : '',
+            color: cleanDiscordColor(data.color, 0xE67E22),
             deleteCommand: data.deleteCommand !== false,
             enabled: data.enabled !== false,
             blockedChannels: blockedChannels,
             durationUnit: durationUnit,
             roleAction: roleAction,
             targetRoleId: targetRoleId,
-            thumbnail: data.thumbnail || null,
-            image: data.image || null,
+            thumbnail: cleanHttpUrl(data.thumbnail),
+            image: cleanHttpUrl(data.image),
             buttons: buttons,
             extraEmbeds: extraEmbeds,
             allowedRoles: allowedRoles,
@@ -3099,7 +3361,7 @@ app.post('/api/commands/:guildId', requireAuth, writeLimiter, async (req, res) =
         const cmd = await db.CustomCommand.findOne({ guildId, name: lowerName }).lean();
         res.json({ success: true, command: cmd });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3125,7 +3387,7 @@ app.delete('/api/commands/:guildId/:name', requireAuth, writeLimiter, async (req
         }
         res.status(404).json({ error: 'Command not found' });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3142,7 +3404,7 @@ app.get('/api/members/:guildId', requireAuth, async (req, res) => {
         let members = guild.members.cache;
         if (members.size <= 1) {
             try {
-                members = await guild.members.fetch();
+                members = await guild.members.fetch({ limit: 200 });
             } catch (fetchErr) {
                 console.error('Fetch members failed:', fetchErr.message);
             }
@@ -3164,7 +3426,7 @@ app.get('/api/members/:guildId', requireAuth, async (req, res) => {
         res.json(list);
     } catch (e) {
         console.error('Members error:', e);
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3179,7 +3441,7 @@ app.get('/api/modlogs/:guildId', requireAuth, async (req, res) => {
         const logs = await db.getModLogsByGuild(req.params.guildId, 50);
         res.json(logs);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3194,7 +3456,7 @@ app.get('/api/modlogs/:guildId/:userId', requireAuth, async (req, res) => {
         const logs = await db.getModLogsByTarget(req.params.guildId, req.params.userId, 50);
         res.json(logs);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3208,6 +3470,11 @@ app.get('/api/bans/:guildId', requireAuth, async (req, res) => {
         const { db, client } = global.PredCord;
         const guild = client.guilds.cache.get(req.params.guildId);
         if (!guild) return res.status(404).json({ error: 'Server not found' });
+
+        const cachedBans = bansCache.get(req.params.guildId);
+        if (cachedBans && Date.now() - cachedBans.at < 20000) {
+            return res.json(cachedBans.data);
+        }
 
         const liveBans = await guild.bans.fetch();
         const logs = await db.getBanLogsDB(req.params.guildId, 500);
@@ -3253,9 +3520,10 @@ app.get('/api/bans/:guildId', requireAuth, async (req, res) => {
             return new Date(b.date) - new Date(a.date);
         });
 
+        bansCache.set(req.params.guildId, { at: Date.now(), data: result });
         res.json(result);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3272,7 +3540,7 @@ app.get('/api/blacklist', requireAuth, async (req, res) => {
         entries.sort((a, b) => new Date(b.date) - new Date(a.date));
         res.json(entries);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3291,6 +3559,7 @@ app.post('/api/blacklist-action', requireAuth, writeLimiter, async (req, res) =>
     try {
         const { action, userId, reason, guildId } = req.body;
         if (!action || !userId || !guildId) return res.status(400).json({ error: 'Missing parameters' });
+        if (typeof action !== 'string' || !isSnowflake(userId) || typeof guildId !== 'string') return res.status(400).json({ error: 'Invalid parameters' });
 
         if (!isOwner(req, guildId)) {
             return res.status(403).json({ error: 'Access Denied' });
@@ -3322,7 +3591,7 @@ app.post('/api/blacklist-action', requireAuth, writeLimiter, async (req, res) =>
 
         return res.status(400).json({ error: 'Invalid action' });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3334,7 +3603,7 @@ app.get('/api/blacklist/sync-status', requireAuth, async (req, res) => {
         const { blacklist } = global.PredCord;
         res.json({ running: blacklist.isSweeping() });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3352,7 +3621,7 @@ app.post('/api/blacklist/sync', requireAuth, writeLimiter, async (req, res) => {
         blacklist.runSweep([guildId]);
         res.json({ started: true, running: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3387,7 +3656,7 @@ app.get('/api/blacklist/settings', requireAuth, async (req, res) => {
             lastSweepResult: settings.lastSweepResult || null
         });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3450,7 +3719,7 @@ app.post('/api/blacklist/settings', requireAuth, writeLimiter, async (req, res) 
 
         res.json({ success: true });
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3465,7 +3734,7 @@ app.get('/api/dashboard-logs/:guildId', requireAuth, async (req, res) => {
         const logs = await db.getDashboardLogsDB(req.params.guildId, 200);
         res.json(logs);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3480,7 +3749,7 @@ app.get('/api/warnings/:guildId/:userId', requireAuth, async (req, res) => {
         const userWarnings = await db.getUserWarningsDB(req.params.guildId, req.params.userId);
         res.json(userWarnings);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3496,6 +3765,18 @@ app.post('/api/moderation/:guildId', requireAuth, writeLimiter, async (req, res)
 
         const { action, userId, reason, duration } = req.body;
         if (!action || !userId) return res.status(400).json({ error: 'Missing parameters' });
+        if (typeof action !== 'string' || !isSnowflake(userId)) return res.status(400).json({ error: 'Invalid parameters' });
+
+        const protectedTarget = userId === req.session.user.id
+            || userId === client.user.id
+            || userId === guild.ownerId
+            || SUPER_OWNER_IDS.includes(userId);
+        if (protectedTarget && ['warn', 'mute', 'kick', 'ban'].includes(action) && !SUPER_OWNER_IDS.includes(req.session.user.id)) {
+            return res.status(403).json({ error: 'You cannot target this user' });
+        }
+        if (userId === client.user.id || userId === guild.ownerId) {
+            return res.status(403).json({ error: 'You cannot target this user' });
+        }
 
         let member;
         try {
@@ -3507,7 +3788,7 @@ app.post('/api/moderation/:guildId', requireAuth, writeLimiter, async (req, res)
         }
 
         const moderator = client.user;
-        const cleanReason = reason || 'Action from dashboard';
+        const cleanReason = (typeof reason === 'string' && reason.trim() ? reason.trim() : 'Action from dashboard').slice(0, 450);
         let actionLabel = '';
         let durationText = null;
 
@@ -3545,7 +3826,7 @@ app.post('/api/moderation/:guildId', requireAuth, writeLimiter, async (req, res)
                 await saveModLog(guild, actionLabel, { id: userId, tag: bannedUser.user.tag }, moderator, cleanReason, null);
                 return res.json({ success: true, username: bannedUser.user.tag });
             } catch (err) {
-                return res.status(400).json({ error: 'Error during unban: ' + err.message });
+                return res.status(400).json({ error: 'Error during unban' });
             }
         } else if (action === 'unmute') {
             if (!member) return res.status(404).json({ error: 'User not found' });
@@ -3553,8 +3834,8 @@ app.post('/api/moderation/:guildId', requireAuth, writeLimiter, async (req, res)
             await member.timeout(null, cleanReason);
             actionLabel = 'User unmuted';
         } else if (action === 'change_reason') {
-            if (!reason) return res.status(400).json({ error: 'Missing reason' });
-            await db.updateBanReasonDB(guild.id, userId, reason);
+            if (typeof reason !== 'string' || !reason.trim()) return res.status(400).json({ error: 'Missing reason' });
+            await db.updateBanReasonDB(guild.id, userId, reason.trim().slice(0, 450));
             return res.json({ success: true });
         } else {
             return res.status(400).json({ error: 'Invalid action' });
@@ -3565,7 +3846,7 @@ app.post('/api/moderation/:guildId', requireAuth, writeLimiter, async (req, res)
         res.json({ success: true, username: member.user.tag });
     } catch (e) {
         console.error('Moderation error:', e);
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
@@ -3579,12 +3860,16 @@ app.get('/api/transcripts/:guildId', requireAuth, async (req, res) => {
         const transcripts = await db.getTranscriptsByGuildDB(req.params.guildId, 100);
         res.json(transcripts);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
 app.get('/api/transcripts/:guildId/:transcriptId', requireAuth, async (req, res) => {
     try {
+        const hasPerm = await userHasPermission(req, 'viewLogsRoles', req.params.guildId);
+        if (!hasPerm) {
+            return res.status(403).json({ error: 'Access Denied' });
+        }
         const { db } = global.PredCord;
         const transcript = await db.getTranscriptDB(req.params.guildId, req.params.transcriptId);
         if (!transcript) {
@@ -3592,7 +3877,7 @@ app.get('/api/transcripts/:guildId/:transcriptId', requireAuth, async (req, res)
         }
         res.json(transcript);
     } catch (e) {
-        res.status(500).json({ error: e.message });
+        serverError(res, e);
     }
 });
 
