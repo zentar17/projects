@@ -306,7 +306,8 @@ const McTicketSchema = new mongoose.Schema({
     userId: { type: String, required: true, index: true },
     userName: String,
     userAvatar: String,
-    email: { type: String, required: true },
+    email: { type: String, default: null },
+    emailExpiresAt: { type: Date, default: null, index: true },
     planKey: String,
     plan: String,
     price: { type: String, default: null },
@@ -329,6 +330,7 @@ const McTicketTranscriptSchema = new mongoose.Schema({
     userName: String,
     userAvatar: String,
     email: String,
+    emailExpiresAt: { type: Date, default: null, index: true },
     planKey: String,
     plan: String,
     price: { type: String, default: null },
@@ -1039,12 +1041,14 @@ async function claimMcTicketDB(ticketNumber, by, expectedClaimerId) {
 }
 
 async function saveMcTicketTranscriptDB(ticket, deletedAt) {
+    const emailExpired = !!ticket.emailExpiresAt && new Date(ticket.emailExpiresAt).getTime() <= Date.now();
     const data = {
         ticketNumber: ticket.ticketNumber,
         userId: ticket.userId,
         userName: ticket.userName,
         userAvatar: ticket.userAvatar,
-        email: ticket.email,
+        email: emailExpired ? null : (ticket.email || null),
+        emailExpiresAt: emailExpired ? null : (ticket.emailExpiresAt || null),
         planKey: ticket.planKey,
         plan: ticket.plan,
         price: ticket.price,
@@ -1091,6 +1095,25 @@ async function getMcTicketTranscriptDB(ticketNumber) {
 
 async function listMcTicketTranscriptsDB() {
     return McTicketTranscript.find({}).select({ messages: { $slice: -1 } }).sort({ closedAt: -1 }).limit(500).lean();
+}
+
+async function purgeExpiredMcEmailsDB(now, maxAgeMs) {
+    const cutoff = new Date(now.getTime() - maxAgeMs);
+    const hasEmail = { email: { $exists: true, $nin: [null, ''] } };
+    const unset = { $unset: { email: '', emailExpiresAt: '' } };
+    const tickets = await McTicket.updateMany({
+        $or: [
+            { emailExpiresAt: { $ne: null, $lte: now } },
+            { ...hasEmail, emailExpiresAt: null, createdAt: { $lte: cutoff } }
+        ]
+    }, unset);
+    const transcripts = await McTicketTranscript.updateMany({
+        $or: [
+            { emailExpiresAt: { $ne: null, $lte: now } },
+            { ...hasEmail, emailExpiresAt: null, $or: [{ openedAt: { $lte: cutoff } }, { createdAt: { $lte: cutoff } }] }
+        ]
+    }, unset);
+    return { tickets: tickets.modifiedCount || 0, transcripts: transcripts.modifiedCount || 0 };
 }
 
 async function deleteExpiredMcTicketsDB(cutoff) {
@@ -1576,6 +1599,7 @@ module.exports = {
     getMcTicketTranscriptDB,
     listMcTicketTranscriptsDB,
     deleteExpiredMcTicketsDB,
+    purgeExpiredMcEmailsDB,
     markVideoWatchedDB,
     saveVideoProgressDB,
     getVideoProgressMapDB,
