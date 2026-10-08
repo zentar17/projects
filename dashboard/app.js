@@ -3624,7 +3624,7 @@ async function loadBlacklistSettings() {
     const saveBtn = document.getElementById('saveBlacklistSettingsBtn');
     if (!box || !saveBtn) return;
 
-    if (!['predcord', 'community', 'masterclassServer'].includes(selectedServer) || !currentGuild || !isOwner()) {
+    if (!['predcord', 'community', 'masterclassServer'].includes(selectedServer) || !currentGuild) {
         box.classList.add('hidden');
         saveBtn.classList.add('hidden');
         return;
@@ -3648,7 +3648,13 @@ async function loadBlacklistSettings() {
         renderPermissionsList('blBanServersList', settings.guilds || [], settings.banGuildIds || []);
 
         box.classList.remove('hidden');
-        saveBtn.classList.remove('hidden');
+        if (settings.canEdit) {
+            saveBtn.classList.remove('hidden');
+        } else {
+            saveBtn.classList.add('hidden');
+            box.querySelectorAll('.role-toggle-input').forEach(i => { i.disabled = true; });
+            box.classList.add('readonly');
+        }
     } catch (e) {
         box.classList.add('hidden');
         saveBtn.classList.add('hidden');
@@ -3688,6 +3694,8 @@ async function saveBlacklistSettings() {
 async function loadBlacklist() {
     const list = document.getElementById('blacklistList');
     list.innerHTML = '<div class="loading">Loading</div>';
+    const blBox = document.getElementById('blacklistSettings');
+    if (blBox) blBox.classList.remove('readonly');
     loadBlacklistSettings();
 
     try {
