@@ -244,9 +244,19 @@ async function init() {
         updatePreview();
         updatePermissionsTabVisibility();
         applyServerAccessRestrictions();
+        await openTicketsFromHash();
     } catch (e) {
         console.error('[INIT] Error:', e);
     }
+}
+
+async function openTicketsFromHash() {
+    if (window.location.hash !== '#mc-tickets') return;
+    if (!isOwner() && !canMcTickets) return;
+    await selectServer('masterclass');
+    const ticketsTab = document.getElementById('navTabMcTickets');
+    if (ticketsTab) ticketsTab.click();
+    try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) {}
 }
 
 function applyServerAccessRestrictions() {
