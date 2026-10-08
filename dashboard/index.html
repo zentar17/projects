@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/dashboard/style.css?v=20261008h">
+<link rel="stylesheet" href="/dashboard/style.css?v=20261008j">
 </head>
 <body>
 
@@ -750,10 +750,29 @@
         <div id="tab-blacklist" class="tab-content hidden">
             <div class="panel-header">
                 <h2>Blacklist</h2>
-                <button type="button" id="blacklistSyncBtn" class="btn-primary hidden">Sync Blacklist</button>
+                <button type="button" id="saveBlacklistSettingsBtn" class="btn-primary hidden">Save Settings</button>
             </div>
 
-            <p id="blacklistSyncInfo" class="blacklist-sync-info hidden"></p>
+            <div id="blacklistSettings" class="hidden">
+                <div class="permissions-grid">
+                    <div class="permission-card">
+                        <h3>Log Channel</h3>
+                        <p class="permission-desc">Channel where Blacklist / Unblacklist logs are sent</p>
+                        <div id="blLogChannelList" class="roles-list">
+                            <p class="loading-text">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="permission-card">
+                        <h3>Ban Servers</h3>
+                        <p class="permission-desc">Servers where blacklisted users are banned (checked every 2 hours)</p>
+                        <div id="blBanServersList" class="roles-list">
+                            <p class="loading-text">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+                <p id="blacklistSweepInfo" class="blacklist-sync-info hidden"></p>
+            </div>
+
             <p id="blacklistCount" class="bans-count"></p>
 
             <div class="logs-container">
@@ -1081,7 +1100,7 @@
     <span class="form-toast-text">Fill all fields</span>
 </div>
 
-<script src="/dashboard/app.js?v=20261008h"></script>
+<script src="/dashboard/app.js?v=20261008j"></script>
 
 </body>
 </html>
