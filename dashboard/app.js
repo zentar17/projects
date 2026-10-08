@@ -248,6 +248,7 @@ async function init() {
         updatePermissionsTabVisibility();
         applyServerAccessRestrictions();
         await openTicketsFromHash();
+        await restoreDashState();
     } catch (e) {
         console.error('[INIT] Error:', e);
     }
@@ -260,6 +261,37 @@ async function openTicketsFromHash() {
     const ticketsTab = document.getElementById('navTabMcTickets');
     if (ticketsTab) ticketsTab.click();
     try { history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) {}
+}
+
+function saveDashState(patch) {
+    try {
+        const cur = JSON.parse(localStorage.getItem('pdDashState') || '{}');
+        localStorage.setItem('pdDashState', JSON.stringify(Object.assign(cur, patch)));
+    } catch (e) {}
+}
+
+function loadDashState() {
+    try { return JSON.parse(localStorage.getItem('pdDashState') || '{}') || {}; } catch (e) { return {}; }
+}
+
+function clearDashState() {
+    try { localStorage.removeItem('pdDashState'); } catch (e) {}
+}
+
+async function restoreDashState() {
+    if (selectedServer) return;
+    const st = loadDashState();
+    if (!st.server) return;
+    if (st.server === 'masterclass') {
+        if (!isOwner() && !canAccessMasterclass && !canMcTickets) return;
+    } else if (!SERVER_INFO[st.server] || (serverAccess && serverAccess[st.server] === false)) {
+        return;
+    }
+    await selectServer(st.server);
+    if (st.tab) {
+        const tab = document.querySelector(`.nav-tab[data-tab="${st.tab}"]`);
+        if (tab && !tab.classList.contains('hidden') && tab.offsetParent !== null) tab.click();
+    }
 }
 
 function applyServerAccessRestrictions() {
@@ -655,6 +687,7 @@ async function selectServer(server) {
     if (server === 'masterclass') {
         if (!isOwner() && !canAccessMasterclass && !canMcTickets) return;
         selectedServer = 'masterclass';
+        saveDashState({ server: 'masterclass', tab: null });
 
         if (guildNav) guildNav.classList.add('hidden');
         if (mcNav) mcNav.classList.remove('hidden');
@@ -680,6 +713,7 @@ async function selectServer(server) {
     if (!SERVER_INFO[server]) return;
     if (serverAccess && serverAccess[server] === false) return;
     selectedServer = server;
+    saveDashState({ server: server, tab: null });
 
     if (guildNav) guildNav.classList.remove('hidden');
     if (mcNav) mcNav.classList.add('hidden');
@@ -730,6 +764,7 @@ function setMasterclassGuild(key) {
 }
 
 function showServerSelectScreen() {
+    clearDashState();
     const selectScreen = document.getElementById('serverSelectScreen');
     const dashboardMain = document.getElementById('dashboardMain');
     if (selectScreen) selectScreen.classList.remove('hidden');
@@ -3699,7 +3734,7 @@ function startBlacklistSync() {
     if (!isOwner()) return;
     showConfirmDialog(
         'Sync Blacklist',
-        'The bot will check every Ban Server and ban all blacklisted users who are not banned yet. Continue?',
+        `The bot will check all blacklisted users in ${(SERVER_INFO[selectedServer] && SERVER_INFO[selectedServer].name) || 'this server'} and ban the ones who are not banned. Continue?`,
         async () => {
             setBlacklistSyncRunning(true);
             try {
@@ -5006,6 +5041,7 @@ function setupEvents() {
 
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
+            saveDashState({ tab: target });
 
             const myToken = ++tabTransitionToken;
 
