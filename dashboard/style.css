@@ -5066,3 +5066,7 @@ main .mc-ticket-num, main .mc-ticket-claim.claimed, main .modlog-server-badge { 
 @media (max-width: 700px) {
     #statsJoinLeaveGrid { grid-template-columns: 1fr; }
 }
+
+#serverSelectScreen .ss-badge, #serverSelectScreen .ss-role { display: none; }
+#serverSelectScreen .ss-hero { text-align: center; }
+#serverSelectScreen .server-select-card.ss-item img[src$="masterclass-pfp.png"] { background: #fff; }
