@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/dashboard/style.css?v=20261008f">
+<link rel="stylesheet" href="/dashboard/style.css?v=20261008g">
 </head>
 <body>
 
@@ -459,8 +459,8 @@
 
             <h2 class="section-title">Join / Leave</h2>
             <div class="stats-period-switch" id="statsPeriodSwitch">
-                <button type="button" class="stats-period-btn active" data-period="tutto">All time</button>
-                <button type="button" class="stats-period-btn" data-period="oggi">Today</button>
+                <button type="button" class="stats-period-btn" data-period="tutto">All time</button>
+                <button type="button" class="stats-period-btn active" data-period="oggi">Today</button>
                 <button type="button" class="stats-period-btn" data-period="ieri">Yesterday</button>
                 <button type="button" class="stats-period-btn" data-period="3giorni">3 days</button>
                 <button type="button" class="stats-period-btn" data-period="7giorni">7 days</button>
@@ -474,7 +474,7 @@
             <div class="chart-container jl-chart">
                 <div class="chart-header"><h3>Join / Leave</h3><div class="jl-legend" id="joinLeaveLegend"></div></div>
                 <div class="chart-canvas-wrap">
-                    <canvas id="joinLeaveChart"></canvas>
+                    <div id="joinLeaveChart" class="jl-host"></div>
                 </div>
             </div>
 
@@ -1079,8 +1079,7 @@
     <span class="form-toast-text">Fill all fields</span>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="/dashboard/app.js?v=20261008f"></script>
+<script src="/dashboard/app.js?v=20261008g"></script>
 
 </body>
 </html>
