@@ -3,16 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Predage - Masterclass</title>
+<title>Predage - Community</title>
 <link rel="icon" type="image/png" href="/favicon.png">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Anton&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+.hidden { display: none !important; }
 
 :root {
     --primary: #E67E22;
     --accent: #38BDF8;
+    --gold: #E5C158;
     --bg-dark: #0a0a0f;
     --bg-card: rgba(24, 24, 32, 0.85);
     --bg-bar: #101016;
@@ -258,944 +261,693 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 
 .user-dropdown-item:hover { background: rgba(255,255,255,0.06); }
 
-.mc-hero {
-    position: relative;
-    overflow: hidden;
-    text-align: center;
-    padding: 70px 24px 30px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-}
-
-.mc-hero-bg {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-}
-
-.mc-hero-clip {
-    position: absolute;
-    inset: 0;
+.community-main {
+    flex: 1;
+    max-width: 1100px;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity 1.8s ease;
-}
-
-.mc-hero-clip.active { opacity: 1; }
-
-.mc-hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(180deg, rgba(10,10,15,0.78) 0%, rgba(10,10,15,0.5) 38%, rgba(10,10,15,0.6) 70%, #0a0a0f 100%);
-}
-
-.mc-hero-content {
-    position: relative;
-    z-index: 2;
-    max-width: 1320px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 150px 24px 0;
 }
 
-.mc-title-wrap {
-    position: relative;
-    display: block;
-    width: 100%;
+.community-hero {
     text-align: center;
-    margin-bottom: 10px;
+    max-width: 760px;
+    margin: 0 auto 90px;
 }
 
-.mc-title {
-    position: relative;
-    z-index: 1;
-    display: inline-block;
-    font-family: 'Manrope', sans-serif;
-    font-size: 56px;
+.community-title-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.community-title-plain,
+.community-title-highlight {
+    font-size: 42px;
     font-weight: 900;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    text-shadow: 0 4px 24px rgba(0,0,0,0.6);
+    letter-spacing: 0.4px;
 }
 
-.mc-title-wrap,
-.mc-description,
-.mc-highlight,
-.mc-cta-row {
+.community-title-plain { color: var(--text); }
+.community-title-highlight { color: var(--primary); }
+
+.community-title-tag {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    margin-bottom: 9px;
+}
+
+.community-text {
+    color: #f0f0f3;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.75;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.5);
     opacity: 0;
-    animation: mcTextReveal 0.8s ease forwards;
+    animation: communityTextReveal 0.8s ease 0.2s forwards;
 }
 
-.mc-title-wrap { animation-delay: 0.05s; }
-.mc-description { animation-delay: 0.25s; }
-.mc-highlight { animation-delay: 0.6s; }
-.mc-cta-row { animation-duration: 0.6s; animation-delay: 1s; }
-
-@keyframes mcTextReveal {
+@keyframes communityTextReveal {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    .mc-title-wrap,
-    .mc-description,
-    .mc-highlight,
-    .mc-cta-row { animation: none; opacity: 1; }
-}
-
-.mc-title-white { color: #ffffff; }
-.mc-title-orange { color: var(--primary); }
-
-.mc-description {
-    font-size: 20px;
-    font-weight: 600;
-    color: #f0f0f3;
-    line-height: 1.55;
-    max-width: 640px;
-    margin: 0 auto;
-    text-shadow: 0 2px 14px rgba(0,0,0,0.7);
-}
-
-.mc-highlight {
-    position: relative;
-    font-size: clamp(14px, 1.15vw, 19px);
-    font-weight: 700;
-    color: var(--accent);
-    text-shadow: 0 0 12px rgba(56,189,248,0.65), 0 2px 10px rgba(0,0,0,0.7);
-    white-space: nowrap;
-    line-height: 1.5;
-    margin: 34px auto 30px;
-    padding-top: 26px;
-}
-
-.mc-highlight::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 90px;
-    height: 2px;
-    transform: translateX(-50%);
-    border-radius: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    box-shadow: 0 0 10px rgba(56,189,248,0.6);
-}
-
-.results-btn {
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-size: 16px;
-    font-weight: 700;
-    padding: 15px 48px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-family: inherit;
-    text-decoration: none;
-    transition: border-color 0.2s ease, transform 0.2s ease;
-}
-
-.results-btn:hover {
-    border-color: rgba(255, 255, 255, 0.25);
-    transform: translateY(-1px);
-}
-
-.results-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -75%;
-    width: 45%;
-    height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-    transform: skewX(-20deg);
-    transition: left 0.6s ease;
-}
-
-.results-btn:hover::before { left: 125%; }
-
-.modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(5, 5, 8, 0.72);
-    z-index: 1000;
-    align-items: center;
+.community-cta-row {
+    display: flex;
     justify-content: center;
-    padding: 24px;
-}
-
-.modal-overlay.open {
-    display: flex;
-}
-
-.modal-box {
-    background: #14141c;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 32px;
-    max-width: 460px;
-    width: 100%;
-    max-height: 85vh;
-    overflow-y: auto;
-    position: relative;
-    animation: modalPopIn 0.22s ease;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
-}
-
-.modal-box::-webkit-scrollbar {
-    width: 6px;
-}
-
-.modal-box::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.modal-box::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.18);
-    border-radius: 10px;
-}
-
-.modal-box::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-@keyframes modalPopIn {
-    from { opacity: 0; transform: scale(0.96) translateY(8px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.modal-close {
-    position: relative;
-    overflow: hidden;
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: 1px solid #ef4444;
-    border-radius: 8px;
-    color: var(--text-dim);
-    font-size: 20px;
-    line-height: 1;
-    cursor: pointer;
-    font-family: inherit;
-}
-
-.modal-close::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -75%;
-    width: 45%;
-    height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-    transform: skewX(-20deg);
-    transition: left 0.6s ease;
-}
-
-.modal-close:hover::before { left: 125%; }
-
-.modal-close:hover {
-    color: var(--text);
-    border-color: #ef4444;
-    background: rgba(239, 68, 68, 0.12);
-}
-
-.modal-title {
-    font-size: 17px;
-    font-weight: 800;
-    margin-bottom: 20px;
-    padding-right: 24px;
-    line-height: 1.4;
-}
-
-.modal-title a {
-    color: var(--text);
-    text-decoration: none;
-}
-
-.modal-title a:hover {
-    text-decoration: underline;
-}
-
-.result-detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
     gap: 16px;
-    padding: 11px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
-}
-
-.result-detail-row:last-child {
-    border-bottom: none;
-}
-
-.result-detail-label {
-    color: var(--text-dim);
-    flex-shrink: 0;
-}
-
-.result-detail-value {
-    color: var(--text);
-    font-weight: 700;
-    text-align: right;
-}
-
-.result-detail-value a {
-    color: var(--accent);
-    text-decoration: none;
-}
-
-.result-detail-value a:hover {
-    text-decoration: underline;
-}
-
-.more-year-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-}
-
-.more-year-btn {
-    position: relative;
-    overflow: hidden;
-    flex: 1;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    font-size: 13px;
-    font-weight: 800;
-    padding: 8px 0;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
-}
-
-.more-year-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -75%;
-    width: 45%;
-    height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-    transform: skewX(-20deg);
-    transition: left 0.6s ease;
-}
-
-.more-year-btn:hover::before { left: 125%; }
-
-.more-year-btn.active {
-    color: var(--text);
-    border-color: var(--primary);
-    background: rgba(230, 126, 34, 0.14);
-}
-
-.more-results-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.more-result-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 14px;
-    font-size: 12.5px;
-    font-weight: 700;
-    color: var(--text);
-    text-decoration: none;
-    transition: border-color 0.2s ease;
-}
-
-.more-result-row:hover {
-    border-color: rgba(255, 255, 255, 0.25);
-}
-
-.more-result-row:hover .more-result-link-icon {
-    color: var(--primary);
-}
-
-.more-result-name {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.more-result-link-icon {
-    width: 13px;
-    height: 13px;
-    flex-shrink: 0;
-    color: var(--text-dim);
-}
-
-.more-result-prize {
-    color: var(--primary);
-    font-weight: 800;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-.modal-box-wide {
-    max-width: 640px;
-    max-height: 62vh;
-}
-
-.mc-cta-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     flex-wrap: wrap;
-    margin-top: 28px;
-}
-
-.mc-tiers-section {
-    position: relative;
-    z-index: 1;
-    padding: 10px 24px 110px;
-}
-
-.mc-tiers-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    align-items: stretch;
-    gap: 56px;
-    max-width: 100%;
-    width: 100%;
-    margin: 0 auto;
-}
-
-.mc-tier-card {
-    position: relative;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 30px 22px;
-    display: flex;
-    flex-direction: column;
-    backdrop-filter: blur(10px);
+    margin-top: 30px;
     opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.8s ease, transform 0.8s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transform: translateY(10px);
+    animation: communityCtaReveal 0.6s ease 1.1s forwards;
 }
 
-.mc-tier-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+@keyframes communityCtaReveal {
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.mc-tier-card.in-view { opacity: 1; transform: translateY(0); }
-
-.mc-tier-card:hover { border-color: rgba(255,255,255,0.25); }
-.mc-tier-card[data-plan] { cursor: pointer; }
-
-.plan-modal-box {
-    max-width: 430px;
-    padding: 30px 28px 26px;
-    background: linear-gradient(180deg, #1a1a22 0%, #14141a 100%);
-    border-radius: 20px;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 80px rgba(230, 126, 34, 0.12);
-}
-
-.plan-chip {
+.community-cta-btn {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: rgba(230, 126, 34, 0.12);
-    border: 1px solid rgba(230, 126, 34, 0.35);
-    color: var(--primary);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.3px;
-}
-
-.plan-modal-title {
-    font-size: 22px;
-    font-weight: 900;
-    margin: 14px 0 6px;
-}
-
-.plan-modal-sub {
-    color: var(--text-dim);
-    font-size: 13.5px;
-    line-height: 1.55;
-    margin-bottom: 22px;
-}
-
-.plan-field-label {
-    display: block;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-    color: var(--text-dim);
-    margin-bottom: 8px;
-}
-
-.plan-input-wrap { position: relative; }
-
-.plan-input-wrap input {
-    width: 100%;
-    padding: 13px 44px 13px 15px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1.5px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    color: var(--text);
-    font-size: 14px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.plan-input-wrap input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.1); }
-.plan-input-wrap.valid input { border-color: rgba(52, 211, 153, 0.6); box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.08); }
-.plan-input-wrap.invalid input { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.08); }
-
-.plan-input-status {
-    position: absolute;
-    right: 13px;
-    top: 50%;
-    margin-top: -10px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: none;
-    align-items: center;
     justify-content: center;
-}
-
-.plan-input-status svg { width: 12px; height: 12px; }
-.plan-input-wrap.valid .plan-input-status { display: flex; background: #34d399; }
-.plan-input-wrap.invalid .plan-input-status { display: flex; background: #ef4444; }
-
-.plan-input-wrap.checking .plan-input-status {
-    display: block;
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    border-top-color: var(--primary);
-    animation: planSpin 0.7s linear infinite;
-}
-
-@keyframes planSpin { to { transform: rotate(360deg); } }
-
-.plan-field-hint {
-    min-height: 18px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-top: 7px;
-    color: var(--text-dim);
-}
-
-.plan-field-hint.valid { color: #34d399; }
-.plan-field-hint.invalid { color: #f87171; }
-
-.plan-check-row {
-    position: relative;
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    margin: 14px 0 22px;
-    padding: 14px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.025);
-    border: 1px solid var(--border);
-    cursor: pointer;
-    user-select: none;
-    transition: border-color 0.2s ease;
-}
-
-.plan-check-row:hover { border-color: rgba(255, 255, 255, 0.18); }
-.plan-check-row input { position: absolute; opacity: 0; pointer-events: none; }
-
-.plan-checkbox {
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
-    border: 1.5px solid rgba(255, 255, 255, 0.25);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 1px;
-    transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.plan-checkbox svg { width: 12px; height: 12px; opacity: 0; transition: opacity 0.15s ease; }
-.plan-check-row input:checked + .plan-checkbox { background: var(--primary); border-color: var(--primary); }
-.plan-check-row input:checked + .plan-checkbox svg { opacity: 1; }
-.plan-check-row input:focus-visible + .plan-checkbox { box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.35); }
-
-.plan-check-text {
-    font-size: 13.5px;
-    line-height: 1.5;
-    color: var(--text);
-}
-
-.plan-check-text a {
-    color: var(--primary);
-    font-weight: 700;
-    text-decoration: none;
-    border-bottom: 1px solid rgba(230, 126, 34, 0.4);
-}
-
-.plan-check-text a:hover { border-bottom-color: var(--primary); }
-
-.plan-create-btn {
-    width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 13px;
-    background: linear-gradient(135deg, #E67E22, #c96a14);
-    color: #fff;
     font-family: inherit;
     font-size: 15px;
     font-weight: 800;
     letter-spacing: 0.3px;
+    padding: 13px 30px;
+    border-radius: 12px;
+    border: 1px solid transparent;
     cursor: pointer;
-    box-shadow: 0 10px 30px rgba(230, 126, 34, 0.3);
-    transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.email-notice-overlay { z-index: 1100; }
+.community-cta-btn:hover { transform: translateY(-2px); }
 
-.email-notice-box {
-    max-width: 420px;
-    padding: 30px 28px 26px;
-    background: linear-gradient(180deg, #1a1a22 0%, #14141a 100%);
-    border-radius: 20px;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 80px rgba(230, 126, 34, 0.12);
+.community-cta-btn.cta-white {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.35);
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+    box-shadow: 0 0 14px rgba(255,255,255,0.08), inset 0 0 14px rgba(255,255,255,0.04);
 }
 
-.email-notice-box .plan-modal-title { margin-top: 0; }
+.community-cta-btn.cta-white:hover {
+    border-color: rgba(255,255,255,0.65);
+    box-shadow: 0 0 20px rgba(255,255,255,0.18), inset 0 0 16px rgba(255,255,255,0.08);
+}
 
-.email-notice-p {
+.community-cta-btn.cta-red {
+    background: rgba(239,68,68,0.08);
+    border-color: rgba(239,68,68,0.5);
+    color: #ef4444;
+    text-shadow: 0 0 10px rgba(239,68,68,0.5);
+    box-shadow: 0 0 14px rgba(239,68,68,0.12), inset 0 0 14px rgba(239,68,68,0.06);
+}
+
+.community-cta-btn.cta-red:hover {
+    border-color: #ef4444;
+    box-shadow: 0 0 20px rgba(239,68,68,0.3), inset 0 0 16px rgba(239,68,68,0.12);
+}
+
+.servers-section { margin-bottom: 240px; }
+
+.servers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.server-block {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.community-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 30px 26px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    transition: border-color 0.2s ease;
+}
+
+.community-card:hover { border-color: rgba(255,255,255,0.25); }
+
+.community-card-desc {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
     color: var(--text-dim);
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 13.5px;
+    line-height: 1.7;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.community-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: block;
+    margin: 0 auto 14px;
+    border: 2px solid var(--primary);
+    object-fit: cover;
+}
+
+.community-name {
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 18px;
+}
+
+.join-btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #04202c;
+    font-weight: 700;
+    font-size: 13.5px;
+    text-decoration: none;
+    padding: 8.5px 22px;
+    border-radius: 8px;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.join-btn:hover { background: #1facdf; transform: translateY(-2px); }
+
+.page-title {
+    font-size: 32px;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 44px;
+}
+
+.page-title .highlight { color: var(--primary); }
+
+.staff-appeal-section {
+    max-width: 1020px;
+    margin: 0 auto 110px;
+}
+
+.staff-block .page-title {
+    font-size: 44px;
+    margin-bottom: 26px;
+    text-align: left;
+}
+
+.appeal-block {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(1240px, calc(100vw - 80px));
+}
+
+.appeal-block .page-title {
+    font-size: 44px;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+.appeal-choose {
+    text-align: center;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 40px;
+}
+
+.appeal-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 32px;
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
+.appeal-card {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 2px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.08);
+    transition: transform 0.25s ease;
+}
+
+.appeal-card:hover { transform: translateY(-4px); }
+
+.appeal-spin {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 200%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    background: conic-gradient(from 0deg, transparent 0 70%, #fff 100%);
+    animation: appealSpin 4s linear infinite;
+}
+
+@keyframes appealSpin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.appeal-card-in {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 26px;
+    padding: 34px 38px;
+    border-radius: 18px;
+    background: #0f0f14;
+}
+
+.appeal-logo-frame {
+    flex: 0 0 auto;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.appeal-logo-frame img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.appeal-card-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.appeal-card-name {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.appeal-card-btn {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 260px;
+    background: #fff;
+    color: #0a0a0f;
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 0;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 14.5px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.appeal-card-btn:hover { background: #e4e4e7; }
+.appeal-card-btn:disabled { opacity: 0.6; cursor: default; }
+
+.appeal-card-status {
+    min-height: 18px;
+    margin-top: 10px;
+    color: #e74c3c;
+    font-size: 12.5px;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.appeal-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(5, 5, 9, 0.72);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.appeal-modal.open { opacity: 1; pointer-events: auto; }
+
+.appeal-modal-box {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 28px 26px 26px;
+    border-radius: 18px;
+    background: #14141a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+    transform: translateY(10px);
+    transition: transform 0.2s ease;
+}
+
+.appeal-modal.open .appeal-modal-box { transform: translateY(0); }
+
+.appeal-modal-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding-right: 30px;
+}
+
+.appeal-modal-head img { width: 40px; height: 40px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+.appeal-modal-head h3 { font-size: 18px; font-weight: 800; }
+
+.appeal-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-dim);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.appeal-modal-close:hover { color: #fff; border-color: rgba(255, 255, 255, 0.4); }
+
+@media (max-width: 700px) {
+    .appeal-block { width: calc(100vw - 40px); }
+    .appeal-grid { flex-direction: column; gap: 18px; }
+    .appeal-card { flex: 0 0 auto; width: 100%; }
+    .appeal-card-in { padding: 22px 20px; gap: 18px; }
+    .appeal-logo-frame { width: 72px; height: 72px; }
+    .appeal-card-name { font-size: 18px; margin-bottom: 12px; }
+}
+
+.staff-appeal-divider-h {
+    height: 1px;
+    background: var(--border);
+    margin: 56px 0;
+}
+
+.staff-description p {
+    color: #fff;
+    text-shadow: 0 0 6px rgba(255,255,255,0.55), 0 0 14px rgba(255,255,255,0.25);
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 0;
+    text-align: left;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+    overflow: hidden;
+}
+
+.staff-split {
+    display: flex;
+    align-items: stretch;
+    gap: 70px;
+    margin-bottom: 40px;
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 0 80px;
+    box-sizing: border-box;
+}
+
+.staff-info-col { flex: 1 1 50%; min-width: 0; }
+
+.staff-form-col {
+    flex: 1 1 50%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.server-choice-group { margin-bottom: 26px; }
+
+.choice-label {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
     margin-bottom: 12px;
 }
 
-.email-notice-p a {
-    color: var(--primary);
-    text-decoration: none;
-    border-bottom: 1px solid rgba(230, 126, 34, 0.4);
-    font-weight: 700;
-}
+.server-choice { display: flex; flex-wrap: wrap; gap: 12px; }
 
-.email-notice-p a:hover { border-bottom-color: var(--primary); }
-.email-notice-box .plan-create-btn { margin-top: 12px; }
-
-.plan-create-btn:hover:not(:disabled) { transform: translateY(-1px); }
-.plan-create-btn:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
-
-.plan-form-error {
-    min-height: 16px;
-    margin-top: 10px;
-    text-align: center;
-    font-size: 12.5px;
-    font-weight: 700;
-    color: #f87171;
-}
-
-.plan-existing {
-    margin-top: 14px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-}
-
-.plan-existing.hidden { display: none; }
-
-.plan-loading {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    padding: 50px 0 40px;
-}
-
-.plan-loading span {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--primary);
-    animation: planBlink 1.2s infinite;
-}
-
-.plan-loading span:nth-child(2) { animation-delay: 0.2s; }
-.plan-loading span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes planBlink {
-    0%, 80%, 100% { opacity: 0.25; }
-    40% { opacity: 1; }
-}
-
-.plan-existing-title {
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.7px;
-    color: var(--text-dim);
-    margin-bottom: 10px;
-}
-
-.plan-existing a {
+.server-choice-btn {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 10px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border);
-    color: var(--text);
-    text-decoration: none;
-    font-size: 13px;
+    border-radius: 10px;
+    padding: 12px 18px;
+    color: var(--text-dim);
+    font-family: inherit;
     font-weight: 700;
-    margin-bottom: 6px;
-    transition: border-color 0.2s ease;
+    font-size: 15px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
-.plan-existing a:hover { border-color: rgba(230, 126, 34, 0.5); }
-.plan-existing a span:last-child { color: var(--primary); font-size: 12px; }
+.server-choice-btn:hover { border-color: rgba(255, 255, 255, 0.6); transform: translateY(-3px); }
+.server-choice-btn.active { border-color: var(--primary); color: var(--text); background: rgba(230, 126, 34, 0.12); }
+.server-choice-icon { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 
-.plan-signin-btn {
+@keyframes shakeBox { 50% { transform: translateX(-1px); } }
+.staff-form-col.shake, .appeal-modal-box.shake { animation: shakeBox 0.25s ease-in-out both; }
+
+.signin-inline { text-align: left; }
+.signin-inline .modal-text { font-size: 12.5px; margin-bottom: 16px; }
+
+.rewards-heading {
+    font-size: 19px;
+    font-weight: 800;
+    margin: 32px 0 14px;
+    text-align: center;
+    color: var(--gold);
+    text-shadow: 0 0 8px rgba(229, 193, 88, 0.65), 0 0 20px rgba(229, 193, 88, 0.4);
+}
+
+.rewards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+@media (max-width: 1200px) {
+    .rewards-grid { grid-template-columns: 1fr; }
+}
+
+.reward-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+}
+
+.reward-card .team-name { font-size: 15.5px; font-weight: 800; margin-bottom: 10px; }
+.reward-card .reward-row { margin-bottom: 8px; }
+.reward-card .reward-label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--primary); margin-bottom: 2px; }
+.reward-card .reward-value { font-size: 14px; font-weight: 700; color: var(--text); }
+.reward-card .explanation-value { font-size: 13px; line-height: 1.6; color: var(--text-dim); }
+
+.field-invalid { border-color: #ef4444 !important; box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.18) !important; }
+.yesno-row.field-invalid .yesno-btn { border-color: #ef4444; }
+
+.form-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: linear-gradient(180deg, #1a1a22 0%, #14141a 100%);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 14px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(239, 68, 68, 0.15);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 3000;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+}
+
+.form-toast.hidden { display: none; }
+.form-toast.show { opacity: 1; transform: translateY(0); }
+.form-toast-icon { font-size: 14px; color: #ef4444; font-weight: 700; }
+
+.modal-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+.modal-text { color: var(--text-dim); font-size: 14px; line-height: 1.6; margin-bottom: 22px; }
+
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus { outline: none; border-color: var(--primary); }
+
+.yesno-row { display: flex; gap: 10px; }
+
+.yesno-btn {
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 0;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.yesno-btn.active { border-color: var(--primary); color: var(--text); background: rgba(230, 126, 34, 0.12); }
+
+.role-row { display: flex; gap: 10px; }
+
+.role-btn {
+    position: relative;
+    overflow: hidden;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 13px;
-    background: #5865F2;
-    color: #fff;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 0;
+    color: var(--text-dim);
     font-family: inherit;
-    font-size: 15px;
-    font-weight: 800;
+    font-weight: 700;
+    font-size: 13.5px;
     cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.role-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+.role-btn.active { border-color: var(--primary); color: var(--text); background: rgba(230, 126, 34, 0.12); }
+
+.submit-btn {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 0;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 14.5px;
+    cursor: pointer;
+    margin-top: 6px;
     transition: background 0.2s ease;
 }
 
-.plan-signin-btn:hover { background: #4752c4; }
+.submit-btn:hover { background: #cf701d; }
+.submit-btn:disabled { opacity: 0.6; cursor: default; }
 
-
-.mc-tier-card.recommended {
-    border-color: var(--accent);
-    padding-top: 56px;
-    box-shadow: 0 0 24px rgba(56,189,248,0.3), inset 0 0 20px rgba(56,189,248,0.06);
-}
-
-.mc-tier-card.recommended:hover { border-color: var(--accent); }
-
-.mc-tier-ribbon {
-    position: absolute;
-    top: -1px;
-    left: -1px;
-    right: -1px;
-    background: var(--accent);
-    color: #04202c;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.2px;
-    line-height: 1.35;
-    text-align: center;
-    padding: 7px 14px;
-    border-radius: 15px 15px 0 0;
-    text-transform: uppercase;
-}
-
-.mc-tier-card:nth-child(1) { transition-delay: 0.05s, 0.05s, 0s; }
-.mc-tier-card:nth-child(2) { transition-delay: 0.2s, 0.2s, 0s; }
-.mc-tier-card:nth-child(3) { transition-delay: 0.35s, 0.35s, 0s; }
-.mc-tier-card:nth-child(4) { transition-delay: 0.5s, 0.5s, 0s; }
-.mc-tier-card:nth-child(5) { transition-delay: 0.65s, 0.65s, 0s; }
-
-.mc-tier-name {
-    font-size: 22px;
-    font-weight: 800;
-    margin-bottom: 5px;
-    text-align: center;
-}
-
-.mc-tier-price {
-    font-size: 15px;
-    font-weight: 900;
-    color: #ff7a1a;
-    text-shadow: 0 0 6px rgba(255,122,26,0.95), 0 0 16px rgba(255,122,26,0.75), 0 0 32px rgba(255,122,26,0.5);
-    margin-bottom: 0;
-    text-align: center;
-}
-
-.mc-tier-features {
-    list-style: none;
+.discord-signin-btn {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    align-self: flex-start;
-    margin-top: 20px;
-    gap: 18px;
-}
-
-.mc-tier-features li {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    font-size: 15.5px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #5865F2;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 0;
+    font-family: inherit;
     font-weight: 800;
-    color: #ffffff;
-    line-height: 1.5;
+    font-size: 14.5px;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.2s ease;
 }
 
-.mc-tier-features li.is-new { position: relative; }
+.discord-signin-btn:hover { background: #4752c4; }
+.discord-signin-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
 
-.mc-tier-features li.is-new::before {
+.yesno-btn::before,
+.role-btn::before,
+.submit-btn::before,
+.discord-signin-btn::before {
     content: '';
     position: absolute;
-    left: -13px;
-    top: 2px;
-    bottom: 2px;
-    width: 3px;
-    border-radius: 3px;
-    background: rgb(var(--tc));
-    box-shadow: 0 0 10px rgba(var(--tc), 0.9);
+    top: 0;
+    left: -75%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.6s ease;
 }
 
-.mc-feat-dot {
-    flex-shrink: 0;
-    color: var(--primary);
-    font-size: 17px;
-    font-weight: 900;
-    line-height: 1.5;
-}
+.yesno-btn:hover::before,
+.role-btn:hover::before,
+.submit-btn:hover::before,
+.discord-signin-btn:hover::before { left: 125%; }
 
-.mc-feat-text {
-    text-align: left;
-    max-width: 190px;
-}
-
-.mc-feat-text a {
-    color: var(--accent);
-    text-decoration: none;
-}
-
-.mc-feat-text a:hover {
-    text-decoration: underline;
-}
-
-.mc-tier-cta {
-    margin-top: auto;
-    width: 100%;
-    padding: 9px 16px;
-    border-radius: 10px;
-    border: 1.5px solid rgba(56, 189, 248, 0.75);
-    background: rgba(56, 189, 248, 0.08);
-    color: var(--accent);
-    font-family: inherit;
-    font-size: 14.5px;
-    font-weight: 800;
-    letter-spacing: 0.2px;
-    cursor: pointer;
-    box-shadow: 0 0 14px rgba(56, 189, 248, 0.18), inset 0 0 10px rgba(56, 189, 248, 0.06);
-    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease, color 0.2s ease;
-}
-
-.mc-tier-features + .mc-tier-cta,
-.mc-tier-body + .mc-tier-cta { margin-top: auto; }
-
-.mc-tier-features { margin-bottom: 16px; }
-
-.mc-tier-card { padding-bottom: 22px; }
-
-.mc-tier-cta:hover {
-    background: rgba(56, 189, 248, 0.16);
-    box-shadow: 0 0 22px rgba(56, 189, 248, 0.38), inset 0 0 12px rgba(56, 189, 248, 0.1);
-    color: #7dd3fc;
-}
-
-.mc-tier-cta:active { transform: scale(0.98); }
-
-.mc-tier-cta:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-}
-
-.mc-tier-card.custom {
-    text-align: center;
-    border-color: rgba(230, 126, 34, 0.3);
-}
-
-.mc-tier-card.custom .mc-tier-name { color: #ffffff; margin-bottom: 10px; }
-
-.mc-tier-card.custom .mc-tier-body { justify-content: center; }
-
-.mc-tier-card.custom p {
-    font-size: 17px;
-    font-weight: 600;
-    color: #ffffff;
-    line-height: 1.62;
-}
-
-.mc-tier-card.custom .mc-tier-body { margin-bottom: 16px; }
-
-.mc-tier-card[data-plan="starter"] { --tc: 45, 212, 191; }
-.mc-tier-card[data-plan="igl"] { --tc: 56, 189, 248; }
-.mc-tier-card[data-plan="premium"] { --tc: 244, 114, 182; }
-.mc-tier-card[data-plan="pro"] { --tc: 230, 126, 34; }
-.mc-tier-card[data-plan="custom"] { --tc: 255, 255, 255; }
-
-.mc-tier-card[data-plan] {
-    border: 2px solid rgb(var(--tc));
-    box-shadow: 0 0 34px rgba(var(--tc), 0.45), 0 0 90px rgba(var(--tc), 0.2), inset 0 0 34px rgba(var(--tc), 0.12);
-    animation: tierGlow 3.2s ease-in-out infinite;
-}
-
-@keyframes tierGlow {
-    0%, 100% { box-shadow: 0 0 30px rgba(var(--tc), 0.4), 0 0 80px rgba(var(--tc), 0.16), inset 0 0 30px rgba(var(--tc), 0.1); }
-    50% { box-shadow: 0 0 46px rgba(var(--tc), 0.65), 0 0 110px rgba(var(--tc), 0.3), inset 0 0 40px rgba(var(--tc), 0.17); }
-}
-
-.mc-tier-card[data-plan]:hover {
-    border-color: rgb(var(--tc));
-    animation: none;
-    box-shadow: 0 0 56px rgba(var(--tc), 0.75), 0 0 130px rgba(var(--tc), 0.38), inset 0 0 44px rgba(var(--tc), 0.2);
-}
-
-.mc-tier-card[data-plan] .mc-tier-cta {
-    border-color: rgb(var(--tc));
-    background: rgba(var(--tc), 0.14);
-    color: rgb(var(--tc));
-    box-shadow: 0 0 22px rgba(var(--tc), 0.4), inset 0 0 14px rgba(var(--tc), 0.12);
-}
-
-.mc-tier-card[data-plan] .mc-tier-cta:hover {
-    background: rgb(var(--tc));
-    box-shadow: 0 0 34px rgba(var(--tc), 0.7), inset 0 0 12px rgba(255, 255, 255, 0.15);
-    color: #0a0a0f;
-}
-
-.mc-tier-card.recommended[data-plan] .mc-tier-ribbon { background: rgb(var(--tc)); }
+.form-status { color: #e74c3c; font-size: 13px; margin-top: 10px; text-align: center; }
 
 .site-footer {
     background: var(--bg-bar);
@@ -1239,30 +991,19 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 .footer-dev b { font-weight: 700; color: var(--text); }
 .footer-dev:hover b { text-decoration: underline; }
 
-@media (max-width: 1100px) {
-    .mc-tiers-grid { grid-template-columns: repeat(2, 1fr); gap: 40px; }
-}
-
 @media (max-width: 900px) {
     header { grid-template-columns: 1fr; row-gap: 14px; padding: 16px 20px; }
     .header-nav { gap: 24px; flex-wrap: wrap; justify-content: center; }
     .header-auth { justify-content: center; }
-    .mc-title { font-size: 30px; }
-    .mc-hero { padding: 40px 20px 24px; }
-    .mc-description { font-size: 14px; }
-    .mc-highlight { font-size: 14px; white-space: normal; margin: 24px auto 24px; padding-top: 20px; }
+    .community-main { padding: 140px 20px 0; }
+    .community-title-plain, .community-title-highlight { font-size: 30px; }
+    .servers-grid { grid-template-columns: 1fr; }
+    .rewards-grid { grid-template-columns: 1fr; }
+    .staff-split { flex-direction: column; gap: 32px; padding: 0 20px; }
     .footer-inner { flex-direction: column; gap: 32px; }
     .footer-bottom { flex-direction: column; text-align: center; padding: 18px 20px; }
     .footer-bottom-left { justify-content: center; }
     .footer-socials-row { justify-content: center; }
-}
-
-@media (max-width: 1000px) {
-    .mc-highlight { white-space: normal; max-width: 640px; }
-}
-
-@media (max-width: 640px) {
-    .mc-tiers-grid { grid-template-columns: 1fr; }
 }
 </style>
 <link rel="stylesheet" href="/mobile.css?v=1">
@@ -1278,14 +1019,14 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     <nav class="header-nav">
         <a href="/" data-i18n="nav_home">Home</a>
         <span class="nav-dot">•</span>
-        <a href="/masterclass" class="active" data-i18n="nav_masterclass">Masterclass</a>
+        <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
         <span class="nav-videos-group" id="navVideosGroup">
             <span class="nav-dot">•</span>
             <a href="/videos" data-i18n="nav_videos">Videos</a>
         </span>
         <script>try{if(localStorage.getItem('pdCanViewVideos')==='1')document.getElementById('navVideosGroup').classList.add('visible');}catch(e){}</script>
         <span class="nav-dot">•</span>
-        <a href="/community" data-i18n="nav_community">Community</a>
+        <a href="/community" class="active" data-i18n="nav_community">Community</a>
         <span class="nav-dot">•</span>
         <a href="#" data-i18n="nav_merch">Merch</a>
     </nav>
@@ -1309,30 +1050,125 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 </header>
 <div class="header-spacer" id="headerSpacer"></div>
 
-<section class="mc-hero">
-    <div class="mc-hero-bg" id="mcHeroBg">
-        <img class="mc-hero-clip active" src="/images/slide1.jpg" alt="">
-        <img class="mc-hero-clip" src="/images/slide2.jpg" alt="">
-        <img class="mc-hero-clip" src="/images/slide4.jpg" alt="">
-        <img class="mc-hero-clip" src="/images/slide5.png" alt="">
-        <img class="mc-hero-clip" src="/images/slide6.png" alt="">
-        <img class="mc-hero-clip" src="/images/slide7.png" alt="">
-    </div>
-    <div class="mc-hero-content">
-        <div class="mc-title-wrap">
-            <h1 class="mc-title"><span class="mc-title-white">Master</span><span class="mc-title-orange">class</span></h1>
+<main class="community-main">
+    <section class="community-hero">
+        <div class="community-title-row">
+            <span class="community-title-plain">Predage</span>
+            <span class="community-title-highlight">Community</span>
+            <span class="community-title-tag" data-i18n="community_tag">Place</span>
         </div>
-        <p class="mc-description" id="mcDescMain"></p>
-        <p class="mc-highlight" id="mcDescHighlight"></p>
-        <div class="mc-cta-row">
-            <button class="results-btn" id="resultsMoreBtn" type="button" data-i18n="mc_results_btn">Results</button>
+        <p class="community-text" data-i18n="community_text">Predage Community is more than a Discord server, it's where the streams, matches, and everyday hangouts turn into something real. On Discord you'll find a place to chat, join events, and scrim competitively, while on Twitch the energy keeps going live, with chat jumping in during every stream. Whether you're here to talk Fortnite, cheer Predage on, or just vibe with people who get it, there's a spot for you.</p>
+        <div class="community-cta-row" id="communityCtaRow">
+            <button class="community-cta-btn cta-white" id="joinTeamCtaBtn" type="button"><span>Join Our Team</span></button>
+            <button class="community-cta-btn cta-red" id="banAppealCtaBtn" type="button"><span>Ban Appeal</span></button>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="mc-tiers-section">
-    <div class="mc-tiers-grid" id="mcTiersGrid"></div>
-</section>
+    <section class="servers-section">
+        <div class="servers-grid">
+            <div class="server-block">
+                <div class="community-card">
+                    <img class="community-avatar" src="/images/dragon-pfp.webp" alt="Predage Community">
+                    <div class="community-name">Predage Community</div>
+                    <a class="join-btn" href="https://discord.gg/fFZcyNBcEY" target="_blank" rel="noopener" data-i18n="server_join_btn">Join Server</a>
+                    <p class="community-card-desc" data-i18n="server_community_desc">Predage Community is the main hangout for everyone around Predage. It's where you chat about the streams, share memes, jump into voice, and catch up on everything going on. New members are always welcome, so come say hi.</p>
+                </div>
+            </div>
+
+            <div class="server-block">
+                <div class="community-card">
+                    <img class="community-avatar" src="/images/predcord-pfp.webp" alt="PredCord">
+                    <div class="community-name">PredCord</div>
+                    <a class="join-btn" href="https://discord.gg/UW7SsywQp6" target="_blank" rel="noopener" data-i18n="server_join_btn">Join Server</a>
+                    <p class="community-card-desc" data-i18n="server_predcord_desc">PredCord was built to give the community the best practice experience possible. Run by the main moderators, it's where customs get hosted across Reload and Battle Royale, all built around the current competitive format. If you want to sharpen your gameplay with people who take it seriously, this is the place.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="staff-appeal-section" id="staffTeamSection">
+        <div class="staff-block">
+            <div class="staff-split">
+                <div class="staff-info-col">
+                    <h1 class="page-title"><span data-i18n="staff_title_1">Join Our</span> <span class="highlight" data-i18n="staff_title_2">Staff Team</span></h1>
+
+                    <div class="staff-description">
+                        <p data-i18n="staff_p">Joining Predage's Staff Team means becoming part of a large group made up of Twitch Moderators, Discord Moderators, Administrators, and Management. Every staff member plays an important role in keeping the community organized, calm, and enjoyable for everyone. By joining the team, you'll be expected to follow the usual rules of any staff team, but more importantly, the core principles of mutual respect, professionalism, collaboration, and seriousness. Keep in mind that as a staff member, you're directly representing Predage, so you're expected to behave correctly and respectfully with everyone. It's also important to know how to work as a team, respect the decisions made by higher staff, and communicate any issues or unusual situations. Favoritism, abuse of permissions, or behavior that could harm the community or its staff won't be tolerated. Being staff isn't just about having a role, it's about having responsibilities and actively contributing to the growth of the community.</p>
+                    </div>
+
+                    <h2 class="rewards-heading" data-i18n="rewards_heading">Rewards</h2>
+
+                    <div class="rewards-grid">
+                        <div class="reward-card">
+                            <div class="team-name" data-i18n="reward_card1_team">Community Team</div>
+                            <div class="reward-row">
+                                <span class="reward-label" data-i18n="reward_label">Reward</span>
+                                <span class="reward-value" data-i18n="reward_card1_value">Custom Drop Map</span>
+                            </div>
+                            <div class="reward-row">
+                                <span class="reward-label" data-i18n="reward_explanation_label">Explanation</span>
+                                <p class="explanation-value" data-i18n="reward_card1_explanation">Join the Community Team and you'll get your own custom drop map, made just for you.</p>
+                            </div>
+                        </div>
+
+                        <div class="reward-card">
+                            <div class="team-name" data-i18n="reward_card2_team">PredCord Team</div>
+                            <div class="reward-row">
+                                <span class="reward-label" data-i18n="reward_label">Reward</span>
+                                <span class="reward-value" data-i18n="reward_card2_value">Early Registration</span>
+                            </div>
+                            <div class="reward-row">
+                                <span class="reward-label" data-i18n="reward_explanation_label">Explanation</span>
+                                <p class="explanation-value" data-i18n="reward_card2_explanation">Join the PredCord Team and get early registration for every session we host, so you're always first in line.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="staff-form-col" data-form="apply">
+                    <div class="server-choice-group">
+                        <label class="choice-label">Choose the server</label>
+                        <div class="server-choice">
+                            <button type="button" class="server-choice-btn active" data-team="community">
+                                <img class="server-choice-icon" src="/images/dragon-pfp.webp" alt="">
+                                <span>Predage Community</span>
+                            </button>
+                            <button type="button" class="server-choice-btn" data-team="predcord">
+                                <img class="server-choice-icon" src="/images/predcord-pfp.webp" alt="">
+                                <span>PredCord</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="inline-form-body"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="staff-appeal-divider-h"></div>
+
+        <div class="appeal-block" id="banAppealSection">
+            <h1 class="page-title"><span data-i18n="appeal_title_1">Appeal Your</span> <span class="highlight" data-i18n="appeal_title_2">Bans</span></h1>
+            <p class="appeal-choose" data-i18n="appeal_choose">Choose where to send your appeal</p>
+
+            <div class="appeal-grid">
+                <div class="appeal-card" data-team="community"><i class="appeal-spin"></i><div class="appeal-card-in">
+                    <div class="appeal-logo-frame"><img src="/images/dragon-pfp.webp" alt="Predage Community"></div>
+                    <div class="appeal-card-body"><div class="appeal-card-name">Predage Community</div>
+                    <button type="button" class="appeal-card-btn" data-team="community" data-i18n="form_submit_appeal">Submit Appeal</button>
+                    <p class="appeal-card-status"></p></div></div>
+                </div>
+
+                <div class="appeal-card" data-team="predcord"><i class="appeal-spin"></i><div class="appeal-card-in">
+                    <div class="appeal-logo-frame"><img src="/images/predcord-pfp.webp" alt="PredCord"></div>
+                    <div class="appeal-card-body"><div class="appeal-card-name">PredCord</div>
+                    <button type="button" class="appeal-card-btn" data-team="predcord" data-i18n="form_submit_appeal">Submit Appeal</button>
+                    <p class="appeal-card-status"></p></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
 
 <footer class="site-footer">
     <div class="footer-inner">
@@ -1379,28 +1215,17 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     </div>
 </footer>
 
-<div class="modal-overlay" id="planModal">
-    <div class="modal-box plan-modal-box">
-        <button class="modal-close" id="planModalClose">&times;</button>
-        <div id="planModalContent"></div>
+<div class="appeal-modal" id="appealModal" aria-hidden="true">
+    <div class="appeal-modal-box" id="appealModalBox">
+        <button type="button" class="appeal-modal-close" id="appealModalClose" aria-label="Close">&times;</button>
+        <div class="appeal-modal-head"><img id="appealModalLogo" src="" alt=""><h3 id="appealModalTitle"></h3></div>
+        <div class="inline-form-body"></div>
     </div>
 </div>
 
-<div class="modal-overlay email-notice-overlay" id="emailNoticeModal">
-    <div class="modal-box email-notice-box">
-        <h3 class="plan-modal-title" id="emailNoticeTitle"></h3>
-        <p class="email-notice-p" id="emailNoticeP1"></p>
-        <p class="email-notice-p" id="emailNoticeP2"></p>
-        <p class="email-notice-p" id="emailNoticeP3"></p>
-        <button type="button" class="plan-create-btn" id="emailNoticeBtn"></button>
-    </div>
-</div>
-
-<div class="modal-overlay" id="resultModal">
-    <div class="modal-box modal-box-wide">
-        <button class="modal-close" id="resultModalClose">&times;</button>
-        <div id="resultModalContent"></div>
-    </div>
+<div id="formToast" class="form-toast hidden">
+    <span class="form-toast-icon">✕</span>
+    <span class="form-toast-text">Fill all fields</span>
 </div>
 
 <script>
@@ -1423,281 +1248,338 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 
     var I18N = {
         it: {
-            plan_notice_title: 'Email facoltativa',
-            plan_notice_p1: 'L\'inserimento dell\'email è facoltativo e non è necessario per utilizzare il servizio.',
-            plan_notice_p2: 'Se la inserisci, verrà associata al tuo account Discord ed eliminata automaticamente entro 7 giorni.',
-            plan_notice_p3: 'Per maggiori informazioni, consulta la nostra {privacy}.',
-            plan_notice_link: 'Informativa Privacy',
-            plan_notice_btn: 'Ho capito',
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
             auth_signin: 'Accedi', auth_logout: 'Esci', user_admin_panel: 'Pannello Admin',
-            mc_description: 'Da qualche mese, Predage mette a disposizione la sua vasta esperienza come fortnite pro player per aiutare a migliorare tutti i fan che lo supportano ogni giorno. Predage compete nel mondo del Fortnite competitivo da diversi anni, raggiungendo sempre i massimi livelli e portando l\'Italia in alto.',
-            mc_description_highlight: 'Se vuoi migliorare, affidati a Predage, uno dei migliori IGL italiani di sempre. Scegli il tuo piano.',
-            mc_results_btn: 'Risultati',
-            mc_recommended_badge: 'Livello consigliato • {n} players hanno fatto lo stesso',
-            mc_subscribe: 'Iscriviti Ora',
-            mc_month: '/mese',
-            plan_title: 'Ottieni il tuo piano',
-            plan_sub: 'Apri un ticket. Il nostro team ti risponderà lì per completare l\'acquisto. L\'email è facoltativa.',
-            plan_email_label: 'Inserisci la tua email (facoltativa)',
-            plan_checking: 'Controllo email…',
-            plan_valid: 'Email verificata',
-            plan_invalid_format: 'Questa email non è valida',
-            plan_no_mail: 'Questo dominio non può ricevere email',
-            plan_terms: 'Accetto i {tos} e la {privacy}',
-            plan_create: 'Crea Ticket',
-            plan_creating: 'Creazione…',
-            plan_signin_text: 'Accedi con Discord per aprire un ticket per questo piano.',
-            plan_signin_btn: 'Accedi con Discord',
-            plan_your_tickets: 'I tuoi ticket aperti',
-            plan_error: 'Qualcosa è andato storto, riprova.',
-            plan_open_label: 'Apri',
-            plan_already_title: 'Hai già un ticket aperto',
-            plan_already_text: 'Puoi avere un solo ticket aperto alla volta. Potrai aprirne uno nuovo quando questo verrà chiuso.',
-            plan_go_ticket: 'Vai al mio ticket',
-            tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personalizzato',
-            custom_desc: 'Scegli e combina liberamente le cose che ti servono per creare un pacchetto su misura, pensato in base alle tue esigenze e alle tue preferenze. Puoi selezionare i servizi di Predage che desideri, costruisci la combinazione perfetta per te. Personalizza il tuo pacchetto come vuoi, scegli ciò che ti serve, aggiungi i tuoi preferiti e crea una soluzione unica, proprio come la vuoi tu.',
-            f_all_videos: 'Tutti i video del nostro sito',
-            f_dropmap_calc: 'Una dropmap al mese di abbonamento direttamente da {link}',
-            f_calls_plural: 'Call mensili con Predage dove puoi fare tutte le domande che vuoi',
-            f_call_singular: 'Call mensile con Predage dove puoi fare tutte le domande che vuoi',
-            f_vod_review: '1 ora di vod review con Predage al mese',
-            f_custom_session_new: 'Una sessione di custom in cui puoi capire come gioca il Tier 1 e imparare a giocare come Predage',
-            footer_platform: 'Navigazione',
-            footer_socials: 'Social',
-            footer_legal: 'Legale', footer_terms: 'Termini di Servizio', footer_privacy: 'Informativa sulla Privacy',
-            footer_copyright: 'Predage © 2026. Tutti i diritti riservati.',
-            footer_disclaimer: 'Non affiliato né approvato da Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Sviluppato da'
+            community_tag: 'Luogo', community_text: 'Predage Community è molto più di un server Discord, è il posto dove le live, le partite e le chiacchiere di ogni giorno diventano qualcosa di vero. Su Discord trovi un posto dove parlare, partecipare agli eventi e fare scrim competitivi, mentre su Twitch l\'energia continua in diretta, con la chat sempre viva ad ogni live. Che tu sia qui per parlare di Fortnite, tifare Predage o semplicemente stare in compagnia di gente come te, c\'è un posto anche per te.',
+            server_join_btn: 'Entra nel Server',
+            form_apply_title: 'Candidatura {team}', form_appeal_title: 'Ricorso Ban {team}',
+            form_yes: 'Sì', form_no: 'No',
+            form_submit_application: 'Invia Candidatura', form_submit_appeal: 'Invia Ricorso', form_sending: 'Invio in corso...',
+            form_signin_title: 'Accesso Richiesto',
+            form_signin_apply_text: 'Devi accedere con Discord prima di candidarti.',
+            form_signin_appeal_text: 'Devi accedere con Discord prima di inviare un ricorso.',
+            form_signin_now: 'Accedi Ora',
+            form_fill_all_fields: 'Compila tutti i campi',
+            form_application_sent_title: 'Candidatura Inviata', form_appeal_sent_title: 'Ricorso Inviato',
+            form_application_sent_text: 'Grazie per la tua candidatura! Il team staff esaminerà presto le tue risposte.',
+            form_appeal_sent_text: 'Grazie per aver inviato il tuo ricorso! Il team staff lo esaminerà presto.',
+            form_cooldown_application: 'candidatura', form_cooldown_appeal: 'ricorso ban',
+            form_cooldown_template: 'Limite raggiunto per "{type}": massimo un invio ogni 36 ore per server. Riprova tra circa {hours}.',
+            form_hour_singular: 'ora', form_hour_plural: 'ore',
+            form_generic_error: 'Qualcosa è andato storto. Riprova più tardi.',
+            form_connection_error: 'Errore di connessione. Riprova.',
+            form_not_banned_text: 'Non risulti bannato o mutato in questo server, non puoi inviare un ricorso qui.',
+            form_not_member_text: 'Devi essere membro di questo server per candidarti.',
+            form_blocked_role_text: 'Non puoi inviare una candidatura per questo server.',
+            server_community_desc: 'Predage Community è il punto di ritrovo principale per tutti coloro che seguono Predage. È il luogo dove puoi interfacciarti direttamente con lui, partecipare alla sua community, ricevere le notifiche di quando va in live e rimanere aggiornato su tutte le novità, gli eventi e i progetti. Unisciti al server e vivi la community del tuo streamer preferito a 360°.',
+            server_predcord_desc: 'PredCord è il server dedicato alle custom di Predage, dove ogni giorno si ritrova con la sua chat per allenarsi, giocare insieme e migliorare il proprio gameplay. Qui vengono organizzate le custom su Reload e Battle Royale, seguendo il formato competitivo e creando un ambiente dove poter competere e divertirsi direttamente con Predage e la sua community. Se vuoi giocare con lui, allenarti e metterti alla prova con altri membri della chat, PredCord è il posto giusto.',
+            staff_title_1: 'Unisciti al nostro', staff_title_2: 'Team Staff',
+            staff_p: 'Entrare nel Team Staff di Predage significa far parte di un grande gruppo composto da Moderatori Twitch, Moderatori Discord, Amministratori e Management. Ogni membro dello staff ha un ruolo importante nel mantenere la community organizzata, serena e piacevole per tutti. Entrando nel team, ti verrà chiesto di seguire le regole tipiche di qualsiasi team staff, ma soprattutto i principi fondamentali di rispetto reciproco, professionalità, collaborazione e serietà. Ricorda che, come membro dello staff, rappresenti direttamente Predage, quindi è richiesto un comportamento corretto e rispettoso con tutti. È importante anche saper lavorare in squadra, rispettare le decisioni prese dallo staff superiore e segnalare eventuali problemi o situazioni insolite. Favoritismi, abuso dei permessi o comportamenti che possano danneggiare la community o il suo staff non saranno tollerati. Essere staff non significa solo avere un ruolo, ma avere delle responsabilità e contribuire attivamente alla crescita della community.',
+            rewards_heading: 'Ricompense',
+            reward_card1_team: 'Team Community', reward_label: 'Ricompensa', reward_card1_value: 'Drop Map Personalizzata', reward_explanation_label: 'Spiegazione',
+            reward_card1_explanation: 'Entra nel Team Community e riceverai la tua drop map personalizzata, creata apposta per te.',
+            reward_card2_team: 'Team PredCord', reward_card2_value: 'Iscrizione Anticipata',
+            reward_card2_explanation: 'Entra nel Team PredCord e ottieni l\'iscrizione anticipata per ogni sessione che organizziamo, così sei sempre il primo della lista.',
+            appeal_title_1: 'Fai ricorso ai tuoi', appeal_title_2: 'Ban',
+            appeal_choose: 'Scegli dove inviare il ricorso', appeal_checking: 'Controllo...',
+            footer_platform: 'Navigazione', footer_socials: 'Social', footer_legal: 'Legale', footer_terms: 'Termini di Servizio', footer_privacy: 'Informativa sulla Privacy',
+            footer_copyright: 'Predage © 2026. Tutti i diritti riservati.', footer_disclaimer: 'Non affiliato né approvato da Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Sviluppato da'
         },
         en: {
-            plan_notice_title: 'Optional email',
-            plan_notice_p1: 'Entering your email is optional and is not required to use the service.',
-            plan_notice_p2: 'If you enter it, it will be linked to your Discord account and automatically deleted within 7 days.',
-            plan_notice_p3: 'For more information, see our {privacy}.',
-            plan_notice_link: 'Privacy Policy',
-            plan_notice_btn: 'Got it',
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
             auth_signin: 'Sign In', auth_logout: 'Log Out', user_admin_panel: 'Admin Panel',
-            mc_description: 'For a few months now, Predage has been sharing his extensive experience as a Fortnite pro player to help improve every fan who supports him every day. Predage has competed in the world of competitive Fortnite for several years, always reaching the highest levels and flying Italy\'s flag high.',
-            mc_description_highlight: 'If you want to improve, trust Predage, one of the best Italian IGLs of all time. Choose your plan.',
-            mc_results_btn: 'Results',
-            mc_recommended_badge: 'Recommended Level • {n} players did the same',
-            mc_subscribe: 'Subscribe Now',
-            mc_month: '/month',
-            plan_title: 'Get your plan',
-            plan_sub: 'Open a ticket. Our team will reply there to complete your purchase. Email is optional.',
-            plan_email_label: 'Enter Your Email (optional)',
-            plan_checking: 'Checking email…',
-            plan_valid: 'Email verified',
-            plan_invalid_format: 'This email is not valid',
-            plan_no_mail: 'This email domain can\'t receive emails',
-            plan_terms: 'Accept our {tos} & {privacy}',
-            plan_create: 'Create Ticket',
-            plan_creating: 'Creating…',
-            plan_signin_text: 'Sign in with Discord to open a ticket for this plan.',
-            plan_signin_btn: 'Sign in with Discord',
-            plan_your_tickets: 'Your open tickets',
-            plan_error: 'Something went wrong, please try again.',
-            plan_open_label: 'Open',
-            plan_already_title: 'You already have an open ticket',
-            plan_already_text: 'You can only have one ticket open at a time. You can open a new one once this one is closed.',
-            plan_go_ticket: 'Go to my ticket',
-            tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Custom',
-            custom_desc: 'Freely choose and combine what you need to build a package tailored to you, designed around your needs and preferences. Pick the Predage services you want and build the perfect combination for yourself. Customize your package however you like, add what you need, add your favorites, and create a unique solution, exactly the way you want it.',
-            f_all_videos: 'All the videos on our site',
-            f_dropmap_calc: 'A dropmap per month of subscription directly from {link}',
-            f_calls_plural: 'Montly calls with Predage where you can ask all of the question you want',
-            f_call_singular: 'Montly call with Predage where you can ask all of the question you want',
-            f_vod_review: '1 Hour of vod review with Predage per month',
-            f_custom_session_new: 'A session of customs from where you can understand how Tier 1 play and learn how to play like Predage',
-            footer_platform: 'Navigation',
-            footer_socials: 'Socials',
-            footer_legal: 'Legal', footer_terms: 'Terms of Service', footer_privacy: 'Privacy Policy',
-            footer_copyright: 'Predage © 2026. All rights reserved.',
-            footer_disclaimer: 'Not affiliated with or endorsed by Epic Games, Inc., Twitch Interactive, Inc., or Discord Inc.', footer_dev: 'Developed by'
+            community_tag: 'Place', community_text: 'Predage Community is more than a Discord server, it\'s where the streams, matches, and everyday hangouts turn into something real. On Discord you\'ll find a place to chat, join events, and scrim competitively, while on Twitch the energy keeps going live, with chat jumping in during every stream. Whether you\'re here to talk Fortnite, cheer Predage on, or just vibe with people who get it, there\'s a spot for you.',
+            server_join_btn: 'Join Server',
+            form_apply_title: '{team} Application', form_appeal_title: '{team} Ban Appeal',
+            form_yes: 'Yes', form_no: 'No',
+            form_submit_application: 'Submit Application', form_submit_appeal: 'Submit Appeal', form_sending: 'Sending...',
+            form_signin_title: 'Sign In Required',
+            form_signin_apply_text: 'You need to sign in with Discord before applying.',
+            form_signin_appeal_text: 'You need to sign in with Discord before submitting an appeal.',
+            form_signin_now: 'Sign In Now',
+            form_fill_all_fields: 'Fill all fields',
+            form_application_sent_title: 'Application Sent', form_appeal_sent_title: 'Appeal Sent',
+            form_application_sent_text: 'Thanks for applying! The staff team will review your answers soon.',
+            form_appeal_sent_text: 'Thanks for submitting your appeal! The staff team will review it soon.',
+            form_cooldown_application: 'application', form_cooldown_appeal: 'ban appeal',
+            form_cooldown_template: 'Limit reached for "{type}": only one submission every 36 hours per server. Try again in about {hours}.',
+            form_hour_singular: 'hour', form_hour_plural: 'hours',
+            form_generic_error: 'Something went wrong. Please try again later.',
+            form_connection_error: 'Connection error. Please try again.',
+            form_not_banned_text: 'You\'re not banned or muted in this server, so you can\'t submit an appeal here.',
+            form_not_member_text: 'You need to be a member of this server to apply.',
+            form_blocked_role_text: 'You can\'t submit an application for this server.',
+            server_community_desc: 'Predage Community is the main hangout for everyone around Predage. It\'s where you chat about the streams, share memes, jump into voice, and catch up on everything going on. New members are always welcome, so come say hi.',
+            server_predcord_desc: 'PredCord was built to give the community the best practice experience possible. Run by the main moderators, it\'s where customs get hosted across Reload and Battle Royale, all built around the current competitive format. If you want to sharpen your gameplay with people who take it seriously, this is the place.',
+            staff_title_1: 'Join Our', staff_title_2: 'Staff Team',
+            staff_p: 'Joining Predage\'s Staff Team means becoming part of a large group made up of Twitch Moderators, Discord Moderators, Administrators, and Management. Every staff member plays an important role in keeping the community organized, calm, and enjoyable for everyone. By joining the team, you\'ll be expected to follow the usual rules of any staff team, but more importantly, the core principles of mutual respect, professionalism, collaboration, and seriousness. Keep in mind that as a staff member, you\'re directly representing Predage, so you\'re expected to behave correctly and respectfully with everyone. It\'s also important to know how to work as a team, respect the decisions made by higher staff, and communicate any issues or unusual situations. Favoritism, abuse of permissions, or behavior that could harm the community or its staff won\'t be tolerated. Being staff isn\'t just about having a role, it\'s about having responsibilities and actively contributing to the growth of the community.',
+            rewards_heading: 'Rewards',
+            reward_card1_team: 'Community Team', reward_label: 'Reward', reward_card1_value: 'Custom Drop Map', reward_explanation_label: 'Explanation',
+            reward_card1_explanation: 'Join the Community Team and you\'ll get your own custom drop map, made just for you.',
+            reward_card2_team: 'PredCord Team', reward_card2_value: 'Early Registration',
+            reward_card2_explanation: 'Join the PredCord Team and get early registration for every session we host, so you\'re always first in line.',
+            appeal_title_1: 'Appeal Your', appeal_title_2: 'Bans',
+            appeal_choose: 'Choose where to send your appeal', appeal_checking: 'Checking...',
+            footer_platform: 'Navigation', footer_socials: 'Socials', footer_legal: 'Legal', footer_terms: 'Terms of Service', footer_privacy: 'Privacy Policy',
+            footer_copyright: 'Predage © 2026. All rights reserved.', footer_disclaimer: 'Not affiliated with or endorsed by Epic Games, Inc., Twitch Interactive, Inc., or Discord Inc.', footer_dev: 'Developed by'
         },
         de: {
-            plan_notice_title: 'Optionale E-Mail',
-            plan_notice_p1: 'Die Angabe deiner E-Mail-Adresse ist freiwillig und für die Nutzung des Dienstes nicht erforderlich.',
-            plan_notice_p2: 'Wenn du sie angibst, wird sie mit deinem Discord-Konto verknüpft und innerhalb von 7 Tagen automatisch gelöscht.',
-            plan_notice_p3: 'Weitere Informationen findest du in unserer {privacy}.',
-            plan_notice_link: 'Datenschutzrichtlinie',
-            plan_notice_btn: 'Verstanden',
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
             auth_signin: 'Anmelden', auth_logout: 'Abmelden', user_admin_panel: 'Admin-Panel',
-            mc_description: 'Seit einigen Monaten stellt Predage seine umfangreiche Erfahrung als Fortnite-Pro-Spieler zur Verfügung, um allen Fans, die ihn jeden Tag unterstützen, beim Verbessern zu helfen. Predage tritt seit mehreren Jahren in der Welt des competitiven Fortnite an, erreicht dabei stets Höchstleistungen und trägt Italiens Namen ganz nach oben.',
-            mc_description_highlight: 'Wenn du dich verbessern willst, vertraue auf Predage, einen der besten italienischen IGLs aller Zeiten. Wähle deinen Plan.',
-            mc_results_btn: 'Ergebnisse',
-            mc_recommended_badge: 'Empfohlene Stufe • {n} players haben dasselbe getan',
-            mc_subscribe: 'Jetzt abonnieren',
-            mc_month: '/Monat',
-            plan_title: 'Hol dir deinen Plan',
-            plan_sub: 'Öffne ein Ticket. Unser Team antwortet dir dort, um den Kauf abzuschließen. Die E-Mail ist optional.',
-            plan_email_label: 'Gib deine E-Mail ein (optional)',
-            plan_checking: 'E-Mail wird geprüft…',
-            plan_valid: 'E-Mail bestätigt',
-            plan_invalid_format: 'Diese E-Mail ist ungültig',
-            plan_no_mail: 'Diese Domain kann keine E-Mails empfangen',
-            plan_terms: 'Ich akzeptiere die {tos} & {privacy}',
-            plan_create: 'Ticket erstellen',
-            plan_creating: 'Wird erstellt…',
-            plan_signin_text: 'Melde dich mit Discord an, um ein Ticket für diesen Plan zu öffnen.',
-            plan_signin_btn: 'Mit Discord anmelden',
-            plan_your_tickets: 'Deine offenen Tickets',
-            plan_error: 'Etwas ist schiefgelaufen, bitte versuche es erneut.',
-            plan_open_label: 'Öffnen',
-            plan_already_title: 'Du hast bereits ein offenes Ticket',
-            plan_already_text: 'Du kannst nur ein Ticket gleichzeitig offen haben. Ein neues kannst du öffnen, sobald dieses geschlossen ist.',
-            plan_go_ticket: 'Zu meinem Ticket',
-            tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Individuell',
-            custom_desc: 'Wähle und kombiniere frei das, was du brauchst, um dir ein maßgeschneidertes Paket zu erstellen, abgestimmt auf deine Bedürfnisse und Vorlieben. Wähle die Predage-Leistungen aus, die du möchtest, und baue dir die perfekte Kombination. Personalisiere dein Paket genau wie du es willst, füge deine Favoriten hinzu und erschaffe eine einzigartige Lösung, ganz nach deinem Geschmack.',
-            f_all_videos: 'Alle Videos auf unserer Seite',
-            f_dropmap_calc: 'Eine Dropmap pro Monat Abo direkt von {link}',
-            f_calls_plural: 'Monatliche Calls mit Predage, bei denen du alle Fragen stellen kannst, die du willst',
-            f_call_singular: 'Monatlicher Call mit Predage, bei dem du alle Fragen stellen kannst, die du willst',
-            f_vod_review: '1 Stunde VOD-Review mit Predage pro Monat',
-            f_custom_session_new: 'Eine Custom-Session, in der du verstehst, wie Tier 1 spielt, und lernst, wie Predage zu spielen',
-            footer_platform: 'Navigation',
-            footer_socials: 'Soziale Medien',
-            footer_legal: 'Rechtliches', footer_terms: 'Nutzungsbedingungen', footer_privacy: 'Datenschutzrichtlinie',
-            footer_copyright: 'Predage © 2026. Alle Rechte vorbehalten.',
-            footer_disclaimer: 'Nicht verbunden mit oder unterstützt von Epic Games, Inc., Twitch Interactive, Inc. oder Discord Inc.', footer_dev: 'Entwickelt von'
+            community_tag: 'Ort', community_text: 'Predage Community ist mehr als nur ein Discord-Server, hier werden Streams, Matches und der tägliche Austausch zu etwas Echtem. Auf Discord findest du einen Ort zum Chatten, für Events und kompetitive Scrims, während auf Twitch die Energie live weitergeht und der Chat bei jedem Stream mitfiebert. Egal ob du über Fortnite reden, Predage anfeuern oder einfach mit Gleichgesinnten abhängen willst, hier ist ein Platz für dich.',
+            server_join_btn: 'Server beitreten',
+            form_apply_title: '{team} Bewerbung', form_appeal_title: '{team} Bann-Einspruch',
+            form_yes: 'Ja', form_no: 'Nein',
+            form_submit_application: 'Bewerbung Absenden', form_submit_appeal: 'Einspruch Absenden', form_sending: 'Wird gesendet...',
+            form_signin_title: 'Anmeldung Erforderlich',
+            form_signin_apply_text: 'Du musst dich mit Discord anmelden, bevor du dich bewirbst.',
+            form_signin_appeal_text: 'Du musst dich mit Discord anmelden, bevor du einen Einspruch einreichst.',
+            form_signin_now: 'Jetzt Anmelden',
+            form_fill_all_fields: 'Fülle alle Felder aus',
+            form_application_sent_title: 'Bewerbung Gesendet', form_appeal_sent_title: 'Einspruch Gesendet',
+            form_application_sent_text: 'Danke für deine Bewerbung! Das Staff-Team wird deine Antworten bald prüfen.',
+            form_appeal_sent_text: 'Danke für deinen Einspruch! Das Staff-Team wird ihn bald prüfen.',
+            form_cooldown_application: 'Bewerbung', form_cooldown_appeal: 'Bann-Einspruch',
+            form_cooldown_template: 'Limit erreicht für "{type}": nur eine Einreichung alle 36 Stunden pro Server. Versuche es in etwa {hours} erneut.',
+            form_hour_singular: 'Stunde', form_hour_plural: 'Stunden',
+            form_generic_error: 'Etwas ist schiefgelaufen. Bitte versuche es später erneut.',
+            form_connection_error: 'Verbindungsfehler. Bitte versuche es erneut.',
+            form_not_banned_text: 'Du bist auf diesem Server nicht gebannt oder stummgeschaltet, daher kannst du hier keinen Einspruch einreichen.',
+            form_not_member_text: 'Du musst Mitglied dieses Servers sein, um dich zu bewerben.',
+            form_blocked_role_text: 'Du kannst für diesen Server keine Bewerbung einreichen.',
+            server_community_desc: 'Predage Community ist der zentrale Treffpunkt für alle rund um Predage. Hier werden Streams besprochen, Memes geteilt, Voice-Chats gestartet und alles Wichtige mitbekommen. Neue Mitglieder sind immer willkommen, schau einfach vorbei.',
+            server_predcord_desc: 'PredCord wurde geschaffen, um der Community die bestmögliche Übungserfahrung zu bieten. Geleitet von den Hauptmoderatoren, werden hier Customs in Reload und Battle Royale veranstaltet, ganz nach dem aktuellen Wettkampfformat. Wenn du dein Gameplay mit Leuten verbessern willst, die es ernst meinen, bist du hier richtig.',
+            staff_title_1: 'Werde Teil unseres', staff_title_2: 'Staff-Teams',
+            staff_p: 'Dem Staff-Team von Predage beizutreten bedeutet, Teil einer großen Gruppe aus Twitch-Moderatoren, Discord-Moderatoren, Administratoren und Management zu werden. Jedes Staff-Mitglied spielt eine wichtige Rolle dabei, die Community organisiert, ruhig und angenehm für alle zu halten. Als Teammitglied wird von dir erwartet, die üblichen Regeln eines Staff-Teams zu befolgen, vor allem aber die Grundprinzipien gegenseitigen Respekts, Professionalität, Zusammenarbeit und Ernsthaftigkeit. Bedenke, dass du als Staff-Mitglied Predage direkt repräsentierst, daher wird korrektes und respektvolles Verhalten gegenüber allen erwartet. Wichtig ist auch, im Team arbeiten zu können, Entscheidungen höherer Staff-Mitglieder zu respektieren und Probleme oder ungewöhnliche Situationen zu melden. Günstlingswirtschaft, Missbrauch von Berechtigungen oder Verhalten, das der Community oder ihrem Staff schaden könnte, wird nicht toleriert. Staff zu sein bedeutet nicht nur, eine Rolle zu haben, sondern Verantwortung zu tragen und aktiv zum Wachstum der Community beizutragen.',
+            rewards_heading: 'Belohnungen',
+            reward_card1_team: 'Community-Team', reward_label: 'Belohnung', reward_card1_value: 'Individuelle Drop-Map', reward_explanation_label: 'Erklärung',
+            reward_card1_explanation: 'Tritt dem Community-Team bei und erhalte deine eigene individuelle Drop-Map, nur für dich erstellt.',
+            reward_card2_team: 'PredCord-Team', reward_card2_value: 'Frühe Anmeldung',
+            reward_card2_explanation: 'Tritt dem PredCord-Team bei und erhalte eine frühzeitige Anmeldung für jede von uns veranstaltete Session, damit du immer ganz vorne mit dabei bist.',
+            appeal_title_1: 'Lege Einspruch gegen deine', appeal_title_2: 'Banns ein',
+            appeal_choose: 'Wähle, wohin du deinen Einspruch senden möchtest', appeal_checking: 'Prüfe...',
+            footer_platform: 'Navigation', footer_socials: 'Soziale Medien', footer_legal: 'Rechtliches', footer_terms: 'Nutzungsbedingungen', footer_privacy: 'Datenschutzrichtlinie',
+            footer_copyright: 'Predage © 2026. Alle Rechte vorbehalten.', footer_disclaimer: 'Nicht verbunden mit oder unterstützt von Epic Games, Inc., Twitch Interactive, Inc. oder Discord Inc.', footer_dev: 'Entwickelt von'
         },
         es: {
-            plan_notice_title: 'Correo opcional',
-            plan_notice_p1: 'Introducir tu correo es opcional y no es necesario para usar el servicio.',
-            plan_notice_p2: 'Si lo introduces, se asociará a tu cuenta de Discord y se eliminará automáticamente en un máximo de 7 días.',
-            plan_notice_p3: 'Para más información, consulta nuestra {privacy}.',
-            plan_notice_link: 'Política de Privacidad',
-            plan_notice_btn: 'Entendido',
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
             auth_signin: 'Iniciar sesión', auth_logout: 'Cerrar sesión', user_admin_panel: 'Panel de Administración',
-            mc_description: 'Desde hace algunos meses, Predage pone a disposición su amplia experiencia como jugador profesional de Fortnite para ayudar a mejorar a todos los fans que lo apoyan cada día. Predage compite en el mundo del Fortnite competitivo desde hace varios años, alcanzando siempre los niveles más altos y llevando a Italia a lo más alto.',
-            mc_description_highlight: 'Si quieres mejorar, confía en Predage, uno de los mejores IGL italianos de todos los tiempos. Elige tu plan.',
-            mc_results_btn: 'Resultados',
-            mc_recommended_badge: 'Nivel recomendado • {n} players hicieron lo mismo',
-            mc_subscribe: 'Suscríbete ahora',
-            mc_month: '/mes',
-            plan_title: 'Consigue tu plan',
-            plan_sub: 'Abre un ticket. Nuestro equipo te responderá allí para completar la compra. El email es opcional.',
-            plan_email_label: 'Introduce tu email (opcional)',
-            plan_checking: 'Comprobando email…',
-            plan_valid: 'Email verificado',
-            plan_invalid_format: 'Este email no es válido',
-            plan_no_mail: 'Este dominio no puede recibir emails',
-            plan_terms: 'Acepto los {tos} y la {privacy}',
-            plan_create: 'Crear Ticket',
-            plan_creating: 'Creando…',
-            plan_signin_text: 'Inicia sesión con Discord para abrir un ticket para este plan.',
-            plan_signin_btn: 'Iniciar sesión con Discord',
-            plan_your_tickets: 'Tus tickets abiertos',
-            plan_error: 'Algo salió mal, inténtalo de nuevo.',
-            plan_open_label: 'Abrir',
-            plan_already_title: 'Ya tienes un ticket abierto',
-            plan_already_text: 'Solo puedes tener un ticket abierto a la vez. Podrás abrir uno nuevo cuando este se cierre.',
-            plan_go_ticket: 'Ir a mi ticket',
-            tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personalizado',
-            custom_desc: 'Elige y combina libremente lo que necesites para crear un paquete a tu medida, pensado según tus necesidades y preferencias. Puedes seleccionar los servicios de Predage que quieras y construir la combinación perfecta para ti. Personaliza tu paquete como quieras, añade lo que necesites, suma tus favoritos y crea una solución única, tal como la quieres.',
-            f_all_videos: 'Todos los vídeos de nuestro sitio',
-            f_dropmap_calc: 'Una dropmap al mes de suscripción directamente desde {link}',
-            f_calls_plural: 'Llamadas mensuales con Predage donde puedes hacer todas las preguntas que quieras',
-            f_call_singular: 'Llamada mensual con Predage donde puedes hacer todas las preguntas que quieras',
-            f_vod_review: '1 hora de revisión de VOD con Predage al mes',
-            f_custom_session_new: 'Una sesión de customs en la que puedes entender cómo juega el Tier 1 y aprender a jugar como Predage',
-            footer_platform: 'Navegación',
-            footer_socials: 'Redes Sociales',
-            footer_legal: 'Legal', footer_terms: 'Términos de Servicio', footer_privacy: 'Política de Privacidad',
-            footer_copyright: 'Predage © 2026. Todos los derechos reservados.',
-            footer_disclaimer: 'No afiliado ni respaldado por Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Desarrollado por'
+            community_tag: 'Lugar', community_text: 'Predage Community es mucho más que un servidor de Discord, es donde los streams, las partidas y las charlas de cada día se convierten en algo real. En Discord encontrarás un lugar para chatear, unirte a eventos y hacer scrims competitivos, mientras que en Twitch la energía sigue en directo, con el chat siempre activo en cada stream. Ya sea para hablar de Fortnite, animar a Predage o simplemente pasar el rato con gente afín, aquí hay un lugar para ti.',
+            server_join_btn: 'Unirse al Servidor',
+            form_apply_title: 'Solicitud {team}', form_appeal_title: 'Apelación de Baneo {team}',
+            form_yes: 'Sí', form_no: 'No',
+            form_submit_application: 'Enviar Solicitud', form_submit_appeal: 'Enviar Apelación', form_sending: 'Enviando...',
+            form_signin_title: 'Inicio de Sesión Requerido',
+            form_signin_apply_text: 'Debes iniciar sesión con Discord antes de postularte.',
+            form_signin_appeal_text: 'Debes iniciar sesión con Discord antes de enviar una apelación.',
+            form_signin_now: 'Iniciar Sesión Ahora',
+            form_fill_all_fields: 'Completa todos los campos',
+            form_application_sent_title: 'Solicitud Enviada', form_appeal_sent_title: 'Apelación Enviada',
+            form_application_sent_text: '¡Gracias por postularte! El equipo de staff revisará tus respuestas pronto.',
+            form_appeal_sent_text: '¡Gracias por enviar tu apelación! El equipo de staff la revisará pronto.',
+            form_cooldown_application: 'solicitud', form_cooldown_appeal: 'apelación de baneo',
+            form_cooldown_template: 'Límite alcanzado para "{type}": solo un envío cada 36 horas por servidor. Vuelve a intentarlo en aproximadamente {hours}.',
+            form_hour_singular: 'hora', form_hour_plural: 'horas',
+            form_generic_error: 'Algo salió mal. Por favor, inténtalo de nuevo más tarde.',
+            form_connection_error: 'Error de conexión. Inténtalo de nuevo.',
+            form_not_banned_text: 'No estás baneado ni silenciado en este servidor, así que no puedes enviar un recurso aquí.',
+            form_not_member_text: 'Debes ser miembro de este servidor para postularte.',
+            form_blocked_role_text: 'No puedes enviar una solicitud para este servidor.',
+            server_community_desc: 'Predage Community es el punto de encuentro principal para todos los que siguen a Predage. Aquí se comenta lo que pasa en los streams, se comparten memes, se entra en voz y te mantienes al día de todo. Los nuevos miembros siempre son bienvenidos, pásate a saludar.',
+            server_predcord_desc: 'PredCord se creó para ofrecer a la comunidad la mejor experiencia de práctica posible. Gestionado por los moderadores principales, aquí se organizan customs tanto en Reload como en Battle Royale, siguiendo el formato competitivo actual. Si quieres mejorar tu juego con gente que se lo toma en serio, este es el lugar.',
+            staff_title_1: 'Únete a nuestro', staff_title_2: 'Equipo de Staff',
+            staff_p: 'Unirte al Equipo de Staff de Predage significa formar parte de un gran grupo compuesto por Moderadores de Twitch, Moderadores de Discord, Administradores y Management. Cada miembro del staff tiene un papel importante para mantener la comunidad organizada, tranquila y agradable para todos. Al unirte al equipo, se espera que sigas las reglas habituales de cualquier equipo de staff, pero sobre todo los principios fundamentales de respeto mutuo, profesionalidad, colaboración y seriedad. Ten en cuenta que, como miembro del staff, representas directamente a Predage, por lo que se espera un comportamiento correcto y respetuoso con todos. También es importante saber trabajar en equipo, respetar las decisiones tomadas por el staff superior y comunicar cualquier problema o situación inusual. No se tolerarán favoritismos, abuso de permisos ni comportamientos que puedan perjudicar a la comunidad o a su staff. Ser staff no es solo tener un rol, es tener responsabilidades y contribuir activamente al crecimiento de la comunidad.',
+            rewards_heading: 'Recompensas',
+            reward_card1_team: 'Equipo Community', reward_label: 'Recompensa', reward_card1_value: 'Mapa de Drop Personalizado', reward_explanation_label: 'Explicación',
+            reward_card1_explanation: 'Únete al Equipo Community y recibirás tu propio mapa de drop personalizado, creado solo para ti.',
+            reward_card2_team: 'Equipo PredCord', reward_card2_value: 'Inscripción Anticipada',
+            reward_card2_explanation: 'Únete al Equipo PredCord y obtén inscripción anticipada para cada sesión que organizamos, para que siempre estés el primero en la fila.',
+            appeal_title_1: 'Apela Tus', appeal_title_2: 'Baneos',
+            appeal_choose: 'Elige dónde enviar tu apelación', appeal_checking: 'Comprobando...',
+            footer_platform: 'Navegación', footer_socials: 'Redes Sociales', footer_legal: 'Legal', footer_terms: 'Términos de Servicio', footer_privacy: 'Política de Privacidad',
+            footer_copyright: 'Predage © 2026. Todos los derechos reservados.', footer_disclaimer: 'No afiliado ni respaldado por Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Desarrollado por'
         },
         fr: {
-            plan_notice_title: 'E-mail facultatif',
-            plan_notice_p1: 'La saisie de ton e-mail est facultative et n\'est pas nécessaire pour utiliser le service.',
-            plan_notice_p2: 'Si tu le saisis, il sera associé à ton compte Discord et supprimé automatiquement sous 7 jours.',
-            plan_notice_p3: 'Pour plus d\'informations, consulte notre {privacy}.',
-            plan_notice_link: 'Politique de Confidentialité',
-            plan_notice_btn: 'Compris',
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
             auth_signin: 'Se connecter', auth_logout: 'Déconnexion', user_admin_panel: 'Panneau Admin',
-            mc_description: 'Depuis quelques mois, Predage met à disposition sa vaste expérience de joueur professionnel Fortnite pour aider à progresser tous les fans qui le soutiennent chaque jour. Predage évolue dans le monde du Fortnite compétitif depuis plusieurs années, atteignant toujours les plus hauts niveaux et portant l\'Italie au sommet.',
-            mc_description_highlight: 'Si tu veux progresser, fais confiance à Predage, l\'un des meilleurs IGL italiens de tous les temps. Choisis ton plan.',
-            mc_results_btn: 'Résultats',
-            mc_recommended_badge: 'Niveau recommandé • {n} players ont fait de même',
-            mc_subscribe: 'Inscris-toi maintenant',
-            mc_month: '/mois',
-            plan_title: 'Obtiens ton plan',
-            plan_sub: 'Ouvre un ticket. Notre équipe te répondra là-bas pour finaliser ton achat. L\'e-mail est facultatif.',
-            plan_email_label: 'Entre ton email (facultatif)',
-            plan_checking: 'Vérification de l\'email…',
-            plan_valid: 'Email vérifié',
-            plan_invalid_format: 'Cet email n\'est pas valide',
-            plan_no_mail: 'Ce domaine ne peut pas recevoir d\'emails',
-            plan_terms: 'J\'accepte les {tos} et la {privacy}',
-            plan_create: 'Créer un Ticket',
-            plan_creating: 'Création…',
-            plan_signin_text: 'Connecte-toi avec Discord pour ouvrir un ticket pour ce plan.',
-            plan_signin_btn: 'Se connecter avec Discord',
-            plan_your_tickets: 'Tes tickets ouverts',
-            plan_error: 'Une erreur est survenue, réessaie.',
-            plan_open_label: 'Ouvrir',
-            plan_already_title: 'Tu as déjà un ticket ouvert',
-            plan_already_text: 'Tu ne peux avoir qu\'un seul ticket ouvert à la fois. Tu pourras en ouvrir un nouveau une fois celui-ci fermé.',
-            plan_go_ticket: 'Aller à mon ticket',
-            tier_name_1: 'Starter Pack', tier_name_2: 'IGL Pack', tier_name_3: 'Premium Pack', tier_name_4: 'Pro Pack', tier_name_custom: 'Personnalisé',
-            custom_desc: 'Choisis et combine librement ce dont tu as besoin pour créer un pack sur mesure, pensé selon tes besoins et tes préférences. Sélectionne les services Predage que tu souhaites et construis la combinaison parfaite pour toi. Personnalise ton pack comme tu le souhaites, ajoute ce qu\'il te faut, ajoute tes favoris et crée une solution unique, exactement comme tu la veux.',
-            f_all_videos: 'Toutes les vidéos de notre site',
-            f_dropmap_calc: 'Une dropmap par mois d\'abonnement directement depuis {link}',
-            f_calls_plural: 'Appels mensuels avec Predage où tu peux poser toutes les questions que tu veux',
-            f_call_singular: 'Appel mensuel avec Predage où tu peux poser toutes les questions que tu veux',
-            f_vod_review: '1 heure de revue de VOD avec Predage par mois',
-            f_custom_session_new: 'Une session de customs où tu peux comprendre comment joue le Tier 1 et apprendre à jouer comme Predage',
-            footer_platform: 'Navigation',
-            footer_socials: 'Réseaux Sociaux',
-            footer_legal: 'Mentions Légales', footer_terms: 'Conditions d\'Utilisation', footer_privacy: 'Politique de Confidentialité',
-            footer_copyright: 'Predage © 2026. Tous droits réservés.',
-            footer_disclaimer: 'Non affilié à ni approuvé par Epic Games, Inc., Twitch Interactive, Inc. ou Discord Inc.', footer_dev: 'Développé par'
+            community_tag: 'Lieu', community_text: 'Predage Community, c\'est bien plus qu\'un serveur Discord, c\'est l\'endroit où les streams, les matchs et les discussions du quotidien deviennent quelque chose de réel. Sur Discord, tu trouveras un endroit pour discuter, participer aux events et faire des scrims compétitifs, pendant que sur Twitch l\'énergie continue en direct, avec un chat toujours actif à chaque stream. Que tu sois là pour parler Fortnite, encourager Predage ou simplement traîner avec des gens qui te ressemblent, il y a une place pour toi.',
+            server_join_btn: 'Rejoindre le Serveur',
+            form_apply_title: 'Candidature {team}', form_appeal_title: 'Appel de Ban {team}',
+            form_yes: 'Oui', form_no: 'Non',
+            form_submit_application: 'Envoyer la Candidature', form_submit_appeal: 'Envoyer l\'Appel', form_sending: 'Envoi en cours...',
+            form_signin_title: 'Connexion Requise',
+            form_signin_apply_text: 'Tu dois te connecter avec Discord avant de postuler.',
+            form_signin_appeal_text: 'Tu dois te connecter avec Discord avant de soumettre un appel.',
+            form_signin_now: 'Se Connecter Maintenant',
+            form_fill_all_fields: 'Remplis tous les champs',
+            form_application_sent_title: 'Candidature Envoyée', form_appeal_sent_title: 'Appel Envoyé',
+            form_application_sent_text: 'Merci pour ta candidature ! L\'équipe staff examinera bientôt tes réponses.',
+            form_appeal_sent_text: 'Merci d\'avoir soumis ton appel ! L\'équipe staff l\'examinera bientôt.',
+            form_cooldown_application: 'candidature', form_cooldown_appeal: 'appel de ban',
+            form_cooldown_template: 'Limite atteinte pour « {type} » : un seul envoi toutes les 36 heures par serveur. Réessaie dans environ {hours}.',
+            form_hour_singular: 'heure', form_hour_plural: 'heures',
+            form_generic_error: 'Une erreur s\'est produite. Réessaie plus tard.',
+            form_connection_error: 'Erreur de connexion. Réessaie.',
+            form_not_banned_text: 'Tu n\'es ni banni ni réduit au silence sur ce serveur, tu ne peux donc pas soumettre de recours ici.',
+            form_not_member_text: 'Tu dois être membre de ce serveur pour postuler.',
+            form_blocked_role_text: 'Tu ne peux pas soumettre de candidature pour ce serveur.',
+            server_community_desc: 'Predage Community est le lieu de rassemblement principal pour tous ceux qui suivent Predage. C\'est ici qu\'on commente les streams, qu\'on partage des memes, qu\'on se retrouve en vocal et qu\'on suit tout ce qui se passe. Les nouveaux membres sont toujours les bienvenus, viens dire bonjour.',
+            server_predcord_desc: 'PredCord a été créé pour offrir à la communauté la meilleure expérience d\'entraînement possible. Géré par les modérateurs principaux, c\'est ici que se déroulent les customs en Reload et Battle Royale, construits autour du format compétitif actuel. Si tu veux progresser avec des gens qui prennent ça au sérieux, c\'est l\'endroit qu\'il te faut.',
+            staff_title_1: 'Rejoins notre', staff_title_2: 'Staff',
+            staff_p: 'Rejoindre le Staff de Predage, c\'est faire partie d\'un grand groupe composé de Modérateurs Twitch, Modérateurs Discord, Administrateurs et Management. Chaque membre du staff joue un rôle important pour garder la communauté organisée, calme et agréable pour tout le monde. En rejoignant l\'équipe, tu devras suivre les règles habituelles de tout staff, mais surtout les principes fondamentaux de respect mutuel, de professionnalisme, de collaboration et de sérieux. Garde à l\'esprit qu\'en tant que membre du staff, tu représentes directement Predage, un comportement correct et respectueux envers tout le monde est donc attendu. Il est aussi important de savoir travailler en équipe, de respecter les décisions prises par le staff supérieur et de signaler tout problème ou situation inhabituelle. Le favoritisme, l\'abus de permissions ou tout comportement pouvant nuire à la communauté ou à son staff ne seront pas tolérés. Faire partie du staff, ce n\'est pas juste avoir un rôle, c\'est avoir des responsabilités et contribuer activement à la croissance de la communauté.',
+            rewards_heading: 'Récompenses',
+            reward_card1_team: 'Équipe Community', reward_label: 'Récompense', reward_card1_value: 'Carte de Drop Personnalisée', reward_explanation_label: 'Explication',
+            reward_card1_explanation: 'Rejoins l\'Équipe Community et reçois ta propre carte de drop personnalisée, créée rien que pour toi.',
+            reward_card2_team: 'Équipe PredCord', reward_card2_value: 'Inscription Anticipée',
+            reward_card2_explanation: 'Rejoins l\'Équipe PredCord et bénéficie d\'une inscription anticipée pour chaque session organisée, pour être toujours parmi les premiers.',
+            appeal_title_1: 'Conteste Tes', appeal_title_2: 'Bannissements',
+            appeal_choose: 'Choisis où envoyer ton appel', appeal_checking: 'Vérification...',
+            footer_platform: 'Navigation', footer_socials: 'Réseaux Sociaux', footer_legal: 'Mentions Légales', footer_terms: 'Conditions d\'Utilisation', footer_privacy: 'Politique de Confidentialité',
+            footer_copyright: 'Predage © 2026. Tous droits réservés.', footer_disclaimer: 'Non affilié à ni approuvé par Epic Games, Inc., Twitch Interactive, Inc. ou Discord Inc.', footer_dev: 'Développé par'
         }
     };
 
-    var DROPCALC_LINK = '<a href="https://www.droppingcalc.com/it" target="_blank" rel="noopener">DropCalc</a>';
+    var QUESTIONS_APPLY = {
+        it: {
+            community: [
+                { id: 'role', label: 'Quale ruolo vorresti avere?', type: 'choice', options: [ { value: 'discord', label: 'Discord Staff', icon: 'discord' }, { value: 'twitch', label: 'Twitch Staff', icon: 'twitch' } ] },
+                { id: 'twitchuser', label: 'Il tuo username Twitch', type: 'text', dependsOn: 'role', dependsValue: 'twitch', placeholder: 'es. ninja' },
+                { id: 'age', label: 'Quanti anni hai?', type: 'text', placeholder: '18' },
+                { id: 'time', label: 'Quanto tempo puoi dedicare?', type: 'text', placeholder: 'es. 10 ore a settimana' },
+                { id: 'why', label: 'Perché vuoi diventare un moderatore?', type: 'textarea', placeholder: 'es. Voglio aiutare a mantenere la community amichevole e organizzata' },
+                { id: 'modexp', label: 'Hai esperienza come moderatore? (se sì, dove?)', type: 'textarea', placeholder: 'es. Sono stato moderatore su un altro server per 6 mesi' },
+                { id: 'dyno', label: 'Hai esperienza con Dyno?', twitchLabel: 'Hai esperienza con StreamElements?', type: 'yesno' },
+                { id: 'dynocommands', label: 'Quali comandi conosci?', type: 'textarea', dependsOn: 'dyno', placeholder: 'es. !warn, !mute, !ban', twitchPlaceholder: '' }
+            ],
+            predcord: [
+                { id: 'age', label: 'Quanti anni hai?', type: 'text', placeholder: '18' },
+                { id: 'time', label: 'Quanto tempo puoi dedicare?', type: 'text', placeholder: 'es. 10 ore a settimana' },
+                { id: 'why', label: 'Perché vuoi diventare un membro dello staff?', type: 'textarea', placeholder: 'es. Voglio aiutare a mantenere il server organizzato e competitivo' },
+                { id: 'modexp', label: 'Hai esperienza come moderatore? (se sì, dove?)', type: 'textarea', placeholder: 'es. Sono stato moderatore su un altro server per 6 mesi' },
+                { id: 'dyno', label: 'Hai esperienza con Dyno / Yunite?', type: 'yesno' },
+                { id: 'dynocommands', label: 'Quali comandi conosci?', type: 'textarea', dependsOn: 'dyno', placeholder: 'es. !warn, !mute, !ban' }
+            ]
+        },
+        en: {
+            community: [
+                { id: 'role', label: 'Choose which role you would have', type: 'choice', options: [ { value: 'discord', label: 'Discord Staff', icon: 'discord' }, { value: 'twitch', label: 'Twitch Staff', icon: 'twitch' } ] },
+                { id: 'twitchuser', label: 'Your Twitch Username', type: 'text', dependsOn: 'role', dependsValue: 'twitch', placeholder: 'e.g. ninja' },
+                { id: 'age', label: 'How old are you?', type: 'text', placeholder: '18' },
+                { id: 'time', label: 'How much time can you dedicate?', type: 'text', placeholder: 'e.g. 10 hours a week' },
+                { id: 'why', label: 'Why do you want to become a mod?', type: 'textarea', placeholder: 'e.g. I want to help keep the community friendly and organized' },
+                { id: 'modexp', label: 'Do you have any mod experience? (if yes, where?)', type: 'textarea', placeholder: 'e.g. I was a moderator on another server for 6 months' },
+                { id: 'dyno', label: 'Do you have any experience with Dyno?', twitchLabel: 'Do you have any experience with StreamElements?', type: 'yesno' },
+                { id: 'dynocommands', label: 'What commands do you know?', type: 'textarea', dependsOn: 'dyno', placeholder: 'e.g. !warn, !mute, !ban', twitchPlaceholder: '' }
+            ],
+            predcord: [
+                { id: 'age', label: 'How old are you?', type: 'text', placeholder: '18' },
+                { id: 'time', label: 'How much time can you dedicate?', type: 'text', placeholder: 'e.g. 10 hours a week' },
+                { id: 'why', label: 'Why do you want to become a staff member?', type: 'textarea', placeholder: 'e.g. I want to help keep the server organized and competitive' },
+                { id: 'modexp', label: 'Do you have any mod experience? (if yes, where?)', type: 'textarea', placeholder: 'e.g. I was a moderator on another server for 6 months' },
+                { id: 'dyno', label: 'Do you have any experience with Dyno / Yunite?', type: 'yesno' },
+                { id: 'dynocommands', label: 'What commands do you know?', type: 'textarea', dependsOn: 'dyno', placeholder: 'e.g. !warn, !mute, !ban' }
+            ]
+        },
+        de: {
+            community: [
+                { id: 'role', label: 'Welche Rolle möchtest du haben?', type: 'choice', options: [ { value: 'discord', label: 'Discord Staff', icon: 'discord' }, { value: 'twitch', label: 'Twitch Staff', icon: 'twitch' } ] },
+                { id: 'twitchuser', label: 'Dein Twitch-Benutzername', type: 'text', dependsOn: 'role', dependsValue: 'twitch', placeholder: 'z.B. ninja' },
+                { id: 'age', label: 'Wie alt bist du?', type: 'text', placeholder: '18' },
+                { id: 'time', label: 'Wie viel Zeit kannst du investieren?', type: 'text', placeholder: 'z.B. 10 Stunden pro Woche' },
+                { id: 'why', label: 'Warum möchtest du Moderator werden?', type: 'textarea', placeholder: 'z.B. Ich möchte helfen, die Community freundlich und organisiert zu halten' },
+                { id: 'modexp', label: 'Hast du Moderator-Erfahrung? (wenn ja, wo?)', type: 'textarea', placeholder: 'z.B. Ich war 6 Monate lang Moderator auf einem anderen Server' },
+                { id: 'dyno', label: 'Hast du Erfahrung mit Dyno?', twitchLabel: 'Hast du Erfahrung mit StreamElements?', type: 'yesno' },
+                { id: 'dynocommands', label: 'Welche Befehle kennst du?', type: 'textarea', dependsOn: 'dyno', placeholder: 'z.B. !warn, !mute, !ban', twitchPlaceholder: '' }
+            ],
+            predcord: [
+                { id: 'age', label: 'Wie alt bist du?', type: 'text', placeholder: '18' },
+                { id: 'time', label: 'Wie viel Zeit kannst du investieren?', type: 'text', placeholder: 'z.B. 10 Stunden pro Woche' },
+                { id: 'why', label: 'Warum möchtest du Staff-Mitglied werden?', type: 'textarea', placeholder: 'z.B. Ich möchte helfen, den Server organisiert und wettbewerbsfähig zu halten' },
+                { id: 'modexp', label: 'Hast du Moderator-Erfahrung? (wenn ja, wo?)', type: 'textarea', placeholder: 'z.B. Ich war 6 Monate lang Moderator auf einem anderen Server' },
+                { id: 'dyno', label: 'Hast du Erfahrung mit Dyno / Yunite?', type: 'yesno' },
+                { id: 'dynocommands', label: 'Welche Befehle kennst du?', type: 'textarea', dependsOn: 'dyno', placeholder: 'z.B. !warn, !mute, !ban' }
+            ]
+        },
+        es: {
+            community: [
+                { id: 'role', label: '¿Qué rol te gustaría tener?', type: 'choice', options: [ { value: 'discord', label: 'Discord Staff', icon: 'discord' }, { value: 'twitch', label: 'Twitch Staff', icon: 'twitch' } ] },
+                { id: 'twitchuser', label: 'Tu nombre de usuario de Twitch', type: 'text', dependsOn: 'role', dependsValue: 'twitch', placeholder: 'p.ej. ninja' },
+                { id: 'age', label: '¿Cuántos años tienes?', type: 'text', placeholder: '18' },
+                { id: 'time', label: '¿Cuánto tiempo puedes dedicar?', type: 'text', placeholder: 'p.ej. 10 horas a la semana' },
+                { id: 'why', label: '¿Por qué quieres convertirte en moderador?', type: 'textarea', placeholder: 'p.ej. Quiero ayudar a mantener la comunidad amigable y organizada' },
+                { id: 'modexp', label: '¿Tienes experiencia como moderador? (si es así, ¿dónde?)', type: 'textarea', placeholder: 'p.ej. Fui moderador en otro servidor durante 6 meses' },
+                { id: 'dyno', label: '¿Tienes experiencia con Dyno?', twitchLabel: '¿Tienes experiencia con StreamElements?', type: 'yesno' },
+                { id: 'dynocommands', label: '¿Qué comandos conoces?', type: 'textarea', dependsOn: 'dyno', placeholder: 'p.ej. !warn, !mute, !ban', twitchPlaceholder: '' }
+            ],
+            predcord: [
+                { id: 'age', label: '¿Cuántos años tienes?', type: 'text', placeholder: '18' },
+                { id: 'time', label: '¿Cuánto tiempo puedes dedicar?', type: 'text', placeholder: 'p.ej. 10 horas a la semana' },
+                { id: 'why', label: '¿Por qué quieres convertirte en miembro del staff?', type: 'textarea', placeholder: 'p.ej. Quiero ayudar a mantener el servidor organizado y competitivo' },
+                { id: 'modexp', label: '¿Tienes experiencia como moderador? (si es así, ¿dónde?)', type: 'textarea', placeholder: 'p.ej. Fui moderador en otro servidor durante 6 meses' },
+                { id: 'dyno', label: '¿Tienes experiencia con Dyno / Yunite?', type: 'yesno' },
+                { id: 'dynocommands', label: '¿Qué comandos conoces?', type: 'textarea', dependsOn: 'dyno', placeholder: 'p.ej. !warn, !mute, !ban' }
+            ]
+        },
+        fr: {
+            community: [
+                { id: 'role', label: 'Quel rôle voudrais-tu avoir ?', type: 'choice', options: [ { value: 'discord', label: 'Discord Staff', icon: 'discord' }, { value: 'twitch', label: 'Twitch Staff', icon: 'twitch' } ] },
+                { id: 'twitchuser', label: 'Ton nom d\'utilisateur Twitch', type: 'text', dependsOn: 'role', dependsValue: 'twitch', placeholder: 'ex. ninja' },
+                { id: 'age', label: 'Quel âge as-tu ?', type: 'text', placeholder: '18' },
+                { id: 'time', label: 'Combien de temps peux-tu consacrer ?', type: 'text', placeholder: 'ex. 10 heures par semaine' },
+                { id: 'why', label: 'Pourquoi veux-tu devenir modérateur ?', type: 'textarea', placeholder: 'ex. Je veux aider à garder la communauté amicale et organisée' },
+                { id: 'modexp', label: 'As-tu de l\'expérience en modération ? (si oui, où ?)', type: 'textarea', placeholder: 'ex. J\'ai été modérateur sur un autre serveur pendant 6 mois' },
+                { id: 'dyno', label: 'As-tu de l\'expérience avec Dyno ?', twitchLabel: 'As-tu de l\'expérience avec StreamElements ?', type: 'yesno' },
+                { id: 'dynocommands', label: 'Quelles commandes connais-tu ?', type: 'textarea', dependsOn: 'dyno', placeholder: 'ex. !warn, !mute, !ban', twitchPlaceholder: '' }
+            ],
+            predcord: [
+                { id: 'age', label: 'Quel âge as-tu ?', type: 'text', placeholder: '18' },
+                { id: 'time', label: 'Combien de temps peux-tu consacrer ?', type: 'text', placeholder: 'ex. 10 heures par semaine' },
+                { id: 'why', label: 'Pourquoi veux-tu devenir membre du staff ?', type: 'textarea', placeholder: 'ex. Je veux aider à garder le serveur organisé et compétitif' },
+                { id: 'modexp', label: 'As-tu de l\'expérience en modération ? (si oui, où ?)', type: 'textarea', placeholder: 'ex. J\'ai été modérateur sur un autre serveur pendant 6 mois' },
+                { id: 'dyno', label: 'As-tu de l\'expérience avec Dyno / Yunite ?', type: 'yesno' },
+                { id: 'dynocommands', label: 'Quelles commandes connais-tu ?', type: 'textarea', dependsOn: 'dyno', placeholder: 'ex. !warn, !mute, !ban' }
+            ]
+        }
+    };
 
-    var TIERS = [
-        { key: 'starter', nameKey: 'tier_name_1', price: '9.99', features: ['f_all_videos', 'f_dropmap_calc'] },
-        { key: 'igl', nameKey: 'tier_name_2', price: '19.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural'], newFeatures: ['f_calls_plural'], recommended: true },
-        { key: 'premium', nameKey: 'tier_name_3', price: '49.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_calls_plural', 'f_vod_review'], newFeatures: ['f_vod_review'] },
-        { key: 'pro', nameKey: 'tier_name_4', price: '99.99', features: ['f_all_videos', 'f_dropmap_calc', 'f_call_singular', 'f_vod_review', 'f_custom_session_new'], newFeatures: ['f_custom_session_new'] },
-        { key: 'custom', nameKey: 'tier_name_custom', custom: true }
-    ];
-
-    var recommendedCount = Math.floor(Math.random() * (30 - 16 + 1)) + 16;
+    var QUESTIONS_APPEAL = {
+        it: [
+            { id: 'reason', label: 'Perché sei stato bannato', type: 'textarea', placeholder: 'Raccontaci cos\'è successo e perché pensi di essere stato bannato.' },
+            { id: 'unban', label: 'Perché dovresti essere sbannato?', type: 'textarea', placeholder: 'Raccontaci perché pensi di meritare una seconda possibilità e cosa farai diversamente in futuro.' }
+        ],
+        en: [
+            { id: 'reason', label: 'Why you got banned', type: 'textarea', placeholder: 'Tell us what happened and why you think you got banned.' },
+            { id: 'unban', label: 'Why you should be unbanned?', type: 'textarea', placeholder: 'Tell us why you think you deserve a second chance and what you\'ll do differently going forward.' }
+        ],
+        de: [
+            { id: 'reason', label: 'Warum du gebannt wurdest', type: 'textarea', placeholder: 'Erzähl uns, was passiert ist und warum du denkst, dass du gebannt wurdest.' },
+            { id: 'unban', label: 'Warum solltest du entbannt werden?', type: 'textarea', placeholder: 'Erzähl uns, warum du denkst, dass du eine zweite Chance verdienst, und was du künftig anders machen wirst.' }
+        ],
+        es: [
+            { id: 'reason', label: 'Por qué te banearon', type: 'textarea', placeholder: 'Cuéntanos qué pasó y por qué crees que te banearon.' },
+            { id: 'unban', label: '¿Por qué deberías ser desbaneado?', type: 'textarea', placeholder: 'Cuéntanos por qué crees que mereces una segunda oportunidad y qué harás diferente en el futuro.' }
+        ],
+        fr: [
+            { id: 'reason', label: 'Pourquoi tu as été banni', type: 'textarea', placeholder: 'Dis-nous ce qui s\'est passé et pourquoi tu penses avoir été banni.' },
+            { id: 'unban', label: 'Pourquoi devrais-tu être débanni ?', type: 'textarea', placeholder: 'Dis-nous pourquoi tu penses mériter une seconde chance et ce que tu feras différemment à l\'avenir.' }
+        ]
+    };
 
     var currentLang = 'en';
     var loggedIn = false;
     var canAccessDashboard = false;
+    var currentUser = null;
+
+    var DISCORD_ICON_SVG = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/></svg>';
+
+    var TWITCH_ICON_SVG = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg>';
+
     var langBtnFlag = document.getElementById('langBtnFlag');
     var langDropdown = document.getElementById('langDropdown');
     var langBtn = document.getElementById('langBtn');
     var authBtn = document.getElementById('authBtn');
-    var userMenu = document.getElementById('userMenu');
     var userAvatar = document.getElementById('userAvatar');
     var userDropdown = document.getElementById('userDropdown');
-    var mcTiersGrid = document.getElementById('mcTiersGrid');
-    var mcDescMain = document.getElementById('mcDescMain');
-    var mcDescHighlight = document.getElementById('mcDescHighlight');
-    var heroTextSet = false;
-
-    function setHeroText(mainText, highlightText) {
-        mcDescMain.textContent = mainText;
-        mcDescHighlight.textContent = highlightText;
-        if (heroTextSet) {
-            [mcDescMain, mcDescHighlight].forEach(function(el, i) {
-                el.style.animation = 'none';
-                void el.offsetWidth;
-                el.style.animation = 'mcTextReveal 0.6s ease ' + (i * 0.15) + 's forwards';
-            });
-        }
-        heroTextSet = true;
-    }
 
     function renderLangUI() {
         langBtnFlag.innerHTML = FLAGS[currentLang];
@@ -1729,58 +1611,392 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         userDropdown.classList.toggle('open');
     });
 
-    function renderTiers() {
-        mcTiersGrid.innerHTML = TIERS.map(function(t) {
-            if (t.custom) {
-                return '<div class="mc-tier-card custom" data-plan="' + t.key + '">' +
-                    '<div class="mc-tier-name">' + I18N[currentLang][t.nameKey] + '</div>' +
-                    '<div class="mc-tier-body"><p>' + I18N[currentLang].custom_desc + '</p></div>' +
-                    '<button type="button" class="mc-tier-cta">' + I18N[currentLang].mc_subscribe + '</button>' +
-                '</div>';
-            }
-            var featuresHtml = t.features.map(function(fKey) {
-                var text = I18N[currentLang][fKey].replace('{link}', DROPCALC_LINK);
-                var isNew = t.newFeatures && t.newFeatures.indexOf(fKey) !== -1;
-                return '<li' + (isNew ? ' class="is-new"' : '') + '><span class="mc-feat-dot">•</span><span class="mc-feat-text">' + text + '</span></li>';
-            }).join('');
-            var ribbonHtml = t.recommended ? '<div class="mc-tier-ribbon">' + I18N[currentLang].mc_recommended_badge.replace('{n}', recommendedCount) + '</div>' : '';
-            return '<div class="mc-tier-card' + (t.recommended ? ' recommended' : '') + '" data-plan="' + t.key + '">' +
-                ribbonHtml +
-                '<div class="mc-tier-name">' + I18N[currentLang][t.nameKey] + '</div>' +
-                '<div class="mc-tier-price">' + t.price + ' ' + I18N[currentLang].mc_month + '</div>' +
-                '<ul class="mc-tier-features">' + featuresHtml + '</ul>' +
-                '<button type="button" class="mc-tier-cta">' + I18N[currentLang].mc_subscribe + '</button>' +
-            '</div>';
-        }).join('');
-        setupTiersReveal();
+    var navVideosGroup = document.getElementById('navVideosGroup');
+
+    function refreshAuth() {
+        return fetch('/api/site/me').then(function(r) { return r.json(); }).then(function(data) {
+            loggedIn = !!data.loggedIn;
+            canAccessDashboard = !!data.canAccessDashboard;
+            currentUser = data.loggedIn ? data : null;
+            if (navVideosGroup) navVideosGroup.classList.toggle('visible', !!data.canViewVideos);
+            try { localStorage.setItem('pdCanViewVideos', data.canViewVideos ? '1' : '0'); } catch (e) {}
+            if (loggedIn && data.avatar) userAvatar.src = data.avatar;
+            updateAuthBtn();
+            renderInlineForms();
+        }).catch(function() {});
     }
 
-    var tiersRevealObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('in-view');
-            } else {
-                entry.target.classList.remove('in-view');
-            }
-        });
-    }, { threshold: 0.15 }) : null;
+    authBtn.addEventListener('click', function() {
+        if (currentUser) {
+            try { localStorage.removeItem('pdCanViewVideos'); } catch (e) {}
+            fetch('/api/site/logout', { method: 'POST' }).then(function() { window.location.reload(); });
+        } else {
+            window.location.href = '/site-auth/discord?next=' + encodeURIComponent('/community');
+        }
+    });
 
-    function setupTiersReveal() {
-        var cards = mcTiersGrid.querySelectorAll('.mc-tier-card');
-        if (!tiersRevealObserver) {
-            cards.forEach(function(card) { card.classList.add('in-view'); });
+    function buildFormFields(team, formType) {
+        var questions = formType === 'appeal' ? QUESTIONS_APPEAL[currentLang] : QUESTIONS_APPLY[currentLang][team];
+        var html = '<form class="appForm" data-team="' + team + '" data-form-type="' + formType + '" novalidate>';
+        questions.forEach(function(q) {
+            if (formType === 'appeal') {
+                html += '<div class="form-group"><label>' + q.label + '</label>' +
+                    '<textarea name="' + q.id + '" rows="3" placeholder="' + (q.placeholder || '') + '" required></textarea></div>';
+                return;
+            }
+            html += q.dependsOn
+                ? '<div class="form-group conditional" data-depends="' + q.dependsOn + '" data-depends-value="' + (q.dependsValue || 'Yes') + '" style="display:none;">'
+                : '<div class="form-group">';
+            html += '<label>' + q.label + '</label>';
+            if (q.type === 'choice') {
+                html += '<div class="role-row">' + q.options.map(function(opt) {
+                    var icon = opt.icon === 'twitch' ? TWITCH_ICON_SVG : DISCORD_ICON_SVG;
+                    return '<button type="button" class="role-btn" data-field="' + q.id + '" data-value="' + opt.value + '">' + icon + '<span>' + opt.label + '</span></button>';
+                }).join('') + '</div><input type="hidden" name="' + q.id + '" required>';
+            } else if (q.type === 'yesno') {
+                html += '<div class="yesno-row">' +
+                    '<button type="button" class="yesno-btn" data-field="' + q.id + '" data-value="Yes">' + I18N[currentLang].form_yes + '</button>' +
+                    '<button type="button" class="yesno-btn" data-field="' + q.id + '" data-value="No">' + I18N[currentLang].form_no + '</button>' +
+                    '</div><input type="hidden" name="' + q.id + '" required>';
+            } else if (q.type === 'textarea') {
+                html += '<textarea name="' + q.id + '" rows="3" placeholder="' + (q.placeholder || '') + '" required></textarea>';
+            } else if (q.id === 'age') {
+                html += '<input type="text" inputmode="numeric" pattern="[0-9]{1,2}" maxlength="2" name="' + q.id + '" placeholder="' + (q.placeholder || '') + '" required>';
+            } else {
+                html += '<input type="text" name="' + q.id + '" placeholder="' + (q.placeholder || '') + '" required>';
+            }
+            html += '</div>';
+        });
+        var submitLabel = formType === 'appeal' ? I18N[currentLang].form_submit_appeal : I18N[currentLang].form_submit_application;
+        html += '<button type="submit" class="submit-btn">' + submitLabel + '</button>';
+        html += '<p class="form-status"></p></form>';
+        return html;
+    }
+
+    function buildSignInBlock(formType) {
+        var signInText = formType === 'appeal' ? I18N[currentLang].form_signin_appeal_text : I18N[currentLang].form_signin_apply_text;
+        return '<div class="signin-inline">' +
+            '<p class="modal-text">' + signInText + '</p>' +
+            '<button class="discord-signin-btn inline-signin-btn" type="button">' + DISCORD_ICON_SVG + I18N[currentLang].form_signin_now + '</button>' +
+        '</div>';
+    }
+
+    function buildInlineForm(team, formType) {
+        return buildFormFields(team, formType);
+    }
+
+    function gateForm(formEl) {
+        var col = formEl.closest('.staff-form-col') || formEl.closest('.appeal-modal-box');
+        var formType = formEl.getAttribute('data-form-type');
+        col.querySelector('.inline-form-body').innerHTML = buildSignInBlock(formType);
+    }
+
+    function applyEligibilityGate(col, team, formType) {
+        var form = col.querySelector('.appForm');
+        if (!form || !currentUser) return;
+        var btn = form.querySelector('.submit-btn');
+        var status = form.querySelector('.form-status');
+        btn.disabled = true;
+        fetch('/api/site/eligibility?team=' + team).then(function(r) { return r.json(); }).then(function(data) {
+            if (!document.body.contains(form)) return;
+            if (formType === 'appeal') {
+                var eligible = data.isBanned || data.isMuted;
+                btn.disabled = !eligible;
+                if (!eligible) status.textContent = I18N[currentLang].form_not_banned_text;
+            } else if (!data.isMember) {
+                btn.disabled = true;
+                status.textContent = I18N[currentLang].form_not_member_text;
+            } else if (data.hasBlockedRole) {
+                btn.disabled = true;
+                status.textContent = I18N[currentLang].form_blocked_role_text;
+            } else {
+                btn.disabled = false;
+            }
+        }).catch(function() { btn.disabled = false; });
+    }
+
+    function renderFormCol(col) {
+        var formType = col.getAttribute('data-form');
+        var activeBtn = col.querySelector('.server-choice-btn.active');
+        var team = activeBtn ? activeBtn.getAttribute('data-team') : 'community';
+        col.querySelector('.inline-form-body').innerHTML = buildInlineForm(team, formType);
+        applyEligibilityGate(col, team, formType);
+    }
+
+    function renderInlineForms() {
+        document.querySelectorAll('.staff-form-col').forEach(renderFormCol);
+    }
+
+    document.addEventListener('click', function(e) {
+        var signInBtn = e.target.closest('.inline-signin-btn');
+        if (signInBtn) {
+            var backTo = signInBtn.closest('.appeal-modal-box') ? '/community#ban-appeal' : '/community';
+            window.location.href = '/site-auth/discord?next=' + encodeURIComponent(backTo);
             return;
         }
-        cards.forEach(function(card) { tiersRevealObserver.observe(card); });
+
+        var appealBtn = e.target.closest('.appeal-card-btn');
+        if (appealBtn) {
+            startAppeal(appealBtn);
+            return;
+        }
+
+        var serverBtn = e.target.closest('.server-choice-btn');
+        if (serverBtn) {
+            var col = serverBtn.closest('.staff-form-col');
+            col.querySelectorAll('.server-choice-btn').forEach(function(b) { b.classList.remove('active'); });
+            serverBtn.classList.add('active');
+            renderFormCol(col);
+            return;
+        }
+
+        var choiceBtn = e.target.closest('.yesno-btn, .role-btn');
+        if (!choiceBtn) return;
+        var form = choiceBtn.closest('form');
+        if (!currentUser) { gateForm(form); return; }
+        var field = choiceBtn.getAttribute('data-field');
+        var value = choiceBtn.getAttribute('data-value');
+        var group = choiceBtn.closest('.form-group');
+        var row = choiceBtn.closest('.yesno-row, .role-row');
+        group.querySelectorAll('.yesno-btn, .role-btn').forEach(function(b) { b.classList.remove('active'); });
+        choiceBtn.classList.add('active');
+        row.classList.remove('field-invalid');
+        group.querySelector('input[type="hidden"]').value = value;
+
+        var dependents = form.querySelectorAll('.conditional[data-depends="' + field + '"]');
+        dependents.forEach(function(dependent) {
+            var depValue = dependent.getAttribute('data-depends-value') || 'Yes';
+            var depField = dependent.querySelector('textarea, input[type="text"]');
+            if (value === depValue) {
+                dependent.style.display = 'block';
+                if (depField) depField.required = true;
+            } else {
+                dependent.style.display = 'none';
+                if (depField) { depField.required = false; depField.value = ''; depField.classList.remove('field-invalid'); }
+            }
+        });
+
+        if (field === 'role') {
+            var team = form.getAttribute('data-team');
+            var questions = QUESTIONS_APPLY[currentLang][team] || [];
+            var dynoQ = questions.find(function(qq) { return qq.id === 'dyno'; });
+            var dynoCmdQ = questions.find(function(qq) { return qq.id === 'dynocommands'; });
+            var dynoHidden = form.querySelector('[name="dyno"]');
+            var dynoLabel = dynoHidden ? dynoHidden.closest('.form-group').querySelector('label') : null;
+            if (dynoLabel && dynoQ) {
+                dynoLabel.textContent = (value === 'twitch' && dynoQ.twitchLabel) ? dynoQ.twitchLabel : dynoQ.label;
+            }
+            var dynoCmdField = form.querySelector('[name="dynocommands"]');
+            if (dynoCmdField && dynoCmdQ) {
+                dynoCmdField.placeholder = (value === 'twitch' && dynoCmdQ.twitchPlaceholder !== undefined) ? dynoCmdQ.twitchPlaceholder : (dynoCmdQ.placeholder || '');
+            }
+        }
+    });
+
+    document.addEventListener('input', function(e) {
+        if (e.target.closest('.appForm') && e.target.matches('input[type="text"], textarea')) {
+            e.target.classList.remove('field-invalid');
+            if (e.target.name === 'age') {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 2);
+            }
+        }
+    });
+
+    document.addEventListener('focusin', function(e) {
+        if (!e.target.matches('input[type="text"], textarea')) return;
+        var form = e.target.closest('.appForm');
+        if (!form || currentUser) return;
+        e.target.blur();
+        gateForm(form);
+    });
+
+    var APPEAL_TEAMS = {
+        community: { name: 'Predage Community', logo: '/images/dragon-pfp.webp' },
+        predcord: { name: 'PredCord', logo: '/images/predcord-pfp.webp' }
+    };
+
+    var appealModal = document.getElementById('appealModal');
+    var appealModalBox = document.getElementById('appealModalBox');
+    var appealModalState = null;
+
+    function renderAppealModal() {
+        if (!appealModalState) return;
+        var info = APPEAL_TEAMS[appealModalState.team];
+        document.getElementById('appealModalLogo').src = info.logo;
+        document.getElementById('appealModalTitle').textContent = I18N[currentLang].form_appeal_title.replace('{team}', info.name);
+        var body = appealModalBox.querySelector('.inline-form-body');
+        body.innerHTML = (currentUser && appealModalState.mode === 'form')
+            ? buildFormFields(appealModalState.team, 'appeal')
+            : buildSignInBlock('appeal');
     }
+
+    function openAppealModal(team, mode) {
+        appealModalState = { team: team, mode: mode };
+        renderAppealModal();
+        appealModal.classList.add('open');
+        appealModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeAppealModal() {
+        appealModal.classList.remove('open');
+        appealModal.setAttribute('aria-hidden', 'true');
+        appealModalState = null;
+    }
+
+    document.getElementById('appealModalClose').addEventListener('click', closeAppealModal);
+    appealModal.addEventListener('click', function(e) {
+        if (e.target === appealModal) closeAppealModal();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && appealModalState) closeAppealModal();
+    });
+
+    function startAppeal(btn) {
+        var team = btn.getAttribute('data-team');
+        var card = btn.closest('.appeal-card');
+        var statusEl = card.querySelector('.appeal-card-status');
+        statusEl.textContent = '';
+        if (!currentUser) { openAppealModal(team, 'signin'); return; }
+        btn.disabled = true;
+        btn.textContent = I18N[currentLang].appeal_checking;
+        function restore() {
+            btn.disabled = false;
+            btn.textContent = I18N[currentLang].form_submit_appeal;
+        }
+        fetch('/api/site/eligibility?team=' + team).then(function(r) {
+            if (r.status === 401) return { unauthorized: true };
+            return r.json().then(function(data) { return { ok: r.ok, data: data }; });
+        }).then(function(res) {
+            restore();
+            if (res.unauthorized) { openAppealModal(team, 'signin'); return; }
+            if (!res.ok) { statusEl.textContent = I18N[currentLang].form_generic_error; return; }
+            if (res.data.isBanned || res.data.isMuted) {
+                openAppealModal(team, 'form');
+            } else {
+                statusEl.textContent = I18N[currentLang].form_not_banned_text;
+            }
+        }).catch(function() {
+            restore();
+            statusEl.textContent = I18N[currentLang].form_connection_error;
+        });
+    }
+
+    function shakeBox(box) {
+        if (!box) return;
+        box.classList.remove('shake');
+        void box.offsetWidth;
+        box.classList.add('shake');
+    }
+
+    function showFormToast(message) {
+        var toast = document.getElementById('formToast');
+        if (!toast) return;
+        var textEl = toast.querySelector('.form-toast-text');
+        if (textEl) textEl.textContent = message || 'Fill all fields';
+        toast.classList.remove('hidden');
+        toast.classList.add('show');
+        if (window._formToastTimeout) clearTimeout(window._formToastTimeout);
+        window._formToastTimeout = setTimeout(function() {
+            toast.classList.remove('show');
+            setTimeout(function() { toast.classList.add('hidden'); }, 300);
+        }, 3000);
+    }
+
+    document.addEventListener('submit', function(e) {
+        if (!e.target.classList.contains('appForm')) return;
+        e.preventDefault();
+        var form = e.target;
+        if (!currentUser) { gateForm(form); return; }
+        var team = form.getAttribute('data-team');
+        var formType = form.getAttribute('data-form-type');
+        var box = form.closest('.staff-form-col') || form.closest('.appeal-modal-box');
+        var status = form.querySelector('.form-status');
+        var btn = form.querySelector('.submit-btn');
+        var answers = {};
+        var valid = true;
+        var questions = formType === 'appeal' ? QUESTIONS_APPEAL[currentLang] : QUESTIONS_APPLY[currentLang][team];
+
+        questions.forEach(function(q) {
+            if (q.dependsOn) {
+                var group = form.querySelector('.conditional[data-depends="' + q.dependsOn + '"]');
+                if (group.style.display === 'none') return;
+            }
+            var field = form.querySelector('[name="' + q.id + '"]');
+            var isEmpty = !field.value || !field.value.trim();
+
+            if (q.type === 'yesno' || q.type === 'choice') {
+                var row = field.previousElementSibling;
+                if (row) row.classList.toggle('field-invalid', isEmpty);
+            } else {
+                field.classList.toggle('field-invalid', isEmpty);
+            }
+
+            if (isEmpty) { valid = false; } else { answers[q.label] = field.value; }
+        });
+
+        if (!valid) {
+            shakeBox(box);
+            showFormToast(I18N[currentLang].form_fill_all_fields);
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = I18N[currentLang].form_sending;
+        status.textContent = '';
+
+        var endpoint = formType === 'appeal' ? '/api/site/appeal' : '/api/site/apply';
+        var sentTitle = formType === 'appeal' ? I18N[currentLang].form_appeal_sent_title : I18N[currentLang].form_application_sent_title;
+        var sentText = formType === 'appeal' ? I18N[currentLang].form_appeal_sent_text : I18N[currentLang].form_application_sent_text;
+        var cooldownLabel = formType === 'appeal' ? I18N[currentLang].form_cooldown_appeal : I18N[currentLang].form_cooldown_application;
+        var submitLabel = formType === 'appeal' ? I18N[currentLang].form_submit_appeal : I18N[currentLang].form_submit_application;
+
+        fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ team: team, answers: answers })
+        }).then(function(r) {
+            return r.json().then(function(data) { return { ok: r.ok, data: data }; });
+        }).then(function(res) {
+            if (res.ok) {
+                box.querySelector('.inline-form-body').innerHTML = '<h3 class="modal-title">' + sentTitle + '</h3><p class="modal-text">' + sentText + '</p>';
+            } else if (res.data && res.data.error === 'cooldown') {
+                var hours = Math.max(1, Math.ceil((new Date(res.data.retryAt) - Date.now()) / 3600000));
+                var hourWord = hours === 1 ? I18N[currentLang].form_hour_singular : I18N[currentLang].form_hour_plural;
+                status.textContent = I18N[currentLang].form_cooldown_template.replace('{type}', cooldownLabel).replace('{hours}', hours + ' ' + hourWord);
+                btn.disabled = false;
+                btn.textContent = submitLabel;
+            } else if (res.data && res.data.error === 'not_banned') {
+                status.textContent = I18N[currentLang].form_not_banned_text;
+                btn.disabled = true;
+                btn.textContent = submitLabel;
+            } else if (res.data && res.data.error === 'not_member') {
+                status.textContent = I18N[currentLang].form_not_member_text;
+                btn.disabled = true;
+                btn.textContent = submitLabel;
+            } else if (res.data && res.data.error === 'blocked_role') {
+                status.textContent = I18N[currentLang].form_blocked_role_text;
+                btn.disabled = true;
+                btn.textContent = submitLabel;
+            } else {
+                status.textContent = I18N[currentLang].form_generic_error;
+                btn.disabled = false;
+                btn.textContent = submitLabel;
+            }
+        }).catch(function() {
+            status.textContent = I18N[currentLang].form_connection_error;
+            btn.disabled = false;
+            btn.textContent = submitLabel;
+        });
+    });
 
     function setLang(code) {
         currentLang = code;
         renderLangUI();
         applyStaticTranslations();
         updateAuthBtn();
-        renderTiers();
-        setHeroText(I18N[currentLang].mc_description, I18N[currentLang].mc_description_highlight);
+        renderInlineForms();
+        document.querySelectorAll('.appeal-card-status').forEach(function(el) { el.textContent = ''; });
+        renderAppealModal();
     }
 
     langBtn.addEventListener('click', function(e) {
@@ -1802,8 +2018,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 
     renderLangUI();
     applyStaticTranslations();
-    renderTiers();
-    setHeroText(I18N[currentLang].mc_description, I18N[currentLang].mc_description_highlight);
+    renderInlineForms();
 
     var headerEl = document.querySelector('header');
     var headerSpacer = document.getElementById('headerSpacer');
@@ -1813,447 +2028,49 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     syncHeaderSpacer();
     window.addEventListener('resize', syncHeaderSpacer);
 
-    function setupSlideshow(containerId) {
-        var container = document.getElementById(containerId);
-        if (!container) return;
-        var slides = Array.prototype.slice.call(container.querySelectorAll('img.mc-hero-clip'));
-        if (slides.length < 2) return;
-        var current = 0;
-        setInterval(function() {
-            slides[current].classList.remove('active');
-            current = (current + 1) % slides.length;
-            slides[current].classList.add('active');
-        }, 4000);
+    function smoothScrollTo(targetY, duration) {
+        var startY = window.scrollY;
+        var diff = targetY - startY;
+        var startTime = null;
+        function step(timestamp) {
+            if (startTime === null) startTime = timestamp;
+            var time = timestamp - startTime;
+            var percent = Math.min(time / duration, 1);
+            var eased = percent < 0.5 ? 2 * percent * percent : -1 + (4 - 2 * percent) * percent;
+            window.scrollTo(0, startY + diff * eased);
+            if (time < duration) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
     }
-    setupSlideshow('mcHeroBg');
+
+    function scrollToSection(selector) {
+        var target = document.querySelector(selector);
+        if (!target) return;
+        var targetY = target.getBoundingClientRect().top + window.scrollY - headerEl.offsetHeight - 20;
+        smoothScrollTo(targetY, 1200);
+    }
+
+    document.getElementById('joinTeamCtaBtn').addEventListener('click', function() {
+        scrollToSection('#staffTeamSection');
+    });
+
+    document.getElementById('banAppealCtaBtn').addEventListener('click', function() {
+        scrollToSection('#banAppealSection');
+    });
+
+    function scrollToHashSection() {
+        var hash = (window.location.hash || '').toLowerCase();
+        var target = hash === '#ban-appeal' ? '#banAppealSection' : hash === '#join-team' ? '#staffTeamSection' : null;
+        if (!target) return;
+        setTimeout(function() { scrollToSection(target); }, 500);
+    }
+
+    if ('scrollRestoration' in history && window.location.hash) history.scrollRestoration = 'manual';
+    scrollToHashSection();
+    window.addEventListener('hashchange', scrollToHashSection);
 
     updateAuthBtn();
-    var navVideosGroup = document.getElementById('navVideosGroup');
-    fetch('/api/site/me').then(function(res) { return res.json(); }).then(function(data) {
-        loggedIn = !!data.loggedIn;
-        canAccessDashboard = !!data.canAccessDashboard;
-        if (navVideosGroup) navVideosGroup.classList.toggle('visible', !!data.canViewVideos);
-        try { localStorage.setItem('pdCanViewVideos', data.canViewVideos ? '1' : '0'); } catch (e) {}
-        if (loggedIn && data.avatar) userAvatar.src = data.avatar;
-        updateAuthBtn();
-    }).catch(function() {});
-
-    authBtn.addEventListener('click', function() {
-        if (loggedIn) {
-            try { localStorage.removeItem('pdCanViewVideos'); } catch (e) {}
-            fetch('/api/site/logout', { method: 'POST' }).then(function() {
-                window.location.reload();
-            });
-        } else {
-            window.location.href = '/site-auth/discord?next=' + encodeURIComponent('/masterclass');
-        }
-    });
-
-    var MORE_TOURNAMENTS = [
-        { name: 'FNCS Division 1 Practice', link: 'https://fortnitetracker.com/events/epicgames_S42_FNCSDivisionalCup_Division1_EU?window=S42_FNCSDivisionalCup_Division1_Week3Final_EU&page=0#33', prize: '100€', year: 2026 },
-        { name: 'FNCS Division 1 Practice', link: 'https://fortnitetracker.com/events/epicgames_S42_FNCSDivisionalCup_Division1_EU?window=S42_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#33', prize: '100€', year: 2026 },
-        { name: 'FNCS Global Championship Last Chance Finals', link: 'https://fortnitetracker.com/events/epicgames_S41_FNCSLastChanceMajor_EU?window=S41_FNCSLastChanceMajor_Final_EU&page=0#40', prize: '300€', year: 2026 },
-        { name: 'Reload Elite Series Finals', link: 'https://fortnitetracker.com/events/epicgames_S41_ReloadEliteSeries4Final_EU?window=S41_ReloadEliteSeries4Final_EU&page=0#19', prize: '500€', year: 2026 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S41_FNCSDivisionalCup_Division1_EU?window=S41_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#8', prize: '400€', year: 2026 },
-        { name: 'Reload Duos Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S40_DuosReloadVictoryCup_EU?window=S40_DuosReloadVictoryCup_Round2_day2_EU&page=0#28', prize: '100€', year: 2026 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S40_FNCSDivisionalCup_Division1_EU?window=S40_FNCSDivisionalCup_Division1_Week3Final_EU&page=0#26', prize: '200€', year: 2026 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S40_FNCSDivisionalCup_Division1_EU?window=S40_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#17', prize: '300€', year: 2026 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S40_SoloVictoryCup_EU?window=S40_SoloVictoryCup_Round2_Day1_EU&page=0#98', prize: '100€', year: 2026 },
-        { name: 'Reload Elite Series Finals', link: 'https://fortnitetracker.com/events/epicgames_S39_ReloadEliteSeries2Final_EU?window=S39_ReloadEliteSeries2Final_EU&page=0#12', prize: '1000€', year: 2026 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S39_FNCSDivisionalCup_Division1_EU?window=S39_FNCSDivisionalCup_Division1_Week4Final_EU&page=0#11', prize: '300€', year: 2026 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S39_FNCSDivisionalCup_Division1_EU?window=S39_FNCSDivisionalCup_Division1_Week3Final_EU&page=0#13', prize: '300€', year: 2026 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S39_FNCSDivisionalCup_Division1_EU?window=S39_FNCSDivisionalCup_Division1_Week2Final_EU&page=0#12', prize: '300€', year: 2026 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S39_FNCSDivisionalCup_Division1_EU?window=S39_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#15', prize: '300€', year: 2026 },
-        { name: 'Reload Duos Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S39_ReloadCashVictoryCup_Dec_EU?window=S39_ReloadCashVictoryCup_Event3Round2_EU_makegood&page=0#24', prize: '100€', year: 2025 },
-        { name: 'Duos Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S39_DuosVictoryCup_EU?window=S39_DuosVictoryCup_Round2_Day1_January_EU&page=0#6', prize: '100€', year: 2026 },
-        { name: '$1 Million Unreal Cup', link: 'https://fortnitetracker.com/events/epicgames_S39_1MillionUnrealCup_EU?window=S39_1MillionUnrealCup_EU&page=4#445', prize: '100€', year: 2025 },
-        { name: 'Squads Victory Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S38_SquadsVictoryCup_EU?window=S38_SquadsVictoryCup_Round2_Day2_EU&page=0#15', prize: '100€', year: 2025 },
-        { name: 'Duos Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S37_DuosDivisionalCup_Division1_EU?window=S37_DuosDivisionalCup_Division1_Week5Final_EU&page=0#25', prize: '200€', year: 2025 },
-        { name: 'Duos Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S37_DuosDivisionalCup_Division1_EU?window=S37_DuosDivisionalCup_Division1_Week2Final_EU&page=0#22', prize: '200€', year: 2025 },
-        { name: 'Fortnite Performance Evaluation', link: 'https://fortnitetracker.com/events/epicgames_S37_PerformanceEvaluation_EU?window=S37_PerformanceEvaluation_Event2Round2_EU&page=0#4', prize: '400€', year: 2025 },
-        { name: 'FNCS Major 3 Finals', link: 'https://fortnitetracker.com/events/epicgames_S36_FNCSMajor3_Final_EU?window=S36_FNCSMajor3_Final_Day1_EU&sm=S36_FNCSMajor3_Final_CumulativeLeaderboardDef&page=0#20', prize: '2900€', year: 2025 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S36_FNCSDivisionalCup_Division1_EU?window=S36_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#17', prize: '300€', year: 2025 },
-        { name: 'FNCS Showdown', link: 'https://fortnitetracker.com/events/epicgames_S35_FNSCShowdown_EU?window=S35_FNCSShowdown_Event3Round2_EU&page=0#24', prize: '150€', year: 2025 },
-        { name: 'Solo Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S34_SoloCashCup_EU?window=S34_SoloCashCup_Event5Round2_EU&page=0#16', prize: '320€', year: 2025 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S34_FNCSDivisionalCup_Division1_EU?window=S34_FNCSDivisionalCup_Division1_Week4Final_EU_mg&page=0#11', prize: '600€', year: 2025 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S34_FNCSDivisionalCup_Division1_EU?window=S34_FNCSDivisionalCup_Division1_Week3Final_EU&page=0#11', prize: '600€', year: 2025 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S34_FNCSDivisionalCup_Division1_EU?window=S34_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#8', prize: '1200€', year: 2025 },
-        { name: 'FNCS Major 1 Finals', link: 'https://fortnitetracker.com/events/epicgames_S33_FNCSMajor1_Final_EU?window=S33_FNCSMajor1_Final_Day1_EU&sm=S33_FNCSMajor1_Final_CumulativeLeaderboardDef&page=0#18', prize: '2900€', year: 2025 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S33_FNCSDivisionalCup_Division1_EU?window=S33_FNCSDivisionalCup_Division1_Week5Final_EU&page=0#14', prize: '600€', year: 2025 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S33_FNCSDivisionalCup_Division1_EU?window=S33_FNCSDivisionalCup_Division1_Week4Final_EU&page=0#17', prize: '300€', year: 2025 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S33_FNCSDivisionalCup_Division1_EU?window=S33_FNCSDivisionalCup_Division1_Week3Final_EU&page=0#15', prize: '600€', year: 2025 },
-        { name: 'FNCS Division 1 (Finals)', link: 'https://fortnitetracker.com/events/epicgames_S33_FNCSDivisionalCup_Division1_EU?window=S33_FNCSDivisionalCup_Division1_Week1Final_EU&page=0#5', prize: '1650€', year: 2025 },
-        { name: 'Trios Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S32_TriosCashCup_EU?window=S32_TriosCashCup_Event4Round2_EU&page=0#3', prize: '750€', year: 2024 },
-        { name: 'Trios Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_TriosCashCup_EU?window=S31_TriosCashCup_Event3Round2_EU&page=0#24', prize: '150€', year: 2024 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_DuosCashCup_EU?window=S31_DuosCashCup_Event5Round2_EU&page=0#37', prize: '150€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_SoloVictoryCashCup_EU?window=S31_SoloVictoryCashCup_Event5Round2_EU&page=3#340', prize: '100€', year: 2024 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_DuosCashCup_EU?window=S31_DuosCashCup_Event4Round2_EU&page=0#21', prize: '300€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_SoloVictoryCashCup_EU?window=S31_SoloVictoryCashCup_Event3Round2_EU&page=3#358', prize: '100€', year: 2024 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_DuosCashCup_EU?window=S31_DuosCashCup_Event2Round2_EU&page=0#2', prize: '1350€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_SoloVictoryCashCup_EU?window=S31_SoloVictoryCashCup_Event2Round2_EU&page=1#172', prize: '100€', year: 2024 },
-        { name: 'Katoo FNCS Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_InfluencerCup_EU?window=S31_InfluencerCup_Round2_EU&page=1#177', prize: '100€', year: 2024 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S31_DuosCashCup_EU?window=S31_DuosCashCup_Event1Round2_EU&page=0#5', prize: '450€', year: 2024 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_DuosCashCup_EU?window=S30_DuosCashCup_Event8Round2_EU&page=0#17', prize: '300€', year: 2024 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_DuosCashCup_EU?window=S30_DuosCashCup_Event7Round2_EU&page=0#38', prize: '150€', year: 2024 },
-        { name: 'FNCS Major 3 Grand Finals', link: 'https://fortnitetracker.com/events/epicgames_S30_FNCS_Major3_GrandFinals_EU?window=S30_FNCS_Major3_GrandFinalDay2_EU&sm=S30_FNCS_Major3_GrandFinalDay2_CumulativeLeaderboardDef&page=0#38', prize: '1000€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_SoloVictoryCashCup_EU?window=S30_SoloVictoryCashCup_Event4Round2_EU&page=0#62', prize: '100€', year: 2024 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_DuosCashCup_EU?window=S30_DuosCashCup_Event3Round2_EU&page=0#20', prize: '300€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_SoloVictoryCashCup_EU?window=S30_SoloVictoryCashCup_Event3Round2_EU&page=0#4', prize: '200€', year: 2024 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_DuosCashCup_EU?window=S30_DuosCashCup_Event2Round2_EU&page=0#16', prize: '300€', year: 2024 },
-        { name: 'Squads Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_SquadsVictoryCashCup_EU?window=S30_SquadsVictoryCashCup_Event2Round2_EU&page=0#2', prize: '200€', year: 2024 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S30_DuosCashCup_EU?window=S30_DuosCashCup_Event1Round2_EU&page=0#4', prize: '450€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S29_SoloVictoryCashCup_EU?window=S29_SoloVictoryCashCup_Event6Round2_EU&page=1#140', prize: '100€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S29_SoloVictoryCashCup_EU?window=S29_SoloVictoryCashCup_Event5Round2_EU&page=3#305', prize: '100€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S29_SoloVictoryCashCup_EU?window=S29_SoloVictoryCashCup_Event4Round2_EU&page=2#209', prize: '100€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S29_SoloVictoryCashCup_EU?window=S29_SoloVictoryCashCup_Event2Round2_EU&page=3#317', prize: '100€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S29_SoloVictoryCashCup_EU?window=S29_SoloVictoryCashCup_Event1Round2_EU&page=2#209', prize: '100€', year: 2024 },
-        { name: 'FNCS Major 1 Grand Finals', link: 'https://fortnitetracker.com/events/epicgames_S28_FNCS_Major1_GrandFinals_EU?window=S28_FNCS_Major1_GrandFinalDay2_EU&sm=S28_FNCS_Major1_GrandFinalDay2_CumulativeLeaderboardDef&page=0#42', prize: '1000€', year: 2024 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_DuosCashCup_EU?window=S28_DuosCashCup_Event4Round2_EU&page=0#28', prize: '125€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_SoloVictoryCashCup_EU?window=S28_SoloVictoryCashCup_Event6Round2_EU&page=2#220', prize: '100€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_SoloVictoryCashCup_EU?window=S28_SoloVictoryCashCup_Event5Round2_EU&page=2#226', prize: '100€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_SoloVictoryCashCup_EU?window=S28_SoloVictoryCashCup_MakeGood3Round2_EU&page=1#135', prize: '100€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_SoloVictoryCashCup_EU?window=S28_SoloVictoryCashCup_MakeGood1Round2_EU&page=1#194', prize: '100€', year: 2024 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S28_SoloVictoryCashCup_EU?window=S28_SoloVictoryCashCup_Event3Round2_EU&page=1#193', prize: '100€', year: 2024 },
-        { name: "Inoxtag's OG Skirmish", link: 'https://fortnitetracker.com/events/epicgames_S27_OGInoxtag_Duos_EU?window=S27_OGInoxtag_EU_Event2&page=0#8', prize: '300€', year: 2023 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S26_DuosCashCup_EU?window=S26_DuosCashCup_EU_Event7_Round2&page=0#6', prize: '350€', year: 2023 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S26_DuosCashCup_EU?window=S26_DuosCashCup_EU_Event3_Round2&page=0#37', prize: '100€', year: 2023 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S25_DuosCashCup_EU?window=S25_DuosCashCup_EU_Event3_Round2&page=0#15', prize: '100€', year: 2023 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S25_SoloVictoryCashCup_EU?window=S25_SoloVictoryCashCup_Event3Round2_EU&page=1#135', prize: '100€', year: 2023 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S25_SoloVictoryCashCup_EU?window=S25_SoloVictoryCashCup_Event2Round2_EU&page=0#93', prize: '100€', year: 2023 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S24_SoloVictoryCup_EU?window=S24_SoloVictoryCup_Event7_Round2_EU&page=1#134', prize: '100€', year: 2023 },
-        { name: 'Duo Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S24_DuosCashCup_EU?window=S24_DuosCashCup_EU_Event4_Round2&page=0#25', prize: '100€', year: 2023 },
-        { name: 'Solo Victory Cup', link: 'https://fortnitetracker.com/events/epicgames_S24_SoloVictoryCup_EU?window=S24_SoloVictoryCup_Event1_Round2_EU&page=0#4', prize: '200€', year: 2023 },
-        { name: 'Duos Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S24_DuosCashCup_EU?window=S24_DuosCashCup_EU_Event1_Round2&page=0#25', prize: '100€', year: 2023 },
-        { name: 'Solo Victory Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S23_SoloCashCup_EU?window=S23_SoloCashCup_Event9_Round2_EU&page=1#163', prize: '100€', year: 2023 },
-        { name: 'Solo Victory Cash Cup', link: 'https://fortnitetracker.com/events/epicgames_S23_SoloCashCup_EU?window=S23_SoloCashCup_Event5_Round2_EU&page=1#111', prize: '100€', year: 2023 },
-        { name: 'Elite Cup Weekly Finals', link: 'https://fortnitetracker.com/events/epicgames_S23_DivisionalCups_Elite_Finals_EU?window=S23_DivisionalCups_Elite_Finals_EU_Week2_makegood&page=0#38', prize: '300€', year: 2023 }
-    ];
-
-    var LINK_ICON_SVG = '<svg class="more-result-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h7v7"></path><path d="M10 14 21 3"></path><path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6"></path></svg>';
-
-    function renderMoreList(year) {
-        var list = document.getElementById('moreResultsList');
-        if (!list) return;
-        var items = MORE_TOURNAMENTS.filter(function(t) { return t.year === year; });
-        items.sort(function(a, b) {
-            var pa = parseInt(a.prize.replace(/[^0-9]/g, ''), 10);
-            var pb = parseInt(b.prize.replace(/[^0-9]/g, ''), 10);
-            return pb - pa;
-        });
-        list.innerHTML = items.map(function(t) {
-            return '<a class="more-result-row" href="' + t.link + '" target="_blank" rel="noopener">' +
-                '<span class="more-result-name">' + t.name + LINK_ICON_SVG + '</span>' +
-                '<span class="more-result-prize">' + t.prize + '</span>' +
-            '</a>';
-        }).join('');
-    }
-
-    var resultModal = document.getElementById('resultModal');
-    var resultModalContent = document.getElementById('resultModalContent');
-    var resultModalClose = document.getElementById('resultModalClose');
-
-    function closeResultModal() {
-        if (resultModal) resultModal.classList.remove('open');
-    }
-
-    var resultsMoreBtn = document.getElementById('resultsMoreBtn');
-    if (resultsMoreBtn) {
-        resultsMoreBtn.addEventListener('click', function() {
-            if (!resultModal || !resultModalContent) return;
-            var years = [2026, 2025, 2024, 2023];
-            resultModalContent.innerHTML = '<h3 class="modal-title">More Results</h3>' +
-                '<div class="more-year-tabs" id="moreYearTabs">' +
-                years.map(function(y, i) {
-                    return '<button class="more-year-btn' + (i === 0 ? ' active' : '') + '" data-year="' + y + '">' + y + '</button>';
-                }).join('') +
-                '</div>' +
-                '<div class="more-results-list" id="moreResultsList"></div>';
-            renderMoreList(years[0]);
-            var tabs = document.getElementById('moreYearTabs');
-            if (tabs) {
-                tabs.addEventListener('click', function(e) {
-                    var btn = e.target.closest('.more-year-btn');
-                    if (!btn) return;
-                    tabs.querySelectorAll('.more-year-btn').forEach(function(b) { b.classList.remove('active'); });
-                    btn.classList.add('active');
-                    renderMoreList(parseInt(btn.getAttribute('data-year'), 10));
-                });
-            }
-            resultModal.classList.add('open');
-        });
-    }
-
-    if (resultModalClose) resultModalClose.addEventListener('click', closeResultModal);
-    var planModal = document.getElementById('planModal');
-    var planModalContent = document.getElementById('planModalContent');
-    var planModalClose = document.getElementById('planModalClose');
-    var planState = { key: null, emailValid: false, checkTimer: null, checkSeq: 0 };
-    var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#0a0a0f" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
-    var CROSS_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-
-    function planText(key) {
-        return I18N[currentLang]['plan_' + key] || I18N.en['plan_' + key] || '';
-    }
-
-    function planChipText(tier) {
-        var name = I18N[currentLang][tier.nameKey];
-        return tier.price ? name + ' · ' + tier.price + ' ' + I18N[currentLang].mc_month : name;
-    }
-
-    function closePlanModal() {
-        if (planModal) planModal.classList.remove('open');
-        clearTimeout(planState.checkTimer);
-        planState.checkSeq++;
-        planState.key = null;
-        emailNoticeShown = false;
-    }
-
-    function updateCreateBtn() {
-        var btn = document.getElementById('planCreateBtn');
-        var terms = document.getElementById('planTermsInput');
-        if (!btn || !terms) return;
-        var emailInput = document.getElementById('planEmailInput');
-        var emailEmpty = !emailInput || emailInput.value.trim() === '';
-        btn.disabled = !((emailEmpty || planState.emailValid) && terms.checked);
-    }
-
-    function setEmailState(state, message) {
-        var wrap = document.getElementById('planEmailWrap');
-        var hint = document.getElementById('planEmailHint');
-        var status = document.getElementById('planEmailStatus');
-        if (!wrap || !hint || !status) return;
-        wrap.classList.remove('valid', 'invalid', 'checking');
-        hint.classList.remove('valid', 'invalid');
-        status.innerHTML = '';
-        if (state === 'valid') { wrap.classList.add('valid'); hint.classList.add('valid'); status.innerHTML = CHECK_SVG; }
-        if (state === 'invalid') { wrap.classList.add('invalid'); hint.classList.add('invalid'); status.innerHTML = CROSS_SVG; }
-        if (state === 'checking') wrap.classList.add('checking');
-        hint.textContent = message || '';
-        planState.emailValid = state === 'valid';
-        updateCreateBtn();
-    }
-
-    function runEmailCheck() {
-        var input = document.getElementById('planEmailInput');
-        if (!input) return;
-        var value = input.value.trim();
-        if (!value) { setEmailState('idle', ''); return; }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value)) { setEmailState('invalid', planText('invalid_format')); return; }
-        var seq = ++planState.checkSeq;
-        setEmailState('checking', planText('checking'));
-        fetch('/api/site/mc-tickets/check-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: value })
-        }).then(function(res) { return res.json(); }).then(function(data) {
-            if (seq !== planState.checkSeq) return;
-            if (data.valid) setEmailState('valid', planText('valid'));
-            else setEmailState('invalid', data.reason === 'domain_no_mail' ? planText('no_mail') : planText('invalid_format'));
-        }).catch(function() {
-            if (seq !== planState.checkSeq) return;
-            setEmailState('invalid', planText('error'));
-        });
-    }
-
-    var emailNoticeShown = false;
-    var emailNoticeModal = document.getElementById('emailNoticeModal');
-    var emailNoticeBtn = document.getElementById('emailNoticeBtn');
-
-    function closeEmailNotice() {
-        if (!emailNoticeModal || !emailNoticeModal.classList.contains('open')) return;
-        emailNoticeModal.classList.remove('open');
-        var input = document.getElementById('planEmailInput');
-        if (input) input.focus();
-    }
-
-    function openEmailNotice() {
-        if (!emailNoticeModal) return;
-        emailNoticeShown = true;
-        document.getElementById('emailNoticeTitle').textContent = planText('notice_title');
-        document.getElementById('emailNoticeP1').textContent = planText('notice_p1');
-        document.getElementById('emailNoticeP2').textContent = planText('notice_p2');
-        document.getElementById('emailNoticeP3').innerHTML = planText('notice_p3')
-            .replace('{privacy}', '<a href="/privacy" target="_blank" rel="noopener">' + planText('notice_link') + '</a>');
-        emailNoticeBtn.textContent = planText('notice_btn');
-        emailNoticeModal.classList.add('open');
-        setTimeout(function() { emailNoticeBtn.focus(); }, 30);
-    }
-
-    if (emailNoticeBtn) emailNoticeBtn.addEventListener('click', closeEmailNotice);
-    if (emailNoticeModal) emailNoticeModal.addEventListener('click', function(e) {
-        if (e.target === emailNoticeModal) closeEmailNotice();
-    });
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && emailNoticeModal && emailNoticeModal.classList.contains('open')) {
-            e.stopImmediatePropagation();
-            closeEmailNotice();
-        }
-    }, true);
-
-    function renderPlanSignIn(tier) {
-        planModalContent.innerHTML =
-            '<span class="plan-chip">' + planChipText(tier) + '</span>' +
-            '<h3 class="plan-modal-title">' + planText('title') + '</h3>' +
-            '<p class="plan-modal-sub">' + planText('signin_text') + '</p>' +
-            '<button type="button" class="plan-signin-btn" id="planSignInBtn">' + planText('signin_btn') + '</button>';
-        document.getElementById('planSignInBtn').addEventListener('click', function() {
-            window.location.href = '/site-auth/discord?next=' + encodeURIComponent('/masterclass');
-        });
-    }
-
-    function renderPlanForm(tier) {
-        var termsHtml = planText('terms')
-            .replace('{tos}', '<a href="/terms" target="_blank" rel="noopener">' + I18N[currentLang].footer_terms + '</a>')
-            .replace('{privacy}', '<a href="/privacy" target="_blank" rel="noopener">' + I18N[currentLang].footer_privacy + '</a>');
-        planModalContent.innerHTML =
-            '<span class="plan-chip">' + planChipText(tier) + '</span>' +
-            '<h3 class="plan-modal-title">' + planText('title') + '</h3>' +
-            '<p class="plan-modal-sub">' + planText('sub') + '</p>' +
-            '<label class="plan-field-label" for="planEmailInput">' + planText('email_label') + '</label>' +
-            '<div class="plan-input-wrap" id="planEmailWrap">' +
-                '<input type="email" id="planEmailInput" placeholder="you@example.com" autocomplete="email" maxlength="254">' +
-                '<span class="plan-input-status" id="planEmailStatus"></span>' +
-            '</div>' +
-            '<p class="plan-field-hint" id="planEmailHint"></p>' +
-            '<label class="plan-check-row" id="planTermsRow">' +
-                '<input type="checkbox" id="planTermsInput">' +
-                '<span class="plan-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg></span>' +
-                '<span class="plan-check-text">' + termsHtml + '</span>' +
-            '</label>' +
-            '<button type="button" class="plan-create-btn" id="planCreateBtn" disabled>' + planText('create') + '</button>' +
-            '<p class="plan-form-error" id="planFormError"></p>';
-
-        var input = document.getElementById('planEmailInput');
-        var terms = document.getElementById('planTermsInput');
-        var createBtn = document.getElementById('planCreateBtn');
-
-        input.addEventListener('focus', function() {
-            if (!emailNoticeShown) openEmailNotice();
-        });
-
-        input.addEventListener('input', function() {
-            clearTimeout(planState.checkTimer);
-            planState.checkSeq++;
-            setEmailState('idle', '');
-            planState.checkTimer = setTimeout(runEmailCheck, 650);
-        });
-
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                clearTimeout(planState.checkTimer);
-                if (!planState.emailValid) runEmailCheck();
-            }
-        });
-
-        terms.addEventListener('change', updateCreateBtn);
-
-        planModalContent.querySelectorAll('.plan-check-text a').forEach(function(a) {
-            a.addEventListener('click', function(e) { e.stopPropagation(); });
-        });
-
-        createBtn.addEventListener('click', function() {
-            if (createBtn.disabled) return;
-            var errorEl = document.getElementById('planFormError');
-            errorEl.textContent = '';
-            createBtn.disabled = true;
-            createBtn.textContent = planText('creating');
-            fetch('/api/site/mc-tickets/create', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: input.value.trim() || null, planKey: tier.key, acceptTerms: terms.checked })
-            }).then(function(res) {
-                return res.json().then(function(body) { return { ok: res.ok, status: res.status, body: body || {} }; });
-            }).then(function(r) {
-                if (r.ok && r.body.ticketNumber) {
-                    window.location.href = '/ticket/' + r.body.ticketNumber;
-                    return;
-                }
-                if (r.status === 401) {
-                    renderPlanSignIn(tier);
-                    return;
-                }
-                if (r.body.error === 'already_open' && r.body.ticketNumber) {
-                    renderPlanAlreadyOpen(tier, { ticketNumber: r.body.ticketNumber, plan: r.body.plan });
-                    return;
-                }
-                if (r.body.error === 'domain_no_mail' || r.body.error === 'invalid_format') {
-                    setEmailState('invalid', r.body.error === 'domain_no_mail' ? planText('no_mail') : planText('invalid_format'));
-                } else {
-                    errorEl.textContent = (r.status === 429 && r.body.error) ? r.body.error : planText('error');
-                }
-                createBtn.textContent = planText('create');
-                updateCreateBtn();
-            }).catch(function() {
-                errorEl.textContent = planText('error');
-                createBtn.textContent = planText('create');
-                updateCreateBtn();
-            });
-        });
-
-    }
-
-    function renderPlanAlreadyOpen(tier, ticket) {
-        var num = String(ticket.ticketNumber).padStart(4, '0');
-        var plan = String(ticket.plan || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
-        planModalContent.innerHTML =
-            '<span class="plan-chip">' + planChipText(tier) + '</span>' +
-            '<h3 class="plan-modal-title">' + planText('already_title') + '</h3>' +
-            '<p class="plan-modal-sub">' + planText('already_text') + '</p>' +
-            '<div class="plan-existing">' +
-                '<a href="/ticket/' + ticket.ticketNumber + '"><span>#' + num + (plan ? ' · ' + plan : '') + '</span><span>' + planText('open_label') + ' →</span></a>' +
-            '</div>' +
-            '<button type="button" class="plan-create-btn" id="planGoTicketBtn" style="margin-top: 14px;">' + planText('go_ticket') + '</button>';
-        document.getElementById('planGoTicketBtn').addEventListener('click', function() {
-            window.location.href = '/ticket/' + ticket.ticketNumber;
-        });
-    }
-
-    function openPlanModal(planKey) {
-        var tier = TIERS.filter(function(t) { return t.key === planKey; })[0];
-        if (!tier || !planModal) return;
-        planState.key = planKey;
-        planState.emailValid = false;
-        if (!loggedIn) {
-            renderPlanSignIn(tier);
-            planModal.classList.add('open');
-            return;
-        }
-        planModalContent.innerHTML = '<span class="plan-chip">' + planChipText(tier) + '</span><div class="plan-loading"><span></span><span></span><span></span></div>';
-        planModal.classList.add('open');
-        fetch('/api/site/mc-tickets/mine').then(function(res) {
-            if (res.status === 401) return { unauthorized: true };
-            return res.ok ? res.json() : null;
-        }).then(function(data) {
-            if (planState.key !== planKey) return;
-            if (data && data.unauthorized) { renderPlanSignIn(tier); return; }
-            var open = (data && Array.isArray(data.tickets)) ? data.tickets.filter(function(t) { return t.status === 'open'; }) : [];
-            if (open.length) renderPlanAlreadyOpen(tier, open[0]);
-            else renderPlanForm(tier);
-        }).catch(function() {
-            if (planState.key === planKey) renderPlanForm(tier);
-        });
-    }
-
-    mcTiersGrid.addEventListener('click', function(e) {
-        if (e.target.closest('a')) return;
-        var card = e.target.closest('.mc-tier-card[data-plan]');
-        if (!card) return;
-        openPlanModal(card.getAttribute('data-plan'));
-    });
-
-    if (planModalClose) planModalClose.addEventListener('click', closePlanModal);
-
-    if (planModal) {
-        planModal.addEventListener('click', function(e) {
-            if (e.target === planModal) closePlanModal();
-        });
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && planModal && planModal.classList.contains('open')) closePlanModal();
-        if (e.key === 'Escape' && resultModal && resultModal.classList.contains('open')) closeResultModal();
-    });
+    refreshAuth();
 
     document.querySelectorAll('.header-nav a').forEach(function(link) {
         link.addEventListener('click', function(e) {
