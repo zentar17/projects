@@ -3674,6 +3674,31 @@ app.get('/ticket/:ticketNumber', (req, res) => {
     res.sendFile(path.join(SITE_DIR, 'ticket.html'));
 });
 
+app.get('/hexora', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.sendFile(path.join(SITE_DIR, 'hexora.html'));
+});
+
+const HEXORA_TEAM_IDS = ['1346238732495355944', '825654941238034462', '887758994683338772', '1297667554487042130'];
+let hexoraTeamCache = { at: 0, data: null };
+
+app.get('/api/site/hexora-team', async (req, res) => {
+    res.set('Cache-Control', 'public, max-age=300');
+    if (hexoraTeamCache.data && Date.now() - hexoraTeamCache.at < 10 * 60 * 1000) return res.json(hexoraTeamCache.data);
+    const client = global.PredCord && global.PredCord.client;
+    const out = await Promise.all(HEXORA_TEAM_IDS.map(async (id) => {
+        try {
+            if (!client || !client.isReady()) return { id, username: null, avatar: null };
+            const user = await client.users.fetch(id, { force: true });
+            return { id, username: user.username, avatar: user.displayAvatarURL({ extension: 'png', size: 128 }) };
+        } catch {
+            return { id, username: null, avatar: null };
+        }
+    }));
+    if (out.every(u => u.username)) hexoraTeamCache = { at: Date.now(), data: out };
+    res.json(out);
+});
+
 app.get('/terms', (req, res) => {
     res.set('Cache-Control', 'no-store');
     res.sendFile(path.join(SITE_DIR, 'terms.html'));
