@@ -6,29 +6,30 @@
 <title>Access Denied • Predage</title>
 <link rel="icon" type="image/png" href="/favicon.png">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-    --primary: #E67E22;
+    --primary: #fafafa;
     --accent: #38BDF8;
-    --bg-dark: #0a0a0f;
-    --bg-card: rgba(24, 24, 32, 0.85);
-    --bg-bar: #101016;
-    --border: rgba(255, 255, 255, 0.08);
-    --text: #e8e8ed;
-    --text-dim: #a3a3ad;
+    --bg-dark: #09090b;
+    --bg-card: #09090b;
+    --bg-bar: #0c0c0e;
+    --border: #27272a;
+    --text: #fafafa;
+    --text-dim: #a1a1aa;
 }
 
 html, body {
     min-height: 100%;
     background: var(--bg-dark);
     color: var(--text);
-    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     overflow-x: hidden;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.18) var(--bg-dark);
+    scrollbar-color: #27272a var(--bg-dark);
 }
 
 html::-webkit-scrollbar {
@@ -40,13 +41,13 @@ html::-webkit-scrollbar-track {
 }
 
 html::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.18);
+    background: #27272a;
     border-radius: 10px;
     border: 2px solid var(--bg-dark);
 }
 
 html::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: #3f3f46;
 }
 
 body {
@@ -132,7 +133,7 @@ header img {
 .nav-videos-group { display: none; align-items: center; gap: 30px; }
 .nav-videos-group.visible { display: flex; }
 
-.header-brand span { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
+.header-brand span { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 20px; letter-spacing: 0.3px; }
 
 .nav-dot { color: var(--text-dim); opacity: 0.5; font-size: 14px; }
 
@@ -159,7 +160,7 @@ header img {
     transition: border-color 0.2s ease;
 }
 
-.lang-btn:hover { border-color: rgba(255,255,255,0.25); }
+.lang-btn:hover { border-color: #3f3f46; }
 .lang-btn .flag-icon { width: 21px; height: 14px; border-radius: 2px; overflow: hidden; flex-shrink: 0; display: block; }
 .lang-btn svg.chev { width: 12px; height: 12px; stroke: var(--text-dim); }
 
@@ -167,7 +168,7 @@ header img {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    background: #14141c;
+    background: #09090b;
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 8px;
@@ -205,14 +206,14 @@ header img {
 .auth-btn {
     position: relative;
     overflow: hidden;
-    background: var(--primary);
-    color: #fff;
-    border: 1px solid transparent;
-    padding: 10px 20px;
+    background: #fafafa;
+    color: #18181b;
+    border: 1px solid #fafafa;
+    padding: 9px 18px;
     border-radius: 8px;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 14px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
     cursor: pointer;
     transition: background 0.2s ease, border-color 0.2s ease;
 }
@@ -242,7 +243,7 @@ header img {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    background: #14141c;
+    background: #09090b;
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 8px;
@@ -311,8 +312,9 @@ header img {
 }
 
 .footer-brand-top span {
+    font-family: 'Poppins', sans-serif;
     font-size: 36px;
-    font-weight: 800;
+    font-weight: 600;
 }
 
 .footer-brand p {
@@ -361,7 +363,7 @@ header img {
 .footer-socials-row { display: flex; gap: 12px; margin-top: 18px; }
 .footer-social-icon { display: flex; align-items: center; justify-content: center; width: 54px; height: 54px; border-radius: 12px; color: #fff; opacity: 0.8; background: rgba(255,255,255,0.05); border: 1px solid var(--border); transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease; }
 .footer-social-icon svg { width: 28px; height: 28px; }
-.footer-social-icon:hover { opacity: 1; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); }
+.footer-social-icon:hover { opacity: 1; background: rgba(255,255,255,0.1); border-color: #3f3f46; }
 
 .footer-bottom {
     border-top: 1px solid var(--border);
@@ -381,7 +383,10 @@ header img {
 .footer-bottom-legal a:hover { color: var(--text); }
 .footer-bottom-divider { opacity: 0.4; }
 
-.footer-disclaimer { opacity: 0.65; font-size: 11.5px; }
+.footer-disclaimer { opacity: 0.65; font-size: 11.5px; margin-left: 10px; }
+.footer-dev { color: var(--text-dim); text-decoration: none; font-size: 12px; transition: color 0.2s ease; }
+.footer-dev b { font-weight: 700; color: var(--text); }
+.footer-dev:hover b { text-decoration: underline; }
 
 @media (max-width: 860px) {
     header { grid-template-columns: 1fr; row-gap: 12px; padding: 14px 20px; }
@@ -398,76 +403,84 @@ header img {
 
 body { min-height: 100vh; }
 
-.denied-main {
+.login-main {
     flex: 1;
+    min-height: calc(100vh - 78px - 120px);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 64px 24px;
 }
 
-.denied-panel {
-    background: rgba(24, 24, 32, 0.85);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 48px 40px;
+.login-panel {
     max-width: 420px;
     width: 100%;
     text-align: center;
-    animation: deniedIn 0.5s ease both;
+    background: #09090b;
+    border: 1px solid #27272a;
+    border-radius: 16px;
+    padding: 44px 36px 40px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    animation: loginIn 0.5s ease both;
 }
 
-@keyframes deniedIn {
+.login-icon {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 24px;
+    border-radius: 18px;
+    background: #18181b;
+    border: 1px solid #27272a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fafafa;
+}
+
+.login-icon svg { width: 30px; height: 30px; }
+
+@keyframes loginIn {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.denied-icon {
-    width: 88px;
-    height: 88px;
-    border-radius: 20px;
-    background: rgba(239, 68, 68, 0.12);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 24px;
-}
-
-.denied-icon svg { width: 44px; height: 44px; }
-
-.denied-panel h1 {
+.login-panel h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
     font-size: 26px;
-    font-weight: 900;
+    letter-spacing: -0.02em;
     margin-bottom: 10px;
 }
 
-.denied-panel h1 .denied-accent { color: var(--primary); }
-
-.denied-panel p {
+.login-panel p {
     color: var(--text-dim);
-    font-size: 14.5px;
+    font-size: 15px;
     line-height: 1.6;
 }
 
-.denied-home {
-    display: inline-block;
-    margin-top: 24px;
-    padding: 11px 22px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--text);
+.login-discord {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 28px;
+    width: 100%;
+    height: 46px;
+    padding: 0 22px;
+    border-radius: 8px;
+    background: #fafafa;
+    color: #18181b;
+    border: 1px solid #fafafa;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
     font-size: 14px;
-    font-weight: 700;
     text-decoration: none;
-    transition: background 0.2s ease, border-color 0.2s ease;
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.denied-home:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.25);
-}
+.login-discord:hover { background: #e4e4e7; border-color: #e4e4e7; }
+.login-discord svg { width: 20px; height: 20px; }
+
 </style>
 </head>
 <body>
@@ -512,17 +525,14 @@ body { min-height: 100vh; }
 </header>
 <div class="header-spacer" id="headerSpacer"></div>
 
-<main class="denied-main">
-    <div class="denied-panel">
-        <div class="denied-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+<main class="login-main">
+    <div class="login-panel">
+        <div class="login-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9.5 9.5l5 5M14.5 9.5l-5 5"/></svg>
         </div>
-        <h1><span data-i18n="denied_title_1">Access</span> <span class="denied-accent" data-i18n="denied_title_2">Denied</span></h1>
+        <h1><span data-i18n="denied_title_1">Access</span> <span data-i18n="denied_title_2">Denied</span></h1>
         <p data-i18n="denied_text">Missing permission to view the dashboard.</p>
-        <a href="/" class="denied-home" data-i18n="denied_home">Back to Home</a>
+        <a href="/" class="login-discord"><span data-i18n="denied_home">Back to Home</span></a>
     </div>
 </main>
 
@@ -568,8 +578,9 @@ body { min-height: 100vh; }
                 <a href="/terms">Terms of Service</a>
                 <a href="/privacy">Privacy Policy</a>
             </div>
+            <span class="footer-disclaimer">Not affiliated with or endorsed by Epic Games, Inc., Twitch Interactive, Inc., or Discord Inc.</span>
         </div>
-        <span class="footer-disclaimer">Not affiliated with Epic Games, Inc.</span>
+        <a class="footer-dev" href="/hexora">Developed by <b>@HexoraCompany</b></a>
     </div>
 </footer>
 
