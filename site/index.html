@@ -494,6 +494,10 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     transition: transform 0.4s ease;
 }
 
+.tournament-image.fit { position: relative; }
+.tournament-image.fit::before { content: ''; position: absolute; inset: -40px; background: var(--bg) center / cover no-repeat; filter: blur(30px) saturate(1.15); transform: scale(1.1); }
+.tournament-image.fit img { position: relative; z-index: 1; }
+
 .tournament-row:hover .tournament-image img { transform: scale(1.05); }
 
 .tournament-info { flex: 1 1 0; }
@@ -1005,7 +1009,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 descHtml = '<div class="tournament-desc">' + descText + '</div>';
             }
             return '<a class="tournament-row' + (i % 2 === 1 ? ' reverse' : '') + '" href="' + r.link + '" target="_blank" rel="noopener">' +
-                '<div class="tournament-image"><img src="' + r.image + '" alt="' + r.name + '"' + (r.imagePosition || r.imageFit ? ' style="' + (r.imagePosition ? 'object-position:' + r.imagePosition + ';' : '') + (r.imageFit ? 'object-fit:' + r.imageFit + ';' : '') + '"' : '') + '></div>' +
+                '<div class="tournament-image' + (r.imageFit === 'contain' ? ' fit' : '') + '"' + (r.imageFit === 'contain' ? ' style="--bg:url(\'' + r.image + '\')"' : '') + '><img src="' + r.image + '" alt="' + r.name + '"' + (r.imagePosition || r.imageFit ? ' style="' + (r.imagePosition ? 'object-position:' + r.imagePosition + ';' : '') + (r.imageFit ? 'object-fit:' + r.imageFit + ';' : '') + '"' : '') + '></div>' +
                 '<div class="tournament-info">' +
                     '<div class="tournament-name">' + r.name + '</div>' +
                     '<div class="tournament-name-line"><span class="dot"></span><span class="line"></span><span class="dot"></span></div>' +
