@@ -1179,6 +1179,132 @@ function resolveLogChannel(channelId) {
     return botClients.getLogsClient(client).channels.cache.get(channelId) || client.channels.cache.get(channelId) || null;
 }
 
+const ANTI_ALT_MIN_DAYS = 3;
+const ANTI_ALT_MIN_AGE_MS = ANTI_ALT_MIN_DAYS * 24 * 60 * 60 * 1000;
+
+async function sendAntiAltWarning(member, config) {
+    const accountAge = Date.now() - member.user.createdTimestamp;
+    const ageDays = Math.floor(accountAge / (24 * 60 * 60 * 1000));
+    const daysLeft = Math.max(1, ANTI_ALT_MIN_DAYS - ageDays);
+
+    const embed = new EmbedBuilder()
+        .setTitle('Warning - Recently created account')
+        .setDescription(`${member.user.toString()} joined the server with an account less than ${ANTI_ALT_MIN_DAYS} days old.`)
+        .setColor(COLORS.WARNING)
+        .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+        .addFields(
+            { name: 'User', value: member.user.tag || member.user.username, inline: true },
+            { name: 'ID', value: member.user.id, inline: true },
+            { name: 'Account Created', value: formatFullDate(member.user.createdAt), inline: false },
+            { name: 'Account Age', value: `${ageDays} day${ageDays === 1 ? '' : 's'}`, inline: true },
+            { name: 'Days Left', value: `${daysLeft} day${daysLeft === 1 ? '' : 's'} to reach ${ANTI_ALT_MIN_DAYS} days`, inline: true }
+        )
+        .setFooter({ text: 'Anti-Alt Protection System' })
+        .setTimestamp();
+
+    const sentTo = new Set();
+    for (const channelId of [config.antiAltWarningChannelId, config.modLogChannelId]) {
+        if (!channelId || sentTo.has(channelId)) continue;
+        sentTo.add(channelId);
+        const channel = resolveLogChannel(channelId);
+        if (channel) await channel.send({ embeds: [embed] }).catch(() => {});
+    }
+}
+
+async function sendModInviteLog(guild, moderator, targetUser, inviteUrl) {
+    try {
+        await db.addModInviteLogDB({
+            guildId: guild.id,
+            guildName: guild.name,
+            moderatorId: moderator.id,
+            moderatorTag: moderator.tag || moderator.username,
+            targetId: targetUser.id,
+            targetTag: targetUser.tag || targetUser.username,
+            inviteUrl,
+            date: new Date()
+        });
+    } catch (error) {
+        logCrash('MOD_INVITE_LOG_DB', error, { guildId: guild.id, targetId: targetUser?.id });
+    }
+
+    const config = await getGuildConfig(guild.id);
+    const logChannel = resolveLogChannel(config.modInviteLogChannelId);
+    if (!logChannel) return;
+
+    const logEmbed = new EmbedBuilder()
+        .setTitle('Moderator Invite Sent')
+        .setColor(COLORS.INFO)
+        .addFields(
+            { name: 'Moderator', value: moderator.toString(), inline: true },
+            { name: 'Recipient', value: targetUser.toString(), inline: true },
+            { name: 'Invite', value: inviteUrl, inline: false },
+            { name: 'Sent', value: formatFullDate(new Date()), inline: true },
+            { name: 'Server', value: guild.name, inline: true }
+        )
+        .setTimestamp();
+    await logChannel.send({ embeds: [logEmbed] }).catch(() => {});
+}
+
+async function sendModAcceptInvite(user, guild, moderator) {
+    const config = await getGuildConfig(guild.id);
+    const inviteMessage = config.modInviteMessage || "Congratulations! Your application has been accepted. Here is the invite for the moderators server.";
+
+    if (!config.modTargetInviteGuildId) {
+        const plain = new EmbedBuilder()
+            .setTitle('Application Accepted')
+            .setDescription(inviteMessage.split('\n\n')[0])
+            .setColor(GREEN);
+        const dmSent = await user.send({ embeds: [plain] }).then(() => true).catch(() => false);
+        return { invited: false, dmSent, reason: 'Mod target server is not configured' };
+    }
+
+    const targetGuild = client.guilds.cache.get(config.modTargetInviteGuildId);
+    if (!targetGuild) return { invited: false, dmSent: false, reason: 'The bot is not in the mod target server' };
+
+    const me = targetGuild.members.me;
+    const targetChannel = targetGuild.channels.cache.find(channel =>
+        (channel.type === ChannelType.GuildText || channel.type === ChannelType.GuildAnnouncement)
+        && me && channel.permissionsFor(me)?.has(PermissionsBitField.Flags.CreateInstantInvite)
+    );
+    if (!targetChannel) return { invited: false, dmSent: false, reason: 'No channel where the bot can create invites' };
+
+    const invite = await targetChannel.createInvite({
+        maxAge: 604800,
+        maxUses: 1,
+        unique: true,
+        reason: `Invite for new moderator: ${user.tag || user.username}`
+    });
+
+    const embed = new EmbedBuilder()
+        .setTitle('Application Accepted')
+        .setDescription(`${inviteMessage}\n\n**Here is your personal invite:**`)
+        .setColor(GREEN)
+        .setThumbnail(isValidUrl(THUMBNAIL_URL) ? THUMBNAIL_URL : null)
+        .addFields(
+            { name: 'Invite Link', value: invite.url, inline: false },
+            { name: 'Expires', value: '7 days', inline: true },
+            { name: 'Uses', value: '1 (single use)', inline: true },
+            { name: 'Important', value: 'This invite is personal and single use. Do not share it with anyone.', inline: false }
+        )
+        .setFooter({ text: `Welcome to the ${guild.name} staff` });
+
+    const dmSent = await user.send({ embeds: [embed] }).then(() => true).catch(() => false);
+    if (!dmSent) {
+        await invite.delete('Recipient has DMs closed').catch(() => {});
+        return { invited: false, dmSent: false, reason: 'The user has DMs closed, the invite was deleted' };
+    }
+
+    await sendModInviteLog(guild, moderator, user, invite.url);
+    return { invited: true, dmSent: true, inviteUrl: invite.url };
+}
+
+async function canReviewApplications(member) {
+    if (!member) return false;
+    if (await isAdminSafe(member)) return true;
+    const config = await getGuildConfig(member.guild.id);
+    return Array.isArray(config.headModRoleIds) && config.headModRoleIds.some(roleId => member.roles.cache.has(roleId));
+}
+
 function cutText(value, max) {
     const text = String(value || '');
     return text.length > max ? text.slice(0, max - 3) + '...' : text;
@@ -1426,6 +1552,15 @@ async function warmInviteTriggerMembers() {
 }
 
 client.on('guildMemberAdd', async (member) => {
+    try {
+        if (!member.user.bot && Date.now() - member.user.createdTimestamp < ANTI_ALT_MIN_AGE_MS) {
+            const altConfig = await getGuildConfig(member.guild.id);
+            await sendAntiAltWarning(member, altConfig);
+        }
+    } catch (error) {
+        logCrash('ANTI_ALT_WARNING', error, { userId: member?.id });
+    }
+
     try {
         await db.addJoinLeaveEventDB({ guildId: member.guild.id, userId: member.id, tag: member.user?.tag || member.user?.username || null, type: 'join', date: new Date() });
     } catch (error) {
@@ -4052,6 +4187,76 @@ client.on('interactionCreate', async (interaction) => {
                 }, 5000);
                 return;
             }
+
+        if (interaction.isButton() && interaction.customId.startsWith('app_accept_')) {
+            if (!(await canReviewApplications(interaction.member))) {
+                return interaction.reply({ content: 'You do not have permission to use this button.', flags: 64 });
+            }
+
+            const targetUserId = interaction.customId.replace('app_accept_', '');
+            await interaction.deferUpdate();
+
+            const guild = interaction.guild;
+            const config = await getGuildConfig(guild.id);
+            const rolesGuild = botClients.getRolesClient(client).guilds.cache.get(guild.id) || guild;
+            const member = await rolesGuild.members.fetch(targetUserId).catch(() => null);
+
+            const assignedRoles = [];
+            if (member && Array.isArray(config.modRoleIds)) {
+                for (const roleId of config.modRoleIds) {
+                    if (member.roles.cache.has(roleId)) continue;
+                    const added = await member.roles.add(roleId, `Application accepted by ${interaction.user.tag}`).then(() => true).catch(() => false);
+                    if (added) assignedRoles.push(roleId);
+                }
+            }
+
+            const targetUser = member ? member.user : await client.users.fetch(targetUserId).catch(() => null);
+            let result = { invited: false, dmSent: false, reason: 'User not found' };
+            if (targetUser) {
+                try {
+                    result = await sendModAcceptInvite(targetUser, guild, interaction.user);
+                } catch (error) {
+                    logCrash('MOD_ACCEPT_INVITE', error, { userId: targetUserId });
+                    result = { invited: false, dmSent: false, reason: 'Error while creating the invite' };
+                }
+            }
+
+            const acceptedEmbed = EmbedBuilder.from(interaction.message.embeds[0])
+                .setColor(GREEN)
+                .setFooter({ text: `Accepted by @${interaction.user.username}` });
+            await interaction.message.edit({ embeds: [acceptedEmbed], components: [] }).catch(() => {});
+
+            const lines = [`Application accepted.`];
+            lines.push(assignedRoles.length ? `Roles assigned: ${assignedRoles.map(id => `<@&${id}>`).join(' ')}` : (member ? 'No new roles assigned.' : 'User is not in this server, no roles assigned.'));
+            lines.push(result.invited ? 'Invite sent in DM.' : `Invite not sent: ${result.reason}.`);
+            await interaction.followUp({ content: lines.join('\n'), flags: 64 }).catch(() => {});
+            return;
+        }
+
+        if (interaction.isButton() && interaction.customId.startsWith('app_reject_')) {
+            if (!(await canReviewApplications(interaction.member))) {
+                return interaction.reply({ content: 'You do not have permission to use this button.', flags: 64 });
+            }
+
+            const targetUserId = interaction.customId.replace('app_reject_', '');
+            await interaction.deferUpdate();
+
+            const rejectedEmbed = EmbedBuilder.from(interaction.message.embeds[0])
+                .setColor(RED)
+                .setFooter({ text: `Rejected by @${interaction.user.username}` });
+            await interaction.message.edit({ embeds: [rejectedEmbed], components: [] }).catch(() => {});
+
+            const targetUser = await client.users.fetch(targetUserId).catch(() => null);
+            if (targetUser) {
+                const dmEmbed = new EmbedBuilder()
+                    .setTitle('Application Rejected')
+                    .setDescription('Your application has been rejected.')
+                    .setColor(RED);
+                await targetUser.send({ embeds: [dmEmbed] }).catch(() => {});
+            }
+            await interaction.followUp({ content: 'Application rejected.', flags: 64 }).catch(() => {});
+            return;
+        }
 
         if (interaction.isButton() && interaction.customId.startsWith('appeal_accept_')) {
             if (!(await isStaffSafe(interaction.member))) {
