@@ -47,7 +47,7 @@ const MAIN_GUILD_ID = process.env.MAIN_GUILD_ID;
 const COMMUNITY_GUILD_ID = process.env.COMMUNITY_GUILD_ID;
 const MASTERCLASS_GUILD_ID = process.env.MASTERCLASS_GUILD_ID || '1557430638783627304';
 
-const SUPER_OWNER_IDS = ['887758994683338772', '1297667554487042130', '1346238732495355944'];
+const SUPER_OWNER_IDS = ['887758994683338772', '1297667554487042130', '1346238732495355944', '825654941238034462'];
 
 const COMMUNITY_ACCESS_ROLE_IDS = ['1341039063641358388', '1494738070405124096', '1465472561172451646', '1548720844434571284'];
 const PREDCORD_ACCESS_ROLE_IDS = ['1498132188552761545', '1549525442493685900', '1497945553013571674'];
@@ -3353,6 +3353,7 @@ app.get('/api/blacklist/settings', requireAuth, async (req, res) => {
             logChannelName,
             canEdit: isOwner(req, guildId),
             banGuildIds: settings.banGuildIds || [],
+            commandRoles: settings.commandRoles || {},
             guilds,
             lastSweepAt: settings.lastSweepAt || null,
             lastSweepResult: settings.lastSweepResult || null
@@ -3390,6 +3391,20 @@ app.post('/api/blacklist/settings', requireAuth, writeLimiter, async (req, res) 
             if (!Array.isArray(body.banGuildIds)) return res.status(400).json({ error: 'Invalid servers' });
             const valid = [...new Set(body.banGuildIds.map(String))].filter(id => isDashboardGuildId(id));
             update.banGuildIds = valid;
+        }
+
+        if (body.commandRoles !== undefined) {
+            if (!body.commandRoles || typeof body.commandRoles !== 'object' || Array.isArray(body.commandRoles)) {
+                return res.status(400).json({ error: 'Invalid command roles' });
+            }
+            const cleanIds = (arr) => Array.isArray(arr) ? [...new Set(arr.filter(r => typeof r === 'string' && /^\d+$/.test(r)))] : [];
+            const commandRoles = {};
+            for (const gid of Object.keys(body.commandRoles)) {
+                if (!isDashboardGuildId(gid)) continue;
+                const entry = body.commandRoles[gid] || {};
+                commandRoles[gid] = { manage: cleanIds(entry.manage), view: cleanIds(entry.view) };
+            }
+            update.commandRoles = commandRoles;
         }
 
         await db.saveBlacklistSettingsDB(update);
