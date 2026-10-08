@@ -471,10 +471,211 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     margin: 0 auto 110px;
 }
 
-.staff-block .page-title, .appeal-block .page-title {
+.staff-block .page-title {
     font-size: 44px;
     margin-bottom: 26px;
     text-align: left;
+}
+
+.appeal-block {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(1240px, calc(100vw - 80px));
+}
+
+.appeal-block .page-title {
+    font-size: 44px;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+.appeal-choose {
+    text-align: center;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 40px;
+}
+
+.appeal-grid {
+    display: flex;
+    justify-content: space-between;
+    gap: 32px;
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
+.appeal-card {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 2px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.08);
+    transition: transform 0.25s ease;
+}
+
+.appeal-card:hover { transform: translateY(-4px); }
+
+.appeal-spin {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 200%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    background: conic-gradient(from 0deg, transparent 0 70%, #fff 100%);
+    animation: appealSpin 4s linear infinite;
+}
+
+@keyframes appealSpin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.appeal-card-in {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 26px;
+    padding: 34px 38px;
+    border-radius: 18px;
+    background: #0f0f14;
+}
+
+.appeal-logo-frame {
+    flex: 0 0 auto;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.appeal-logo-frame img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.appeal-card-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.appeal-card-name {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.appeal-card-btn {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 260px;
+    background: #fff;
+    color: #0a0a0f;
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 0;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 14.5px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.appeal-card-btn:hover { background: #e4e4e7; }
+.appeal-card-btn:disabled { opacity: 0.6; cursor: default; }
+
+.appeal-card-status {
+    min-height: 18px;
+    margin-top: 10px;
+    color: #e74c3c;
+    font-size: 12.5px;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.appeal-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(5, 5, 9, 0.72);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.appeal-modal.open { opacity: 1; pointer-events: auto; }
+
+.appeal-modal-box {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 28px 26px 26px;
+    border-radius: 18px;
+    background: #14141a;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+    transform: translateY(10px);
+    transition: transform 0.2s ease;
+}
+
+.appeal-modal.open .appeal-modal-box { transform: translateY(0); }
+
+.appeal-modal-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding-right: 30px;
+}
+
+.appeal-modal-head img { width: 40px; height: 40px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+.appeal-modal-head h3 { font-size: 18px; font-weight: 800; }
+
+.appeal-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-dim);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.appeal-modal-close:hover { color: #fff; border-color: rgba(255, 255, 255, 0.4); }
+
+@media (max-width: 700px) {
+    .appeal-block { width: calc(100vw - 40px); }
+    .appeal-grid { flex-direction: column; gap: 18px; }
+    .appeal-card { flex: 0 0 auto; width: 100%; }
+    .appeal-card-in { padding: 22px 20px; gap: 18px; }
+    .appeal-logo-frame { width: 72px; height: 72px; }
+    .appeal-card-name { font-size: 18px; margin-bottom: 12px; }
 }
 
 .staff-appeal-divider-h {
@@ -553,7 +754,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 .server-choice-icon { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
 
 @keyframes shakeBox { 50% { transform: translateX(-1px); } }
-.staff-form-col.shake { animation: shakeBox 0.25s ease-in-out both; }
+.staff-form-col.shake, .appeal-modal-box.shake { animation: shakeBox 0.25s ease-in-out both; }
 
 .signin-inline { text-align: left; }
 .signin-inline .modal-text { font-size: 12.5px; margin-bottom: 16px; }
@@ -947,31 +1148,22 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         <div class="staff-appeal-divider-h"></div>
 
         <div class="appeal-block" id="banAppealSection">
-            <div class="staff-split">
-                <div class="staff-info-col">
-                    <h1 class="page-title"><span data-i18n="appeal_title_1">Appeal Your</span> <span class="highlight" data-i18n="appeal_title_2">Bans</span></h1>
+            <h1 class="page-title"><span data-i18n="appeal_title_1">Appeal Your</span> <span class="highlight" data-i18n="appeal_title_2">Bans</span></h1>
+            <p class="appeal-choose" data-i18n="appeal_choose">Choose where to send your appeal</p>
 
-                    <div class="staff-description">
-                        <p data-i18n="appeal_p">This is where you can submit your request for a second chance on Predage's servers. If you think you made a mistake, got a punishment you'd like reviewed, or simply believe you deserve another shot at showing you can follow the community's rules, this is the right place. Explain your situation in detail: tell us what happened, why you think you deserve a second chance, and what you plan to do differently going forward so it doesn't happen again. Your request will be reviewed by the staff team, who'll take everything you share into account along with the full context. Be honest, respectful, and as detailed as you can, a well-explained request makes it a lot easier for staff to understand your side and make a fair call.</p>
-                    </div>
+            <div class="appeal-grid">
+                <div class="appeal-card" data-team="community"><i class="appeal-spin"></i><div class="appeal-card-in">
+                    <div class="appeal-logo-frame"><img src="/images/dragon-pfp.webp" alt="Predage Community"></div>
+                    <div class="appeal-card-body"><div class="appeal-card-name">Predage Community</div>
+                    <button type="button" class="appeal-card-btn" data-team="community" data-i18n="form_submit_appeal">Submit Appeal</button>
+                    <p class="appeal-card-status"></p></div></div>
                 </div>
 
-                <div class="staff-form-col" data-form="appeal">
-                    <div class="server-choice-group">
-                        <label class="choice-label">Choose the server</label>
-                        <div class="server-choice">
-                            <button type="button" class="server-choice-btn active" data-team="community">
-                                <img class="server-choice-icon" src="/images/dragon-pfp.webp" alt="">
-                                <span>Predage Community</span>
-                            </button>
-                            <button type="button" class="server-choice-btn" data-team="predcord">
-                                <img class="server-choice-icon" src="/images/predcord-pfp.webp" alt="">
-                                <span>PredCord</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="inline-form-body"></div>
+                <div class="appeal-card" data-team="predcord"><i class="appeal-spin"></i><div class="appeal-card-in">
+                    <div class="appeal-logo-frame"><img src="/images/predcord-pfp.webp" alt="PredCord"></div>
+                    <div class="appeal-card-body"><div class="appeal-card-name">PredCord</div>
+                    <button type="button" class="appeal-card-btn" data-team="predcord" data-i18n="form_submit_appeal">Submit Appeal</button>
+                    <p class="appeal-card-status"></p></div></div>
                 </div>
             </div>
         </div>
@@ -1022,6 +1214,14 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         <a class="footer-dev" href="/hexora"><span class="footer-dev-text"><span data-i18n="footer_dev">Developed by</span> <b>@HexoraCompany</b></span><svg class="footer-dev-logo" viewBox="0 0 64 64" fill="none" aria-hidden="true"><defs><linearGradient id="hxfg" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fafafa"/><stop offset="1" stop-color="#71717a"/></linearGradient></defs><path d="M32 4l24 14v28L32 60 8 46V18z" stroke="url(#hxfg)" stroke-width="4" stroke-linejoin="round"/><path d="M23 22v20M41 22v20M23 32h18" stroke="url(#hxfg)" stroke-width="5" stroke-linecap="round"/></svg></a>
     </div>
 </footer>
+
+<div class="appeal-modal" id="appealModal" aria-hidden="true">
+    <div class="appeal-modal-box" id="appealModalBox">
+        <button type="button" class="appeal-modal-close" id="appealModalClose" aria-label="Close">&times;</button>
+        <div class="appeal-modal-head"><img id="appealModalLogo" src="" alt=""><h3 id="appealModalTitle"></h3></div>
+        <div class="inline-form-body"></div>
+    </div>
+</div>
 
 <div id="formToast" class="form-toast hidden">
     <span class="form-toast-icon">✕</span>
@@ -1081,7 +1281,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             reward_card2_team: 'Team PredCord', reward_card2_value: 'Iscrizione Anticipata',
             reward_card2_explanation: 'Entra nel Team PredCord e ottieni l\'iscrizione anticipata per ogni sessione che organizziamo, così sei sempre il primo della lista.',
             appeal_title_1: 'Fai ricorso ai tuoi', appeal_title_2: 'Ban',
-            appeal_p: 'Qui puoi inviare la tua richiesta per una seconda possibilità sui server di Predage. Se pensi di aver fatto un errore, hai ricevuto una punizione che vorresti far rivedere, o semplicemente credi di meritare un\'altra occasione per dimostrare di saper seguire le regole della community, questo è il posto giusto. Spiega la tua situazione nel dettaglio: raccontaci cos\'è successo, perché pensi di meritare una seconda possibilità e cosa farai diversamente in futuro per evitare che si ripeta. La tua richiesta sarà esaminata dal team staff, che terrà conto di tutto ciò che condividi insieme al contesto completo. Sii onesto, rispettoso e il più dettagliato possibile: una richiesta ben spiegata rende molto più facile per lo staff capire il tuo punto di vista e prendere una decisione giusta.',
+            appeal_choose: 'Scegli dove inviare il ricorso', appeal_checking: 'Controllo...',
             footer_platform: 'Navigazione', footer_socials: 'Social', footer_legal: 'Legale', footer_terms: 'Termini di Servizio', footer_privacy: 'Informativa sulla Privacy',
             footer_copyright: 'Predage © 2026. Tutti i diritti riservati.', footer_disclaimer: 'Non affiliato né approvato da Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Sviluppato da'
         },
@@ -1119,7 +1319,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             reward_card2_team: 'PredCord Team', reward_card2_value: 'Early Registration',
             reward_card2_explanation: 'Join the PredCord Team and get early registration for every session we host, so you\'re always first in line.',
             appeal_title_1: 'Appeal Your', appeal_title_2: 'Bans',
-            appeal_p: 'This is where you can submit your request for a second chance on Predage\'s servers. If you think you made a mistake, got a punishment you\'d like reviewed, or simply believe you deserve another shot at showing you can follow the community\'s rules, this is the right place. Explain your situation in detail: tell us what happened, why you think you deserve a second chance, and what you plan to do differently going forward so it doesn\'t happen again. Your request will be reviewed by the staff team, who\'ll take everything you share into account along with the full context. Be honest, respectful, and as detailed as you can, a well-explained request makes it a lot easier for staff to understand your side and make a fair call.',
+            appeal_choose: 'Choose where to send your appeal', appeal_checking: 'Checking...',
             footer_platform: 'Navigation', footer_socials: 'Socials', footer_legal: 'Legal', footer_terms: 'Terms of Service', footer_privacy: 'Privacy Policy',
             footer_copyright: 'Predage © 2026. All rights reserved.', footer_disclaimer: 'Not affiliated with or endorsed by Epic Games, Inc., Twitch Interactive, Inc., or Discord Inc.', footer_dev: 'Developed by'
         },
@@ -1157,7 +1357,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             reward_card2_team: 'PredCord-Team', reward_card2_value: 'Frühe Anmeldung',
             reward_card2_explanation: 'Tritt dem PredCord-Team bei und erhalte eine frühzeitige Anmeldung für jede von uns veranstaltete Session, damit du immer ganz vorne mit dabei bist.',
             appeal_title_1: 'Lege Einspruch gegen deine', appeal_title_2: 'Banns ein',
-            appeal_p: 'Hier kannst du deine Anfrage für eine zweite Chance auf Predages Servern einreichen. Wenn du denkst, einen Fehler gemacht zu haben, eine Strafe erhalten hast, die du überprüft haben möchtest, oder einfach glaubst, eine weitere Chance zu verdienen, um zu zeigen, dass du die Regeln der Community befolgen kannst, bist du hier richtig. Erkläre deine Situation im Detail: erzähl uns, was passiert ist, warum du denkst, eine zweite Chance zu verdienen, und was du künftig anders machen wirst, damit es nicht wieder vorkommt. Deine Anfrage wird vom Staff-Team geprüft, das alles, was du teilst, zusammen mit dem gesamten Kontext berücksichtigt. Sei ehrlich, respektvoll und so detailliert wie möglich, eine gut erklärte Anfrage macht es dem Staff viel leichter, deine Seite zu verstehen und eine faire Entscheidung zu treffen.',
+            appeal_choose: 'Wähle, wohin du deinen Einspruch senden möchtest', appeal_checking: 'Prüfe...',
             footer_platform: 'Navigation', footer_socials: 'Soziale Medien', footer_legal: 'Rechtliches', footer_terms: 'Nutzungsbedingungen', footer_privacy: 'Datenschutzrichtlinie',
             footer_copyright: 'Predage © 2026. Alle Rechte vorbehalten.', footer_disclaimer: 'Nicht verbunden mit oder unterstützt von Epic Games, Inc., Twitch Interactive, Inc. oder Discord Inc.', footer_dev: 'Entwickelt von'
         },
@@ -1195,7 +1395,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             reward_card2_team: 'Equipo PredCord', reward_card2_value: 'Inscripción Anticipada',
             reward_card2_explanation: 'Únete al Equipo PredCord y obtén inscripción anticipada para cada sesión que organizamos, para que siempre estés el primero en la fila.',
             appeal_title_1: 'Apela Tus', appeal_title_2: 'Baneos',
-            appeal_p: 'Aquí puedes enviar tu solicitud para una segunda oportunidad en los servidores de Predage. Si crees que cometiste un error, recibiste un castigo que te gustaría que se revisara, o simplemente crees que mereces otra oportunidad para demostrar que puedes seguir las reglas de la comunidad, este es el lugar correcto. Explica tu situación en detalle: cuéntanos qué pasó, por qué crees que mereces una segunda oportunidad y qué harás de forma diferente a partir de ahora para que no vuelva a ocurrir. Tu solicitud será revisada por el equipo de staff, que tendrá en cuenta todo lo que compartas junto con el contexto completo. Sé honesto, respetuoso y lo más detallado posible: una solicitud bien explicada facilita mucho que el staff entienda tu punto de vista y tome una decisión justa.',
+            appeal_choose: 'Elige dónde enviar tu apelación', appeal_checking: 'Comprobando...',
             footer_platform: 'Navegación', footer_socials: 'Redes Sociales', footer_legal: 'Legal', footer_terms: 'Términos de Servicio', footer_privacy: 'Política de Privacidad',
             footer_copyright: 'Predage © 2026. Todos los derechos reservados.', footer_disclaimer: 'No afiliado ni respaldado por Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Desarrollado por'
         },
@@ -1233,7 +1433,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             reward_card2_team: 'Équipe PredCord', reward_card2_value: 'Inscription Anticipée',
             reward_card2_explanation: 'Rejoins l\'Équipe PredCord et bénéficie d\'une inscription anticipée pour chaque session organisée, pour être toujours parmi les premiers.',
             appeal_title_1: 'Conteste Tes', appeal_title_2: 'Bannissements',
-            appeal_p: 'C\'est ici que tu peux soumettre ta demande pour une seconde chance sur les serveurs de Predage. Si tu penses avoir fait une erreur, reçu une sanction que tu aimerais voir réexaminée, ou si tu penses simplement mériter une nouvelle chance de montrer que tu peux suivre les règles de la communauté, c\'est le bon endroit. Explique ta situation en détail : raconte-nous ce qui s\'est passé, pourquoi tu penses mériter une seconde chance, et ce que tu comptes faire différemment pour que ça ne se reproduise pas. Ta demande sera examinée par l\'équipe staff, qui prendra en compte tout ce que tu partages ainsi que le contexte complet. Sois honnête, respectueux et aussi détaillé que possible, une demande bien expliquée facilite grandement la tâche du staff pour comprendre ton point de vue et prendre une décision juste.',
+            appeal_choose: 'Choisis où envoyer ton appel', appeal_checking: 'Vérification...',
             footer_platform: 'Navigation', footer_socials: 'Réseaux Sociaux', footer_legal: 'Mentions Légales', footer_terms: 'Conditions d\'Utilisation', footer_privacy: 'Politique de Confidentialité',
             footer_copyright: 'Predage © 2026. Tous droits réservés.', footer_disclaimer: 'Non affilié à ni approuvé par Epic Games, Inc., Twitch Interactive, Inc. ou Discord Inc.', footer_dev: 'Développé par'
         }
@@ -1486,7 +1686,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     }
 
     function gateForm(formEl) {
-        var col = formEl.closest('.staff-form-col');
+        var col = formEl.closest('.staff-form-col') || formEl.closest('.appeal-modal-box');
         var formType = formEl.getAttribute('data-form-type');
         col.querySelector('.inline-form-body').innerHTML = buildSignInBlock(formType);
     }
@@ -1530,7 +1730,14 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     document.addEventListener('click', function(e) {
         var signInBtn = e.target.closest('.inline-signin-btn');
         if (signInBtn) {
-            window.location.href = '/site-auth/discord?next=' + encodeURIComponent('/community');
+            var backTo = signInBtn.closest('.appeal-modal-box') ? '/community#ban-appeal' : '/community';
+            window.location.href = '/site-auth/discord?next=' + encodeURIComponent(backTo);
+            return;
+        }
+
+        var appealBtn = e.target.closest('.appeal-card-btn');
+        if (appealBtn) {
+            startAppeal(appealBtn);
             return;
         }
 
@@ -1603,6 +1810,77 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         gateForm(form);
     });
 
+    var APPEAL_TEAMS = {
+        community: { name: 'Predage Community', logo: '/images/dragon-pfp.webp' },
+        predcord: { name: 'PredCord', logo: '/images/predcord-pfp.webp' }
+    };
+
+    var appealModal = document.getElementById('appealModal');
+    var appealModalBox = document.getElementById('appealModalBox');
+    var appealModalState = null;
+
+    function renderAppealModal() {
+        if (!appealModalState) return;
+        var info = APPEAL_TEAMS[appealModalState.team];
+        document.getElementById('appealModalLogo').src = info.logo;
+        document.getElementById('appealModalTitle').textContent = I18N[currentLang].form_appeal_title.replace('{team}', info.name);
+        var body = appealModalBox.querySelector('.inline-form-body');
+        body.innerHTML = (currentUser && appealModalState.mode === 'form')
+            ? buildFormFields(appealModalState.team, 'appeal')
+            : buildSignInBlock('appeal');
+    }
+
+    function openAppealModal(team, mode) {
+        appealModalState = { team: team, mode: mode };
+        renderAppealModal();
+        appealModal.classList.add('open');
+        appealModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeAppealModal() {
+        appealModal.classList.remove('open');
+        appealModal.setAttribute('aria-hidden', 'true');
+        appealModalState = null;
+    }
+
+    document.getElementById('appealModalClose').addEventListener('click', closeAppealModal);
+    appealModal.addEventListener('click', function(e) {
+        if (e.target === appealModal) closeAppealModal();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && appealModalState) closeAppealModal();
+    });
+
+    function startAppeal(btn) {
+        var team = btn.getAttribute('data-team');
+        var card = btn.closest('.appeal-card');
+        var statusEl = card.querySelector('.appeal-card-status');
+        statusEl.textContent = '';
+        if (!currentUser) { openAppealModal(team, 'signin'); return; }
+        btn.disabled = true;
+        btn.textContent = I18N[currentLang].appeal_checking;
+        function restore() {
+            btn.disabled = false;
+            btn.textContent = I18N[currentLang].form_submit_appeal;
+        }
+        fetch('/api/site/eligibility?team=' + team).then(function(r) {
+            if (r.status === 401) return { unauthorized: true };
+            return r.json().then(function(data) { return { ok: r.ok, data: data }; });
+        }).then(function(res) {
+            restore();
+            if (res.unauthorized) { openAppealModal(team, 'signin'); return; }
+            if (!res.ok) { statusEl.textContent = I18N[currentLang].form_generic_error; return; }
+            if (res.data.isBanned || res.data.isMuted) {
+                openAppealModal(team, 'form');
+            } else {
+                statusEl.textContent = I18N[currentLang].form_not_banned_text;
+            }
+        }).catch(function() {
+            restore();
+            statusEl.textContent = I18N[currentLang].form_connection_error;
+        });
+    }
+
     function shakeBox(box) {
         if (!box) return;
         box.classList.remove('shake');
@@ -1631,7 +1909,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         if (!currentUser) { gateForm(form); return; }
         var team = form.getAttribute('data-team');
         var formType = form.getAttribute('data-form-type');
-        var box = form.closest('.staff-form-col');
+        var box = form.closest('.staff-form-col') || form.closest('.appeal-modal-box');
         var status = form.querySelector('.form-status');
         var btn = form.querySelector('.submit-btn');
         var answers = {};
@@ -1717,6 +1995,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         applyStaticTranslations();
         updateAuthBtn();
         renderInlineForms();
+        document.querySelectorAll('.appeal-card-status').forEach(function(el) { el.textContent = ''; });
+        renderAppealModal();
     }
 
     langBtn.addEventListener('click', function(e) {
