@@ -1,1105 +1,4399 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Predage - Admin Panels</title>
-<link rel="icon" type="image/png" href="/dashboard/favicon.png">
-<link rel="shortcut icon" type="image/png" href="/dashboard/favicon.png">
-<link rel="apple-touch-icon" href="/dashboard/favicon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/dashboard/style.css?v=20261008n">
-</head>
-<body>
-
-<header class="topbar">
-    <div class="header-brand">
-        <img src="/images/dragon-logo.png" alt="Predage" class="brand-logo">
-        <span>Predage</span>
-    </div>
-
-    <nav class="header-nav">
-        <a href="/">Home</a>
-        <span class="nav-dot">•</span>
-        <a href="/masterclass">Masterclass</a>
-        <span class="nav-videos-group" id="navVideosGroup">
-            <span class="nav-dot">•</span>
-            <a href="/videos">Videos</a>
-        </span>
-        <script>try{if(localStorage.getItem('pdCanViewVideos')==='1')document.getElementById('navVideosGroup').classList.add('visible');}catch(e){}</script>
-        <span class="nav-dot">•</span>
-        <a href="/community">Community</a>
-        <span class="nav-dot">•</span>
-        <a href="#">Merch</a>
-    </nav>
-
-    <div class="header-auth">
-        <div class="lang-switcher" id="langSwitcher">
-            <button class="lang-btn" id="langBtn" type="button">
-                <span class="flag-icon" id="langBtnFlag"></span>
-                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-            </button>
-            <div class="lang-dropdown" id="langDropdown"></div>
-        </div>
-
-        <button id="logoutBtn" class="auth-btn logged-in">Log Out</button>
-
-        <div class="user-menu" id="userMenu">
-            <button class="user-avatar-btn" id="userAvatarBtn">
-                <img src="" alt="" class="user-avatar-img" id="userAvatarImg">
-            </button>
-            <div class="user-dropdown hidden" id="userDropdown">
-                <div class="user-dropdown-header">
-                    <img src="" alt="" class="user-dropdown-avatar" id="userDropdownAvatar">
-                    <div class="user-dropdown-names">
-                        <div class="user-dropdown-displayname" id="userDropdownDisplayName">—</div>
-                        <div class="user-dropdown-username" id="userDropdownUsername" title="Click to copy ID">—</div>
-                    </div>
-                </div>
-                <div class="user-dropdown-roles-section hidden" id="userDropdownRolesSection">
-                    <div class="user-dropdown-divider"></div>
-                    <div class="user-dropdown-section-title">Roles</div>
-                    <div class="user-dropdown-roles" id="userDropdownRoles">
-                        <span class="loading-text">Loading...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
-
-<div id="serverSelectScreen" class="server-select-screen">
-    <div class="ss-left">
-        <div class="ss-hero">
-            <span class="fx-aura"></span>
-            <span class="fx-dots"><i class="fx-dot" style="--x:8%;--d:0.0s;--t:7.0s;--s:3px"></i><i class="fx-dot" style="--x:22%;--d:1.5s;--t:9.0s;--s:2px"></i><i class="fx-dot" style="--x:36%;--d:3.0s;--t:6.5s;--s:4px"></i><i class="fx-dot" style="--x:52%;--d:0.8s;--t:8.0s;--s:2px"></i><i class="fx-dot" style="--x:66%;--d:2.4s;--t:7.5s;--s:3px"></i><i class="fx-dot" style="--x:80%;--d:4.0s;--t:9.5s;--s:2px"></i><i class="fx-dot" style="--x:92%;--d:1.1s;--t:6.0s;--s:4px"></i><i class="fx-dot" style="--x:45%;--d:5.0s;--t:8.5s;--s:3px"></i></span>
-            <h1 class="server-select-title" aria-label="Admin Panels"><span class="fx-word" aria-hidden="true"><span class="fx-l" style="--i:0"><span class="fx-c">A</span></span><span class="fx-l" style="--i:1"><span class="fx-c">d</span></span><span class="fx-l" style="--i:2"><span class="fx-c">m</span></span><span class="fx-l" style="--i:3"><span class="fx-c">i</span></span><span class="fx-l" style="--i:4"><span class="fx-c">n</span></span></span><br><span class="fx-word" aria-hidden="true"><span class="fx-l" style="--i:5"><span class="fx-c">P</span></span><span class="fx-l" style="--i:6"><span class="fx-c">a</span></span><span class="fx-l" style="--i:7"><span class="fx-c">n</span></span><span class="fx-l" style="--i:8"><span class="fx-c">e</span></span><span class="fx-l" style="--i:9"><span class="fx-c">l</span></span><span class="fx-l" style="--i:10"><span class="fx-c">s</span></span></span></h1>
-            <p class="server-select-subtitle fx-sub">Select a server to manage.</p>
-        </div>
-        <div class="ss-user">
-            <img id="ssUserAvatar" src="" alt="">
-            <div class="ss-user-text">
-                <b id="ssUserName">—</b>
-                <small id="ssUserRole">Staff</small>
-            </div>
-        </div>
-    </div>
-    <div class="ss-right">
-        <div class="ss-label">YOUR SERVERS</div>
-        <div class="server-select-grid">
-            <button type="button" class="server-select-card ss-item" data-server="community">
-                <img src="/images/dragon-pfp.webp" alt="Predage Community">
-                <span class="server-select-name">Predage Community</span>
-                <span class="ss-go"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-            </button>
-            <button type="button" class="server-select-card ss-item" data-server="predcord">
-                <img src="/images/predcord-pfp.webp" alt="PredCord">
-                <span class="server-select-name">PredCord</span>
-                <span class="ss-go"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-            </button>
-            <button type="button" class="server-select-card ss-item" data-server="masterclassServer">
-                <img src="/images/masterclass-pfp.png" alt="Masterclass">
-                <span class="server-select-name">Masterclass</span>
-                <span class="ss-go"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-            </button>
-            <button type="button" class="server-select-card ss-item hidden" data-server="masterclass" id="masterclassSelectCard">
-                <img src="/images/dragon-logo.png" alt="Masterclass Control">
-                <span class="server-select-name">Masterclass Control</span>
-                <span class="ss-go"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-            </button>
-        </div>
-    </div>
-</div>
-
-<main id="dashboardMain" class="hidden">
-    <aside>
-        <div class="current-server-badge" id="currentServerBadge">
-            <img src="" alt="" id="currentServerBadgeImg">
-            <span id="currentServerBadgeName">—</span>
-            <button type="button" class="change-server-btn" id="changeServerBtn" aria-label="Change server"><svg viewBox="0 0 24 24"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg></button>
-        </div>
-
-        <nav class="nav-tabs" id="guildNavTabs">
-            <button class="nav-tab active" data-tab="commands"><svg class="nav-ic" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg><span>Custom Commands</span></button>
-            <button class="nav-tab hidden" data-tab="permissions" id="navTabPermissions"><svg class="nav-ic" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Permissions</span></button>
-            <button class="nav-tab hidden" data-tab="config" id="navTabConfig"><svg class="nav-ic" viewBox="0 0 24 24"><path d="M20 7h-9M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg><span>Configuration</span></button>
-            <button class="nav-tab hidden" data-tab="tickets" id="navTabTickets"><svg class="nav-ic" viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 17v2M13 11v2"/></svg><span>Tickets</span></button>
-            <button class="nav-tab hidden" data-tab="stats" id="navTabStats"><svg class="nav-ic" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg><span>Statistics</span></button>
-            <button class="nav-tab hidden" data-tab="dropmaps" id="navTabDropmaps"><svg class="nav-ic" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg><span>Dropmaps</span></button>
-            <div class="nav-group-label">Moderation</div>
-            <button class="nav-tab" data-tab="bans"><svg class="nav-ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg><span>Ban</span></button>
-            <button class="nav-tab" data-tab="blacklist"><svg class="nav-ic" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 9 6 6M15 9l-6 6"/></svg><span>Blacklist</span></button>
-            <button class="nav-tab hidden" data-tab="role-sync" id="navTabRoleSync"><svg class="nav-ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg><span>Role Sync</span></button>
-            <button class="nav-tab" data-tab="logs"><svg class="nav-ic" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M10 9H8M16 13H8M16 17H8"/></svg><span>Logs</span></button>
-        </nav>
-        <nav class="nav-tabs hidden" id="masterclassNavTabs">
-            <button class="nav-tab active" data-tab="videos" id="navTabVideos"><svg class="nav-ic" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m10 9 5 3-5 3z"/></svg><span>Videos</span></button>
-            <button class="nav-tab hidden" data-tab="mc-tickets" id="navTabMcTickets"><svg class="nav-ic" viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 17v2M13 11v2"/></svg><span>Tickets</span></button>
-            <button class="nav-tab hidden" data-tab="masterclass-permissions" id="navTabMasterclassPermissions"><svg class="nav-ic" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Permissions</span></button>
-        </nav>
-
-        <div class="side-user" id="sideUser" role="button" tabindex="0">
-            <img src="" alt="" id="sideUserAvatar">
-            <div class="side-user-text">
-                <b id="sideUserName">—</b>
-                <small id="sideUserRole">—</small>
-            </div>
-        </div>
-    </aside>
-
-    <section class="content">
-        <div id="tab-commands" class="tab-content">
-            <div class="panel-header">
-                <h2>Custom Commands</h2>
-                <button id="newCmdBtn" class="btn-primary cmd-new-btn"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg>New command</button>
-            </div>
-            <div id="commandsList" class="commands-list">
-                <div class="loading">Loading</div>
-            </div>
-        </div>
-
-        <div id="tab-permissions" class="tab-content hidden">
-            <div class="panel-header">
-                <h2>Permissions</h2>
-                <button id="savePermissionsBtn" class="btn-primary">Save Permissions</button>
-            </div>
-
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>Create Commands</h3>
-                    <p class="permission-desc">Who can create new custom commands</p>
-                    <div id="createRolesList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-
-                <div class="permission-card">
-                    <h3>Edit Commands</h3>
-                    <p class="permission-desc">Who can edit existing commands</p>
-                    <div id="editRolesList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-
-                <div class="permission-card">
-                    <h3>Delete Commands</h3>
-                    <p class="permission-desc">Who can delete commands</p>
-                    <div id="deleteRolesList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-
-                <div class="permission-card">
-                    <h3>View Logs</h3>
-                    <p class="permission-desc">Who can view the moderation history</p>
-                    <div id="viewLogsRolesList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Special Users</h2>
-
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>Admin</h3>
-                    <p class="permission-desc">Users with admin permissions (bypass roles)</p>
-
-                    <div class="special-user-input">
-                        <input type="text" id="adminUserInput" placeholder="Paste Discord ID..." maxlength="32">
-                        <button type="button" id="adminUserAdd" class="btn-add-user">Add</button>
-                    </div>
-
-                    <div id="adminUsersList" class="special-users-list">
-                        <p class="loading-text">No users.</p>
-                    </div>
-                </div>
-
-                <div class="permission-card">
-                    <h3>Owner</h3>
-                    <p class="permission-desc">Users with owner permissions (full access)</p>
-
-                    <div class="special-user-input">
-                        <input type="text" id="ownerUserInput" placeholder="Paste Discord ID..." maxlength="32">
-                        <button type="button" id="ownerUserAdd" class="btn-add-user">Add</button>
-                    </div>
-
-                    <div id="ownerUsersList" class="special-users-list">
-                        <p class="loading-text">No users.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Projected Roles</h2>
-
-            <div class="permissions-grid">
-                <div class="permission-card" style="grid-column: 1 / -1;">
-                    <h3>Protected Roles</h3>
-                    <p class="permission-desc">Users with these roles cannot be moderated</p>
-                    <div id="projectedRolesList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-config" class="tab-content hidden">
-            <div class="panel-header">
-                <h2>Configuration</h2>
-                <button id="saveConfigBtn" class="btn-primary">Save Configuration</button>
-            </div>
-
-            <h2 class="section-title">Log Channels</h2>
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>Join/Leave Log</h3>
-                    <p class="permission-desc">Channel for join/leave logs</p>
-                    <div id="cfgJoinLeaveList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-                <div class="permission-card">
-                    <h3>Mod Log</h3>
-                    <p class="permission-desc">Channel for moderation logs</p>
-                    <div id="cfgModLogList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Roles</h2>
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>Staff Roles</h3>
-                    <p class="permission-desc">Staff roles (ticket access)</p>
-                    <div id="cfgStaffRoleList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-                <div class="permission-card">
-                    <h3>Admin Roles</h3>
-                    <p class="permission-desc">Administrator roles</p>
-                    <div id="cfgAdminRoleList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Staff Applications</h2>
-            <div class="permissions-grid">
-                <div class="permission-card" id="staffAppCommunityCard">
-                    <h3>Community Applications</h3>
-                    <p class="permission-desc">Channel where Predage Community staff applications are sent</p>
-                    <div id="cfgStaffAppCommunityList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-                <div class="permission-card" id="staffAppPredcordCard">
-                    <h3>PredCord Applications</h3>
-                    <p class="permission-desc">Channel where PredCord staff applications are sent</p>
-                    <div id="cfgStaffAppPredcordList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Ban Appeals</h2>
-            <div class="permissions-grid">
-                <div class="permission-card" id="banAppealCommunityCard">
-                    <h3>Community Appeals</h3>
-                    <p class="permission-desc">Channel where Predage Community ban appeals are sent</p>
-                    <div id="cfgBanAppealCommunityList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-                <div class="permission-card" id="banAppealPredcordCard">
-                    <h3>PredCord Appeals</h3>
-                    <p class="permission-desc">Channel where PredCord ban appeals are sent</p>
-                    <div id="cfgBanAppealPredcordList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Other Log Channels</h2>
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>Message Log</h3>
-                    <div id="cfgMessageLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Invite Log</h3>
-                    <div id="cfgInviteLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Role Log</h3>
-                    <div id="cfgRoleLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Dropmap Log</h3>
-                    <div id="cfgDropmapLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Mod Invite Log</h3>
-                    <div id="cfgModInviteLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Ticket Log</h3>
-                    <div id="cfgTicketLogList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Anti-Alt Warning</h3>
-                    <div id="cfgAntiAltList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Categories</h2>
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>General Tickets</h3>
-                    <div id="cfgGeneralCatList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Dropmap Tickets</h3>
-                    <div id="cfgDropmapCatList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Unban Tickets</h3>
-                    <div id="cfgUnbanCatList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Masterclass Tickets</h3>
-                    <div id="cfgMasterclassCatList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Autorole</h2>
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>Autorole</h3>
-                    <p class="permission-desc">Role automatically given to new members</p>
-                    <div id="cfgAutoroleList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Staff Roles (multi)</h2>
-            <p class="permissions-info">Admin and Support roles are managed in the "Roles" section above.</p>
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>Mod Roles</h3>
-                    <div id="cfgModRoleIdsList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Trial Mod Roles</h3>
-                    <div id="cfgTrialModRoleIdsList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Head Mod Roles</h3>
-                    <div id="cfgHeadModRoleIdsList" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Moderation DMs</h2>
-            <p class="permissions-info">Choose if the bot sends a DM to users when they are warned, muted, unmuted, kicked or banned in this server.</p>
-            <label class="toggle-row config-toggle-row">
-                <span class="toggle-text">Send a DM to the punished user</span>
-                <input type="checkbox" id="cfgModerationDm" class="toggle-input">
-                <span class="toggle-switch"></span>
-            </label>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Invite Trigger System</h2>
-            <p class="permissions-info">When a member gets one of these roles, they receive an auto-generated invite to the target server by DM.</p>
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>Invite Trigger Role 1</h3>
-                    <div id="cfgInviteTrigger1List" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Invite Trigger Role 2</h3>
-                    <div id="cfgInviteTrigger2List" class="roles-list"><p class="loading-text">Loading...</p></div>
-                </div>
-                <div class="permission-card">
-                    <h3>Target Invite Guild ID</h3>
-                    <input type="text" id="cfgTargetInviteGuildId" class="text-input" placeholder="Guild ID" maxlength="32">
-                </div>
-                <div class="permission-card">
-                    <h3>Mod Target Invite Guild ID</h3>
-                    <p class="permission-desc">Guild newly accepted staff get invited to</p>
-                    <input type="text" id="cfgModTargetInviteGuildId" class="text-input" placeholder="Guild ID" maxlength="32">
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-stats" class="tab-content hidden">
-            <div class="panel-header">
-                <h2>Statistics</h2>
-            </div>
-
-            <h2 class="section-title">Join / Leave</h2>
-            <div class="stats-period-switch" id="statsPeriodSwitch">
-                <button type="button" class="stats-period-btn" data-period="tutto">All time</button>
-                <button type="button" class="stats-period-btn active" data-period="oggi">Today</button>
-                <button type="button" class="stats-period-btn" data-period="ieri">Yesterday</button>
-                <button type="button" class="stats-period-btn" data-period="3giorni">3 days</button>
-                <button type="button" class="stats-period-btn" data-period="7giorni">7 days</button>
-                <button type="button" class="stats-period-btn" data-period="14giorni">14 days</button>
-                <button type="button" class="stats-period-btn" data-period="30giorni">30 days</button>
-            </div>
-            <div class="permissions-grid" id="statsJoinLeaveGrid">
-                <div class="permission-card"><h3>Loading...</h3></div>
-            </div>
-
-            <div class="chart-container jl-chart">
-                <div class="chart-header"><h3>Join / Leave</h3><div class="jl-legend" id="joinLeaveLegend"></div></div>
-                <div class="chart-canvas-wrap">
-                    <div id="joinLeaveChart" class="jl-host"></div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Ticket Closes by Moderator</h2>
-            <div id="statsTicketsList" class="modlogs-list">
-                <div class="loading">Loading</div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Moderator Action Stats</h2>
-            <div class="special-user-input">
-                <input type="text" id="statsModUserInput" placeholder="Paste Discord ID..." maxlength="32">
-                <button type="button" id="statsModUserBtn" class="btn-add-user">Search</button>
-            </div>
-            <div id="statsModeratorResult" class="modlogs-list"></div>
-        </div>
-
-        <div id="tab-tickets" class="tab-content hidden">
-            <div class="panel-header">
-                <h2>Ticket Configuration</h2>
-                <button id="saveTicketsBtn" class="btn-primary">Save Configuration</button>
-            </div>
-
-            <p class="permissions-info">
-                Configure the ticket system. These settings are used by the <strong>/panel</strong> command to create ticket channels.
-            </p>
-
-            <h2 class="section-title">Ticket Settings</h2>
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>Tickets Category</h3>
-                    <p class="permission-desc">Category where ticket channels will be created</p>
-                    <div id="ticketCategoryList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-                <div class="permission-card">
-                    <h3>Ticket Logs</h3>
-                    <p class="permission-desc">Channel where ticket logs will be sent</p>
-                    <div id="ticketLogsList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-                <div class="permission-card">
-                    <h3>Staff Roles</h3>
-                    <p class="permission-desc">Roles pinged on new tickets and allowed to claim/close them</p>
-                    <div id="ticketStaffRoleList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-                <div class="permission-card">
-                    <h3>Admin Roles</h3>
-                    <p class="permission-desc">Roles with full ticket permissions (claim, close, manage)</p>
-                    <div id="ticketAdminRoleList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-videos" class="tab-content hidden">
-            <div class="panel-header">
-                <h2>Masterclass Control</h2>
-                <div style="display:flex; gap:10px;">
-                    <button id="migrateVideosBtn" class="btn-secondary hidden">Protect Old Videos</button>
-                    <button id="newVideoBtn" class="btn-primary">+ New Video</button>
-                </div>
-            </div>
-
-            <div class="masterclass-guild-switch" id="masterclassGuildSwitch">
-                <button type="button" class="masterclass-guild-pill active" data-guild="community">Predage Community</button>
-                <button type="button" class="masterclass-guild-pill" data-guild="predcord">PredCord</button>
-            </div>
-
-            <h2 class="section-title">Page Access</h2>
-            <p class="permissions-info">
-                Only users with one of these roles can open the public <strong>/videos</strong> page. Leave empty to let every logged in user open the page (each video is still restricted by its own roles below).
-            </p>
-
-            <div class="permissions-grid">
-                <div class="permission-card" style="grid-column: 1 / -1;">
-                    <h3>Who can access the Videos page</h3>
-                    <div id="videoAccessRolesList" class="roles-list">
-                        <p class="loading-text">Loading...</p>
-                    </div>
-                    <button type="button" id="saveVideoAccessBtn" class="btn-primary" style="margin-top: 16px;">Save Access</button>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Video Library</h2>
-            <p class="permissions-info">
-                Videos visible only to users with the selected roles on this server. Leave no role selected to make a video visible to every logged in user with page access.
-            </p>
-
-            <div id="videosList" class="videos-grid">
-                <div class="loading">Loading</div>
-            </div>
-        </div>
-
-        <div id="tab-masterclass-permissions" class="tab-content hidden">
-            <div class="panel-header">
-                <h2>Masterclass Permissions</h2>
-            </div>
-
-            <h2 class="section-title">Video Access</h2>
-
-            <div class="permissions-grid">
-                <div class="permission-card" style="grid-column: 1 / -1;">
-                    <h3>Can view every video, no roles needed</h3>
-                    <p class="permission-desc">These Discord IDs can see every video on the public site, even ones restricted to roles they don't have.</p>
-
-                    <div class="special-user-input">
-                        <input type="text" id="mcViewUserInput" placeholder="Paste Discord ID..." maxlength="32">
-                        <button type="button" id="mcViewUserAdd" class="btn-add-user">Add</button>
-                    </div>
-
-                    <div id="mcViewUsersList" class="special-users-list">
-                        <p class="loading-text">No users.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Dashboard Access</h2>
-
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>Can upload videos</h3>
-                    <p class="permission-desc">These Discord IDs can add new videos in Masterclass Control.</p>
-
-                    <div class="special-user-input">
-                        <input type="text" id="mcUploadUserInput" placeholder="Paste Discord ID..." maxlength="32">
-                        <button type="button" id="mcUploadUserAdd" class="btn-add-user">Add</button>
-                    </div>
-
-                    <div id="mcUploadUsersList" class="special-users-list">
-                        <p class="loading-text">No users.</p>
-                    </div>
-                </div>
-
-                <div class="permission-card">
-                    <h3>Can edit / delete videos</h3>
-                    <p class="permission-desc">These Discord IDs can modify or remove any video in Masterclass Control.</p>
-
-                    <div class="special-user-input">
-                        <input type="text" id="mcManageUserInput" placeholder="Paste Discord ID..." maxlength="32">
-                        <button type="button" id="mcManageUserAdd" class="btn-add-user">Add</button>
-                    </div>
-
-                    <div id="mcManageUsersList" class="special-users-list">
-                        <p class="loading-text">No users.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="divider-thick"></div>
-
-            <h2 class="section-title">Tickets</h2>
-
-            <div class="permissions-grid">
-                <div class="permission-card">
-                    <h3>Ticket staff</h3>
-                    <p class="permission-desc">These Discord IDs can read and reply to every Masterclass ticket on the site and see the Tickets tab here.</p>
-
-                    <div class="special-user-input">
-                        <input type="text" id="mcTicketStaffInput" placeholder="Paste Discord ID..." maxlength="32">
-                        <button type="button" id="mcTicketStaffAdd" class="btn-add-user">Add</button>
-                    </div>
-
-                    <div id="mcTicketStaffList" class="special-users-list">
-                        <p class="loading-text">No users.</p>
-                    </div>
-                </div>
-
-                <div class="permission-card">
-                    <h3>New ticket notifications</h3>
-                    <p class="permission-desc">Discord channel ID where the bot posts a message every time a new Masterclass ticket is opened. Leave empty to disable.</p>
-
-                    <div class="special-user-input">
-                        <input type="text" id="mcTicketNotifyChannelInput" placeholder="Paste channel ID..." maxlength="32">
-                    </div>
-                </div>
-            </div>
-
-            <button type="button" id="saveMasterclassPermissionsBtn" class="btn-primary" style="margin-top: 20px;">Save Permissions</button>
-        </div>
-
-        <div id="tab-mc-tickets" class="tab-content hidden">
-            <div class="panel-header">
-                <h2>Masterclass Tickets</h2>
-            </div>
-
-            <div class="stats-period-switch" id="mcTicketsFilter">
-                <button type="button" class="stats-period-btn active" data-status="open">Open</button>
-                <button type="button" class="stats-period-btn" data-status="closed">Closed</button>
-                <button type="button" class="stats-period-btn" data-status="all">All</button>
-                <button type="button" class="stats-period-btn" data-status="transcripts">Transcripts</button>
-            </div>
-
-            <p id="mcTicketsCount" class="bans-count"></p>
-
-            <div id="mcTicketsList" class="mc-tickets-list">
-                <div class="loading">Loading</div>
-            </div>
-        </div>
-
-        <div id="tab-bans" class="tab-content hidden">
-            <div class="panel-header">
-                <h2>Ban</h2>
-            </div>
-
-            <p id="bansCount" class="bans-count"></p>
-
-            <div class="logs-container">
-                <div id="bansList" class="modlogs-list">
-                    <div class="loading">Loading</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-role-sync" class="tab-content hidden">
-            <div class="panel-header">
-                <div class="role-sync-title">
-                    <h2>Role Sync</h2>
-                    <span class="role-sync-status" id="roleSyncStatus"></span>
-                </div>
-                <button type="button" id="roleSyncNewBtn" class="btn-primary">+ New rule</button>
-            </div>
-
-            <p class="role-sync-intro">Members who have the source role in the source server automatically get the target role in the target server. If they lose the source role or leave the source server, the target role is removed. You can only create and edit rules between servers where you have Administrator permission in both.</p>
-
-            <div id="roleSyncList" class="role-sync-list">
-                <div class="loading">Loading</div>
-            </div>
-        </div>
-
-        <div id="tab-dropmaps" class="tab-content hidden">
-            <div class="panel-header">
-                <div class="role-sync-title">
-                    <h2>Dropmaps</h2>
-                    <span class="role-sync-status" id="dropmapStatus"></span>
-                </div>
-                <div class="dropmap-header-actions">
-                    <button type="button" id="dropmapNewAreaBtn" class="btn-secondary">+ Area</button>
-                    <button type="button" id="dropmapNewMiniBtn" class="btn-primary">+ Mini area</button>
-                </div>
-            </div>
-
-            <p class="role-sync-intro">Add and edit the dropmap areas, sub-areas and mini areas here. Staff send them in Discord with <code>!map</code>: the user gets the image in DM and the "Dropmap Riscattata" role for 30 days.</p>
-
-            <div class="dropmap-toolbar">
-                <input type="text" id="dropmapSearch" class="dropmap-search" placeholder="Search areas or sub-areas...">
-                <span id="dropmapCounts" class="dropmap-counts"></span>
-            </div>
-
-            <h3 class="dropmap-section-title">Areas</h3>
-            <div id="dropmapAreas" class="dropmap-areas">
-                <div class="loading">Loading</div>
-            </div>
-
-            <h3 class="dropmap-section-title">Mini areas</h3>
-            <div id="dropmapMinis" class="dropmap-grid"></div>
-        </div>
-
-        <div id="tab-blacklist" class="tab-content hidden">
-            <div class="panel-header">
-                <h2>Blacklist</h2>
-                <button type="button" id="saveBlacklistSettingsBtn" class="btn-primary hidden">Save Settings</button>
-            </div>
-
-            <div id="blacklistSettings" class="hidden">
-                <div class="permissions-grid">
-                    <div class="permission-card">
-                        <h3>Log Channel</h3>
-                        <p class="permission-desc">Channel where Blacklist / Unblacklist logs are sent</p>
-                        <div id="blLogChannelList" class="roles-list">
-                            <p class="loading-text">Loading...</p>
-                        </div>
-                    </div>
-                    <div class="permission-card">
-                        <h3>Ban Servers</h3>
-                        <p class="permission-desc">Servers where blacklisted users are banned (checked every 2 hours)</p>
-                        <div id="blBanServersList" class="roles-list">
-                            <p class="loading-text">Loading...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <p id="blacklistCount" class="bans-count"></p>
-
-            <div class="logs-container">
-                <div id="blacklistList" class="modlogs-list">
-                    <div class="loading">Loading</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-logs" class="tab-content hidden">
-            <div class="panel-header">
-                <h2>Logs</h2>
-            </div>
-
-            <div class="logs-container">
-                <div id="modlogsList" class="modlogs-list">
-                    <div class="loading">Loading</div>
-                </div>
-            </div>
-        </div>
-    </section>
-</main>
-
-<div id="modal" class="modal hidden">
-    <div class="cm-dialog" id="cmDialog">
-        <button type="button" id="modalCloseBtn" class="cm-close" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-        <h2 id="modalTitle" class="cm-title">New command</h2>
-        <form id="cmdForm" novalidate autocomplete="off">
-            <div class="cm-grid">
-                <div class="cm-f">
-                    <label class="cm-lbl" for="cmdName">Name <span class="cm-req">*</span></label>
-                    <input type="text" id="cmdName" class="cm-input" maxlength="33" placeholder="*welcome" spellcheck="false">
-                </div>
-
-                <div class="cm-f" id="cmSlotMsg">
-                    <label class="cm-lbl">Message type <span class="cm-req">*</span></label>
-                    <div class="cm-select" id="cmMsgType"></div>
-                </div>
-                <div class="cm-f hidden" id="cmSlotDur">
-                    <label class="cm-lbl" id="cmDurLabel">Duration</label>
-                    <div class="cm-dur">
-                        <input type="text" id="cmdDuration" class="cm-input" inputmode="numeric" placeholder="0" maxlength="5">
-                        <div class="cm-select" id="cmDurUnit"></div>
-                    </div>
-                </div>
-                <div class="cm-f hidden" id="cmSlotRoleAct">
-                    <label class="cm-lbl">Role action <span class="cm-req">*</span></label>
-                    <div class="cm-select" id="cmRoleAction"></div>
-                </div>
-
-                <div class="cm-f">
-                    <label class="cm-lbl">Action</label>
-                    <div class="cm-select" id="cmAction"></div>
-                </div>
-
-                <div class="cm-f hidden" id="cmTargetRoleWrap">
-                    <label class="cm-lbl">Target role <span class="cm-req">*</span></label>
-                    <div class="cm-select" id="cmTargetRole"></div>
-                </div>
-
-                <div class="cm-f hidden" id="cmTempDurWrap">
-                    <label class="cm-lbl" id="cmTempDurLabel">Duration</label>
-                    <div class="cm-dur">
-                        <input type="text" id="cmdTempDuration" class="cm-input" inputmode="numeric" placeholder="0" maxlength="5">
-                        <div class="cm-select" id="cmTempDurUnit"></div>
-                    </div>
-                </div>
-
-                <div class="cm-f" id="cmPermWrap">
-                    <label class="cm-lbl">Permissions</label>
-                    <button type="button" id="permissionsBtn" class="cm-btn cm-btn-outline cm-perm-btn">
-                        <span class="cm-perm-l"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Configure</span>
-                        <span class="cm-perm-r"><span class="cm-badge" id="cmPermRoles">No roles</span><span class="cm-badge" id="cmPermChannels">No channels</span></span>
-                    </button>
-                </div>
-
-                <div class="cm-f" id="labelTitle">
-                    <label class="cm-lbl" for="cmdTitle">Title</label>
-                    <input type="text" id="cmdTitle" class="cm-input">
-                </div>
-                <div class="cm-f" id="labelColor">
-                    <label class="cm-lbl">Color</label>
-                    <div class="cm-swatches" id="cmSwatches">
-                        <input type="color" id="cmdColor" value="#2563eb" class="cm-colorpick" aria-label="Custom color">
-                        <span class="cm-hex" id="cmHex">#2563EB</span>
-                    </div>
-                </div>
-
-                <div class="cm-f cm-full" id="labelResponse">
-                    <div class="cm-lbl-row">
-                        <label class="cm-lbl" id="responseLabelText" for="cmdResponse">Response <span class="cm-req">*</span></label>
-                        <button type="button" class="cm-var-btn" id="cmVarBtn"><svg viewBox="0 0 24 24"><path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h1M16 21h1a2 2 0 0 0 2-2v-5a2 2 0 0 1 2-2 2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/></svg>Variables</button>
-                    </div>
-                    <textarea id="cmdResponse" class="cm-input cm-textarea" rows="4"></textarea>
-                </div>
-
-                <div class="cm-f cm-full" id="labelButtons">
-                    <div class="cm-lbl-row">
-                        <label class="cm-lbl">Buttons</label>
-                        <span class="cm-count hidden" id="cmBtnCount"></span>
-                    </div>
-                    <div id="cmdButtonsList" class="cm-rows"></div>
-                    <div><button type="button" id="addButtonBtn" class="cm-btn cm-btn-outline cm-btn-sm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg>Add button</button></div>
-                </div>
-
-                <div class="cm-f cm-full" id="cmMoreWrap">
-                    <div><button type="button" id="moreBtn" class="cm-btn cm-btn-ghost cm-btn-sm">More options<svg class="cm-more-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button></div>
-                    <div id="moreOptions" class="cm-more hidden">
-                        <div class="cm-grid">
-                            <div class="cm-f" id="labelThumbnail">
-                                <label class="cm-lbl" for="cmdThumbnail">Thumbnail URL</label>
-                                <input type="url" id="cmdThumbnail" class="cm-input" placeholder="https://...">
-                            </div>
-                            <div class="cm-f" id="labelImage">
-                                <label class="cm-lbl" for="cmdImage">Image URL</label>
-                                <input type="url" id="cmdImage" class="cm-input" placeholder="https://...">
-                            </div>
-                            <div class="cm-f cm-full" id="extraEmbedsWrap">
-                                <div class="cm-lbl-row">
-                                    <label class="cm-lbl">Additional embeds</label>
-                                    <button type="button" id="addEmbedBtn" class="cm-btn cm-btn-outline cm-btn-sm"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg>Embed</button>
-                                </div>
-                                <div id="extraEmbedsList"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cm-opts">
-                <label class="cm-switch-row"><input type="checkbox" id="cmdEnabled" class="cm-switch" checked><span class="cm-sw"></span>Enabled</label>
-                <label class="cm-switch-row"><input type="checkbox" id="cmdDelete" class="cm-switch" checked><span class="cm-sw"></span>Delete command message</label>
-            </div>
-
-            <div class="cm-card hidden" id="cmInfoSection">
-                <div class="cm-card-body">
-                    <div class="cm-kv"><span class="cm-k">Usage</span><code id="cmInfoUsage"></code></div>
-                    <div class="cm-kv"><span class="cm-k">Action</span><span id="cmInfoAction"></span></div>
-                </div>
-            </div>
-
-            <div class="cm-card" id="previewSection">
-                <div class="cm-card-head">Preview</div>
-                <div class="cm-card-body">
-                    <div class="cm-kv"><span class="cm-k">Usage</span><code id="cmPrevUsage"></code></div>
-                    <div class="discord-preview">
-                        <div class="discord-message">
-                            <img class="discord-avatar" src="https://images-ext-1.discordapp.net/external/Lir9nmM9QUd1ClFMcchk0JDU4CPNed97Iui2Sm_rfOk/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/1510639493642850355/9774661e36e8458550112734ce78dc14.webp?format=webp&width=320&height=320" alt="" id="previewAvatar">
-                            <div class="discord-message-body">
-                                <div class="discord-message-header">
-                                    <span class="discord-username">PredCord Utilities</span>
-                                    <span class="discord-bot-tag">BOT</span>
-                                </div>
-                                <div class="discord-message-content" id="previewContent">
-                                    <p class="preview-empty">Fill in the Response field to see the preview.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cm-foot">
-                <button type="button" id="cancelBtn" class="cm-btn cm-btn-outline">Cancel</button>
-                <button type="submit" id="cmSaveBtn" class="cm-btn cm-btn-primary">Save command</button>
-            </div>
-        </form>
-    </div>
-
-    <div id="permissionsBox" class="cm-nest hidden">
-        <div class="cm-nest-dialog">
-            <h3>Permissions</h3>
-            <div class="cm-tabs">
-                <button type="button" class="cm-tab active" data-ptab="roles">Roles <span class="cm-badge cm-badge-blue" id="cmTabRolesCount">0</span></button>
-                <button type="button" class="cm-tab" data-ptab="channels">Channels <span class="cm-badge cm-badge-blue" id="cmTabChannelsCount">0</span></button>
-            </div>
-            <div class="cm-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="text" id="cmPermSearch" placeholder="Search roles..." autocomplete="off"></div>
-            <div class="cm-list" id="rolesList"></div>
-            <div class="cm-foot"><button type="button" id="permissionsClose" class="cm-btn cm-btn-primary">Done</button></div>
-        </div>
-    </div>
-
-    <div id="cmVarPop" class="cm-pop cm-var-pop hidden"></div>
-    <div id="cmSelPop" class="cm-pop cm-sel-pop hidden"></div>
-    <div id="cmCopyToast" class="cm-copied hidden"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span></span></div>
-</div>
-
-<div id="videoModal" class="modal hidden">
-    <div class="modal-content">
-        <button type="button" id="videoModalCloseBtn" class="modal-close-btn">&times;</button>
-        <h2>New Video</h2>
-        <form id="videoForm" novalidate>
-            <label>Title</label>
-            <input type="text" id="videoTitle" placeholder="e.g: Dropmap Tier 1" maxlength="150">
-
-            <label>Description</label>
-            <textarea id="videoDescription" rows="3" maxlength="1000" placeholder="Short description of the video (min. 5 characters)"></textarea>
-
-            <label>Video file</label>
-            <input type="file" id="videoFile" accept="video/mp4">
-            <p class="permissions-info" id="videoFileHint">MP4 only. Large files may take a while to upload.</p>
-
-            <video id="videoFilePreview" class="video-file-preview hidden" controls></video>
-
-            <label>Preview thumbnail (optional)</label>
-            <input type="file" id="videoThumbnailFile" accept="image/*">
-            <div class="thumbnail-capture-row">
-                <img id="videoThumbnailPreview" class="video-thumbnail-preview hidden" alt="">
-            </div>
-            <input type="hidden" id="videoThumbnail">
-
-            <hr class="divider">
-
-            <label class="label-with-more">
-                <span>Required Roles</span>
-            </label>
-            <p class="permissions-info">Only members with at least one of these roles can see this video. Select none to show it to everyone logged in.</p>
-            <div id="videoRolesList" class="roles-list">
-                <p class="loading-text">Loading roles...</p>
-            </div>
-
-            <div class="modal-actions">
-                <button type="submit" class="btn-primary">Save Video</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div id="confirmModal" class="modal hidden">
-    <div class="modal-content confirm-modal-content">
-        <div class="confirm-modal-icon">&#9888;</div>
-        <h2 id="confirmModalTitle">Confirm deletion</h2>
-        <p id="confirmModalText" class="confirm-modal-text">Are you sure?</p>
-        <div class="confirm-modal-actions">
-            <button type="button" id="confirmCancelBtn" class="btn-secondary">Cancel</button>
-            <button type="button" id="confirmOkBtn" class="btn-danger">Delete</button>
-        </div>
-    </div>
-</div>
-
-<div id="reasonModal" class="modal hidden">
-    <div class="modal-content reason-modal-content">
-        <h2>Change Reason</h2>
-        <div class="reason-modal-field">
-            <label>Current Reason</label>
-            <p id="reasonModalCurrent" class="reason-modal-current"></p>
-        </div>
-        <div class="reason-modal-field">
-            <label for="reasonModalInput">New Reason</label>
-            <input type="text" id="reasonModalInput" placeholder="Enter new reason..." maxlength="500">
-        </div>
-        <div class="confirm-modal-actions">
-            <button type="button" id="reasonCancelBtn" class="btn-secondary">Cancel</button>
-            <button type="button" id="reasonOkBtn" class="btn-primary">Save</button>
-        </div>
-    </div>
-</div>
-
-<div id="roleSyncModal" class="modal hidden">
-    <div class="modal-content role-sync-modal-content">
-        <div class="role-sync-modal-header">New role sync</div>
-        <div class="role-sync-modal-body">
-            <div class="role-sync-modal-side">
-                <span class="role-sync-modal-label">Source server</span>
-                <div class="role-sync-modal-icon" id="rsmSourceIcon">?</div>
-                <select id="rsmSourceGuild" class="role-sync-modal-select"></select>
-                <select id="rsmSourceRole" class="role-sync-modal-select"></select>
-            </div>
-            <div class="role-sync-modal-middle">
-                <span class="role-sync-modal-mode-label">Mode <span class="role-sync-help" title="One way: members who have the source role get the target role. If they lose the source role, the target role is removed.">?</span></span>
-                <select id="rsmMode" class="role-sync-modal-select role-sync-modal-mode">
-                    <option value="one_way">&#8594; One way</option>
-                </select>
-                <button type="button" id="rsmSwap" class="role-sync-modal-swap">&#8644; Swap</button>
-            </div>
-            <div class="role-sync-modal-side">
-                <span class="role-sync-modal-label">Target server</span>
-                <div class="role-sync-modal-icon" id="rsmTargetIcon">?</div>
-                <select id="rsmTargetGuild" class="role-sync-modal-select"></select>
-                <select id="rsmTargetRole" class="role-sync-modal-select"></select>
-            </div>
-        </div>
-        <div class="role-sync-modal-error hidden" id="rsmError"></div>
-        <div class="role-sync-modal-footer">
-            <button type="button" id="rsmCancel" class="role-sync-modal-cancel">Cancel</button>
-            <button type="button" id="rsmSave" class="role-sync-modal-save" disabled>Save</button>
-        </div>
-    </div>
-</div>
-
-<div id="dropmapModal" class="modal hidden">
-    <div class="modal-content dropmap-modal-content">
-        <div class="role-sync-modal-header" id="dropmapModalTitle">New area</div>
-        <div class="dropmap-modal-body">
-            <label class="dropmap-field-label" for="dropmapModalName">Name</label>
-            <input type="text" id="dropmapModalName" maxlength="90" placeholder="e.g. Tilted Towers">
-            <label class="dropmap-field-label" for="dropmapModalUrl">Image</label>
-            <div class="dropmap-image-input">
-                <input type="text" id="dropmapModalUrl" placeholder="Paste an image URL...">
-                <button type="button" id="dropmapModalUploadBtn" class="dropmap-upload-btn">Upload</button>
-                <input type="file" id="dropmapModalFile" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
-            </div>
-            <div class="dropmap-modal-preview" id="dropmapModalPreview"><span>No image</span></div>
-            <div class="role-sync-modal-error hidden" id="dropmapModalError"></div>
-        </div>
-        <div class="role-sync-modal-footer">
-            <button type="button" id="dropmapModalCancel" class="role-sync-modal-cancel">Cancel</button>
-            <button type="button" id="dropmapModalSave" class="role-sync-modal-save">Save</button>
-        </div>
-    </div>
-</div>
-
-<div id="dropmapLightbox" class="dropmap-lightbox hidden">
-    <img id="dropmapLightboxImg" alt="">
-    <div class="dropmap-lightbox-caption" id="dropmapLightboxCaption"></div>
-</div>
-
-<div id="accessDeniedToast" class="access-denied-toast hidden">
-    <span class="access-denied-icon">&#10006;</span>
-    <span class="access-denied-text">Access Denied</span>
-</div>
-
-<div id="formToast" class="form-toast hidden">
-    <span class="form-toast-icon">✕</span>
-    <span class="form-toast-text">Fill all fields</span>
-</div>
-
-<script src="/dashboard/app.js?v=20261008n"></script>
-
-</body>
-</html>
+const { Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField, Events, ModalBuilder, LabelBuilder, TextInputBuilder, TextInputStyle, RadioGroupBuilder, RadioGroupOptionBuilder, UserSelectMenuBuilder, SlashCommandBuilder, REST, Routes } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
+const db = require('./db');
+const botClients = require('./bot-clients');
+const createRoleSync = require('./role-sync');
+const createDropmap = require('./dropmap');
+const { createBlacklistSystem } = require('./blacklist-system');
+require('dotenv').config();
+
+const CRASH_LOG_FILE = './crash_log.json';
+const MAX_CRASH_LOGS = 100;
+const LOGS_PER_PAGE = 5;
+const NATIVE_PREFIX = '*';
+const ticketClaims = new Map();
+const COMMAND_COOLDOWN_SECONDS = 5;
+
+function logCrash(type, error, context = {}) {
+    try {
+        const entry = {
+            timestamp: new Date().toISOString(),
+            type,
+            message: error?.message || String(error),
+            stack: error?.stack || null,
+            context,
+            memory: process.memoryUsage(),
+            uptime: process.uptime()
+        };
+        let logs = [];
+        if (fs.existsSync(CRASH_LOG_FILE)) {
+            try {
+                logs = JSON.parse(fs.readFileSync(CRASH_LOG_FILE, 'utf8'));
+                if (!Array.isArray(logs)) logs = [];
+            } catch { logs = []; }
+        }
+        logs.push(entry);
+        if (logs.length > MAX_CRASH_LOGS) logs = logs.slice(-MAX_CRASH_LOGS);
+        fs.writeFileSync(CRASH_LOG_FILE, JSON.stringify(logs, null, 2));
+        console.error(`[CRASH ${type}]`, entry.message);
+        if (entry.stack) console.error(entry.stack.split('\n').slice(0, 5).join('\n'));
+    } catch (e) {
+        console.error('[CRASH LOGGER FAILED]', e.message);
+    }
+}
+
+process.on('unhandledRejection', (reason) => logCrash('UNHANDLED_REJECTION', reason));
+process.on('uncaughtException', (error) => logCrash('UNCAUGHT_EXCEPTION', error));
+
+setInterval(() => {
+    const mem = process.memoryUsage();
+    const heapMB = mem.heapUsed / 1024 / 1024;
+    if (heapMB > 1500) {
+        logCrash('HIGH_MEMORY', new Error(`Heap usage: ${heapMB.toFixed(2)} MB`));
+    }
+}, 60000);
+
+console.log('[ANTI-CRASH] Protection system activated');
+
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildModeration,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.DirectMessages
+    ],
+    partials: [Partials.Message]
+});
+
+const roleSync = createRoleSync({ client, db, botClients, logCrash });
+
+client.on('error', (error) => logCrash('CLIENT_ERROR', error));
+client.on('shardError', (error) => logCrash('SHARD_ERROR', error));
+
+const TRANSCRIPTS_DIR = './transcripts/';
+
+if (!fs.existsSync(TRANSCRIPTS_DIR)) {
+    fs.mkdirSync(TRANSCRIPTS_DIR, { recursive: true });
+}
+
+const THUMBNAIL_URL = "https://media.discordapp.net/attachments/1365770639398408303/1494756290935656498/image.png";
+const FOOTER_IMAGE_URL = "https://cdn.discordapp.com/attachments/1400266716763918519/1511055836448034958/CB02C8D3-57C6-4DDC-B1DC-F1ECD3844516.png";
+
+const COLORS = {
+    SUCCESS: 0xE67E22,
+    ERROR: 0xE67E22,
+    WARNING: 0xE67E22,
+    INFO: 0xE67E22,
+    MODERATION: 0xE67E22,
+    TICKET: 0xE67E22,
+    REPORT: 0xE67E22
+};
+
+const BLACK = 0x6B6E73;
+const PROJECTED_ERROR = 0xED4245;
+const RED = 0xED4245;
+const GOLD = 0xFFD700;
+const GREEN = 0x57F287;
+
+const blacklistSystem = createBlacklistSystem({ client, db, logCrash: (...a) => logCrash(...a) });
+
+const dropmap = createDropmap({ client, db, botClients, getGuildConfig, logCrash, thumbnailUrl: THUMBNAIL_URL });
+
+const SOCIAL_LINKS = {
+    twitch: "https://www.twitch.tv/predagefn",
+    youtube: "https://www.youtube.com/@predagefn",
+    tiktok: "https://www.tiktok.com/@predagefn",
+    twitter: "https://x.com/Predage1",
+    instagram: "https://www.instagram.com/predagefn/",
+    discord: "https://discord.gg/UW7SsywQp6"
+};
+
+const EMOJIS = {
+    twitch:    '<:twitch:1549474965793935571>',
+    discord:   '<:discord:1549474921816531045>',
+    twitter:   '<:twitter:1549474838219849798>',
+    tiktok:    '<:tiktok:1549468832194887772>',
+    youtube:   '<:youtube:1549468804214562907>',
+    instagram: '<:insta:1549468767916916806>'
+};
+
+function applyPositionalArgs(text, args) {
+    if (!text) return '';
+    return text.replace(/\$(\d+)/g, (match, num) => {
+        const idx = parseInt(num, 10) - 1;
+        if (idx >= 0 && idx < args.length) {
+            return args[idx];
+        }
+        return match;
+    });
+}
+
+function applyHammertime(text) {
+    if (!text) return '';
+    return text.replace(/{hammertime([+-]\d+)}/g, (match, offset) => {
+        const minutes = parseInt(offset, 10);
+        const target = Math.floor((Date.now() + minutes * 60 * 1000) / 1000);
+        return `<t:${target}:t>`;
+    });
+}
+
+const CMD_UNIT_MS = { minutes: 60 * 1000, hours: 60 * 60 * 1000, days: 24 * 60 * 60 * 1000 };
+const CMD_UNIT_WORD = { minutes: 'minute', hours: 'hour', days: 'day' };
+
+function getCmdDurationMs(cmdData) {
+    if (!cmdData || cmdData.durationUnit === 'perm') return null;
+    const n = parseInt(cmdData.duration, 10);
+    if (isNaN(n) || n < 1) return null;
+    return n * (CMD_UNIT_MS[cmdData.durationUnit] || CMD_UNIT_MS.days);
+}
+
+function formatCmdDuration(cmdData) {
+    const n = parseInt(cmdData.duration, 10);
+    const unit = CMD_UNIT_WORD[cmdData.durationUnit] || 'day';
+    return `${n} ${unit}${n === 1 ? '' : 's'}`;
+}
+
+function isCommandBlockedInChannel(cmdData, channel) {
+    const blocked = cmdData && cmdData.blockedChannels;
+    if (!Array.isArray(blocked) || !blocked.length || !channel) return false;
+    if (blocked.includes(channel.id)) return true;
+    if (channel.parentId && blocked.includes(channel.parentId)) return true;
+    if (typeof channel.isThread === 'function' && channel.isThread() && channel.parent && channel.parent.parentId && blocked.includes(channel.parent.parentId)) return true;
+    return false;
+}
+
+function formatCmdDate() {
+    return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+}
+
+async function substituteAll(text, message, mdTarget, args) {
+    if (!text) return '';
+    let result = text;
+    result = result.replace(/{user}/g, message.author.toString());
+    result = result.replace(/{username}/g, message.author.username);
+    result = result.replace(/{userid}/g, message.author.id);
+    result = result.replace(/{target}/g, mdTarget ? mdTarget.toString() : message.author.toString());
+    result = result.replace(/{channel}/g, message.channel.toString());
+    result = result.replace(/{date}/g, formatCmdDate());
+    result = result.replace(/{server}/g, message.guild.name);
+    result = result.replace(/{membercount}/g, message.guild.memberCount);
+    result = result.replace(/{args}/g, args.join(' '));
+    result = result.replace(/{md}/g, await formatModerationHistory(mdTarget.id, message.guild.id, mdTarget.username, 1));
+    result = applyPositionalArgs(result, args);
+    result = applyHammertime(result);
+    return result;
+}
+
+async function getGuildConfig(guildId) {
+    const config = await db.getGuildConfigDB(guildId);
+    return config;
+}
+
+function getTicketStaffRoleIds(config) {
+    const ids = new Set();
+    if (config.staffRoleId) ids.add(config.staffRoleId);
+    if (Array.isArray(config.supportRoleIds)) config.supportRoleIds.forEach(id => ids.add(id));
+    return Array.from(ids);
+}
+
+function getTicketAdminRoleIds(config) {
+    const ids = new Set();
+    if (config.adminRoleId) ids.add(config.adminRoleId);
+    if (Array.isArray(config.adminRoleIds)) config.adminRoleIds.forEach(id => ids.add(id));
+    return Array.from(ids);
+}
+
+function memberHasAnyRole(member, roleIds) {
+    if (!member || !Array.isArray(roleIds)) return false;
+    return roleIds.some(roleId => member.roles?.cache?.has(roleId));
+}
+
+function buildTicketRoleOverwrites(guild, roleIds, allowFlags) {
+    const overwrites = [];
+    for (const roleId of roleIds) {
+        if (guild.roles.cache.has(roleId)) {
+            overwrites.push({ id: roleId, allow: allowFlags });
+        }
+    }
+    return overwrites;
+}
+
+async function isAdminSafe(member) {
+    try {
+        if (!member) return false;
+        if (member.permissions?.has(PermissionsBitField.Flags.Administrator)) return true;
+        const guildId = member.guild?.id;
+        if (!guildId) return false;
+        const config = await getGuildConfig(guildId);
+        if (config.adminRoleId && member.roles?.cache?.has(config.adminRoleId)) return true;
+        if (Array.isArray(config.adminRoleIds) && config.adminRoleIds.some(roleId => member.roles?.cache?.has(roleId))) return true;
+        return false;
+    } catch { return false; }
+}
+
+async function isModeratorSafe(member) {
+    try {
+        if (!member) return false;
+        if (await isAdminSafe(member)) return true;
+        const guildId = member.guild?.id;
+        if (!guildId) return false;
+        const config = await getGuildConfig(guildId);
+        if (config.modRoleId && member.roles?.cache?.has(config.modRoleId)) return true;
+        if (Array.isArray(config.modRoleIds) && config.modRoleIds.some(roleId => member.roles?.cache?.has(roleId))) return true;
+        if (Array.isArray(config.trialModRoleIds) && config.trialModRoleIds.some(roleId => member.roles?.cache?.has(roleId))) return true;
+        if (Array.isArray(config.headModRoleIds) && config.headModRoleIds.some(roleId => member.roles?.cache?.has(roleId))) return true;
+        return false;
+    } catch { return false; }
+}
+
+async function isStaffSafe(member) {
+    try {
+        if (!member) return false;
+        if (await isModeratorSafe(member)) return true;
+        const guildId = member.guild?.id;
+        if (!guildId) return false;
+        const config = await getGuildConfig(guildId);
+        if (config.staffRoleId && member.roles?.cache?.has(config.staffRoleId)) return true;
+        if (Array.isArray(config.supportRoleIds) && config.supportRoleIds.some(roleId => member.roles?.cache?.has(roleId))) return true;
+        return false;
+    } catch { return false; }
+}
+
+async function hasModPerms(member) {
+    return (await isAdminSafe(member)) || (await isModeratorSafe(member));
+}
+
+async function hasStaffPermission(member) {
+    return (await isAdminSafe(member)) || (await isModeratorSafe(member)) || (await isStaffSafe(member));
+}
+
+async function canUseBaseCommands(member) {
+    return (await isAdminSafe(member)) || (await isModeratorSafe(member));
+}
+
+async function hasProjectedRole(member, guildId) {
+    if (!member) return false;
+    try {
+        const projected = await db.getProjectedRolesDB(guildId);
+        if (!projected || projected.length === 0) return false;
+        return projected.some(roleId => member.roles?.cache?.has(roleId));
+    } catch {
+        return false;
+    }
+}
+
+async function projectedRoleBlock(message, targetMember) {
+    if (!targetMember) return false;
+    if (await hasProjectedRole(targetMember, message.guild.id)) {
+        const embed = new EmbedBuilder()
+            .setDescription(`I cannot moderate **${targetMember.user.username}** (${targetMember.user.id}) because they have a **Projected Role**.`)
+            .setColor(PROJECTED_ERROR);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return true;
+    }
+    return false;
+}
+
+async function getUserFromInput(guild, input) {
+    if (!input) return null;
+    let userId = null;
+    const mentionMatch = input.match(/^<@!?(\d+)>$/);
+    if (mentionMatch) {
+        userId = mentionMatch[1];
+    } else if (/^\d+$/.test(input)) {
+        userId = input;
+    }
+    if (!userId) return null;
+    try {
+        const member = await guild.members.fetch(userId);
+        return { user: member.user, member: member };
+    } catch {
+        try {
+            const user = await client.users.fetch(userId);
+            return { user: user, member: null };
+        } catch {
+            return { user: { id: userId, tag: `Unknown User (${userId})` }, member: null };
+        }
+    }
+}
+
+function checkCustomCommandPermission(cmdData, member) {
+    if (Array.isArray(cmdData.allowedRoles)) {
+        if (cmdData.allowedRoles.length === 0) return false;
+        return cmdData.allowedRoles.some(roleId => member.roles?.cache?.has(roleId));
+    }
+    return true;
+}
+
+const MAX_TIMEOUT_MINUTES = 28 * 24 * 60;
+
+function parseMuteDuration(token) {
+    const match = /^(\d+)\s*(m|min|h|d|w)?$/i.exec(String(token || '').trim());
+    if (!match) return null;
+    const value = parseInt(match[1], 10);
+    const unit = (match[2] || 'm').toLowerCase();
+    const factor = unit === 'h' ? 60 : unit === 'd' ? 1440 : unit === 'w' ? 10080 : 1;
+    const minutes = value * factor;
+    if (!value || minutes < 1 || minutes > MAX_TIMEOUT_MINUTES) return { invalid: true };
+    const names = { m: 'minute', min: 'minute', h: 'hour', d: 'day', w: 'week' };
+    const name = names[unit];
+    return { minutes, ms: minutes * 60 * 1000, text: `${value} ${name}${value === 1 ? '' : 's'}` };
+}
+
+function extractMuteDuration(args) {
+    if (args.length > 1) {
+        const last = parseMuteDuration(args[args.length - 1]);
+        if (last) return { duration: last, rest: args.slice(1, -1) };
+        const second = parseMuteDuration(args[1]);
+        if (second) return { duration: second, rest: args.slice(2) };
+    }
+    return { duration: null, rest: args.slice(1) };
+}
+
+async function isModerationDmEnabled(guildId) {
+    if (!guildId) return true;
+    const config = await getGuildConfig(guildId);
+    if (typeof config.moderationDmEnabled === 'boolean') return config.moderationDmEnabled;
+    return guildId === process.env.MAIN_GUILD_ID;
+}
+
+async function sendActionDM(user, action, reason, moderator, duration = null) {
+    try {
+        if (!(await isModerationDmEnabled(moderator?.guild?.id))) return;
+
+        const actionText = {
+            'warned': 'warned',
+            'banned': 'banned',
+            'kicked': 'kicked',
+            'muted': 'muted',
+            'unbanned': 'unbanned',
+            'unmuted': 'unmuted'
+        };
+        const label = actionText[action] || action;
+        let description;
+        let embedColor = COLORS.WARNING;
+
+        if (action === 'banned') {
+            description = `**You have been ${label}** in ${moderator?.guild?.name || 'PredCord'} for **${reason || 'no reason provided'}**`;
+            embedColor = 0xE74C3C;
+        } else if (action === 'unbanned' || action === 'unmuted') {
+            description = `**You have been ${label} in ${moderator?.guild?.name || 'the server'}**`;
+        } else {
+            const where = moderator?.guild?.name ? ` in ${moderator.guild.name}` : '';
+            const forHow = action === 'muted' && duration ? ` for ${duration}` : '';
+            description = `**You have been ${label}${where}${forHow}** for **${reason || 'no reason provided'}**`;
+        }
+
+        const embed = new EmbedBuilder()
+            .setDescription(description)
+            .setColor(embedColor);
+
+        const payload = { embeds: [embed] };
+
+        if (action === 'banned' || action === 'muted') {
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setLabel(action === 'muted' ? 'Appeal your mute' : 'Appeal your ban')
+                    .setStyle(ButtonStyle.Link)
+                    .setURL('https://projects-1od2.onrender.com/community#ban-appeal')
+            );
+            payload.components = [row];
+        }
+
+        await user.send(payload).catch(err => console.log(`DM failed: ${user?.tag || user?.id} (${err.message})`));
+    } catch (error) {
+        logCrash('DM_ERROR', error, { userId: user?.id, action });
+    }
+}
+
+async function sendUnbanDM(user, guild) {
+    try {
+        if (guild?.id && guild.id !== process.env.MAIN_GUILD_ID) return;
+
+        const embed = new EmbedBuilder()
+            .setDescription('Your ban has expired. You can join back now https://discord.gg/nF4Js5X585')
+            .setColor(COLORS.SUCCESS);
+
+        const row = new ActionRowBuilder().addComponents(
+            new ButtonBuilder()
+                .setLabel('Join Back')
+                .setStyle(ButtonStyle.Link)
+                .setURL('https://discord.gg/nF4Js5X585')
+        );
+
+        await user.send({ embeds: [embed], components: [row] }).catch(err => console.log(`DM failed: ${user?.tag || user?.id} (${err.message})`));
+    } catch (error) {
+        logCrash('DM_ERROR', error, { userId: user?.id, action: 'unbanned' });
+    }
+}
+
+async function addWarning(guild, user, moderator, reason) {
+    const warning = await db.addWarningDB({
+        guildId: guild.id,
+        userId: user.id,
+        userTag: user.tag,
+        moderatorId: moderator.id,
+        moderatorTag: moderator.tag,
+        reason: reason || 'No reason provided',
+        date: new Date(),
+        active: true
+    });
+
+    const allWarnings = await db.getUserWarningsDB(guild.id, user.id);
+    const warningCount = allWarnings.length;
+
+    const member = guild.members.cache.get(user.id);
+    if (member) {
+        if (warningCount >= 10) {
+            if (await hasProjectedRole(member, guild.id)) {
+                console.log(`[PROJECTED] Skipped auto-ban for ${user.tag} (projected role)`);
+            } else {
+                await sendActionDM(user, 'banned', '10 warnings accumulated', { tag: 'Auto-Mod', guild: guild });
+                await member.ban({ reason: 'Auto-ban: 10 warnings' }).catch(() => {});
+                await saveModLog(guild, 'User banned (auto)', user, client.user, '10 warnings accumulated', null);
+                await db.saveDashboardLogDB(guild.id, {
+                    type: 'auto_mod',
+                    action: 'user_banned_auto',
+                    userId: client.user.id,
+                    userTag: client.user.tag,
+                    targetId: user.id,
+                    targetTag: user.tag,
+                    reason: '10 warnings accumulated',
+                    details: 'Auto-ban triggered after 10 warnings'
+                });
+            }
+        } else if (warningCount >= 5) {
+            if (await hasProjectedRole(member, guild.id)) {
+                console.log(`[PROJECTED] Skipped auto-kick for ${user.tag} (projected role)`);
+            } else {
+                await sendActionDM(user, 'kicked', '5 warnings accumulated', { tag: 'Auto-Mod', guild: guild });
+                await member.kick('Auto-kick: 5 warnings').catch(() => {});
+                await saveModLog(guild, 'User kicked (auto)', user, client.user, '5 warnings accumulated', null);
+                await db.saveDashboardLogDB(guild.id, {
+                    type: 'auto_mod',
+                    action: 'user_kicked_auto',
+                    userId: client.user.id,
+                    userTag: client.user.tag,
+                    targetId: user.id,
+                    targetTag: user.tag,
+                    reason: '5 warnings accumulated',
+                    details: 'Auto-kick triggered after 5 warnings'
+                });
+            }
+        } else if (warningCount >= 3) {
+            if (await hasProjectedRole(member, guild.id)) {
+                console.log(`[PROJECTED] Skipped auto-mute for ${user.tag} (projected role)`);
+            } else {
+                await member.timeout(28 * 24 * 60 * 60 * 1000, 'Auto-mute: 3 warnings').catch(() => {});
+                await sendActionDM(user, 'muted', '3 warnings accumulated', { tag: 'Auto-Mod', guild: guild }, '28 days');
+                await saveModLog(guild, 'User muted (auto)', user, client.user, '3 warnings accumulated', '28 days');
+                await db.saveDashboardLogDB(guild.id, {
+                    type: 'auto_mod',
+                    action: 'user_muted_auto',
+                    userId: client.user.id,
+                    userTag: client.user.tag,
+                    targetId: user.id,
+                    targetTag: user.tag,
+                    reason: '3 warnings accumulated',
+                    details: 'Auto-mute triggered after 3 warnings (28 days)'
+                });
+            }
+        }
+    }
+    return warning.warningId;
+}
+
+async function removeWarning(guild, user, moderator, warningId) {
+    return await db.removeWarningDB(guild.id, user.id, warningId);
+}
+
+async function clearWarnings(guild, user, moderator) {
+    return await db.clearWarningsDB(guild.id, user.id);
+}
+
+async function getUserWarnings(userId, guildId) {
+    if (!guildId) return [];
+    return await db.getUserWarningsDB(guildId, userId);
+}
+
+async function saveModLog(guild, action, target, moderator, reason, duration = null) {
+    try {
+        const log = await db.createModLog({
+            guildId: guild.id,
+            guildName: guild.name,
+            action: action,
+            targetId: target.id,
+            targetTag: target.tag,
+            moderatorId: moderator.id,
+            moderatorTag: moderator.tag,
+            reason: reason || 'No reason provided',
+            duration,
+            date: new Date(),
+            active: true
+        });
+
+        const config = await getGuildConfig(guild.id);
+        const logChannel = botClients.getLogsClient(client).channels.cache.get(config.modLogChannelId);
+        if (logChannel) {
+            const logEmbed = new EmbedBuilder()
+                .setTitle(action)
+                .setColor(COLORS.MODERATION)
+                .setThumbnail(THUMBNAIL_URL);
+            if (action === 'Messages purged') {
+                logEmbed.addFields(
+                    { name: 'Moderator', value: `${moderator.toString()}`, inline: true },
+                    { name: 'Channel', value: `<#${target.id}>`, inline: true },
+                    { name: 'Messages deleted', value: reason || 'Unknown', inline: true },
+                    { name: 'Date', value: formatFullDate(new Date()), inline: true }
+                );
+            } else {
+                logEmbed.addFields(
+                    { name: 'User', value: `<@${target.id}>`, inline: true },
+                    { name: 'Moderator', value: `${moderator.toString()}`, inline: true },
+                    { name: 'Reason', value: reason || 'No reason provided', inline: false },
+                    { name: 'Date', value: formatFullDate(new Date()), inline: true },
+                    { name: 'Case ID', value: `#${log.caseId}`, inline: true }
+                );
+            }
+            if (duration) logEmbed.addFields({ name: 'Duration', value: duration, inline: true });
+            await logChannel.send({ embeds: [logEmbed] }).catch(() => {});
+        }
+        return log;
+    } catch (error) {
+        logCrash('MODLOG_ERROR', error, { action });
+        return null;
+    }
+}
+
+function parseBlacklistUserId(input) {
+    if (!input) return null;
+    const mention = input.match(/^<@!?(\d+)>$/);
+    if (mention) return mention[1];
+    return /^\d{15,25}$/.test(input) ? input : null;
+}
+
+async function replyBlacklistError(message, text) {
+    const embed = new EmbedBuilder().setDescription(text).setColor(COLORS.ERROR);
+    await message.channel.send({ embeds: [embed] }).catch(() => {});
+    await message.delete().catch(() => {});
+}
+
+async function formatModerationHistory(userId, guildId, username, page = 1) {
+    const totalLogs = await db.ModLog.countDocuments({ guildId, targetId: userId });
+
+    if (totalLogs === 0) {
+        return `**${username}** has no modlogs.`;
+    }
+
+    const totalPages = Math.max(1, Math.ceil(totalLogs / LOGS_PER_PAGE));
+    const safePage = Math.min(Math.max(1, page), totalPages);
+    const skip = (safePage - 1) * LOGS_PER_PAGE;
+
+    const logs = await db.ModLog
+        .find({ guildId, targetId: userId })
+        .sort({ date: -1 })
+        .skip(skip)
+        .limit(LOGS_PER_PAGE)
+        .lean();
+
+    const typeLabel = (action) => {
+        const a = (action || '').toLowerCase();
+        if (a.includes('unban')) return 'Unban';
+        if (a.includes('ban')) return 'Ban';
+        if (a.includes('kick')) return 'Kick';
+        if (a.includes('unmute')) return 'Unmute';
+        if (a.includes('mute')) return 'Mute';
+        if (a.includes('warn')) return 'Warn';
+        if (a.includes('purge')) return 'Purge';
+        return action;
+    };
+
+    let output = `**Modlogs for ${username}**\n`;
+
+    for (const log of logs) {
+        const tipo = typeLabel(log.action);
+        const durata = log.duration ? ` (${log.duration})` : '';
+        const timestamp = Math.floor(new Date(log.date).getTime() / 1000);
+
+        output += `\n**Case ${log.caseId}**\n`;
+        output += `**Type**: ${tipo}${durata}\n`;
+        output += `**Moderator**: ${log.moderatorTag} (${log.moderatorId})\n`;
+        output += `**Reason**: ${log.reason} - <t:${timestamp}:f>\n`;
+    }
+
+    output += `\nPage ${safePage}/${totalPages} | Total Logs: ${totalLogs} | ${userId}`;
+
+    return output;
+}
+
+async function formatGuildModerationHistory(guildId, page = 1) {
+    const totalLogs = await db.ModLog.countDocuments({ guildId });
+
+    if (totalLogs === 0) {
+        return 'No modlogs recorded for this server.';
+    }
+
+    const totalPages = Math.max(1, Math.ceil(totalLogs / LOGS_PER_PAGE));
+    const safePage = Math.min(Math.max(1, page), totalPages);
+    const skip = (safePage - 1) * LOGS_PER_PAGE;
+
+    const logs = await db.ModLog
+        .find({ guildId })
+        .sort({ date: -1 })
+        .skip(skip)
+        .limit(LOGS_PER_PAGE)
+        .lean();
+
+    const typeLabel = (action) => {
+        const a = (action || '').toLowerCase();
+        if (a.includes('unban')) return 'Unban';
+        if (a.includes('ban')) return 'Ban';
+        if (a.includes('kick')) return 'Kick';
+        if (a.includes('unmute')) return 'Unmute';
+        if (a.includes('mute')) return 'Mute';
+        if (a.includes('warn')) return 'Warn';
+        if (a.includes('purge')) return 'Purge';
+        return action;
+    };
+
+    let output = `**Server Modlogs**\n`;
+
+    for (const log of logs) {
+        const tipo = typeLabel(log.action);
+        const durata = log.duration ? ` (${log.duration})` : '';
+        const timestamp = Math.floor(new Date(log.date).getTime() / 1000);
+
+        output += `\n**Case ${log.caseId}**\n`;
+        output += `**Type**: ${tipo}${durata}\n`;
+        output += `**Target**: ${log.targetTag} (${log.targetId})\n`;
+        output += `**Moderator**: ${log.moderatorTag} (${log.moderatorId})\n`;
+        output += `**Reason**: ${log.reason} - <t:${timestamp}:f>\n`;
+    }
+
+    output += `\nPage ${safePage}/${totalPages} | Total Logs: ${totalLogs}`;
+
+    return output;
+}
+
+function formatFullDate(date) {
+    const timestamp = Math.floor(date.getTime() / 1000);
+    return `<t:${timestamp}:F>`;
+}
+
+function isValidUrl(string) {
+    if (!string || typeof string !== 'string') return false;
+    try {
+        const url = new URL(string);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch (_) {
+        return false;
+    }
+}
+
+async function sendJoinLog(member) {
+    try {
+        const config = await getGuildConfig(member.guild.id);
+        const channel = botClients.getLogsClient(client).channels.cache.get(config.joinLeaveLogChannelId);
+        if (!channel) return;
+        const createdTs = Math.floor(member.user.createdAt.getTime() / 1000);
+        const embed = new EmbedBuilder()
+            .setTitle('New Member Joined')
+            .setColor(0x2ECC71)
+            .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+            .addFields(
+                { name: 'User', value: member.user.toString(), inline: true },
+                { name: 'User ID', value: member.user.id, inline: true },
+                { name: 'Username', value: member.user.username, inline: true },
+                { name: 'Account Created', value: `<t:${createdTs}:F> (<t:${createdTs}:R>)`, inline: false },
+                { name: 'Member Count', value: `${member.guild.memberCount}`, inline: false }
+            );
+        await channel.send({ embeds: [embed] }).catch(() => {});
+    } catch (error) {
+        logCrash('JOIN_LOG_ERROR', error, { userId: member?.user?.id });
+    }
+}
+
+async function sendLeaveLog(member) {
+    try {
+        const config = await getGuildConfig(member.guild.id);
+        const channel = botClients.getLogsClient(client).channels.cache.get(config.joinLeaveLogChannelId);
+        if (!channel) return;
+
+        let banned = false;
+        try {
+            await botClients.getRolesClient(client).guilds.cache.get(member.guild.id).bans.fetch(member.id);
+            banned = true;
+        } catch (e) {}
+
+        const createdTs = Math.floor(member.user.createdAt.getTime() / 1000);
+        const roles = member.roles?.cache
+            ? member.roles.cache.filter(r => r.id !== member.guild.id).map(r => r.toString()).join(' ') || 'None'
+            : 'None';
+
+        const embed = new EmbedBuilder()
+            .setTitle(banned ? 'New Member Left (Banned)' : 'New Member Left')
+            .setColor(0xE74C3C)
+            .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+            .addFields(
+                { name: 'User', value: member.user.toString(), inline: true },
+                { name: 'User ID', value: member.user.id, inline: true },
+                { name: 'Username', value: member.user.username, inline: true },
+                { name: 'Account Created', value: `<t:${createdTs}:F> (<t:${createdTs}:R>)`, inline: false },
+                { name: 'Member Count', value: `${member.guild.memberCount}`, inline: false },
+                { name: 'Users Roles', value: roles, inline: false }
+            );
+        await channel.send({ embeds: [embed] }).catch(() => {});
+    } catch (error) {
+        logCrash('LEAVE_LOG_ERROR', error, { userId: member?.user?.id });
+    }
+}
+
+async function sendWelcomeDM(member) {
+    try {
+        if (member?.guild?.id && member.guild.id !== process.env.MAIN_GUILD_ID) return;
+        const welcomeEmbed = new EmbedBuilder()
+            .setTitle('WELCOME TO PRED CORD')
+            .setDescription(`Hi ${member.user.toString()}! Welcome to the official Predcord server!`)
+            .setColor(COLORS.SUCCESS)
+            .setThumbnail(THUMBNAIL_URL)
+            .setImage(FOOTER_IMAGE_URL)
+            .addFields(
+                { name: 'RULES', value: 'Read the rules in the rules channel to avoid sanctions.', inline: false },
+                { name: 'TICKETS', value: 'Need help? Open a ticket in the support section.', inline: false },
+                { name: 'FOLLOW US ON SOCIAL', value: `${EMOJIS.twitch} [Twitch](${SOCIAL_LINKS.twitch})\n${EMOJIS.youtube} [YouTube](${SOCIAL_LINKS.youtube})\n${EMOJIS.tiktok} [TikTok](${SOCIAL_LINKS.tiktok})\n${EMOJIS.twitter} [Twitter/X](${SOCIAL_LINKS.twitter})\n${EMOJIS.instagram} [Instagram](${SOCIAL_LINKS.instagram})\n${EMOJIS.discord} [Discord Community](${SOCIAL_LINKS.discord})`, inline: false }
+            );
+        await member.send({ embeds: [welcomeEmbed] }).catch(() => console.log(`DM failed: ${member.user.tag}`));
+    } catch (error) {
+        logCrash('WELCOME_DM_ERROR', error, { userId: member?.user?.id });
+    }
+}
+
+async function sendSocialEmbed(channel) {
+    try {
+        const socialEmbed = new EmbedBuilder()
+            .setTitle('FOLLOW US ON SOCIAL')
+            .setDescription('Join the community and follow us on all official channels to never miss anything!')
+            .setColor(COLORS.INFO)
+            .setThumbnail(THUMBNAIL_URL)
+            .addFields(
+                { name: `${EMOJIS.twitch} Twitch`, value: `[PredageFN](${SOCIAL_LINKS.twitch})`, inline: true },
+                { name: `${EMOJIS.youtube} YouTube`, value: `[PredageFN](${SOCIAL_LINKS.youtube})`, inline: true },
+                { name: `${EMOJIS.tiktok} TikTok`, value: `[PredageFN](${SOCIAL_LINKS.tiktok})`, inline: true },
+                { name: `${EMOJIS.twitter} Twitter/X`, value: `[Predage1](${SOCIAL_LINKS.twitter})`, inline: true },
+                { name: `${EMOJIS.instagram} Instagram`, value: `[PredageFN](${SOCIAL_LINKS.instagram})`, inline: true },
+                { name: `${EMOJIS.discord} Discord Community`, value: `[Predage Community](${SOCIAL_LINKS.discord})`, inline: true }
+            );
+        await channel.send({ embeds: [socialEmbed] });
+    } catch (error) {
+        logCrash('SOCIAL_EMBED_ERROR', error);
+    }
+}
+
+async function generateTicketTranscript(channel, closer, ticketMeta = {}) {
+    try {
+        const MAX_TRANSCRIPT_MESSAGES = 1000;
+        const allMessages = [];
+        let beforeId = null;
+        while (allMessages.length < MAX_TRANSCRIPT_MESSAGES) {
+            const batch = await channel.messages.fetch({ limit: 100, ...(beforeId ? { before: beforeId } : {}) });
+            if (batch.size === 0) break;
+            allMessages.push(...batch.values());
+            beforeId = batch.last().id;
+            if (batch.size < 100) break;
+        }
+        const sorted = allMessages.slice(0, MAX_TRANSCRIPT_MESSAGES).reverse();
+
+        const messagesData = sorted.map(msg => ({
+            authorId: msg.author.id,
+            authorTag: msg.author.tag,
+            authorUsername: msg.author.username,
+            authorAvatar: msg.author.displayAvatarURL({ dynamic: true, size: 64 }),
+            bot: msg.author.bot,
+            content: msg.content || '',
+            attachments: msg.attachments.map(a => ({
+                url: a.url,
+                name: a.name,
+                contentType: a.contentType
+            })),
+            embeds: msg.embeds.map(e => ({
+                title: e.title || null,
+                description: e.description || null,
+                color: e.color || null,
+                image: e.image?.url || null,
+                thumbnail: e.thumbnail?.url || null,
+                fields: (e.fields || []).map(f => ({ name: f.name, value: f.value, inline: f.inline }))
+            })),
+            timestamp: msg.createdAt
+        }));
+
+        const transcriptDoc = await db.saveTranscriptDB({
+            guildId: channel.guild.id,
+            channelId: channel.id,
+            channelName: channel.name,
+            ticketType: ticketMeta.ticketType || 'support',
+            ticketOwnerId: ticketMeta.ticketOwnerId || null,
+            ticketOwnerTag: ticketMeta.ticketOwnerTag || null,
+            createdBy: ticketMeta.createdBy || null,
+            createdByTag: ticketMeta.createdByTag || null,
+            claimedBy: ticketMeta.claimedBy || null,
+            claimedByTag: ticketMeta.claimedByTag || null,
+            closedBy: closer.id,
+            closedByTag: closer.tag,
+            messages: messagesData,
+            createdAt: channel.createdAt || new Date(),
+            closedAt: new Date()
+        });
+
+        if (!transcriptDoc) {
+            console.error('[TRANSCRIPT] Failed to save transcript to DB');
+            return null;
+        }
+
+        const config = await getGuildConfig(channel.guild.id);
+        const logChannelId = config.transcriptsChannelId || config.ticketLogChannelId;
+        const logChannel = logChannelId ? botClients.getLogsClient(client).channels.cache.get(logChannelId) : null;
+
+        if (logChannel) {
+            const embed = new EmbedBuilder()
+                .setTitle('Ticket Log')
+                .setColor(BLACK)
+                .setThumbnail(THUMBNAIL_URL)
+                .addFields(
+                    { name: 'Created By', value: transcriptDoc.createdBy ? `<@${transcriptDoc.createdBy}>` : 'Unknown', inline: true },
+                    { name: 'Claimed By', value: transcriptDoc.claimedBy ? `<@${transcriptDoc.claimedBy}>` : 'Not claimed', inline: true },
+                    { name: 'Closed By', value: closer ? `<@${closer.id}>` : 'Unknown', inline: true },
+                    { name: 'Ticket', value: `#${channel.name}`, inline: true },
+                    { name: 'Date', value: formatFullDate(new Date()), inline: true }
+                );
+
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setLabel('Transcript')
+                    .setStyle(ButtonStyle.Link)
+                    .setURL(`${process.env.DASHBOARD_URL || 'https://predcord-dashboard.onrender.com'}/dashboard/transcript/${transcriptDoc._id}`)
+            );
+
+            await logChannel.send({ embeds: [embed], components: [row] }).catch(err => {
+                console.error('[TICKET-LOG] send error:', err.message);
+            });
+        } else {
+            console.warn('[TICKET-LOG] No transcript channel configured for guild', channel.guild.id);
+        }
+
+        console.log(`[TRANSCRIPT] Saved transcript ${transcriptDoc._id} for ${channel.name}`);
+        return transcriptDoc._id.toString();
+    } catch (error) {
+        logCrash('TRANSCRIPT_ERROR', error, { channel: channel?.name });
+        return null;
+    }
+}
+
+async function canUsePageCommand(member, guildId) {
+    try {
+        const mdCmd = await db.CustomCommand.findOne({ guildId, name: 'md' }).lean();
+        if (!mdCmd) {
+            return (await isAdminSafe(member)) || (await isModeratorSafe(member));
+        }
+        if (Array.isArray(mdCmd.allowedRoles)) {
+            if (mdCmd.allowedRoles.length === 0) return false;
+            return mdCmd.allowedRoles.some(roleId => member.roles?.cache?.has(roleId));
+        }
+        const perm = mdCmd.permission || 'everyone';
+        if (perm === 'admin') return await isAdminSafe(member);
+        if (perm === 'mod') return await hasModPerms(member);
+        if (perm === 'staff') return await isStaffSafe(member);
+        return true;
+    } catch {
+        return (await isAdminSafe(member)) || (await isModeratorSafe(member));
+    }
+}
+
+async function sendSupportPanel(channel) {
+    const embed = new EmbedBuilder()
+        .setTitle('Support Tickets')
+        .setDescription(
+            'Need help or want to report a player? Our support team is here to assist you. ' +
+            'Click one of the buttons below to create a ticket.'
+        )
+        .setColor('#5865F2');
+
+    const buttons = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('support_ticket')
+                .setLabel('Support')
+                .setStyle(ButtonStyle.Success),
+            new ButtonBuilder()
+                .setCustomId('report_player')
+                .setLabel('Report Player')
+                .setStyle(ButtonStyle.Primary)
+        );
+
+    await channel.send({
+        embeds: [embed],
+        components: [buttons]
+    });
+}
+
+const COMMUNITY_TICKET_TYPES = {
+    general: { label: 'General Support', description: 'Per domande generiche o problemi con il server', categoryKey: 'generalCategoryId' },
+    dropmap: { label: 'Dropmap Request', description: 'Per richiedere una dropmap (una ogni 30 giorni)', categoryKey: 'dropmapCategoryId' },
+    unban: { label: 'Unban Request', description: 'Per fare richiesta di sblocco dal ban', categoryKey: 'unbanCategoryId' },
+    masterclass: { label: 'Masterclass Support', description: 'Per richiedere un invito al server masterclass', categoryKey: 'masterclassCategoryId' }
+};
+
+function ticketTypeFromChannelName(name) {
+    if (!name) return 'support';
+    if (name.startsWith('report-')) return 'report';
+    if (name.startsWith('general-')) return 'general';
+    if (name.startsWith('dropmap-')) return 'dropmap';
+    if (name.startsWith('unban-')) return 'unban';
+    if (name.startsWith('masterclass-')) return 'masterclass';
+    return 'support';
+}
+
+async function sendCommunityTicketPanel(channel) {
+    const embed = new EmbedBuilder()
+        .setTitle('Support Tickets')
+        .setDescription(
+            'Clicca il pulsante qui sotto per creare un ticket di supporto.\n\n' +
+            'Tipi di ticket disponibili:\n' +
+            '• General Support - Per domande generiche o problemi con il server\n' +
+            '• Dropmap Request - Per richiedere una dropmap (una ogni 30 giorni)\n' +
+            '• Unban Request - Per fare richiesta di sblocco dal ban\n' +
+            '• Masterclass Support - Per richiedere un invito al server masterclass\n\n' +
+            'Nota: Dopo aver cliccato, dovrai selezionare il tipo di ticket e poi potrai aggiungere una descrizione opzionale.'
+        )
+        .setColor(COLORS.TICKET)
+        .setThumbnail(THUMBNAIL_URL);
+
+    const buttons = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('open_community_ticket_modal')
+                .setLabel('Create Ticket')
+                .setStyle(ButtonStyle.Primary)
+        );
+
+    await channel.send({
+        embeds: [embed],
+        components: [buttons]
+    });
+}
+
+client.once('clientReady', async () => {
+
+    console.log(`Bot PredCord connected as ${client.user.tag}`);
+    client.user.setPresence({ status: 'dnd' });
+
+    const connected = await db.connectDB();
+    if (!connected) {
+        console.error('[DB] Cannot connect to MongoDB. Check MONGODB_URI in .env');
+        process.exit(1);
+    }
+
+    console.log('[DB] Database ready');
+
+    try {
+        const migrated = await db.migrateBlacklistSchemaDB();
+        if (migrated) console.log(`[BLACKLIST] Migrated ${migrated} legacy entries`);
+    } catch (err) {
+        logCrash('BLACKLIST_MIGRATION', err);
+    }
+
+    await botClients.startSecondaryBots();
+
+    global.PredCord = {
+        client,
+        getLogsClient: () => botClients.getLogsClient(client),
+        getRolesClient: () => botClients.getRolesClient(client),
+        getGuildConfig,
+        loadCustomCommands: async (guildId) => await db.loadCustomCommandsDB(guildId),
+        saveCustomCommands: async (guildId, name, data) => await db.saveCustomCommandDB(guildId, name, data),
+        deleteCustomCommand: async (guildId, name) => await db.deleteCustomCommandDB(guildId, name),
+        isAdminSafe,
+        isModeratorSafe,
+        isStaffSafe,
+        hasModPerms,
+        COLORS,
+        THUMBNAIL_URL,
+        EmbedBuilder,
+        getUserWarnings,
+        addWarning,
+        removeWarning,
+        clearWarnings,
+        saveModLog,
+        formatModerationHistory,
+        getProjectedRolesDB: async (guildId) => await db.getProjectedRolesDB(guildId),
+        saveDashboardLogDB: async (guildId, data) => await db.saveDashboardLogDB(guildId, data),
+        blacklist: blacklistSystem,
+        roleSync,
+        dropmap,
+        db
+    };
+    console.log('[DASHBOARD] global.PredCord API exposed');
+
+    roleSync.start().catch((err) => logCrash('ROLE_SYNC_START', err));
+    blacklistSystem.start();
+    warmInviteTriggerMembers().catch((err) => logCrash('INVITE_TRIGGER_WARM', err));
+
+    try {
+        const communityCommands = [
+            new SlashCommandBuilder()
+                .setName('panel')
+                .setDescription('Send the ticket panel in this channel')
+                .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+                .toJSON()
+        ];
+
+        const mainCommands = [
+            new SlashCommandBuilder()
+                .setName('panell')
+                .setDescription('Send the ticket panel in this channel')
+                .setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+                .toJSON()
+        ];
+
+        const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+
+        try {
+            await rest.put(Routes.applicationCommands(client.user.id), { body: [] });
+            console.log('[SLASH] ✅ Global commands cleared');
+        } catch (globalErr) {
+            console.error('[SLASH] ❌ Global commands clear error', globalErr);
+        }
+
+        const perGuildCommands = [
+            { gid: process.env.COMMUNITY_GUILD_ID, commands: communityCommands },
+            { gid: process.env.MAIN_GUILD_ID, commands: mainCommands }
+        ].filter(x => x.gid);
+
+        for (const { gid, commands } of perGuildCommands) {
+            try {
+                console.log('[SLASH] Registering commands on guild', gid);
+                await rest.put(
+                    Routes.applicationGuildCommands(client.user.id, gid),
+                    { body: commands }
+                );
+                console.log('[SLASH] ✅ Commands registered on guild (immediate):', gid);
+            } catch (guildErr) {
+                console.error('[SLASH] ❌ Registration error on guild', gid, guildErr);
+            }
+        }
+
+        if (perGuildCommands.length === 0) {
+            console.log('[SLASH] No guild IDs configured, skipping command registration.');
+        }
+    } catch (err) {
+        console.error('[SLASH] ❌ Registration error:', err);
+    }
+});
+
+function resolveLogChannel(channelId) {
+    if (!channelId) return null;
+    return botClients.getLogsClient(client).channels.cache.get(channelId) || client.channels.cache.get(channelId) || null;
+}
+
+const ANTI_ALT_MIN_DAYS = 3;
+const ANTI_ALT_MIN_AGE_MS = ANTI_ALT_MIN_DAYS * 24 * 60 * 60 * 1000;
+
+async function sendAntiAltWarning(member, config) {
+    const accountAge = Date.now() - member.user.createdTimestamp;
+    const ageDays = Math.floor(accountAge / (24 * 60 * 60 * 1000));
+    const daysLeft = Math.max(1, ANTI_ALT_MIN_DAYS - ageDays);
+
+    const embed = new EmbedBuilder()
+        .setTitle('Warning - Recently created account')
+        .setDescription(`${member.user.toString()} joined the server with an account less than ${ANTI_ALT_MIN_DAYS} days old.`)
+        .setColor(COLORS.WARNING)
+        .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+        .addFields(
+            { name: 'User', value: member.user.tag || member.user.username, inline: true },
+            { name: 'ID', value: member.user.id, inline: true },
+            { name: 'Account Created', value: formatFullDate(member.user.createdAt), inline: false },
+            { name: 'Account Age', value: `${ageDays} day${ageDays === 1 ? '' : 's'}`, inline: true },
+            { name: 'Days Left', value: `${daysLeft} day${daysLeft === 1 ? '' : 's'} to reach ${ANTI_ALT_MIN_DAYS} days`, inline: true }
+        )
+        .setFooter({ text: 'Anti-Alt Protection System' })
+        .setTimestamp();
+
+    const sentTo = new Set();
+    for (const channelId of [config.antiAltWarningChannelId, config.modLogChannelId]) {
+        if (!channelId || sentTo.has(channelId)) continue;
+        sentTo.add(channelId);
+        const channel = resolveLogChannel(channelId);
+        if (channel) await channel.send({ embeds: [embed] }).catch(() => {});
+    }
+}
+
+async function sendModInviteLog(guild, moderator, targetUser, inviteUrl) {
+    try {
+        await db.addModInviteLogDB({
+            guildId: guild.id,
+            guildName: guild.name,
+            moderatorId: moderator.id,
+            moderatorTag: moderator.tag || moderator.username,
+            targetId: targetUser.id,
+            targetTag: targetUser.tag || targetUser.username,
+            inviteUrl,
+            date: new Date()
+        });
+    } catch (error) {
+        logCrash('MOD_INVITE_LOG_DB', error, { guildId: guild.id, targetId: targetUser?.id });
+    }
+
+    const config = await getGuildConfig(guild.id);
+    const logChannel = resolveLogChannel(config.modInviteLogChannelId);
+    if (!logChannel) return;
+
+    const logEmbed = new EmbedBuilder()
+        .setTitle('Moderator Invite Sent')
+        .setColor(COLORS.INFO)
+        .addFields(
+            { name: 'Moderator', value: moderator.toString(), inline: true },
+            { name: 'Recipient', value: targetUser.toString(), inline: true },
+            { name: 'Invite', value: inviteUrl, inline: false },
+            { name: 'Sent', value: formatFullDate(new Date()), inline: true },
+            { name: 'Server', value: guild.name, inline: true }
+        )
+        .setTimestamp();
+    await logChannel.send({ embeds: [logEmbed] }).catch(() => {});
+}
+
+async function sendModAcceptInvite(user, guild, moderator) {
+    const config = await getGuildConfig(guild.id);
+    const inviteMessage = config.modInviteMessage || "Congratulations! Your application has been accepted. Here is the invite for the moderators server.";
+
+    if (!config.modTargetInviteGuildId) {
+        const plain = new EmbedBuilder()
+            .setTitle('Application Accepted')
+            .setDescription(inviteMessage.split('\n\n')[0])
+            .setColor(GREEN);
+        const dmSent = await user.send({ embeds: [plain] }).then(() => true).catch(() => false);
+        return { invited: false, dmSent, reason: 'Mod target server is not configured' };
+    }
+
+    const targetGuild = client.guilds.cache.get(config.modTargetInviteGuildId);
+    if (!targetGuild) return { invited: false, dmSent: false, reason: 'The bot is not in the mod target server' };
+
+    const me = targetGuild.members.me;
+    const targetChannel = targetGuild.channels.cache.find(channel =>
+        (channel.type === ChannelType.GuildText || channel.type === ChannelType.GuildAnnouncement)
+        && me && channel.permissionsFor(me)?.has(PermissionsBitField.Flags.CreateInstantInvite)
+    );
+    if (!targetChannel) return { invited: false, dmSent: false, reason: 'No channel where the bot can create invites' };
+
+    const invite = await targetChannel.createInvite({
+        maxAge: 604800,
+        maxUses: 1,
+        unique: true,
+        reason: `Invite for new moderator: ${user.tag || user.username}`
+    });
+
+    const embed = new EmbedBuilder()
+        .setTitle('Application Accepted')
+        .setDescription(`${inviteMessage}\n\n**Here is your personal invite:**`)
+        .setColor(GREEN)
+        .setThumbnail(isValidUrl(THUMBNAIL_URL) ? THUMBNAIL_URL : null)
+        .addFields(
+            { name: 'Invite Link', value: invite.url, inline: false },
+            { name: 'Expires', value: '7 days', inline: true },
+            { name: 'Uses', value: '1 (single use)', inline: true },
+            { name: 'Important', value: 'This invite is personal and single use. Do not share it with anyone.', inline: false }
+        )
+        .setFooter({ text: `Welcome to the ${guild.name} staff` });
+
+    const dmSent = await user.send({ embeds: [embed] }).then(() => true).catch(() => false);
+    if (!dmSent) {
+        await invite.delete('Recipient has DMs closed').catch(() => {});
+        return { invited: false, dmSent: false, reason: 'The user has DMs closed, the invite was deleted' };
+    }
+
+    await sendModInviteLog(guild, moderator, user, invite.url);
+    return { invited: true, dmSent: true, inviteUrl: invite.url };
+}
+
+async function canReviewApplications(member) {
+    if (!member) return false;
+    if (await isAdminSafe(member)) return true;
+    const config = await getGuildConfig(member.guild.id);
+    return Array.isArray(config.headModRoleIds) && config.headModRoleIds.some(roleId => member.roles.cache.has(roleId));
+}
+
+function cutText(value, max) {
+    const text = String(value || '');
+    return text.length > max ? text.slice(0, max - 3) + '...' : text;
+}
+
+client.on('messageDelete', async (message) => {
+    try {
+        if (!message.guild) return;
+        if (message.author && message.author.bot) return;
+        const config = await getGuildConfig(message.guild.id);
+        if (!config.messageLogChannelId || message.channelId === config.messageLogChannelId) return;
+        const logChannel = resolveLogChannel(config.messageLogChannelId);
+        if (!logChannel) return;
+
+        const embed = new EmbedBuilder()
+            .setTitle('Message Deleted')
+            .setColor(RED)
+            .addFields(
+                { name: 'Channel', value: `<#${message.channelId}>`, inline: true },
+                { name: 'Author', value: message.author ? `${message.author.toString()} (${message.author.id})` : 'Unknown', inline: true },
+                { name: 'Message ID', value: message.id, inline: true },
+                { name: 'Content', value: message.content ? cutText(message.content, 1024) : (message.partial ? '*Content unavailable (message was not cached)*' : '*No text content*'), inline: false }
+            )
+            .setTimestamp();
+        if (message.author) embed.setThumbnail(message.author.displayAvatarURL({ dynamic: true }));
+        const attachments = message.attachments ? [...message.attachments.values()] : [];
+        if (attachments.length) {
+            embed.addFields({ name: 'Attachments', value: cutText(attachments.map(a => a.name || a.url).join('\n'), 1024), inline: false });
+        }
+        await logChannel.send({ embeds: [embed] }).catch(() => {});
+    } catch (error) {
+        logCrash('MESSAGE_DELETE_LOG', error, { messageId: message?.id });
+    }
+});
+
+client.on('messageDeleteBulk', async (messages, channel) => {
+    try {
+        if (!channel || !channel.guild) return;
+        const config = await getGuildConfig(channel.guild.id);
+        if (!config.messageLogChannelId || channel.id === config.messageLogChannelId) return;
+        const logChannel = resolveLogChannel(config.messageLogChannelId);
+        if (!logChannel) return;
+        const embed = new EmbedBuilder()
+            .setTitle('Messages Bulk Deleted')
+            .setColor(RED)
+            .addFields(
+                { name: 'Channel', value: `<#${channel.id}>`, inline: true },
+                { name: 'Messages', value: `${messages.size}`, inline: true }
+            )
+            .setTimestamp();
+        await logChannel.send({ embeds: [embed] }).catch(() => {});
+    } catch (error) {
+        logCrash('MESSAGE_BULK_DELETE_LOG', error, { channelId: channel?.id });
+    }
+});
+
+client.on('messageUpdate', async (oldMessage, newMessage) => {
+    try {
+        if (!newMessage.guild) return;
+        if (newMessage.author && newMessage.author.bot) return;
+        if (oldMessage.partial || newMessage.partial) return;
+        if (oldMessage.content === newMessage.content) return;
+        const config = await getGuildConfig(newMessage.guild.id);
+        if (!config.messageLogChannelId || newMessage.channelId === config.messageLogChannelId) return;
+        const logChannel = resolveLogChannel(config.messageLogChannelId);
+        if (!logChannel) return;
+
+        const embed = new EmbedBuilder()
+            .setTitle('Message Edited')
+            .setColor(BLACK)
+            .setThumbnail(newMessage.author.displayAvatarURL({ dynamic: true }))
+            .addFields(
+                { name: 'Channel', value: `<#${newMessage.channelId}>`, inline: true },
+                { name: 'Author', value: `${newMessage.author.toString()} (${newMessage.author.id})`, inline: true },
+                { name: 'Jump', value: `[Go to message](${newMessage.url})`, inline: true },
+                { name: 'Before', value: oldMessage.content ? cutText(oldMessage.content, 1024) : '*No text content*', inline: false },
+                { name: 'After', value: newMessage.content ? cutText(newMessage.content, 1024) : '*No text content*', inline: false }
+            )
+            .setTimestamp();
+        await logChannel.send({ embeds: [embed] }).catch(() => {});
+    } catch (error) {
+        logCrash('MESSAGE_UPDATE_LOG', error, { messageId: newMessage?.id });
+    }
+});
+
+async function handleRoleLog(oldMember, newMember) {
+    if (!newMember || !newMember.guild || !oldMember || oldMember.partial) return;
+    if (newMember.user && newMember.user.bot) return;
+    const added = newMember.roles.cache.filter(r => !oldMember.roles.cache.has(r.id));
+    const removed = oldMember.roles.cache.filter(r => !newMember.roles.cache.has(r.id));
+    if (!added.size && !removed.size) return;
+    const config = await getGuildConfig(newMember.guild.id);
+    if (!config.roleLogChannelId) return;
+    const logChannel = resolveLogChannel(config.roleLogChannelId);
+    if (!logChannel) return;
+
+    const embed = new EmbedBuilder()
+        .setTitle('Member Roles Updated')
+        .setColor(BLACK)
+        .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
+        .addFields({ name: 'User', value: `${newMember.toString()} (${newMember.id})`, inline: false })
+        .setTimestamp();
+    if (added.size) embed.addFields({ name: 'Roles Added', value: cutText(added.map(r => r.toString()).join(' '), 1024), inline: false });
+    if (removed.size) embed.addFields({ name: 'Roles Removed', value: cutText(removed.map(r => r.toString()).join(' '), 1024), inline: false });
+    await logChannel.send({ embeds: [embed] }).catch(() => {});
+}
+
+client.on('guildMemberUpdate', (oldMember, newMember) => {
+    try {
+        roleSync.onMemberUpdate(oldMember, newMember);
+    } catch (error) {
+        logCrash('ROLE_SYNC_MEMBER_UPDATE', error, { userId: newMember?.id });
+    }
+    handleRoleLog(oldMember, newMember).catch((error) => {
+        logCrash('ROLE_LOG', error, { userId: newMember?.id });
+    });
+    handleInviteTriggerRoles(oldMember, newMember).catch((error) => {
+        logCrash('INVITE_TRIGGER', error, { userId: newMember?.id });
+    });
+});
+
+const INVITE_TRIGGER_MAX_AGE_SECONDS = 24 * 60 * 60;
+const inviteTriggerInFlight = new Set();
+
+function findInviteChannel(guild) {
+    const me = guild.members.me;
+    if (!me) return null;
+    const canInvite = (ch) => ch && (ch.type === ChannelType.GuildText || ch.type === ChannelType.GuildAnnouncement)
+        && ch.permissionsFor(me)?.has(PermissionsBitField.Flags.CreateInstantInvite);
+    if (canInvite(guild.rulesChannel)) return guild.rulesChannel;
+    if (canInvite(guild.systemChannel)) return guild.systemChannel;
+    return guild.channels.cache
+        .filter(canInvite)
+        .sort((a, b) => a.rawPosition - b.rawPosition)
+        .first() || null;
+}
+
+async function handleInviteTriggerRoles(oldMember, newMember) {
+    if (!newMember || !newMember.guild || newMember.user?.bot) return;
+    const config = await getGuildConfig(newMember.guild.id);
+    const triggers = [config.inviteTriggerRoleId1, config.inviteTriggerRoleId2].filter(Boolean);
+    if (!triggers.length || !config.targetInviteGuildId) return;
+    if (config.targetInviteGuildId === newMember.guild.id) return;
+
+    const oldKnown = oldMember && !oldMember.partial && oldMember.roles && oldMember.roles.cache;
+    const gained = triggers.find(roleId => newMember.roles.cache.has(roleId) && (!oldKnown || !oldMember.roles.cache.has(roleId)));
+    if (!gained) return;
+
+    await sendTriggerInvite(newMember, gained, config);
+}
+
+async function sendTriggerInvite(member, triggerRoleId, config) {
+    const key = `${member.guild.id}:${member.id}`;
+    if (inviteTriggerInFlight.has(key)) return;
+    inviteTriggerInFlight.add(key);
+    try {
+        const targetGuild = client.guilds.cache.get(config.targetInviteGuildId);
+        if (!targetGuild) {
+            logCrash('INVITE_TRIGGER', new Error('Target server not found or bot not in it'), { targetGuildId: config.targetInviteGuildId });
+            return;
+        }
+
+        const alreadyIn = await targetGuild.members.fetch(member.id).catch(() => null);
+        if (alreadyIn) return;
+
+        const previous = await db.getInviteTrackingDB(member.guild.id, member.id);
+        if (previous && previous.date && Date.now() - new Date(previous.date).getTime() < INVITE_TRIGGER_MAX_AGE_SECONDS * 1000) return;
+
+        const channel = findInviteChannel(targetGuild);
+        if (!channel) {
+            logCrash('INVITE_TRIGGER', new Error('No channel where the bot can create invites'), { targetGuildId: targetGuild.id });
+            return;
+        }
+
+        const role = member.guild.roles.cache.get(triggerRoleId);
+        const roleName = role ? role.name : 'Role';
+        const invite = await channel.createInvite({
+            maxAge: INVITE_TRIGGER_MAX_AGE_SECONDS,
+            maxUses: 1,
+            unique: true,
+            reason: `Personal invite for ${member.user.tag} (${roleName})`
+        });
+        const expiresAt = Math.floor(Date.now() / 1000) + INVITE_TRIGGER_MAX_AGE_SECONDS;
+
+        const embed = new EmbedBuilder()
+            .setTitle('Your Exclusive Invite')
+            .setDescription(`You received the **${roleName}** role in **${member.guild.name}**.\nHere is your personal invite to **${targetGuild.name}**:`)
+            .addFields(
+                { name: 'Invite', value: invite.url, inline: false },
+                { name: 'Expires', value: `<t:${expiresAt}:R>`, inline: true },
+                { name: 'Uses', value: '1 (single use)', inline: true },
+                { name: 'Important', value: 'This invite is personal and works only once. Do not share it with anyone.', inline: false }
+            )
+            .setColor(BLACK)
+            .setThumbnail(THUMBNAIL_URL);
+
+        const dmSent = await member.send({ embeds: [embed] }).then(() => true).catch(() => false);
+        if (!dmSent) await invite.delete('Could not DM the user').catch(() => {});
+
+        if (dmSent) {
+            await db.addInviteTrackingDB({
+                guildId: member.guild.id,
+                userId: member.id,
+                userTag: member.user.tag,
+                inviteCode: invite.code,
+                triggerRoleId,
+                used: true,
+                date: new Date()
+            });
+        }
+
+        if (config.inviteLogChannelId) {
+            const logChannel = botClients.getLogsClient(client).channels.cache.get(config.inviteLogChannelId)
+                || client.channels.cache.get(config.inviteLogChannelId);
+            if (logChannel) {
+                const logEmbed = new EmbedBuilder()
+                    .setTitle(dmSent ? 'Invite Sent' : 'Invite Not Sent')
+                    .setDescription(dmSent ? `A personal invite was sent to <@${member.id}>.` : `<@${member.id}> has DMs closed, the invite was deleted.`)
+                    .addFields(
+                        { name: 'User', value: `<@${member.id}>`, inline: true },
+                        { name: 'Role', value: `<@&${triggerRoleId}>`, inline: true },
+                        { name: 'Target server', value: targetGuild.name, inline: true },
+                        { name: 'Expires', value: dmSent ? `<t:${expiresAt}:R>` : '-', inline: true }
+                    )
+                    .setColor(BLACK)
+                    .setTimestamp();
+                await logChannel.send({ embeds: [logEmbed] }).catch(() => {});
+            }
+        }
+    } finally {
+        inviteTriggerInFlight.delete(key);
+    }
+}
+
+async function warmInviteTriggerMembers() {
+    for (const guild of client.guilds.cache.values()) {
+        try {
+            const config = await getGuildConfig(guild.id);
+            if (!config.targetInviteGuildId || (!config.inviteTriggerRoleId1 && !config.inviteTriggerRoleId2)) continue;
+            await guild.members.fetch();
+        } catch (error) {
+            logCrash('INVITE_TRIGGER_WARM', error, { guildId: guild.id });
+        }
+    }
+}
+
+client.on('guildMemberAdd', async (member) => {
+    try {
+        if (!member.user.bot && Date.now() - member.user.createdTimestamp < ANTI_ALT_MIN_AGE_MS) {
+            const altConfig = await getGuildConfig(member.guild.id);
+            await sendAntiAltWarning(member, altConfig);
+        }
+    } catch (error) {
+        logCrash('ANTI_ALT_WARNING', error, { userId: member?.id });
+    }
+
+    try {
+        await db.addJoinLeaveEventDB({ guildId: member.guild.id, userId: member.id, tag: member.user?.tag || member.user?.username || null, type: 'join', date: new Date() });
+    } catch (error) {
+        logCrash('JOIN_EVENT_RECORD', error, { userId: member?.id });
+    }
+
+    try {
+        roleSync.onMemberAdd(member);
+    } catch (error) {
+        logCrash('ROLE_SYNC_MEMBER_ADD', error, { userId: member?.id });
+    }
+
+    try {
+        await sendJoinLog(member);
+    } catch (error) {
+        logCrash('GUILD_MEMBER_ADD', error, { userId: member?.user?.id });
+    }
+
+    try {
+        const config = await getGuildConfig(member.guild.id);
+        if (config.autoroleId) {
+            const rolesClient = botClients.getRolesClient(client);
+            const rolesGuild = rolesClient.guilds.cache.get(member.guild.id);
+            const rolesMember = rolesGuild ? await rolesGuild.members.fetch(member.id).catch(() => null) : null;
+            const targetMember = rolesMember || member;
+            if (!targetMember.roles.cache.has(config.autoroleId)) {
+                await targetMember.roles.add(config.autoroleId).catch((err) => {
+                    logCrash('AUTOROLE_ASSIGN', err, { guildId: member.guild.id, userId: member.id, roleId: config.autoroleId });
+                });
+            }
+        }
+    } catch (error) {
+        logCrash('AUTOROLE', error, { userId: member?.user?.id });
+    }
+});
+
+client.on('guildMemberRemove', async (member) => {
+    try {
+        await db.addJoinLeaveEventDB({ guildId: member.guild.id, userId: member.id, tag: member.user?.tag || member.user?.username || null, type: 'leave', date: new Date() });
+    } catch (error) {
+        logCrash('LEAVE_EVENT_RECORD', error, { userId: member?.id });
+    }
+
+    try {
+        roleSync.onMemberRemove(member);
+    } catch (error) {
+        logCrash('ROLE_SYNC_MEMBER_REMOVE', error, { userId: member?.id });
+    }
+
+    try {
+        await sendLeaveLog(member);
+    } catch (error) {
+        logCrash('GUILD_MEMBER_REMOVE', error, { userId: member?.user?.id });
+    }
+});
+
+client.on('channelDelete', (channel) => {
+    ticketClaims.delete(channel.id);
+});
+
+client.on('messageCreate', async (message) => {
+    try {
+        if (message.author.bot) return;
+        if (!message.guild) return;
+        if (!message.content) return;
+
+        const firstChar = message.content.charAt(0);
+
+        if (/^[a-zA-Z0-9]/.test(firstChar)) return;
+
+        const args = message.content.slice(1).trim().split(/ +/);
+        const command = args.shift().toLowerCase();
+
+        const customCmds = await db.loadCustomCommandsDB(message.guild.id);
+
+        if (customCmds && customCmds[command]) {
+            const cmdData = customCmds[command];
+            const cmdPrefix = cmdData.prefix || '*';
+
+            if (cmdPrefix === firstChar) {
+                if (cmdData.enabled === false) return;
+                if (isCommandBlockedInChannel(cmdData, message.channel)) return;
+                const hasPermission = checkCustomCommandPermission(cmdData, message.member);
+                if (hasPermission) {
+                    const cooldown = await db.getCommandCooldownDB(message.author.id, message.guild.id, `custom_${command}`);
+                    if (cooldown) {
+                        const remaining = Math.ceil((new Date(cooldown.expiresAt).getTime() - Date.now()) / 1000);
+                        const embed = new EmbedBuilder()
+                            .setDescription(`Wait **${remaining}s** before using this command again.`)
+                            .setColor(COLORS.WARNING);
+                        const msg = await message.channel.send({ embeds: [embed] });
+                        setTimeout(() => msg.delete().catch(() => {}), 3000);
+                        await message.delete().catch(() => {});
+                        return;
+                    }
+                    await db.setCommandCooldownDB(message.author.id, message.guild.id, `custom_${command}`, COMMAND_COOLDOWN_SECONDS);
+
+                    await db.saveDashboardLogDB(message.guild.id, {
+                        type: 'command',
+                        action: 'custom_command_used',
+                        userId: message.author.id,
+                        userTag: message.author.tag,
+                        details: `Command: ${cmdPrefix}${command}`,
+                        channelId: message.channel.id
+                    });
+
+                    await handleCustomCommand(message, command, args, cmdData);
+                    return;
+                } else {
+                    return;
+                }
+            }
+        }
+
+        if (firstChar === NATIVE_PREFIX || firstChar === '!') {
+            const cooldown = await db.getCommandCooldownDB(message.author.id, message.guild.id, `native_${command}`);
+            if (cooldown) {
+                const remaining = Math.ceil((new Date(cooldown.expiresAt).getTime() - Date.now()) / 1000);
+                const embed = new EmbedBuilder()
+                    .setDescription(`Wait **${remaining}s** before using this command again.`)
+                    .setColor(COLORS.WARNING);
+                const msg = await message.channel.send({ embeds: [embed] });
+                setTimeout(() => msg.delete().catch(() => {}), 3000);
+                await message.delete().catch(() => {});
+                return;
+            }
+            await db.setCommandCooldownDB(message.author.id, message.guild.id, `native_${command}`, COMMAND_COOLDOWN_SECONDS);
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'command',
+                action: 'native_command_used',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                details: `Command: ${firstChar}${command}`,
+                channelId: message.channel.id
+            });
+
+            await handleNativeCommand(message, command, args);
+            return;
+        }
+
+        if (firstChar === '-') {
+            if (!(await isAdminSafe(message.member))) { await message.delete().catch(() => {}); return; }
+
+            if (command === 'blacklist' || command === 'bl') {
+                const userId = parseBlacklistUserId(args[0]);
+                if (!userId) {
+                    await replyBlacklistError(message, 'Usage: `-blacklist <user_id> [reason]`');
+                    return;
+                }
+                if (userId === message.author.id) {
+                    await replyBlacklistError(message, 'You can\'t blacklist yourself.');
+                    return;
+                }
+                let user;
+                try {
+                    user = await client.users.fetch(userId);
+                } catch {
+                    await replyBlacklistError(message, `I can't blacklist **${userId}** - this is not a valid user ID.`);
+                    return;
+                }
+                const reason = args.slice(1).join(' ').trim().slice(0, 1000) || 'No reason provided';
+
+                try {
+                    const result = await blacklistSystem.blacklistUser({
+                        user,
+                        reason,
+                        actor: { id: message.author.id, name: message.author.username },
+                        fallbackGuild: message.guild
+                    });
+
+                    if (!result.ok && result.code === 'already') {
+                        await replyBlacklistError(message, `**${result.entry.userName || user.username}** is already blacklisted. Use \`-bll ${user.id}\` for more information.`);
+                        return;
+                    }
+                    if (!result.ok) {
+                        await replyBlacklistError(message, `I can't blacklist **${user.username}** - no servers available to ban in.\n\n**Errors:**\n${(result.errors || []).map(e => `• ${e}`).join('\n')}`);
+                        return;
+                    }
+
+                    await saveModLog(message.guild, 'BLACKLIST', { id: user.id, tag: user.username }, message.author, reason);
+                    await db.saveDashboardLogDB(message.guild.id, {
+                        type: 'moderation',
+                        action: 'user_blacklisted',
+                        userId: message.author.id,
+                        userTag: message.author.tag,
+                        targetId: user.id,
+                        targetTag: user.tag,
+                        moderatorId: message.author.id,
+                        moderatorTag: message.author.tag,
+                        reason: reason,
+                        channelId: message.channel.id
+                    });
+
+                    const settings = await db.getBlacklistSettingsDB();
+                    const sameChannel = settings.logChannelId === message.channel.id;
+                    if (!sameChannel || result.errors.length > 0) {
+                        let description = `**${user.username}** (${user.id}) has been blacklisted.`;
+                        if (result.errors.length > 0) description += `\n\n**Errors:**\n${result.errors.map(e => `• ${e}`).join('\n')}`;
+                        await message.channel.send({ embeds: [new EmbedBuilder().setDescription(description).setColor(BLACK)] });
+                    }
+                } catch (error) {
+                    await replyBlacklistError(message, 'Error during blacklist: ' + error.message);
+                    return;
+                }
+                await message.delete().catch(() => {});
+                return;
+            }
+
+            if (command === 'unbl' || command === 'unblacklist') {
+                const userId = parseBlacklistUserId(args[0]);
+                if (!userId) {
+                    await replyBlacklistError(message, 'Usage: `-unblacklist <user_id> [reason]`');
+                    return;
+                }
+                const reason = args.slice(1).join(' ').trim().slice(0, 1000) || 'No reason provided';
+
+                try {
+                    const result = await blacklistSystem.unblacklistUser({
+                        userId,
+                        reason,
+                        actor: { id: message.author.id, name: message.author.username },
+                        fallbackGuild: message.guild
+                    });
+
+                    if (!result.ok) {
+                        await replyBlacklistError(message, `**${userId}** is not blacklisted.`);
+                        return;
+                    }
+
+                    const targetTag = result.entry.userName || `Unknown User (${userId})`;
+                    await saveModLog(message.guild, 'UNBLACKLIST', { id: userId, tag: targetTag }, message.author, reason);
+                    await db.saveDashboardLogDB(message.guild.id, {
+                        type: 'moderation',
+                        action: 'user_unblacklisted',
+                        userId: message.author.id,
+                        userTag: message.author.tag,
+                        targetId: userId,
+                        targetTag: targetTag,
+                        moderatorId: message.author.id,
+                        moderatorTag: message.author.tag,
+                        reason: reason,
+                        channelId: message.channel.id
+                    });
+
+                    const settings = await db.getBlacklistSettingsDB();
+                    const sameChannel = settings.logChannelId === message.channel.id;
+                    if (!sameChannel || result.errors.length > 0) {
+                        let description = `**${targetTag}** has been removed from the blacklist${result.unbanned > 0 ? ` and unbanned in ${result.unbanned} server(s)` : ''}.`;
+                        if (result.errors.length > 0) description += `\n\n**Errors:**\n${result.errors.map(e => `• ${e}`).join('\n')}`;
+                        await message.channel.send({ embeds: [new EmbedBuilder().setDescription(description).setColor(BLACK)] });
+                    }
+                } catch (error) {
+                    await replyBlacklistError(message, 'Error during unblacklist: ' + error.message);
+                    return;
+                }
+                await message.delete().catch(() => {});
+                return;
+            }
+
+            if (command === 'reason') {
+                const userId = parseBlacklistUserId(args[0]);
+                const newReason = args.slice(1).join(' ').trim().slice(0, 1000);
+                if (!userId || !newReason) {
+                    await replyBlacklistError(message, 'Usage: `-reason <user_id> {newreason}`');
+                    return;
+                }
+                try {
+                    const result = await blacklistSystem.changeReason({ userId, reason: newReason });
+                    if (!result.ok) {
+                        await replyBlacklistError(message, `**${userId}** is not blacklisted.`);
+                        return;
+                    }
+                    await db.saveDashboardLogDB(message.guild.id, {
+                        type: 'moderation',
+                        action: 'blacklist_reason_changed',
+                        userId: message.author.id,
+                        userTag: message.author.tag,
+                        targetId: userId,
+                        targetTag: result.entry.userName || userId,
+                        moderatorId: message.author.id,
+                        moderatorTag: message.author.tag,
+                        reason: newReason,
+                        channelId: message.channel.id
+                    });
+                    const embed = new EmbedBuilder()
+                        .setDescription(`Blacklist reason for **${result.entry.userName || userId}** updated to **${newReason}**`)
+                        .setColor(BLACK);
+                    await message.channel.send({ embeds: [embed] });
+                } catch (error) {
+                    await replyBlacklistError(message, 'Error: ' + error.message);
+                    return;
+                }
+                await message.delete().catch(() => {});
+                return;
+            }
+
+            if (command === 'bll') {
+                const userId = parseBlacklistUserId(args[0]);
+                if (args[0] && !userId) {
+                    await replyBlacklistError(message, 'Usage: `-bll <user_id>`');
+                    return;
+                }
+
+                if (userId) {
+                    const entry = await db.getBlacklistEntryDB(userId);
+                    if (!entry) {
+                        await replyBlacklistError(message, 'User not blacklisted.');
+                        return;
+                    }
+                    await message.channel.send({ embeds: [blacklistSystem.infoEmbed(entry)] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+
+                const entries = await db.getAllBlacklistDB();
+                if (!entries.length) {
+                    await message.channel.send({ embeds: [new EmbedBuilder().setDescription('The blacklist is empty.').setColor(BLACK)] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+                entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const lines = entries.slice(0, 25).map(e => `**${e.userName || e.userId}** (${e.userId}) — ${e.reason || 'No reason provided'} — by ${e.bannedBy || 'Unknown'}`);
+                const embed = new EmbedBuilder()
+                    .setTitle(`Blacklist (${entries.length})`)
+                    .setDescription(lines.join('\n'))
+                    .setColor(BLACK);
+                await message.channel.send({ embeds: [embed] });
+                await message.delete().catch(() => {});
+                return;
+            }
+
+            await message.delete().catch(() => {});
+            return;
+        }
+
+    } catch (error) {
+        logCrash('MESSAGE_CREATE_HANDLER', error, { content: message?.content?.slice(0, 50) });
+    }
+});
+
+async function handleNativeCommand(message, command, args) {
+    if (command === 'map') {
+        await dropmap.handleMapCommand(message);
+        return;
+    }
+
+    if (command === 'setupdropmap') {
+        await dropmap.handleSetupCommand(message, args);
+        return;
+    }
+
+    if (command === 'page') {
+        const canUse = await canUsePageCommand(message.member, message.guild.id);
+        if (!canUse) { await message.delete().catch(() => {}); return; }
+
+        const input = args[0];
+        const pageArg = parseInt(args[1]);
+
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription('Usage: `*page {userid} {page}`').setColor(COLORS.ERROR);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+
+        if (isNaN(pageArg) || pageArg < 1) {
+            const embed = new EmbedBuilder().setDescription('Specify a valid page number (>= 1).').setColor(COLORS.ERROR);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+
+        let userId = null;
+        const mentionMatch = input.match(/^<@!?(\d+)>$/);
+        if (mentionMatch) userId = mentionMatch[1];
+        else if (/^\d+$/.test(input)) userId = input;
+
+        if (!userId) {
+            const embed = new EmbedBuilder().setDescription('Invalid user ID. Use a mention or an ID.').setColor(COLORS.ERROR);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+
+        let username = `Unknown (${userId})`;
+        try {
+            const user = await client.users.fetch(userId);
+            username = user.username;
+        } catch {}
+
+        const totalLogs = await db.ModLog.countDocuments({ guildId: message.guild.id, targetId: userId });
+        if (totalLogs === 0) {
+            const embed = new EmbedBuilder().setDescription(`**${username}** has no modlogs.`).setColor(COLORS.INFO);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+
+        const totalPages = Math.max(1, Math.ceil(totalLogs / LOGS_PER_PAGE));
+        if (pageArg > totalPages) {
+            const embed = new EmbedBuilder().setDescription(`Invalid page. This user only has ${totalPages} pages.`).setColor(COLORS.ERROR);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+
+        const text = await formatModerationHistory(userId, message.guild.id, username, pageArg);
+        const embed = new EmbedBuilder().setDescription(text).setColor(COLORS.INFO);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'md') {
+        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+
+        const input = args[0];
+        const pageArg = args[1] ? parseInt(args[1]) : 1;
+
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription('Usage: `*md @user/ID [page]`').setColor(COLORS.ERROR);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+
+        if (isNaN(pageArg) || pageArg < 1) {
+            const embed = new EmbedBuilder().setDescription('Specify a valid page number (>= 1).').setColor(COLORS.ERROR);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+
+        let userId = null;
+        const mentionMatch = input.match(/^<@!?(\d+)>$/);
+        if (mentionMatch) userId = mentionMatch[1];
+        else if (/^\d+$/.test(input)) userId = input;
+
+        if (!userId) {
+            const embed = new EmbedBuilder().setDescription('Invalid user ID. Use a mention or an ID.').setColor(COLORS.ERROR);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+
+        let username = `Unknown (${userId})`;
+        try {
+            const user = await client.users.fetch(userId);
+            username = user.username;
+        } catch {}
+
+        const text = await formatModerationHistory(userId, message.guild.id, username, pageArg);
+        const embed = new EmbedBuilder().setDescription(text).setColor(COLORS.INFO);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'modlogs') {
+        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+
+        const pageArg = args[0] ? parseInt(args[0]) : 1;
+        if (isNaN(pageArg) || pageArg < 1) {
+            const embed = new EmbedBuilder().setDescription('Specify a valid page number (>= 1).').setColor(COLORS.ERROR);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+
+        const text = await formatGuildModerationHistory(message.guild.id, pageArg);
+        const embed = new EmbedBuilder().setDescription(text).setColor(COLORS.INFO);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'help') {
+        if (!(await canUseBaseCommands(message.member))) {
+            await message.delete().catch(() => {});
+            return;
+        }
+        const embed = new EmbedBuilder()
+            .setTitle('PredCord Commands')
+            .setDescription('Commands available based on your role:')
+            .setColor(COLORS.INFO)
+            .setThumbnail(THUMBNAIL_URL)
+            .addFields(
+                { name: 'Admin Only', value: '`/panel` - Send ticket panel', inline: false },
+                { name: 'Mod & Admin', value: '`*av [user]` - Show avatar\n`*w [user]` - User info\n`*server` - Server info\n`*social` - Social links\n`*page {userid} {page}` - Paginate modlogs\n`*help` - This message', inline: false },
+                { name: 'Warnings (Mod+)', value: '`*warnings @user/ID`\n`*clearwarns @user/ID`\n`*warn @user/ID [reason]`', inline: false },
+                { name: 'Bans (Mod+)', value: '`*ban @user/ID [reason]`\n`*unban ID`\n`*kick @user/ID [reason]`\n`*mute @user/ID [minutes] [reason]`\n`*unmute @user/ID`', inline: false },
+                { name: 'Modlogs (Staff+)', value: '`*md @user/ID [page]` - User modlogs\n`*modlogs [page]` - Server modlogs', inline: false }
+            );
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'av') {
+        if (!(await canUseBaseCommands(message.member))) {
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = message.mentions.users.first() || message.author;
+        const embed = new EmbedBuilder()
+            .setTitle(`${user.tag}'s Avatar`)
+            .setImage(user.displayAvatarURL({ dynamic: true, size: 4096 }))
+            .setColor(COLORS.INFO)
+            .setThumbnail(THUMBNAIL_URL);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'w') {
+        if (!(await canUseBaseCommands(message.member))) {
+            await message.delete().catch(() => {});
+            return;
+        }
+        let targetUser = message.mentions.users.first();
+        const userId = args[0];
+        if (!targetUser && userId && /^\d+$/.test(userId)) {
+            try {
+                const fetched = await message.guild.members.fetch(userId);
+                targetUser = fetched.user;
+            } catch { targetUser = null; }
+        }
+        const user = targetUser || message.author;
+        let member = message.guild.members.cache.get(user.id);
+        if (!member) member = await message.guild.members.fetch(user.id).catch(() => null);
+        if (!member) {
+            const embed = new EmbedBuilder().setDescription('User not found on this server.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const roles = member.roles.cache.filter(r => r.id !== message.guild.id).map(r => r.toString()).join(', ') || 'No roles';
+        const embed = new EmbedBuilder()
+            .setTitle(`Information about ${user.tag}`)
+            .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 1024 }))
+            .setColor(COLORS.INFO)
+            .addFields(
+                { name: 'Member since', value: formatFullDate(member.joinedAt), inline: true },
+                { name: 'Account created', value: formatFullDate(user.createdAt), inline: true },
+                { name: 'ID', value: user.id, inline: true },
+                { name: 'Roles', value: roles.substring(0, 1024), inline: false }
+            );
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'server') {
+        if (!(await canUseBaseCommands(message.member))) {
+            await message.delete().catch(() => {});
+            return;
+        }
+        const guild = message.guild;
+        const embed = new EmbedBuilder()
+            .setTitle(`Information about ${guild.name}`)
+            .setThumbnail(guild.iconURL({ dynamic: true, size: 1024 }))
+            .setColor(COLORS.INFO)
+            .addFields(
+                { name: 'Owner', value: `<@${guild.ownerId}>`, inline: true },
+                { name: 'Members', value: `${guild.memberCount}`, inline: true },
+                { name: 'Channels', value: `${guild.channels.cache.size}`, inline: true },
+                { name: 'Roles', value: `${guild.roles.cache.size}`, inline: true },
+                { name: 'Created on', value: formatFullDate(guild.createdAt), inline: true },
+                { name: 'ID', value: guild.id, inline: true }
+            );
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'social') {
+        if (!(await canUseBaseCommands(message.member))) {
+            await message.delete().catch(() => {});
+            return;
+        }
+        await sendSocialEmbed(message.channel);
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'warnings') {
+        if (!(await hasModPerms(message.member))) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription('You need to mention a user or provide an ID.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = result.user;
+        const userWarnings = await getUserWarnings(user.id, message.guild.id);
+        if (userWarnings.length === 0) {
+            const embed = new EmbedBuilder().setDescription(`${user.toString()} has no warnings.`).setColor(COLORS.SUCCESS).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+        } else {
+            let warningsList = '';
+            for (const warn of userWarnings) {
+                const ts = Math.floor(new Date(warn.date).getTime() / 1000);
+                warningsList += `**#${warn.warningId}** - ${warn.reason}\n*By ${warn.moderatorTag} - <t:${ts}:R>*\n\n`;
+            }
+            const embed = new EmbedBuilder().setTitle(`Warnings for ${user.tag}`).setDescription(warningsList).setColor(COLORS.WARNING).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+        }
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'clearwarns') {
+        if (!(await hasModPerms(message.member))) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription('You need to mention a user or provide an ID.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = result.user;
+        await clearWarnings(message.guild, user, message.author);
+        const embed = new EmbedBuilder().setDescription(`All warnings cleared for ${user.toString()}`).setColor(COLORS.SUCCESS).setThumbnail(THUMBNAIL_URL);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'tickets') {
+        if (!(await hasStaffPermission(message.member))) return;
+        const embed = new EmbedBuilder().setTitle('Ticket Statistics').setDescription('Check the dashboard\'s Statistics tab for live ticket, join/leave and moderator stats.').setColor(COLORS.INFO).setThumbnail(THUMBNAIL_URL);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'ban') {
+        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription('You need to mention a user or provide an ID.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = result.user;
+        const member = result.member;
+        if (await projectedRoleBlock(message, member)) return;
+        const reason = args.slice(1).join(' ') || 'No reason provided';
+
+        try {
+            if (member) {
+                if (!member.bannable) {
+                    const embed = new EmbedBuilder().setDescription('I cant moderate this user.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+                    await message.channel.send({ embeds: [embed] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+                await sendActionDM(user, 'banned', reason, { tag: message.author.tag, guild: message.guild });
+                await member.ban({ reason });
+            } else {
+                await sendActionDM(user, 'banned', reason, { tag: message.author.tag, guild: message.guild });
+                await message.guild.bans.create(user.id, { reason });
+            }
+
+            const embed = new EmbedBuilder()
+                .setDescription(`**${user.username}** (${user.id}) has been banned for the reason **${reason}**`)
+                .setColor(BLACK);
+            await message.channel.send({ embeds: [embed] });
+            await saveModLog(message.guild, 'User banned', { id: user.id, tag: user.tag }, message.author, reason);
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'moderation',
+                action: 'user_banned',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                targetId: user.id,
+                targetTag: user.tag,
+                moderatorId: message.author.id,
+                moderatorTag: message.author.tag,
+                reason: reason,
+                channelId: message.channel.id
+            });
+        } catch (error) {
+            const embed = new EmbedBuilder().setDescription('Error during ban: ' + error.message).setColor(COLORS.ERROR);
+            await message.channel.send({ embeds: [embed] });
+        }
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'unban') {
+        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        const userId = args[0];
+        if (!userId) {
+            const embed = new EmbedBuilder().setDescription('You need to specify the user ID to unban.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        try {
+            const bans = await message.guild.bans.fetch();
+            const bannedUser = bans.find(ban => ban.user.id === userId);
+            if (!bannedUser) {
+                const embed = new EmbedBuilder().setDescription('This user is not banned.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+                await message.channel.send({ embeds: [embed] });
+                await message.delete().catch(() => {});
+                return;
+            }
+            await message.guild.members.unban(userId);
+            await db.removePendingBan(message.guild.id, userId);
+            await sendUnbanDM(bannedUser.user, message.guild);
+            const embed = new EmbedBuilder()
+                .setDescription(`**${bannedUser.user.username}** (${bannedUser.user.id}) has been unbanned for the reason **Unbanned**`)
+                .setColor(BLACK);
+            await message.channel.send({ embeds: [embed] });
+            await saveModLog(message.guild, 'User unbanned', { id: userId, tag: bannedUser.user.tag }, message.author, 'Unbanned');
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'moderation',
+                action: 'user_unbanned',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                targetId: userId,
+                targetTag: bannedUser.user.tag,
+                moderatorId: message.author.id,
+                moderatorTag: message.author.tag,
+                reason: 'Unbanned',
+                channelId: message.channel.id
+            });
+        } catch (error) {
+            const embed = new EmbedBuilder().setDescription('Error during unban.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+        }
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'kick') {
+        if (!(await hasModPerms(message.member))) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription('You need to mention a user or provide an ID.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = result.user;
+        const member = result.member;
+        if (await projectedRoleBlock(message, member)) return;
+        const reason = args.slice(1).join(' ') || 'No reason provided';
+        if (!member || !member.kickable) {
+            const embed = new EmbedBuilder().setDescription('I cannot kick this user.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        try {
+            await sendActionDM(user, 'kicked', reason, { tag: message.author.tag, guild: message.guild });
+            await member.kick(reason);
+            const embed = new EmbedBuilder()
+                .setDescription(`**${user.username}** (${user.id}) has been kicked for the reason **${reason}**`)
+                .setColor(BLACK);
+            await message.channel.send({ embeds: [embed] });
+            await saveModLog(message.guild, 'User kicked', user, message.author, reason);
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'moderation',
+                action: 'user_kicked',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                targetId: user.id,
+                targetTag: user.tag,
+                moderatorId: message.author.id,
+                moderatorTag: message.author.tag,
+                reason: reason,
+                channelId: message.channel.id
+            });
+        } catch (error) {
+            const embed = new EmbedBuilder().setDescription('Error during kick.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+        }
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'mute') {
+        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription('You need to mention a user or provide an ID.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = result.user;
+        const member = result.member;
+        if (await projectedRoleBlock(message, member)) return;
+        const parsed = extractMuteDuration(args);
+        if (!parsed.duration) {
+            const embed = new EmbedBuilder().setDescription('Usage: `*mute @user reason duration`\n`10` = 10 minutes, `10h` = 10 hours, `10d` = 10 days.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        if (parsed.duration.invalid) {
+            const embed = new EmbedBuilder().setDescription('The duration must be between 1 minute and 28 days.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const duration = parsed.duration;
+        const reason = parsed.rest.join(' ') || 'No reason provided';
+        if (!member || !member.moderatable) {
+            const embed = new EmbedBuilder().setDescription('I cannot mute this user.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        try {
+            await member.timeout(duration.ms, reason);
+            const durationText = duration.text;
+            await sendActionDM(user, 'muted', reason, { tag: message.author.tag, guild: message.guild }, durationText);
+            const embed = new EmbedBuilder()
+                .setDescription(`**${user.username}** (${user.id}) has been muted for **${durationText}** for the reason **${reason}**`)
+                .setColor(BLACK);
+            await message.channel.send({ embeds: [embed] });
+            await saveModLog(message.guild, 'User muted', user, message.author, reason, durationText);
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'moderation',
+                action: 'user_muted',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                targetId: user.id,
+                targetTag: user.tag,
+                moderatorId: message.author.id,
+                moderatorTag: message.author.tag,
+                reason: reason,
+                details: durationText,
+                channelId: message.channel.id
+            });
+        } catch (error) {
+            const embed = new EmbedBuilder().setDescription('Error during mute.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+        }
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'unmute') {
+        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription('You need to mention a user or provide an ID.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = result.user;
+        const member = result.member;
+        const reason = args.slice(1).join(' ') || 'No reason provided';
+        if (!member || !member.moderatable) {
+            const embed = new EmbedBuilder().setDescription('I cannot unmute this user.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        try {
+            await member.timeout(null, reason);
+            await sendActionDM(user, 'unmuted', reason, { tag: message.author.tag, guild: message.guild });
+            const embed = new EmbedBuilder()
+                .setDescription(`**${user.username}** (${user.id}) has been unmuted for the reason **${reason}**`)
+                .setColor(BLACK);
+            await message.channel.send({ embeds: [embed] });
+            await saveModLog(message.guild, 'User unmuted', user, message.author, reason);
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'moderation',
+                action: 'user_unmuted',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                targetId: user.id,
+                targetTag: user.tag,
+                moderatorId: message.author.id,
+                moderatorTag: message.author.tag,
+                reason: reason,
+                channelId: message.channel.id
+            });
+        } catch (error) {
+            const embed = new EmbedBuilder().setDescription('Error during unmute.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+        }
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'warn') {
+        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription('Usage: `*warn @user/ID reason`').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = result.user;
+        const member = result.member;
+        if (await projectedRoleBlock(message, member)) return;
+        const reason = args.slice(1).join(' ') || 'No reason provided';
+        try {
+            await addWarning(message.guild, user, message.author, reason);
+            await sendActionDM(user, 'warned', reason, { tag: message.author.tag, guild: message.guild });
+            const embed = new EmbedBuilder()
+                .setDescription(`**${user.username}** (${user.id}) has been warned for the reason **${reason}**`)
+                .setColor(BLACK);
+            await message.channel.send({ embeds: [embed] });
+            await saveModLog(message.guild, 'User warned', user, message.author, reason);
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'moderation',
+                action: 'user_warned',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                targetId: user.id,
+                targetTag: user.tag,
+                moderatorId: message.author.id,
+                moderatorTag: message.author.tag,
+                reason: reason,
+                channelId: message.channel.id
+            });
+        } catch (error) {
+            const embed = new EmbedBuilder().setDescription('Error during warn.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+        }
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'purge') {
+        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        const amount = parseInt(args[0]);
+        if (isNaN(amount) || amount < 1 || amount > 100) {
+            const embed = new EmbedBuilder().setDescription('You need to specify a number between 1 and 100.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        try {
+            await message.delete().catch(() => {});
+            const messages = await message.channel.messages.fetch({ limit: amount });
+            const filtered = messages.filter(msg => Date.now() - msg.createdTimestamp < 1209600000);
+            const deleted = await message.channel.bulkDelete(filtered, true);
+            const embed = new EmbedBuilder().setTitle('Messages purged').setDescription(`Deleted ${deleted.size} messages.`).setColor(COLORS.SUCCESS).setThumbnail(THUMBNAIL_URL);
+            const reply = await message.channel.send({ embeds: [embed] });
+            setTimeout(() => reply.delete().catch(() => {}), 3000);
+            await saveModLog(message.guild, 'Messages purged', { id: 'channel', tag: `#${message.channel.name}` }, message.author, `${deleted.size} messages deleted`);
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'moderation',
+                action: 'messages_purged',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                moderatorId: message.author.id,
+                moderatorTag: message.author.tag,
+                reason: `${deleted.size} messages deleted`,
+                channelId: message.channel.id
+            });
+        } catch (error) {
+            const embed = new EmbedBuilder().setDescription('Error during purge. Cannot delete messages older than 14 days.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            const errorMsg = await message.channel.send({ embeds: [embed] });
+            setTimeout(() => errorMsg.delete().catch(() => {}), 5000);
+        }
+        return;
+    }
+
+    if (command === 'serverinfo') {
+        if (!(await hasModPerms(message.member))) { await message.delete().catch(() => {}); return; }
+        const guild = message.guild;
+        const owner = await guild.fetchOwner().catch(() => null);
+        const embed = new EmbedBuilder()
+            .setTitle(guild.name)
+            .setThumbnail(guild.iconURL({ size: 256 }) || null)
+            .addFields(
+                { name: 'Owner', value: owner ? owner.user.tag : 'Unknown', inline: true },
+                { name: 'Created', value: `<t:${Math.floor(guild.createdTimestamp / 1000)}:R>`, inline: true },
+                { name: 'Members', value: `${guild.memberCount}`, inline: true },
+                { name: 'Channels', value: `${guild.channels.cache.size}`, inline: true },
+                { name: 'Roles', value: `${guild.roles.cache.size}`, inline: true },
+                { name: 'Boost tier', value: `${guild.premiumTier}`, inline: true }
+            )
+            .setColor(COLORS.INFO);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'roleinfo') {
+        if (!(await hasModPerms(message.member))) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        const roleMatch = input ? input.match(/^<@&(\d+)>$/) : null;
+        const roleId = roleMatch ? roleMatch[1] : input;
+        const role = roleId ? message.guild.roles.cache.get(roleId) : null;
+        if (!role) {
+            const embed = new EmbedBuilder().setDescription('Usage: `*roleinfo @role`').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const embed = new EmbedBuilder()
+            .setTitle(role.name)
+            .addFields(
+                { name: 'ID', value: role.id, inline: true },
+                { name: 'Color', value: role.hexColor, inline: true },
+                { name: 'Position', value: `${role.position}`, inline: true },
+                { name: 'Members', value: `${role.members.size}`, inline: true },
+                { name: 'Mentionable', value: role.mentionable ? 'Yes' : 'No', inline: true },
+                { name: 'Hoisted', value: role.hoist ? 'Yes' : 'No', inline: true },
+                { name: 'Created', value: `<t:${Math.floor(role.createdTimestamp / 1000)}:R>`, inline: true }
+            )
+            .setColor(role.color || COLORS.INFO);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'channelinfo') {
+        if (!(await hasModPerms(message.member))) { await message.delete().catch(() => {}); return; }
+        const mentioned = message.mentions.channels.first();
+        const channel = mentioned || message.channel;
+        const embed = new EmbedBuilder()
+            .setTitle(`#${channel.name}`)
+            .addFields(
+                { name: 'ID', value: channel.id, inline: true },
+                { name: 'Type', value: `${channel.type}`, inline: true },
+                { name: 'Created', value: `<t:${Math.floor(channel.createdTimestamp / 1000)}:R>`, inline: true }
+            )
+            .setColor(COLORS.INFO);
+        if ('nsfw' in channel) embed.addFields({ name: 'NSFW', value: channel.nsfw ? 'Yes' : 'No', inline: true });
+        if ('rateLimitPerUser' in channel) embed.addFields({ name: 'Slowmode', value: `${channel.rateLimitPerUser || 0}s`, inline: true });
+        if ('bitrate' in channel) embed.addFields({ name: 'Bitrate', value: `${channel.bitrate || 0}`, inline: true });
+        if ('userLimit' in channel) embed.addFields({ name: 'User limit', value: `${channel.userLimit || 0}`, inline: true });
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'block') {
+        if (!(await hasModPerms(message.member))) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription('Usage: `*block @user/ID reason`').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const reason = args.slice(1).join(' ') || 'No reason provided';
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        await db.addTicketBlockDB({
+            guildId: message.guild.id,
+            userId: result.user.id,
+            userTag: result.user.tag,
+            moderatorId: message.author.id,
+            moderatorTag: message.author.tag,
+            reason,
+            blockedAt: new Date(),
+            expiresAt
+        });
+        await saveModLog(message.guild, 'Ticket block', result.user, message.author, reason);
+        await result.user.send({ embeds: [new EmbedBuilder().setDescription(`You have been blocked from creating tickets in **${message.guild.name}** for the reason: **${reason}**`).setColor(COLORS.MODERATION)] }).catch(() => {});
+        const embed = new EmbedBuilder().setDescription(`**${result.user.tag}** has been blocked from creating tickets for 7 days.`).setColor(COLORS.SUCCESS);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'unblock') {
+        if (!(await hasModPerms(message.member))) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription('Usage: `*unblock @user/ID`').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const removed = await db.removeTicketBlockDB(message.guild.id, result.user.id);
+        if (!removed) {
+            const embed = new EmbedBuilder().setDescription(`**${result.user.tag}** is not blocked.`).setColor(COLORS.ERROR);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        await saveModLog(message.guild, 'Ticket unblock', result.user, message.author, 'Unblocked');
+        await result.user.send({ embeds: [new EmbedBuilder().setDescription(`You can create tickets again in **${message.guild.name}**.`).setColor(COLORS.SUCCESS)] }).catch(() => {});
+        const embed = new EmbedBuilder().setDescription(`**${result.user.tag}** has been unblocked.`).setColor(COLORS.SUCCESS);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'tempo') {
+        if (!(await hasModPerms(message.member)) && args[0]) { await message.delete().catch(() => {}); return; }
+        const input = args[0];
+        const result = input ? await getUserFromInput(message.guild, input) : { user: message.author };
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const roles = (await db.getTempRolesByGuildDB(message.guild.id)).filter(r => r.userId === result.user.id);
+        if (roles.length === 0) {
+            const embed = new EmbedBuilder().setDescription(`**${result.user.tag}** has no active temporary roles.`).setColor(COLORS.INFO);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const lines = roles.map(r => `<@&${r.roleId}> — expires <t:${Math.floor(new Date(r.expiresAt).getTime() / 1000)}:R> — assigned by ${r.assignedByTag || r.assignedBy || 'Unknown'}${r.reason ? ` (${r.reason})` : ''}`);
+        const embed = new EmbedBuilder().setTitle(`Temporary roles for ${result.user.tag}`).setDescription(lines.join('\n')).setColor(COLORS.INFO);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+
+    if (command === 'tempolist') {
+        if (!(await isAdminSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        const roles = (await db.getTempRolesByGuildDB(message.guild.id)).sort((a, b) => new Date(a.expiresAt) - new Date(b.expiresAt));
+        if (roles.length === 0) {
+            const embed = new EmbedBuilder().setDescription('No active temporary roles in this server.').setColor(COLORS.INFO);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const lines = roles.slice(0, 30).map(r => `<@${r.userId}> — <@&${r.roleId}> — expires <t:${Math.floor(new Date(r.expiresAt).getTime() / 1000)}:R>`);
+        const embed = new EmbedBuilder().setTitle('Active temporary roles').setDescription(lines.join('\n')).setColor(COLORS.INFO);
+        await message.channel.send({ embeds: [embed] });
+        await message.delete().catch(() => {});
+        return;
+    }
+}
+
+async function checkExpiredTempRolesAllGuilds() {
+    try {
+        const expired = await db.getExpiredTempRolesDB();
+        const rolesClient = botClients.getRolesClient(client);
+        for (const entry of expired) {
+            let shouldRemoveRecord = false;
+            try {
+                const guild = rolesClient.guilds.cache.get(entry.guildId);
+                if (!guild) {
+                    shouldRemoveRecord = true;
+                } else {
+                    const member = await guild.members.fetch(entry.userId).catch(() => null);
+                    if (!member) {
+                        shouldRemoveRecord = true;
+                    } else if (!member.roles.cache.has(entry.roleId)) {
+                        shouldRemoveRecord = true;
+                    } else {
+                        await member.roles.remove(entry.roleId);
+                        shouldRemoveRecord = true;
+                    }
+                }
+            } catch (err) {
+                logCrash('TEMP_ROLE_EXPIRY', err, { guildId: entry.guildId, userId: entry.userId });
+                shouldRemoveRecord = false;
+            }
+            if (shouldRemoveRecord) {
+                await db.removeTempRoleDB(entry.guildId, entry.userId, entry.roleId);
+            }
+        }
+    } catch (err) {
+        logCrash('TEMP_ROLE_EXPIRY_SWEEP', err, {});
+    }
+}
+
+setInterval(checkExpiredTempRolesAllGuilds, 3600000);
+
+async function handleRoleCommand(message, command, args, cmdData) {
+    const prefix = cmdData.prefix || '*';
+    const finish = async () => {
+        if (cmdData.deleteCommand !== false) await message.delete().catch(() => {});
+    };
+    const fail = async (text) => {
+        const embed = new EmbedBuilder().setDescription(text).setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+        await message.channel.send({ embeds: [embed] });
+        await finish();
+    };
+
+    const input = args[0];
+    if (!input) return fail(`Usage: \`${prefix}${command} @user\``);
+
+    const result = await getUserFromInput(message.guild, input);
+    if (!result || !result.user) return fail('User not found.');
+    const user = result.user;
+    const member = result.member;
+    if (!member) return fail('This user is not in the server.');
+    if (await projectedRoleBlock(message, member)) return;
+
+    const roleId = cmdData.targetRoleId;
+    const role = roleId ? (message.guild.roles.cache.get(roleId) || await message.guild.roles.fetch(roleId).catch(() => null)) : null;
+    if (!role) return fail('The target role no longer exists.');
+    if (!role.editable) return fail('I cannot manage this role.');
+
+    const action = cmdData.roleAction;
+    const has = member.roles.cache.has(role.id);
+    const warnVariant = action === 'remove_warn' || action === 'remove_mute';
+
+    let reason = null;
+    if (warnVariant) {
+        reason = args.slice(1).join(' ');
+        if (!reason) {
+            reason = (cmdData.response || 'No reason provided')
+                .replace(/{user}/g, user.toString())
+                .replace(/{username}/g, user.username)
+                .replace(/{server}/g, message.guild.name)
+                .replace(/{membercount}/g, message.guild.memberCount)
+                .replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+            reason = applyPositionalArgs(reason, args);
+        } else {
+            reason = reason.replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+        }
+        reason = applyHammertime(reason);
+    }
+
+    const done = async (text, logAction, extra = null) => {
+        const embed = new EmbedBuilder().setDescription(text).setColor(BLACK);
+        await message.channel.send({ embeds: [embed] });
+        await db.saveDashboardLogDB(message.guild.id, {
+            type: 'moderation',
+            action: logAction,
+            userId: message.author.id,
+            userTag: message.author.tag,
+            targetId: user.id,
+            targetTag: user.tag,
+            moderatorId: message.author.id,
+            moderatorTag: message.author.tag,
+            reason: reason || undefined,
+            details: `Custom command: ${prefix}${command} (${role.name})${extra ? ` ${extra}` : ''}`,
+            channelId: message.channel.id
+        }).catch(() => {});
+        await finish();
+    };
+
+    const label = `**${user.username}** (${user.id})`;
+
+    try {
+        if (action === 'add') {
+            if (has) return fail(`${label} already has **${role.name}**.`);
+            await member.roles.add(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            return done(`Added **${role.name}** to ${label}`, 'role_added');
+        }
+
+        if (action === 'remove') {
+            if (!has) return fail(`${label} does not have **${role.name}**.`);
+            await member.roles.remove(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            await db.removePendingRoleRemoval(message.guild.id, user.id, role.id).catch(() => {});
+            return done(`Removed **${role.name}** from ${label}`, 'role_removed');
+        }
+
+        if (action === 'toggle') {
+            if (has) {
+                await member.roles.remove(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+                await db.removePendingRoleRemoval(message.guild.id, user.id, role.id).catch(() => {});
+                return done(`Removed **${role.name}** from ${label}`, 'role_removed');
+            }
+            await member.roles.add(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            return done(`Added **${role.name}** to ${label}`, 'role_added');
+        }
+
+        if (action === 'temp') {
+            const ms = getCmdDurationMs(cmdData);
+            if (!ms) return fail('This command has no valid duration.');
+            if (!has) await member.roles.add(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            await db.upsertPendingRoleRemoval({
+                guildId: message.guild.id,
+                userId: user.id,
+                roleId: role.id,
+                moderatorId: message.author.id,
+                expiresAt: new Date(Date.now() + ms)
+            });
+            const text = formatCmdDuration(cmdData);
+            return done(`Added **${role.name}** to ${label} for **${text}**`, 'role_added', `(${text})`);
+        }
+
+        if (action === 'remove_warn') {
+            if (has) await member.roles.remove(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            await db.removePendingRoleRemoval(message.guild.id, user.id, role.id).catch(() => {});
+            await addWarning(message.guild, user, message.author, reason);
+            await sendActionDM(user, 'warned', reason, { tag: message.author.tag, guild: message.guild });
+            await saveModLog(message.guild, 'User warned', user, message.author, reason);
+            return done(`Removed **${role.name}** from ${label} and warned them for the reason **${reason}**`, 'role_removed');
+        }
+
+        if (action === 'remove_mute') {
+            const maxMuteMs = 28 * 24 * 60 * 60 * 1000;
+            const configured = getCmdDurationMs(cmdData);
+            if (!configured) return fail('This command has no valid duration.');
+            const ms = Math.min(configured, maxMuteMs);
+            const text = configured > maxMuteMs ? '28 days' : formatCmdDuration(cmdData);
+            if (!member.moderatable) return fail('I cannot mute this user.');
+            if (has) await member.roles.remove(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            await db.removePendingRoleRemoval(message.guild.id, user.id, role.id).catch(() => {});
+            await member.timeout(ms, reason);
+            await sendActionDM(user, 'muted', reason, { tag: message.author.tag, guild: message.guild }, text);
+            await saveModLog(message.guild, 'User muted', user, message.author, reason, text);
+            return done(`Removed **${role.name}** from ${label} and muted them for **${text}** for the reason **${reason}**`, 'role_removed', `(${text})`);
+        }
+
+        return fail('This command is not configured correctly.');
+    } catch (err) {
+        await message.channel.send({ embeds: [new EmbedBuilder().setDescription('Error while changing the role: ' + err.message).setColor(COLORS.ERROR)] }).catch(() => {});
+        await finish();
+    }
+}
+
+async function handleCustomCommand(message, command, args, cmdData) {
+    const cmdType = cmdData.type || 'text';
+    const cmdThumbnail = cmdData.thumbnail && isValidUrl(cmdData.thumbnail) ? cmdData.thumbnail : null;
+
+    if (cmdType === 'role') {
+        await handleRoleCommand(message, command, args, cmdData);
+        return;
+    }
+
+    if (cmdType === 'ban') {
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription(`Usage: \`${cmdData.prefix || '*'}${command} @user reason\``).setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = result.user;
+        const member = result.member;
+        if (await projectedRoleBlock(message, member)) return;
+        let reason = args.slice(1).join(' ');
+        if (!reason) {
+            reason = (cmdData.response || 'No reason provided')
+                .replace(/{user}/g, user.toString())
+                .replace(/{username}/g, user.username)
+                .replace(/{server}/g, message.guild.name)
+                .replace(/{membercount}/g, message.guild.memberCount)
+                .replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+            reason = applyPositionalArgs(reason, args);
+        } else {
+            reason = reason
+                .replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+        }
+        reason = applyHammertime(reason);
+
+        const banDurationMs = getCmdDurationMs(cmdData);
+        const isTemporary = !!banDurationMs;
+        const banDurationText = isTemporary ? formatCmdDuration(cmdData) : null;
+
+        try {
+            if (member) {
+                if (!member.bannable) {
+                    const embed = new EmbedBuilder().setDescription('I cannot ban this user.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+                    await message.channel.send({ embeds: [embed] });
+                    await message.delete().catch(() => {});
+                    return;
+                }
+                await sendActionDM(user, 'banned', reason, { tag: message.author.tag, guild: message.guild });
+                await member.ban({ reason });
+            } else {
+                await sendActionDM(user, 'banned', reason, { tag: message.author.tag, guild: message.guild });
+                await message.guild.bans.create(user.id, { reason });
+            }
+
+            if (isTemporary) {
+                const expiresAt = new Date(Date.now() + banDurationMs);
+                await db.addPendingBan({
+                    guildId: message.guild.id,
+                    userId: user.id,
+                    userTag: user.tag,
+                    moderatorId: message.author.id,
+                    moderatorTag: message.author.tag,
+                    reason: reason,
+                    banDate: new Date(),
+                    expiresAt: expiresAt
+                });
+            }
+
+            const embed = new EmbedBuilder()
+                .setDescription(`**${user.username}** (${user.id}) has been banned for the reason **${reason}**`)
+                .setColor(BLACK);
+            await message.channel.send({ embeds: [embed] });
+            await saveModLog(message.guild, 'User banned', { id: user.id, tag: user.tag }, message.author, reason, banDurationText);
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'moderation',
+                action: 'user_banned',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                targetId: user.id,
+                targetTag: user.tag,
+                moderatorId: message.author.id,
+                moderatorTag: message.author.tag,
+                reason: reason,
+                details: `Custom command: ${cmdData.prefix || '*'}${command}${isTemporary ? ` (${banDurationText})` : ''}`,
+                channelId: message.channel.id
+            });
+        } catch (err) {
+            await message.channel.send({ embeds: [new EmbedBuilder().setDescription('Error during ban: ' + err.message).setColor(COLORS.ERROR)] });
+        }
+        if (cmdData.deleteCommand !== false) await message.delete().catch(() => {});
+        return;
+    }
+
+    if (cmdType === 'kick') {
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription(`Usage: \`${cmdData.prefix || '*'}${command} @user reason\``).setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = result.user;
+        const member = result.member;
+        if (await projectedRoleBlock(message, member)) return;
+        let reason = args.slice(1).join(' ');
+        if (!reason) {
+            reason = (cmdData.response || 'No reason provided')
+                .replace(/{user}/g, user.toString())
+                .replace(/{username}/g, user.username)
+                .replace(/{server}/g, message.guild.name)
+                .replace(/{membercount}/g, message.guild.memberCount)
+                .replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+            reason = applyPositionalArgs(reason, args);
+        } else {
+            reason = reason
+                .replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+        }
+        reason = applyHammertime(reason);
+        if (!member || !member.kickable) {
+            const embed = new EmbedBuilder().setDescription('I cannot kick this user.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        try {
+            await sendActionDM(user, 'kicked', reason, { tag: message.author.tag, guild: message.guild });
+            await member.kick(reason);
+            const embed = new EmbedBuilder()
+                .setDescription(`**${user.username}** (${user.id}) has been kicked for the reason **${reason}**`)
+                .setColor(BLACK);
+            await message.channel.send({ embeds: [embed] });
+            await saveModLog(message.guild, 'User kicked', user, message.author, reason);
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'moderation',
+                action: 'user_kicked',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                targetId: user.id,
+                targetTag: user.tag,
+                moderatorId: message.author.id,
+                moderatorTag: message.author.tag,
+                reason: reason,
+                details: `Custom command: ${cmdData.prefix || '*'}${command}`,
+                channelId: message.channel.id
+            });
+        } catch (err) {
+            await message.channel.send({ embeds: [new EmbedBuilder().setDescription('Error during kick.').setColor(COLORS.ERROR)] });
+        }
+        if (cmdData.deleteCommand !== false) await message.delete().catch(() => {});
+        return;
+    }
+
+    if (cmdType === 'mute') {
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription(`Usage: \`${cmdData.prefix || '*'}${command} @user reason\``).setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = result.user;
+        const member = result.member;
+        if (await projectedRoleBlock(message, member)) return;
+
+        const maxMuteMs = 28 * 24 * 60 * 60 * 1000;
+        const configuredMuteMs = getCmdDurationMs(cmdData);
+        let durationMs = configuredMuteMs || maxMuteMs;
+        let durationText = configuredMuteMs ? formatCmdDuration(cmdData) : '28 days';
+        if (durationMs > maxMuteMs) {
+            durationMs = maxMuteMs;
+            durationText = '28 days';
+        }
+        let reasonArgs = args.slice(1);
+        if (args.length > 1) {
+            const lastDuration = parseMuteDuration(args[args.length - 1]);
+            if (lastDuration && lastDuration.invalid) {
+                const embed = new EmbedBuilder().setDescription('The duration must be between 1 minute and 28 days.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+                await message.channel.send({ embeds: [embed] });
+                await message.delete().catch(() => {});
+                return;
+            }
+            if (lastDuration) {
+                durationMs = lastDuration.ms;
+                durationText = lastDuration.text;
+                reasonArgs = args.slice(1, -1);
+            }
+        }
+
+        let reason = reasonArgs.join(' ');
+        if (!reason) {
+            reason = (cmdData.response || 'No reason provided')
+                .replace(/{user}/g, user.toString())
+                .replace(/{username}/g, user.username)
+                .replace(/{server}/g, message.guild.name)
+                .replace(/{membercount}/g, message.guild.memberCount)
+                .replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+            reason = applyPositionalArgs(reason, args);
+        } else {
+            reason = reason
+                .replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+        }
+        reason = applyHammertime(reason);
+
+        if (!member || !member.moderatable) {
+            const embed = new EmbedBuilder().setDescription('I cannot mute this user.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        try {
+            await member.timeout(durationMs, reason);
+            await sendActionDM(user, 'muted', reason, { tag: message.author.tag, guild: message.guild }, durationText);
+            const embed = new EmbedBuilder()
+                .setDescription(`**${user.username}** (${user.id}) has been muted for **${durationText}** for the reason **${reason}**`)
+                .setColor(BLACK);
+            await message.channel.send({ embeds: [embed] });
+            await saveModLog(message.guild, 'User muted', user, message.author, reason, durationText);
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'moderation',
+                action: 'user_muted',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                targetId: user.id,
+                targetTag: user.tag,
+                moderatorId: message.author.id,
+                moderatorTag: message.author.tag,
+                reason: reason,
+                details: `Custom command: ${cmdData.prefix || '*'}${command} (${durationText})`,
+                channelId: message.channel.id
+            });
+        } catch (err) {
+            await message.channel.send({ embeds: [new EmbedBuilder().setDescription('Error during mute.').setColor(COLORS.ERROR)] });
+        }
+        if (cmdData.deleteCommand !== false) await message.delete().catch(() => {});
+        return;
+    }
+
+    if (cmdType === 'warn') {
+        const input = args[0];
+        if (!input) {
+            const embed = new EmbedBuilder().setDescription(`Usage: \`${cmdData.prefix || '*'}${command} @user reason\``).setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const result = await getUserFromInput(message.guild, input);
+        if (!result || !result.user) {
+            const embed = new EmbedBuilder().setDescription('User not found.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+            await message.channel.send({ embeds: [embed] });
+            await message.delete().catch(() => {});
+            return;
+        }
+        const user = result.user;
+        const member = result.member;
+        if (await projectedRoleBlock(message, member)) return;
+        let reason = args.slice(1).join(' ');
+        if (!reason) {
+            reason = (cmdData.response || 'No reason provided')
+                .replace(/{user}/g, user.toString())
+                .replace(/{username}/g, user.username)
+                .replace(/{server}/g, message.guild.name)
+                .replace(/{membercount}/g, message.guild.memberCount)
+                .replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+            reason = applyPositionalArgs(reason, args);
+        } else {
+            reason = reason
+                .replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+        }
+        reason = applyHammertime(reason);
+        try {
+            await addWarning(message.guild, user, message.author, reason);
+            await sendActionDM(user, 'warned', reason, { tag: message.author.tag, guild: message.guild });
+            const embed = new EmbedBuilder()
+                .setDescription(`**${user.username}** (${user.id}) has been warned for the reason **${reason}**`)
+                .setColor(BLACK);
+            await message.channel.send({ embeds: [embed] });
+            await saveModLog(message.guild, 'User warned', user, message.author, reason);
+
+            await db.saveDashboardLogDB(message.guild.id, {
+                type: 'moderation',
+                action: 'user_warned',
+                userId: message.author.id,
+                userTag: message.author.tag,
+                targetId: user.id,
+                targetTag: user.tag,
+                moderatorId: message.author.id,
+                moderatorTag: message.author.tag,
+                reason: reason,
+                details: `Custom command: ${cmdData.prefix || '*'}${command}`,
+                channelId: message.channel.id
+            });
+        } catch (err) {
+            await message.channel.send({ embeds: [new EmbedBuilder().setDescription('Error during warn.').setColor(COLORS.ERROR)] });
+        }
+        if (cmdData.deleteCommand !== false) await message.delete().catch(() => {});
+        return;
+    }
+
+    const targetInput = args[0];
+    let mdTarget = message.mentions.users.first();
+    if (!mdTarget && targetInput && /^\d+$/.test(targetInput)) {
+        try {
+            const fetched = await message.guild.members.fetch(targetInput);
+            mdTarget = fetched.user;
+        } catch {
+            try {
+                mdTarget = await client.users.fetch(targetInput);
+            } catch { mdTarget = null; }
+        }
+    }
+    if (!mdTarget) mdTarget = message.author;
+
+    const replyText = await substituteAll(cmdData.response || '', message, mdTarget, args);
+
+    const cmdImage = cmdData.image && isValidUrl(cmdData.image) ? cmdData.image : null;
+
+    let cmdComponents = [];
+    if (Array.isArray(cmdData.buttons) && cmdData.buttons.length) {
+        const row = new ActionRowBuilder();
+        for (const btn of cmdData.buttons.slice(0, 5)) {
+            if (!btn.label || !btn.url || !isValidUrl(btn.url)) continue;
+            row.addComponents(
+                new ButtonBuilder()
+                    .setLabel(String(btn.label).slice(0, 80))
+                    .setStyle(ButtonStyle.Link)
+                    .setURL(btn.url)
+            );
+        }
+        if (row.components.length) cmdComponents = [row];
+    }
+
+    if (cmdType === 'embed') {
+        const cmdTitle = await substituteAll(cmdData.title || '', message, mdTarget, args);
+        const embed = new EmbedBuilder()
+            .setColor(typeof cmdData.color === 'number' ? cmdData.color : COLORS.INFO);
+        if (replyText.trim()) embed.setDescription(replyText);
+        if (cmdTitle) embed.setTitle(cmdTitle);
+        if (cmdThumbnail) embed.setThumbnail(cmdThumbnail);
+        if (cmdImage) embed.setImage(cmdImage);
+
+        const embeds = [embed];
+
+        if (Array.isArray(cmdData.extraEmbeds)) {
+            for (const extra of cmdData.extraEmbeds.slice(0, 9)) {
+                const extraText = await substituteAll(extra.response || '', message, mdTarget, args);
+                const extraTitle = await substituteAll(extra.title || '', message, mdTarget, args);
+
+                const extraEmbed = new EmbedBuilder()
+                    .setColor(typeof extra.color === 'number' ? extra.color : COLORS.INFO);
+                if (extraText.trim()) extraEmbed.setDescription(extraText);
+                if (extraTitle) extraEmbed.setTitle(extraTitle);
+                if (extra.thumbnail && isValidUrl(extra.thumbnail)) extraEmbed.setThumbnail(extra.thumbnail);
+                if (extra.image && isValidUrl(extra.image)) extraEmbed.setImage(extra.image);
+                embeds.push(extraEmbed);
+            }
+        }
+
+        await message.channel.send({ embeds, components: cmdComponents }).catch(err => console.error('[CUSTOM-CMD] send failed:', err.message));
+    } else if (cmdImage) {
+        const embed = new EmbedBuilder().setImage(cmdImage);
+        if (replyText.trim()) embed.setDescription(replyText);
+        await message.channel.send({ embeds: [embed], components: cmdComponents }).catch(err => console.error('[CUSTOM-CMD] send failed:', err.message));
+    } else {
+        await message.channel.send({ content: replyText.trim() ? replyText : '​', components: cmdComponents }).catch(err => console.error('[CUSTOM-CMD] send failed:', err.message));
+    }
+
+    if (cmdData.deleteCommand) await message.delete().catch(() => {});
+}
+
+client.on('interactionCreate', async (interaction) => {
+    try {
+        if (interaction.isChatInputCommand()) {
+            if (interaction.commandName === 'panel') {
+                if (!(await isAdminSafe(interaction.member))) {
+                    return interaction.reply({ content: 'You do not have permission to use this command.', flags: 64 });
+                }
+
+                await sendCommunityTicketPanel(interaction.channel);
+
+                await interaction.reply({ content: 'Ticket Panel Sent', flags: 64 });
+                return;
+            }
+
+            if (interaction.commandName === 'panell') {
+                if (!(await isAdminSafe(interaction.member))) {
+                    return interaction.reply({ content: 'You do not have permission to use this command.', flags: 64 });
+                }
+
+                await sendSupportPanel(interaction.channel);
+
+                await interaction.reply({ content: 'Ticket Panel Sent', flags: 64 });
+                return;
+            }
+            return;
+        }
+
+        if ((interaction.isButton() || interaction.isStringSelectMenu()) && interaction.customId && interaction.customId.startsWith('dropmap_')) {
+            if (await dropmap.handleInteraction(interaction)) return;
+        }
+
+        if (interaction.isButton() && interaction.customId === 'open_ticket_panel') {
+            if (interaction.guild?.id === process.env.COMMUNITY_GUILD_ID) {
+                await sendCommunityTicketPanel(interaction.channel);
+            } else {
+                await sendSupportPanel(interaction.channel);
+            }
+            await interaction.reply({ content: 'Ticket Panel Sent', flags: 64 });
+            return;
+        }
+
+        if (interaction.isButton() && interaction.customId === 'support_ticket') {
+            const modal = new ModalBuilder()
+                .setCustomId('support_modal')
+                .setTitle('Support');
+
+            const supportType = new RadioGroupBuilder()
+                .setCustomId('support_type')
+                .setRequired(true)
+                .addOptions(
+                    new RadioGroupOptionBuilder()
+                        .setLabel('Modmail')
+                        .setDescription('Contact Our staff')
+                        .setValue('modmail'),
+                    new RadioGroupOptionBuilder()
+                        .setLabel('Application Issue')
+                        .setDescription('Having an issue with your application')
+                        .setValue('application_issue')
+                );
+
+            const supportMessage = new TextInputBuilder()
+                .setCustomId('support_message')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Tell us how we can help...')
+                .setRequired(true)
+                .setMaxLength(1000);
+
+            modal.addLabelComponents(
+                new LabelBuilder()
+                    .setLabel('What type of support do you need?')
+                    .setRadioGroupComponent(supportType),
+                new LabelBuilder()
+                    .setLabel('How can we help you?')
+                    .setTextInputComponent(supportMessage)
+            );
+
+            await interaction.showModal(modal);
+            return;
+        }
+
+        if (interaction.isButton() && interaction.customId === 'report_player') {
+            const modal = new ModalBuilder()
+                .setCustomId('report_player_modal')
+                .setTitle('Report Player');
+
+            const userSelect = new UserSelectMenuBuilder()
+                .setCustomId('reported_user')
+                .setPlaceholder('Choose a player...')
+                .setMinValues(1)
+                .setMaxValues(1)
+                .setRequired(true);
+
+            const evidenceProof = new TextInputBuilder()
+                .setCustomId('evidence_proof')
+                .setStyle(TextInputStyle.Short)
+                .setPlaceholder('Paste a link to your evidence...')
+                .setRequired(false)
+                .setMaxLength(500);
+
+            const moreInformation = new TextInputBuilder()
+                .setCustomId('more_information')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Provide any additional information...')
+                .setRequired(false)
+                .setMaxLength(1000);
+
+            modal.addLabelComponents(
+                new LabelBuilder()
+                    .setLabel('Choose Player')
+                    .setDescription('Select the player you want to report.')
+                    .setUserSelectMenuComponent(userSelect),
+                new LabelBuilder()
+                    .setLabel('Evidence Proof')
+                    .setTextInputComponent(evidenceProof),
+                new LabelBuilder()
+                    .setLabel('Do you want add more information?')
+                    .setTextInputComponent(moreInformation)
+            );
+
+            await interaction.showModal(modal);
+            return;
+        }
+
+        if (interaction.isButton() && interaction.customId === 'open_community_ticket_modal') {
+            const modal = new ModalBuilder()
+                .setCustomId('community_ticket_modal')
+                .setTitle('Crea un nuovo ticket');
+
+            const ticketType = new RadioGroupBuilder()
+                .setCustomId('community_ticket_type')
+                .setRequired(true)
+                .addOptions(
+                    ...Object.entries(COMMUNITY_TICKET_TYPES).map(([value, info]) =>
+                        new RadioGroupOptionBuilder()
+                            .setLabel(info.label)
+                            .setDescription(info.description)
+                            .setValue(value)
+                    )
+                );
+
+            const description = new TextInputBuilder()
+                .setCustomId('community_ticket_description')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Descrivi il tuo problema o richiesta in dettaglio...')
+                .setRequired(true)
+                .setMaxLength(1000);
+
+            modal.addLabelComponents(
+                new LabelBuilder()
+                    .setLabel('Seleziona il tipo di ticket che vuoi aprire.')
+                    .setRadioGroupComponent(ticketType),
+                new LabelBuilder()
+                    .setLabel('Descrizione')
+                    .setTextInputComponent(description)
+            );
+
+            await interaction.showModal(modal);
+            return;
+        }
+
+        if (interaction.isModalSubmit() && interaction.customId === 'community_ticket_modal') {
+            const block = await db.getTicketBlockDB(interaction.guild.id, interaction.user.id);
+            if (block && new Date(block.expiresAt) > new Date()) {
+                return interaction.reply({
+                    content: `You are blocked from creating tickets until <t:${Math.floor(new Date(block.expiresAt).getTime() / 1000)}:F>.`,
+                    flags: 64
+                });
+            }
+
+            const ticketTypeValue = interaction.fields.getRadioGroup('community_ticket_type', true);
+            const description = interaction.fields.getTextInputValue('community_ticket_description');
+
+            const typeInfo = COMMUNITY_TICKET_TYPES[ticketTypeValue];
+            if (!typeInfo) {
+                return interaction.reply({ content: 'Tipo di ticket non valido.', flags: 64 });
+            }
+
+            const config = await getGuildConfig(interaction.guild.id);
+
+            const staffRoleIds = getTicketStaffRoleIds(config);
+            const adminRoleIds = getTicketAdminRoleIds(config);
+
+            if (staffRoleIds.length === 0) {
+                return interaction.reply({
+                    content: 'Ticket System is currently off, please contact an administrator.',
+                    flags: 64
+                });
+            }
+
+            const categoryId = config[typeInfo.categoryKey];
+            if (!categoryId) {
+                return interaction.reply({
+                    content: `Category for ${typeInfo.label} is not configured.`,
+                    flags: 64
+                });
+            }
+
+            const category = interaction.guild.channels.cache.get(categoryId);
+            if (!category) {
+                return interaction.reply({
+                    content: 'Ticket Category issue. Please contact an administrator.',
+                    flags: 64
+                });
+            }
+
+            const sanitizedUsername = interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const ticketName = `${ticketTypeValue}-${sanitizedUsername}`;
+
+            const staffRolesInGuild = staffRoleIds.filter(id => interaction.guild.roles.cache.has(id));
+            const adminRolesInGuild = adminRoleIds.filter(id => interaction.guild.roles.cache.has(id));
+
+            const permissionOverwrites = [
+                {
+                    id: interaction.guild.id,
+                    deny: [PermissionsBitField.Flags.ViewChannel]
+                },
+                {
+                    id: interaction.user.id,
+                    allow: [
+                        PermissionsBitField.Flags.ViewChannel,
+                        PermissionsBitField.Flags.SendMessages,
+                        PermissionsBitField.Flags.EmbedLinks,
+                        PermissionsBitField.Flags.AttachFiles,
+                        PermissionsBitField.Flags.ReadMessageHistory
+                    ]
+                }
+            ];
+
+            permissionOverwrites.push(...buildTicketRoleOverwrites(interaction.guild, staffRolesInGuild, [
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.EmbedLinks,
+                PermissionsBitField.Flags.AttachFiles,
+                PermissionsBitField.Flags.ReadMessageHistory,
+                PermissionsBitField.Flags.UseExternalEmojis,
+                PermissionsBitField.Flags.AddReactions,
+                PermissionsBitField.Flags.UseApplicationCommands,
+                PermissionsBitField.Flags.UseExternalStickers
+            ]));
+
+            permissionOverwrites.push(...buildTicketRoleOverwrites(interaction.guild, adminRolesInGuild, [
+                PermissionsBitField.Flags.ManageChannels,
+                PermissionsBitField.Flags.ManageRoles,
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.ManageMessages,
+                PermissionsBitField.Flags.EmbedLinks,
+                PermissionsBitField.Flags.AttachFiles,
+                PermissionsBitField.Flags.ReadMessageHistory,
+                PermissionsBitField.Flags.UseExternalEmojis,
+                PermissionsBitField.Flags.AddReactions,
+                PermissionsBitField.Flags.UseApplicationCommands,
+                PermissionsBitField.Flags.UseExternalStickers
+            ]));
+
+            let ticketChannel;
+            try {
+                ticketChannel = await interaction.guild.channels.create({
+                    name: ticketName,
+                    type: ChannelType.GuildText,
+                    parent: category.id,
+                    permissionOverwrites: permissionOverwrites
+                });
+            } catch (error) {
+                try {
+                    ticketChannel = await interaction.guild.channels.create({
+                        name: `${ticketName}-${Math.floor(Math.random() * 9999)}`,
+                        type: ChannelType.GuildText,
+                        parent: category.id,
+                        permissionOverwrites: permissionOverwrites
+                    });
+                } catch (err) {
+                    logCrash('TICKET_CREATE_ERROR', err);
+                    return interaction.reply({
+                        content: 'Error while creating your ticket, please contact an administrator.',
+                        flags: 64
+                    });
+                }
+            }
+
+            await ticketChannel.setTopic(interaction.user.id).catch(() => {});
+
+            const embed = new EmbedBuilder()
+                .setTitle(typeInfo.label)
+                .setDescription(`Hey ${interaction.user.toString()}! Thank you for creating a ticket. A staff member will assist you shortly.`)
+                .addFields(
+                    { name: 'Ticket Type', value: typeInfo.label, inline: false },
+                    { name: 'Description', value: description, inline: false }
+                )
+                .setColor(BLACK);
+
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('claim_ticket')
+                    .setLabel('Claim Ticket')
+                    .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
+                    .setCustomId('close_ticket')
+                    .setLabel('Close Ticket')
+                    .setStyle(ButtonStyle.Danger)
+            );
+
+            await ticketChannel.send({
+                content: `${interaction.user.toString()}${staffRolesInGuild.map(id => ` <@&${id}>`).join('')}`,
+                embeds: [embed],
+                components: [row]
+            });
+
+            await interaction.reply({
+                content: `Your ticket has been created - Ticket Channel: ${ticketChannel}`,
+                flags: 64
+            });
+
+            await db.saveDashboardLogDB(interaction.guild.id, {
+                type: 'ticket',
+                action: 'ticket_created',
+                userId: interaction.user.id,
+                userTag: interaction.user.tag,
+                details: `${typeInfo.label} ticket created in ${ticketChannel.name}`,
+                channelId: ticketChannel.id,
+                extra: { channelName: ticketChannel.name, ticketType: typeInfo.label }
+            });
+            return;
+        }
+
+        if (interaction.isModalSubmit() && interaction.customId === 'support_modal') {
+            const block = await db.getTicketBlockDB(interaction.guild.id, interaction.user.id);
+            if (block && new Date(block.expiresAt) > new Date()) {
+                return interaction.reply({
+                    content: `You are blocked from creating tickets until <t:${Math.floor(new Date(block.expiresAt).getTime() / 1000)}:F>.`,
+                    flags: 64
+                });
+            }
+
+            const supportType = interaction.fields.getRadioGroup('support_type', true);
+            const message = interaction.fields.getTextInputValue('support_message');
+
+            const config = await getGuildConfig(interaction.guild.id);
+
+            const staffRoleIds = getTicketStaffRoleIds(config);
+            const adminRoleIds = getTicketAdminRoleIds(config);
+
+            if (!config.supportCategoryId || staffRoleIds.length === 0) {
+                return interaction.reply({
+                    content: 'Ticket System is currently off, please contact an administrator.',
+                    flags: 64
+                });
+            }
+
+            const category = interaction.guild.channels.cache.get(config.supportCategoryId);
+            if (!category) {
+                return interaction.reply({
+                    content: 'Ticket Category issue. Please contact an administrator.',
+                    flags: 64
+                });
+            }
+
+            const typeName = supportType === 'modmail' ? 'Modmail' : 'Application Issue';
+
+            const sanitizedUsername = interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const ticketName = `ticket-${sanitizedUsername}`;
+
+            const staffRolesInGuild = staffRoleIds.filter(id => interaction.guild.roles.cache.has(id));
+            const adminRolesInGuild = adminRoleIds.filter(id => interaction.guild.roles.cache.has(id));
+
+            const permissionOverwrites = [
+                {
+                    id: interaction.guild.id,
+                    deny: [PermissionsBitField.Flags.ViewChannel]
+                },
+                {
+                    id: interaction.user.id,
+                    allow: [
+                        PermissionsBitField.Flags.ViewChannel,
+                        PermissionsBitField.Flags.SendMessages,
+                        PermissionsBitField.Flags.EmbedLinks,
+                        PermissionsBitField.Flags.AttachFiles,
+                        PermissionsBitField.Flags.ReadMessageHistory
+                    ]
+                }
+            ];
+
+            permissionOverwrites.push(...buildTicketRoleOverwrites(interaction.guild, staffRolesInGuild, [
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.EmbedLinks,
+                PermissionsBitField.Flags.AttachFiles,
+                PermissionsBitField.Flags.ReadMessageHistory,
+                PermissionsBitField.Flags.UseExternalEmojis,
+                PermissionsBitField.Flags.AddReactions,
+                PermissionsBitField.Flags.UseApplicationCommands,
+                PermissionsBitField.Flags.UseExternalStickers
+            ]));
+
+            permissionOverwrites.push(...buildTicketRoleOverwrites(interaction.guild, adminRolesInGuild, [
+                PermissionsBitField.Flags.ManageChannels,
+                PermissionsBitField.Flags.ManageRoles,
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.ManageMessages,
+                PermissionsBitField.Flags.EmbedLinks,
+                PermissionsBitField.Flags.AttachFiles,
+                PermissionsBitField.Flags.ReadMessageHistory,
+                PermissionsBitField.Flags.UseExternalEmojis,
+                PermissionsBitField.Flags.AddReactions,
+                PermissionsBitField.Flags.UseApplicationCommands,
+                PermissionsBitField.Flags.UseExternalStickers
+            ]));
+
+            let ticketChannel;
+            try {
+                ticketChannel = await interaction.guild.channels.create({
+                    name: ticketName,
+                    type: ChannelType.GuildText,
+                    parent: category.id,
+                    permissionOverwrites: permissionOverwrites
+                });
+            } catch (error) {
+                try {
+                    ticketChannel = await interaction.guild.channels.create({
+                        name: `${ticketName}-${Math.floor(Math.random() * 9999)}`,
+                        type: ChannelType.GuildText,
+                        parent: category.id,
+                        permissionOverwrites: permissionOverwrites
+                    });
+                } catch (err) {
+                    logCrash('TICKET_CREATE_ERROR', err);
+                    return interaction.reply({
+                        content: 'Error while creating your ticket, please contact an administrator.',
+                        flags: 64
+                    });
+                }
+            }
+
+            await ticketChannel.setTopic(interaction.user.id).catch(() => {});
+
+            const embed = new EmbedBuilder()
+                .setTitle(`${interaction.user.username} support ticket`)
+                .setDescription(`Hey ${interaction.user.toString()}! Thank you for creating a ticket. A staff member will assist you shortly.`)
+                .addFields(
+                    { name: 'Ticket Category', value: typeName, inline: false },
+                    { name: 'Additional Information', value: message, inline: false }
+                )
+                .setColor(BLACK);
+
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('claim_ticket')
+                    .setLabel('Claim Ticket')
+                    .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
+                    .setCustomId('close_ticket')
+                    .setLabel('Close Ticket')
+                    .setStyle(ButtonStyle.Danger)
+            );
+
+            await ticketChannel.send({
+                content: `${interaction.user.toString()}${staffRolesInGuild.map(id => ` <@&${id}>`).join('')}`,
+                embeds: [embed],
+                components: [row]
+            });
+
+            await interaction.reply({
+                content: `Your ticket has been created - Ticket Channel: ${ticketChannel}`,
+                flags: 64
+            });
+
+            await db.saveDashboardLogDB(interaction.guild.id, {
+                type: 'ticket',
+                action: 'ticket_created',
+                userId: interaction.user.id,
+                userTag: interaction.user.tag,
+                details: `Support ticket (${typeName}) created in ${ticketChannel.name}`,
+                channelId: ticketChannel.id,
+                extra: { channelName: ticketChannel.name, ticketType: typeName }
+            });
+            return;
+        }
+
+        if (interaction.isModalSubmit() && interaction.customId === 'report_player_modal') {
+            const reportBlock = await db.getTicketBlockDB(interaction.guild.id, interaction.user.id);
+            if (reportBlock && new Date(reportBlock.expiresAt) > new Date()) {
+                return interaction.reply({
+                    content: `You are blocked from creating tickets until <t:${Math.floor(new Date(reportBlock.expiresAt).getTime() / 1000)}:F>.`,
+                    flags: 64
+                });
+            }
+
+            const selectedUsers = interaction.fields.getSelectedUsers('reported_user', true);
+            const reportedUser = selectedUsers.first();
+
+            if (!reportedUser || reportedUser.bot) {
+                await interaction.reply({
+                    content: 'Invalid user selected. You cant report a bot.',
+                    flags: 64
+                });
+                return;
+            }
+
+            const evidence = interaction.fields.getTextInputValue('evidence_proof');
+            const moreInformation = interaction.fields.getTextInputValue('more_information');
+
+            const config = await getGuildConfig(interaction.guild.id);
+
+            const staffRoleIds = getTicketStaffRoleIds(config);
+            const adminRoleIds = getTicketAdminRoleIds(config);
+
+            if (!config.supportCategoryId || staffRoleIds.length === 0) {
+                return interaction.reply({
+                    content: 'Ticket System is currently off, please contact an administrator.',
+                    flags: 64
+                });
+            }
+
+            const category = interaction.guild.channels.cache.get(config.supportCategoryId);
+            if (!category) {
+                return interaction.reply({
+                    content: 'Ticket Category issue. Please contact an administrator.',
+                    flags: 64
+                });
+            }
+
+            const sanitizedUsername = interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const ticketName = `report-${sanitizedUsername}`;
+
+            const staffRolesInGuild = staffRoleIds.filter(id => interaction.guild.roles.cache.has(id));
+            const adminRolesInGuild = adminRoleIds.filter(id => interaction.guild.roles.cache.has(id));
+
+            const permissionOverwrites = [
+                {
+                    id: interaction.guild.id,
+                    deny: [PermissionsBitField.Flags.ViewChannel]
+                },
+                {
+                    id: interaction.user.id,
+                    allow: [
+                        PermissionsBitField.Flags.ViewChannel,
+                        PermissionsBitField.Flags.SendMessages,
+                        PermissionsBitField.Flags.EmbedLinks,
+                        PermissionsBitField.Flags.AttachFiles,
+                        PermissionsBitField.Flags.ReadMessageHistory
+                    ]
+                }
+            ];
+
+            permissionOverwrites.push(...buildTicketRoleOverwrites(interaction.guild, staffRolesInGuild, [
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.EmbedLinks,
+                PermissionsBitField.Flags.AttachFiles,
+                PermissionsBitField.Flags.ReadMessageHistory,
+                PermissionsBitField.Flags.UseExternalEmojis,
+                PermissionsBitField.Flags.AddReactions,
+                PermissionsBitField.Flags.UseApplicationCommands,
+                PermissionsBitField.Flags.UseExternalStickers
+            ]));
+
+            permissionOverwrites.push(...buildTicketRoleOverwrites(interaction.guild, adminRolesInGuild, [
+                PermissionsBitField.Flags.ManageChannels,
+                PermissionsBitField.Flags.ManageRoles,
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.ManageMessages,
+                PermissionsBitField.Flags.EmbedLinks,
+                PermissionsBitField.Flags.AttachFiles,
+                PermissionsBitField.Flags.ReadMessageHistory,
+                PermissionsBitField.Flags.UseExternalEmojis,
+                PermissionsBitField.Flags.AddReactions,
+                PermissionsBitField.Flags.UseApplicationCommands,
+                PermissionsBitField.Flags.UseExternalStickers
+            ]));
+
+            let ticketChannel;
+            try {
+                ticketChannel = await interaction.guild.channels.create({
+                    name: ticketName,
+                    type: ChannelType.GuildText,
+                    parent: category.id,
+                    permissionOverwrites: permissionOverwrites
+                });
+            } catch (error) {
+                try {
+                    ticketChannel = await interaction.guild.channels.create({
+                        name: `${ticketName}-${Math.floor(Math.random() * 9999)}`,
+                        type: ChannelType.GuildText,
+                        parent: category.id,
+                        permissionOverwrites: permissionOverwrites
+                    });
+                } catch (err) {
+                    logCrash('TICKET_CREATE_ERROR', err);
+                    return interaction.reply({
+                        content: 'Error while creating your ticket, please contact an administrator.',
+                        flags: 64
+                    });
+                }
+            }
+
+            await ticketChannel.setTopic(interaction.user.id).catch(() => {});
+
+            const evidenceText = evidence ? evidence : 'No evidence provided';
+            const moreInfoText = moreInformation ? moreInformation : 'None';
+
+            const embed = new EmbedBuilder()
+                .setTitle(`${interaction.user.username} report ticket`)
+                .setDescription(`Hey ${interaction.user.toString()}! Thank you for creating a ticket. A staff member will assist you shortly.`)
+                .addFields(
+                    { name: 'Reported Player', value: `${reportedUser.tag} (${reportedUser.id})`, inline: false },
+                    { name: 'Evidence Proof', value: evidenceText, inline: false },
+                    { name: 'Additional Information', value: moreInfoText, inline: false }
+                )
+                .setColor(BLACK);
+
+            const row = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('claim_ticket')
+                    .setLabel('Claim Ticket')
+                    .setStyle(ButtonStyle.Success),
+                new ButtonBuilder()
+                    .setCustomId('close_ticket')
+                    .setLabel('Close Ticket')
+                    .setStyle(ButtonStyle.Danger)
+            );
+
+            await ticketChannel.send({
+                content: `${interaction.user.toString()}${staffRolesInGuild.map(id => ` <@&${id}>`).join('')}`,
+                embeds: [embed],
+                components: [row]
+            });
+
+            await interaction.reply({
+                content: `Your ticket has been created - Ticket Channel: ${ticketChannel}`,
+                flags: 64
+            });
+
+            await db.saveDashboardLogDB(interaction.guild.id, {
+                type: 'ticket',
+                action: 'report_created',
+                userId: interaction.user.id,
+                userTag: interaction.user.tag,
+                targetId: reportedUser.id,
+                targetTag: reportedUser.tag,
+                details: `Report ticket created in ${ticketChannel.name}`,
+                channelId: ticketChannel.id
+            });
+            return;
+        }
+
+        if (interaction.isButton() && interaction.customId === 'claim_ticket') {
+            await interaction.deferUpdate();
+
+            const config = await getGuildConfig(interaction.guild.id);
+            const staffRoleIds = getTicketStaffRoleIds(config);
+            const adminRoleIds = getTicketAdminRoleIds(config);
+            const adminRolesInGuild = adminRoleIds.filter(id => interaction.guild.roles.cache.has(id));
+
+            const isStaff = memberHasAnyRole(interaction.member, staffRoleIds);
+            const isAdmin = memberHasAnyRole(interaction.member, adminRoleIds);
+
+            if (!isStaff && !isAdmin) {
+                return interaction.followUp({
+                    content: 'Missing Permissions',
+                    flags: 64
+                });
+            }
+
+            const ticketOwnerId = interaction.channel.topic;
+            if (!ticketOwnerId) {
+                return interaction.followUp({ content: 'Error', flags: 64 });
+            }
+
+            const newOverwrites = [
+                {
+                    id: interaction.guild.id,
+                    deny: [PermissionsBitField.Flags.ViewChannel]
+                },
+                {
+                    id: ticketOwnerId,
+                    allow: [
+                        PermissionsBitField.Flags.ViewChannel,
+                        PermissionsBitField.Flags.SendMessages,
+                        PermissionsBitField.Flags.EmbedLinks,
+                        PermissionsBitField.Flags.AttachFiles,
+                        PermissionsBitField.Flags.ReadMessageHistory
+                    ]
+                },
+                {
+                    id: interaction.user.id,
+                    allow: [
+                        PermissionsBitField.Flags.ViewChannel,
+                        PermissionsBitField.Flags.SendMessages,
+                        PermissionsBitField.Flags.EmbedLinks,
+                        PermissionsBitField.Flags.AttachFiles,
+                        PermissionsBitField.Flags.ReadMessageHistory,
+                        PermissionsBitField.Flags.UseExternalEmojis,
+                        PermissionsBitField.Flags.AddReactions,
+                        PermissionsBitField.Flags.UseApplicationCommands,
+                        PermissionsBitField.Flags.UseExternalStickers
+                    ]
+                }
+            ];
+
+            newOverwrites.push(...buildTicketRoleOverwrites(interaction.guild, adminRolesInGuild, [
+                PermissionsBitField.Flags.ManageChannels,
+                PermissionsBitField.Flags.ManageRoles,
+                PermissionsBitField.Flags.ViewChannel,
+                PermissionsBitField.Flags.SendMessages,
+                PermissionsBitField.Flags.ManageMessages,
+                PermissionsBitField.Flags.EmbedLinks,
+                PermissionsBitField.Flags.AttachFiles,
+                PermissionsBitField.Flags.ReadMessageHistory,
+                PermissionsBitField.Flags.UseExternalEmojis,
+                PermissionsBitField.Flags.AddReactions,
+                PermissionsBitField.Flags.UseApplicationCommands,
+                PermissionsBitField.Flags.UseExternalStickers
+            ]));
+
+
+            await interaction.channel.permissionOverwrites.set(newOverwrites);
+
+            try {
+                const messages = await interaction.channel.messages.fetch({ limit: 20 });
+                const botMessage = messages.find(m =>
+                    m.author.id === client.user.id &&
+                    m.components.length > 0 &&
+                    m.embeds.length > 0
+                );
+                if (botMessage) {
+                    await botMessage.edit({ components: [] });
+                }
+            } catch (error) {
+                console.error('[CLAIM] Error removing buttons:', error);
+            }
+
+            const embed = new EmbedBuilder()
+                .setTitle('Ticket Claimed')
+                .setDescription(`This ticket has been claimed by ${interaction.user.toString()}, he will assist you with your request.`)
+                .setColor(GOLD);
+
+            const closeRow = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId('close_ticket')
+                    .setLabel('Close Ticket')
+                    .setStyle(ButtonStyle.Danger)
+            );
+
+            await interaction.channel.send({ embeds: [embed], components: [closeRow] });
+
+            ticketClaims.set(interaction.channel.id, {
+                claimedBy: interaction.user.id,
+                claimedByTag: interaction.user.tag
+            });
+
+            await db.saveDashboardLogDB(interaction.guild.id, {
+                type: 'ticket',
+                action: 'ticket_claimed',
+                userId: interaction.user.id,
+                userTag: interaction.user.tag,
+                details: `Ticket ${interaction.channel.name} claimed`,
+                channelId: interaction.channel.id,
+                extra: { channelName: interaction.channel.name }
+            });
+            return;
+        }
+
+            if (interaction.isButton() && interaction.customId === 'close_ticket') {
+                await interaction.deferUpdate();
+            
+                const config = await getGuildConfig(interaction.guild.id);
+                const staffRoleIds = getTicketStaffRoleIds(config);
+                const adminRoleIds = getTicketAdminRoleIds(config);
+
+                const isStaff = memberHasAnyRole(interaction.member, staffRoleIds);
+                const isAdmin = memberHasAnyRole(interaction.member, adminRoleIds);
+
+                if (!isStaff && !isAdmin) {
+                    return interaction.followUp({
+                        content: '❌ Only staff members can close tickets.',
+                        flags: 64
+                    });
+                }
+            
+                const embed = new EmbedBuilder()
+                    .setTitle('Ticket Closed')
+                    .setDescription('This ticket has been closed, the channel will be deleted in 5 seconds....')
+                    .setColor(RED);
+            
+                try {
+                    const noButtonsRow = new ActionRowBuilder();
+                    await interaction.message.edit({ components: [noButtonsRow] });
+                } catch (error) {}
+            
+                await interaction.channel.send({ embeds: [embed] });
+
+                const ownerId = interaction.channel.topic || null;
+                let ownerTag = null;
+                if (ownerId) {
+                    try {
+                        const ownerUser = await client.users.fetch(ownerId);
+                        ownerTag = ownerUser.tag;
+                    } catch {}
+                }
+                const claimInfo = ticketClaims.get(interaction.channel.id) || {};
+
+                const transcriptId = await generateTicketTranscript(interaction.channel, interaction.user, {
+                    ticketType: ticketTypeFromChannelName(interaction.channel.name),
+                    ticketOwnerId: ownerId,
+                    ticketOwnerTag: ownerTag,
+                    createdBy: ownerId,
+                    createdByTag: ownerTag,
+                    claimedBy: claimInfo.claimedBy || null,
+                    claimedByTag: claimInfo.claimedByTag || null,
+                    closedBy: interaction.user.id
+                });
+                ticketClaims.delete(interaction.channel.id);
+
+                await db.saveDashboardLogDB(interaction.guild.id, {
+                    type: 'ticket',
+                    action: 'ticket_closed',
+                    userId: interaction.user.id,
+                    userTag: interaction.user.tag,
+                    details: `Ticket ${interaction.channel.name} closed${transcriptId ? ` (transcript available)` : ''}`,
+                    channelId: interaction.channel.id,
+                    transcriptId: transcriptId || null,
+                    extra: {
+                        channelName: interaction.channel.name,
+                        ticketOwnerTag: ownerTag,
+                        claimedByTag: claimInfo.claimedByTag || null
+                    }
+                });
+            
+                setTimeout(async () => {
+                    try {
+                        if (interaction.channel && interaction.channel.deletable) {
+                            await interaction.channel.delete();
+                        }
+                    } catch (error) {}
+                }, 5000);
+                return;
+            }
+
+        if (interaction.isButton() && interaction.customId.startsWith('app_accept_')) {
+            if (!(await canReviewApplications(interaction.member))) {
+                return interaction.reply({ content: 'You do not have permission to use this button.', flags: 64 });
+            }
+
+            const targetUserId = interaction.customId.replace('app_accept_', '');
+            await interaction.deferUpdate();
+
+            const guild = interaction.guild;
+            const config = await getGuildConfig(guild.id);
+            const rolesGuild = botClients.getRolesClient(client).guilds.cache.get(guild.id) || guild;
+            const member = await rolesGuild.members.fetch(targetUserId).catch(() => null);
+
+            const assignedRoles = [];
+            if (member && Array.isArray(config.modRoleIds)) {
+                for (const roleId of config.modRoleIds) {
+                    if (member.roles.cache.has(roleId)) continue;
+                    const added = await member.roles.add(roleId, `Application accepted by ${interaction.user.tag}`).then(() => true).catch(() => false);
+                    if (added) assignedRoles.push(roleId);
+                }
+            }
+
+            const targetUser = member ? member.user : await client.users.fetch(targetUserId).catch(() => null);
+            let result = { invited: false, dmSent: false, reason: 'User not found' };
+            if (targetUser) {
+                try {
+                    result = await sendModAcceptInvite(targetUser, guild, interaction.user);
+                } catch (error) {
+                    logCrash('MOD_ACCEPT_INVITE', error, { userId: targetUserId });
+                    result = { invited: false, dmSent: false, reason: 'Error while creating the invite' };
+                }
+            }
+
+            const acceptedEmbed = EmbedBuilder.from(interaction.message.embeds[0])
+                .setColor(GREEN)
+                .setFooter({ text: `Accepted by @${interaction.user.username}` });
+            await interaction.message.edit({ embeds: [acceptedEmbed], components: [] }).catch(() => {});
+
+            const lines = [`Application accepted.`];
+            lines.push(assignedRoles.length ? `Roles assigned: ${assignedRoles.map(id => `<@&${id}>`).join(' ')}` : (member ? 'No new roles assigned.' : 'User is not in this server, no roles assigned.'));
+            lines.push(result.invited ? 'Invite sent in DM.' : `Invite not sent: ${result.reason}.`);
+            await interaction.followUp({ content: lines.join('\n'), flags: 64 }).catch(() => {});
+            return;
+        }
+
+        if (interaction.isButton() && interaction.customId.startsWith('app_reject_')) {
+            if (!(await canReviewApplications(interaction.member))) {
+                return interaction.reply({ content: 'You do not have permission to use this button.', flags: 64 });
+            }
+
+            const targetUserId = interaction.customId.replace('app_reject_', '');
+            await interaction.deferUpdate();
+
+            const rejectedEmbed = EmbedBuilder.from(interaction.message.embeds[0])
+                .setColor(RED)
+                .setFooter({ text: `Rejected by @${interaction.user.username}` });
+            await interaction.message.edit({ embeds: [rejectedEmbed], components: [] }).catch(() => {});
+
+            const targetUser = await client.users.fetch(targetUserId).catch(() => null);
+            if (targetUser) {
+                const dmEmbed = new EmbedBuilder()
+                    .setTitle('Application Rejected')
+                    .setDescription('Your application has been rejected.')
+                    .setColor(RED);
+                await targetUser.send({ embeds: [dmEmbed] }).catch(() => {});
+            }
+            await interaction.followUp({ content: 'Application rejected.', flags: 64 }).catch(() => {});
+            return;
+        }
+
+        if (interaction.isButton() && interaction.customId.startsWith('appeal_accept_')) {
+            if (!(await isStaffSafe(interaction.member))) {
+                return interaction.reply({ content: 'You do not have permission to use this button.', flags: 64 });
+            }
+
+            const targetUserId = interaction.customId.replace('appeal_accept_', '');
+            await interaction.deferUpdate();
+
+            try {
+                if (!interaction.guild?.id || interaction.guild.id === process.env.MAIN_GUILD_ID) {
+                    const targetUser = await client.users.fetch(targetUserId);
+                    const dmEmbed = new EmbedBuilder()
+                        .setDescription('Your appeal has been accept, join back now https://discord.gg/UW7SsywQp6')
+                        .setColor(GREEN);
+                    await targetUser.send({ embeds: [dmEmbed] }).catch(() => {});
+                }
+            } catch {}
+
+            const updatedEmbed = EmbedBuilder.from(interaction.message.embeds[0])
+                .setColor(GREEN)
+                .setFooter({ text: `Accepted by @${interaction.user.username}` });
+
+            const oldRow = interaction.message.components[0];
+            const newRow = new ActionRowBuilder().addComponents(
+                oldRow.components.map(c => {
+                    const btn = ButtonBuilder.from(c);
+                    if (!c.customId.startsWith('appeal_modlogs_')) btn.setDisabled(true);
+                    return btn;
+                })
+            );
+
+            await interaction.message.edit({ embeds: [updatedEmbed], components: [newRow] });
+            return;
+        }
+
+        if (interaction.isButton() && interaction.customId.startsWith('appeal_deny_')) {
+            if (!(await isStaffSafe(interaction.member))) {
+                return interaction.reply({ content: 'You do not have permission to use this button.', flags: 64 });
+            }
+
+            const targetUserId = interaction.customId.replace('appeal_deny_', '');
+
+            const reasonInput = new TextInputBuilder()
+                .setCustomId('deny_reason')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Explain why this appeal is being rejected...')
+                .setRequired(true)
+                .setMaxLength(1000);
+
+            const modal = new ModalBuilder()
+                .setCustomId(`appeal_deny_modal_${targetUserId}`)
+                .setTitle('Deny Appeal');
+
+            modal.addLabelComponents(
+                new LabelBuilder()
+                    .setLabel('Reason')
+                    .setTextInputComponent(reasonInput)
+            );
+
+            await interaction.showModal(modal);
+            return;
+        }
+
+        if (interaction.isModalSubmit() && interaction.customId.startsWith('appeal_deny_modal_')) {
+            if (!(await isStaffSafe(interaction.member))) {
+                return interaction.reply({ content: 'You do not have permission to do this.', flags: 64 });
+            }
+
+            const targetUserId = interaction.customId.replace('appeal_deny_modal_', '');
+            const reason = interaction.fields.getTextInputValue('deny_reason');
+
+            await interaction.deferUpdate();
+
+            try {
+                if (!interaction.guild?.id || interaction.guild.id === process.env.MAIN_GUILD_ID) {
+                    const targetUser = await client.users.fetch(targetUserId);
+                    const dmEmbed = new EmbedBuilder()
+                        .setDescription(`Your appeal has been rejected, for: **${reason}**`)
+                        .setColor(RED);
+                    await targetUser.send({ embeds: [dmEmbed] }).catch(() => {});
+                }
+            } catch {}
+
+            const updatedEmbed = EmbedBuilder.from(interaction.message.embeds[0])
+                .setColor(RED)
+                .addFields({ name: 'Reason', value: reason.slice(0, 1024) })
+                .setFooter({ text: `Rejected by @${interaction.user.username}` });
+
+            const oldRow = interaction.message.components[0];
+            const newRow = new ActionRowBuilder().addComponents(
+                oldRow.components.map(c => {
+                    const btn = ButtonBuilder.from(c);
+                    if (!c.customId.startsWith('appeal_modlogs_')) btn.setDisabled(true);
+                    return btn;
+                })
+            );
+
+            await interaction.message.edit({ embeds: [updatedEmbed], components: [newRow] });
+            return;
+        }
+
+        if (interaction.isButton() && interaction.customId.startsWith('appeal_modlogs_')) {
+            if (!(await isStaffSafe(interaction.member))) {
+                return interaction.reply({ content: 'You do not have permission to use this button.', flags: 64 });
+            }
+
+            const targetUserId = interaction.customId.replace('appeal_modlogs_', '');
+            await interaction.deferReply({ flags: 64 });
+
+            let username = `Unknown (${targetUserId})`;
+            try {
+                const u = await client.users.fetch(targetUserId);
+                username = u.username;
+            } catch {}
+
+            const text = await formatModerationHistory(targetUserId, interaction.guild.id, username, 1);
+            const embed = new EmbedBuilder().setDescription(text).setColor(COLORS.INFO);
+            await interaction.editReply({ embeds: [embed] });
+            return;
+        }
+    } catch (error) {
+        logCrash('INTERACTION_HANDLER', error, { customId: interaction?.customId });
+        try {
+            if (interaction?.isRepliable && interaction.isRepliable()) {
+                const payload = { content: 'An error occurred. Please try again.', flags: 64 };
+                if (interaction.replied || interaction.deferred) {
+                    await interaction.followUp(payload).catch(() => {});
+                } else {
+                    await interaction.reply(payload).catch(() => {});
+                }
+            }
+        } catch {}
+    }
+});
+
+setInterval(async () => {
+    try {
+        const expired = await db.getExpiredBans();
+        for (const ban of expired) {
+            try {
+                const guild = client.guilds.cache.get(ban.guildId);
+                if (!guild) {
+                    await db.removePendingBan(ban.guildId, ban.userId).catch(() => {});
+                    continue;
+                }
+                await guild.members.unban(ban.userId, 'Temporary ban expired');
+                await db.removePendingBan(ban.guildId, ban.userId).catch(() => {});
+                await saveModLog(guild, 'User unbanned (auto)', { id: ban.userId, tag: ban.userTag }, client.user, 'Temporary ban expired');
+
+                try {
+                    const unbannedUser = await client.users.fetch(ban.userId);
+                    await sendUnbanDM(unbannedUser, guild);
+                } catch (dmErr) {
+                    console.error(`[AUTO-UNBAN] DM fetch error on ${ban.userId}:`, dmErr.message);
+                }
+
+                await db.saveDashboardLogDB(guild.id, {
+                    type: 'auto_mod',
+                    action: 'user_unbanned_auto',
+                    userId: client.user.id,
+                    userTag: client.user.tag,
+                    targetId: ban.userId,
+                    targetTag: ban.userTag,
+                    reason: 'Temporary ban expired',
+                    details: 'Auto-unban after temporary ban expired'
+                });
+
+                console.log(`[AUTO-UNBAN] Unbanned ${ban.userTag} (${ban.userId}) from ${guild.name}`);
+            } catch (err) {
+                console.error(`[AUTO-UNBAN] Error on ${ban.userId}:`, err.message);
+                if (err.code === 10026 || err.code === 10013) {
+                    await db.removePendingBan(ban.guildId, ban.userId).catch(() => {});
+                }
+            }
+        }
+    } catch (error) {
+        logCrash('AUTO_UNBAN_SCHEDULER', error);
+    }
+}, 60000);
+
+setInterval(async () => {
+    try {
+        const expired = await db.getExpiredRoleRemovals();
+        for (const item of expired) {
+            try {
+                const guild = client.guilds.cache.get(item.guildId);
+                if (!guild) {
+                    await db.removePendingRoleRemoval(item.guildId, item.userId, item.roleId).catch(() => {});
+                    continue;
+                }
+                const member = await guild.members.fetch(item.userId);
+                if (member.roles.cache.has(item.roleId)) {
+                    await member.roles.remove(item.roleId, 'Temporary role expired');
+                }
+                await db.removePendingRoleRemoval(item.guildId, item.userId, item.roleId).catch(() => {});
+            } catch (err) {
+                if (err.code === 10007 || err.code === 10011 || err.code === 50013) {
+                    await db.removePendingRoleRemoval(item.guildId, item.userId, item.roleId).catch(() => {});
+                } else {
+                    console.error(`[TEMP-ROLE] Error on ${item.userId}:`, err.message);
+                }
+            }
+        }
+    } catch (error) {
+        logCrash('TEMP_ROLE_SCHEDULER', error);
+    }
+}, 60000);
+
+process.on('SIGINT', () => { process.exit(); });
+process.on('SIGTERM', () => { process.exit(); });
+
+if (!process.env.DISCORD_TOKEN) {
+    console.error('DISCORD_TOKEN missing in .env file!');
+    process.exit(1);
+}
+
+async function loginWithRetry(retries = 5, delay = 10000) {
+    for (let i = 1; i <= retries; i++) {
+        try {
+            await client.login(process.env.DISCORD_TOKEN);
+            return;
+        } catch (error) {
+            logCrash('LOGIN_ERROR', error, { attempt: i, retries });
+            if (i === retries) {
+                console.error('Login failed after all retries');
+                process.exit(1);
+            }
+            await new Promise((r) => setTimeout(r, delay));
+        }
+    }
+}
+
+loginWithRetry();
