@@ -3642,6 +3642,7 @@ async function loadBlacklistSettings() {
 
         renderSingleSelectList('blLogChannelList', textChannels, settings.logChannelId, 'blLogChannel');
         renderPermissionsList('blBanServersList', settings.guilds || [], settings.banGuildIds || []);
+        await renderBlacklistCommandRoles(settings);
 
         box.classList.remove('hidden');
         if (settings.canEdit) {
@@ -3657,6 +3658,51 @@ async function loadBlacklistSettings() {
     }
 }
 
+let blacklistCommandGuilds = [];
+
+async function renderBlacklistCommandRoles(settings) {
+    const host = document.getElementById('blacklistCommandRoles');
+    if (!host) return;
+    const guilds = settings.guilds || [];
+    blacklistCommandGuilds = guilds.map(g => g.id);
+    host.innerHTML = guilds.map(g => `
+        <h3 class="bl-cmd-server">${escapeHtml(g.name)}</h3>
+        <div class="permissions-grid">
+            <div class="permission-card">
+                <h3>Blacklist &amp; Unblacklist &amp; Reason Command</h3>
+                <p class="permission-desc">Roles that can use -blacklist, -unblacklist and -reason</p>
+                <div id="blCmdManage_${escapeAttr(g.id)}" class="roles-list"><p class="loading-text">Loading...</p></div>
+            </div>
+            <div class="permission-card">
+                <h3>Bll Command</h3>
+                <p class="permission-desc">Roles that can use -bll</p>
+                <div id="blCmdView_${escapeAttr(g.id)}" class="roles-list"><p class="loading-text">Loading...</p></div>
+            </div>
+        </div>`).join('');
+
+    await Promise.all(guilds.map(async (g) => {
+        let roles = [];
+        try {
+            const res = await fetch(`/api/roles/${g.id}`);
+            if (res.ok) roles = await res.json();
+        } catch (e) {}
+        const cfg = (settings.commandRoles || {})[g.id] || {};
+        renderPermissionsList(`blCmdManage_${g.id}`, roles, cfg.manage || []);
+        renderPermissionsList(`blCmdView_${g.id}`, roles, cfg.view || []);
+    }));
+}
+
+function collectBlacklistCommandRoles() {
+    const out = {};
+    blacklistCommandGuilds.forEach(gid => {
+        out[gid] = {
+            manage: getCheckedIds(`blCmdManage_${gid}`),
+            view: getCheckedIds(`blCmdView_${gid}`)
+        };
+    });
+    return out;
+}
+
 async function saveBlacklistSettings() {
     const btn = document.getElementById('saveBlacklistSettingsBtn');
     if (!btn || !isOwner()) return;
@@ -3670,7 +3716,8 @@ async function saveBlacklistSettings() {
             body: JSON.stringify({
                 guildId: currentGuild,
                 logChannelId: getSelectedValue('blLogChannelList'),
-                banGuildIds: getCheckedIds('blBanServersList')
+                banGuildIds: getCheckedIds('blBanServersList'),
+                commandRoles: collectBlacklistCommandRoles()
             })
         });
         if (res.ok) {
