@@ -803,7 +803,12 @@ app.post('/api/site/apply', async (req, res) => {
 
         embed.addFields({ name: 'User Info', value: await buildUserInfoField(client, targetGuildId, user.id) });
 
-        await channel.send({ embeds: [embed] });
+        const appRow = new ActionRowBuilder().addComponents(
+            new ButtonBuilder().setCustomId(`app_accept_${user.id}`).setLabel('Accept').setStyle(ButtonStyle.Success),
+            new ButtonBuilder().setCustomId(`app_reject_${user.id}`).setLabel('Reject').setStyle(ButtonStyle.Danger)
+        );
+
+        await channel.send({ embeds: [embed], components: [appRow] });
         await db.setCommandCooldownDB(user.id, targetGuildId, 'staff_application', SUBMISSION_COOLDOWN_SECONDS);
         res.json({ success: true });
     } catch (e) {
