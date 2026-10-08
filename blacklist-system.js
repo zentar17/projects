@@ -400,6 +400,7 @@ function createBlacklistSystem({ client, db, logCrash }) {
         sendLog,
         formatBlacklistDate,
         runSweep,
+        isSweeping: () => running,
         start,
         stop
     };
