@@ -5110,3 +5110,10 @@ main .mc-ticket-num, main .mc-ticket-claim.claimed, main .modlog-server-badge { 
 }
 
 .btn-primary { display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding-top: 0; padding-bottom: 0; text-align: center; }
+
+#blacklistSettings { margin-bottom: 36px; }
+#tab-blacklist .bans-count { margin: 0 0 16px 0; }
+
+#blacklistSettings { margin-bottom: 32px; }
+#blacklistSettings.readonly .role-item { opacity: 0.6; }
+#blacklistSettings.readonly .role-toggle, #blacklistSettings.readonly .role-toggle-switch { cursor: not-allowed; }
