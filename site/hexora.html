@@ -474,8 +474,8 @@ header img {
 
 body { position: relative; }
 body::before { content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(ellipse 60% 50% at 18% 40%, rgba(255,255,255,0.07), transparent 70%), radial-gradient(ellipse 50% 45% at 85% 25%, rgba(255,255,255,0.045), transparent 70%), radial-gradient(ellipse 70% 40% at 50% 100%, rgba(255,255,255,0.05), transparent 70%); opacity: 0; animation: hxGlowIn 1.8s ease 0.1s forwards, hxGlowDrift 14s ease-in-out 1.9s infinite alternate; }
-header, .header-spacer, .hx-page, .site-footer { position: relative; z-index: 1; }
-header { position: fixed; }
+header { position: fixed; z-index: 1000; }
+.hx-page, .site-footer { position: relative; z-index: 1; }
 @keyframes hxGlowIn { to { opacity: 1; } }
 @keyframes hxGlowDrift { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(-1.5%,1.5%,0) scale(1.06); } }
 @keyframes hxFadeUp { from { opacity: 0; transform: translateY(22px); filter: blur(8px); } to { opacity: 1; transform: none; filter: blur(0); } }
