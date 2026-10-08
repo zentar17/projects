@@ -469,6 +469,8 @@ header img {
 .hx-row span { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); }
 .hx-row b { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; word-break: break-all; }
 @media (max-width: 860px) {
+    .hx-about { margin-bottom: 40px; }
+    .hx-x { width: 56px; height: 56px; bottom: -40px; }
     .hx-page { grid-template-columns: 1fr; gap: 48px; padding: 56px 20px 80px; min-height: 0; align-content: start; }
     .hx-title { font-size: 34px; }
     .hx-logo { width: 62px; height: 62px; }
@@ -491,6 +493,41 @@ header { position: fixed; z-index: 1000; }
 .hx-about::after { content: ''; display: block; width: 100%; max-width: 480px; height: 3px; margin-top: 28px; border-radius: 3px; background: linear-gradient(90deg, rgba(250,250,250,0.55), #ffffff) no-repeat left center / 0% 100%, rgba(255,255,255,0.1); box-shadow: 0 0 8px rgba(255,255,255,0.45); transform-origin: left; transform: scaleX(0); }
 .hx-about.hx-line-on::after { animation: hxLine 0.5s ease forwards, hxLoad 0.75s cubic-bezier(.4,0,.2,1) 0.5s forwards; }
 .hx-about.hx-line-gone::after { opacity: 0; animation: none; transform: scaleX(1); background-size: 100% 100%, 100% 100%; transition: opacity 0.12s linear; box-shadow: none; }
+.hx-about { position: relative; }
+.hx-x { position: absolute; left: 0; bottom: -46px; width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; visibility: hidden; pointer-events: none; -webkit-tap-highlight-color: transparent; transition: transform 0.28s cubic-bezier(.2,.8,.2,1); }
+.hx-x.on { visibility: visible; }
+.hx-x.live { pointer-events: auto; cursor: pointer; }
+.hx-x-ring { position: absolute; inset: 0; border-radius: 18px; overflow: hidden; border: 1px solid rgba(255,255,255,0.18); opacity: 0; transition: border-color 0.25s ease; }
+.hx-x-ring::before { content: ''; position: absolute; inset: -60%; background: conic-gradient(from 0deg, rgba(255,255,255,0) 0 38%, rgba(255,255,255,0.25) 70%, #ffffff 100%); opacity: 0; transition: opacity 0.3s ease; animation: hxXSpin 2.6s linear infinite; animation-play-state: paused; }
+.hx-x-ring::after { content: ''; position: absolute; inset: 1.5px; border-radius: 16px; background: #0c0c0f; }
+.hx-x-box { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.hx-x-box rect { fill: none; stroke: #ffffff; stroke-width: 1.5; stroke-dasharray: 1 3; stroke-dashoffset: 1; opacity: 0; }
+.hx-x-ic { position: relative; z-index: 2; width: 30px; height: 30px; overflow: visible; filter: drop-shadow(0 0 6px rgba(255,255,255,0.35)); }
+.hx-x-ic path { fill: #ffffff; fill-opacity: 0; stroke: none; }
+.hx-x::after { content: ''; position: absolute; inset: 0; border-radius: 18px; border: 1.5px solid rgba(255,255,255,0.75); opacity: 0; pointer-events: none; }
+.hx-x.on .hx-x-ring { animation: hxXRing 0.6s ease 1s forwards; }
+.hx-x.on .hx-x-box rect { animation: hxXBox 0.9s cubic-bezier(.5,0,.2,1) 0.95s forwards; }
+.hx-x.on .hx-x-ic path { animation: hxXFill 0.45s ease 1s forwards; }
+.hx-x.on .hx-x-ic { animation: hxXFlash 1.5s ease 1s both; }
+.hx-x.on::after { animation: hxXRipple 1.2s ease-out 1.05s forwards; }
+.hx-x.live .hx-x-ic { animation: hxXIdle 3.4s ease-in-out infinite; }
+.hx-x.live:hover { transform: translateY(-4px) scale(1.08); }
+.hx-x.live:active { transform: translateY(-1px) scale(0.95); }
+.hx-x.live:hover .hx-x-ring::before { opacity: 1; animation-play-state: running; }
+.hx-x.live:hover .hx-x-ic { animation: none; filter: drop-shadow(0 0 8px rgba(255,255,255,0.9)) drop-shadow(0 0 20px rgba(255,255,255,0.55)); }
+.hx-x:focus-visible { outline: 2px solid #ffffff; outline-offset: 4px; border-radius: 18px; }
+.hx-x.instant .hx-x-ring { opacity: 1; animation: none; }
+.hx-x.instant .hx-x-box rect { animation: none; opacity: 0; }
+.hx-x.instant .hx-x-ic path { animation: none; fill-opacity: 1; }
+.hx-x-fx { position: absolute; left: 50%; top: 50%; width: 360px; height: 360px; margin: -180px 0 0 -180px; pointer-events: none; z-index: 3; }
+.hx-x.instant::after { animation: none; opacity: 0; }
+@keyframes hxXSpin { to { transform: rotate(360deg); } }
+@keyframes hxXRing { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hxXBox { 0% { opacity: 1; stroke-dashoffset: 1; } 70% { opacity: 1; stroke-dashoffset: 0; } 100% { opacity: 0; stroke-dashoffset: 0; } }
+@keyframes hxXFill { to { fill-opacity: 1; } }
+@keyframes hxXFlash { 0% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); } 30% { filter: drop-shadow(0 0 12px rgba(255,255,255,1)) drop-shadow(0 0 32px rgba(255,255,255,0.8)); } 100% { filter: drop-shadow(0 0 6px rgba(255,255,255,0.35)); } }
+@keyframes hxXIdle { 0%,100% { filter: drop-shadow(0 0 6px rgba(255,255,255,0.35)); } 50% { filter: drop-shadow(0 0 12px rgba(255,255,255,0.65)); } }
+@keyframes hxXRipple { 0% { opacity: 0.8; transform: scale(1); } 100% { opacity: 0; transform: scale(2.1); } }
 .hx-trace { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1100; pointer-events: none; overflow: visible; }
 .hx-trace path { fill: none; stroke: #ffffff; stroke-linecap: round; stroke-linejoin: round; }
 .hx-trace path.g { stroke: rgba(255,255,255,0.22); }
@@ -603,6 +640,7 @@ header { position: fixed; z-index: 1000; }
             <h1 class="hx-title">Hexora Company</h1>
         </div>
         <p class="hx-desc" data-i18n="hx_desc">We are a team that helps people build their ideas through websites &amp; Discord bots, turning concepts into polished and reliable products.</p>
+        <a class="hx-x" id="hxX" href="https://x.com/HexoraCompany" target="_blank" rel="noopener noreferrer" aria-label="X (Hexora Company)"><span class="hx-x-ring"></span><svg class="hx-x-box" viewBox="0 0 52 52" aria-hidden="true"><rect x="0.75" y="0.75" width="50.5" height="50.5" rx="14.5" pathLength="1"/></svg><svg class="hx-x-ic" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></a>
     </section>
     <section class="hx-devs">
         <h2 class="hx-devs-title" data-i18n="hx_developers">Developers</h2>
@@ -1071,6 +1109,101 @@ header { position: fixed; z-index: 1000; }
     var moonCut = false, allArrive = 0, moon = null, shooters = [], nextShoot = 0, shootEnabled = false;
     var finished = false;
 
+    var xBtn = document.getElementById('hxX');
+    var xDone = false;
+    function showX(instant) {
+        if (!xBtn || xDone) return;
+        xDone = true;
+        if (instant) { xBtn.classList.add('on', 'live', 'instant'); return; }
+        xBtn.classList.add('on');
+        xComets();
+        setTimeout(function() { xBtn.classList.add('live'); }, 2700);
+    }
+
+    function xComets() {
+        var rc = xBtn.getBoundingClientRect();
+        var cyp = rc.top + rc.height / 2;
+        var yLimit = window.innerHeight - 8;
+        var footer = document.querySelector('.site-footer');
+        if (footer) yLimit = Math.min(yLimit, footer.getBoundingClientRect().top - 8);
+        var dv = document.querySelector('.hx-devs');
+        if (dv) {
+            var dr = dv.getBoundingClientRect();
+            if (dr.top > rc.bottom - 6 && dr.left < rc.left + 340) yLimit = Math.min(yLimit, dr.top - 6);
+        }
+        var dist = clamp((yLimit - cyp) * 1.4142, 46, 190);
+        var S = 360, C = S / 2, dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        var cv = document.createElement('canvas');
+        cv.className = 'hx-x-fx';
+        cv.setAttribute('aria-hidden', 'true');
+        cv.width = cv.height = Math.round(S * dpr);
+        xBtn.appendChild(cv);
+        var c = cv.getContext('2d');
+        c.setTransform(dpr, 0, 0, dpr, 0, 0);
+        var hz = 20.5;
+        var list = [
+            { dx: 0.7071, dy: -0.7071, t0: 0.05, dur: 0.78, w: 1.9 },
+            { dx: -0.7071, dy: -0.7071, t0: 0.34, dur: 0.72, w: 2.7 }
+        ];
+        var start = performance.now();
+        function frame(now) {
+            var t = (now - start) / 1000;
+            if (t > 1.6) { cv.remove(); return; }
+            c.clearRect(0, 0, S, S);
+            var keep = 1 - clamp((t - 1) / 0.45, 0, 1);
+            for (var i = 0; i < list.length; i++) {
+                var m = list[i];
+                var u = clamp((t - m.t0) / m.dur, 0, 1);
+                if (t < m.t0) continue;
+                var e = u < 1 ? Math.pow(u, 1.5) : 1;
+                var sh = -dist + (dist + hz) * e;
+                var tail = 90 * (1 - clamp((t - m.t0 - m.dur) / 0.18, 0, 1));
+                var hx = C + m.dx * sh, hy = C + m.dy * sh;
+                var fadeIn = clamp(u / 0.1, 0, 1);
+                if (tail > 1) {
+                    var st = Math.max(-dist, sh - tail);
+                    var tx = C + m.dx * st, ty = C + m.dy * st;
+                    var g = c.createLinearGradient(tx, ty, hx, hy);
+                    g.addColorStop(0, 'rgba(255,255,255,0)');
+                    g.addColorStop(0.75, 'rgba(255,255,255,0.55)');
+                    g.addColorStop(1, 'rgba(255,255,255,1)');
+                    c.globalAlpha = fadeIn;
+                    c.strokeStyle = g;
+                    c.lineWidth = m.w;
+                    c.lineCap = 'round';
+                    c.beginPath();
+                    c.moveTo(tx, ty);
+                    c.lineTo(hx, hy);
+                    c.stroke();
+                }
+                var sp1 = Math.min(sh, hz);
+                if (sp1 > -hz && keep > 0) {
+                    var ax = C - m.dx * hz, ay = C - m.dy * hz, bx = C + m.dx * sp1, by = C + m.dy * sp1;
+                    c.lineCap = 'round';
+                    c.globalAlpha = 0.28 * keep;
+                    c.strokeStyle = '#ffffff';
+                    c.lineWidth = m.w * 4;
+                    c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke();
+                    c.globalAlpha = keep;
+                    c.lineWidth = m.w;
+                    c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke();
+                }
+                if (u < 1) {
+                    c.globalAlpha = fadeIn;
+                    c.drawImage(glow, hx - 14, hy - 14, 28, 28);
+                } else if (t - m.t0 - m.dur < 0.25) {
+                    var k = (t - m.t0 - m.dur) / 0.25;
+                    c.globalAlpha = (1 - k) * 0.9;
+                    var r = 14 + k * 26;
+                    c.drawImage(glow, hx - r, hy - r, r * 2, r * 2);
+                }
+            }
+            c.globalAlpha = 1;
+            requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+    }
+
     function lit() {
         logo.classList.remove('hx-flash');
         logo.classList.add('hx-lit');
@@ -1316,7 +1449,7 @@ header { position: fixed; z-index: 1000; }
         var dv = document.querySelector('.hx-devs');
         if (dv) rects.push(dv.getBoundingClientRect());
         var top = Math.min.apply(null, rects.map(function(r) { return r.top; }));
-        var bottom = Math.max.apply(null, rects.map(function(r) { return r.bottom; }));
+        var bottom = Math.max.apply(null, rects.map(function(r) { return r.bottom; })) + 36;
         var footer = document.querySelector('.site-footer');
         var limit = skyH - 10;
         if (footer) limit = Math.min(limit, footer.getBoundingClientRect().top - 10);
@@ -1488,6 +1621,7 @@ header { position: fixed; z-index: 1000; }
         ensureSky();
         stars = buildField(lineLeft, lineRight, lineY);
         startMoonGen();
+        setTimeout(function() { showX(false); }, Math.max(1500, (moon.arrive + 1.6) * 1000));
         shootEnabled = true;
         nextShoot = 0;
         startSky();
@@ -1497,7 +1631,7 @@ header { position: fixed; z-index: 1000; }
         if (finished) return;
         finished = true;
         if (!logo.classList.contains('hx-flash')) lit();
-        if (reduce) { staticSky(); return; }
+        if (reduce) { showX(true); staticSky(); return; }
         var desc = document.querySelector('.hx-desc');
         var ar = about.getBoundingClientRect();
         var dr = desc.getBoundingClientRect();
