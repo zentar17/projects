@@ -3325,7 +3325,8 @@ app.get('/api/blacklist/settings', requireAuth, async (req, res) => {
     try {
         const guildId = req.query.guildId;
         if (!guildId || !isDashboardGuildId(guildId)) return res.status(404).json({ error: 'Not available for this server' });
-        if (!isOwner(req, guildId)) return res.status(403).json({ error: 'Access Denied' });
+        const hasPerm = await userHasPermission(req, 'viewLogsRoles', guildId);
+        if (!hasPerm) return res.status(403).json({ error: 'Access Denied' });
 
         const { client, db } = global.PredCord;
         const settings = await db.getBlacklistSettingsDB();
@@ -3345,6 +3346,7 @@ app.get('/api/blacklist/settings', requireAuth, async (req, res) => {
             logChannelId: settings.logChannelId || null,
             logGuildId: settings.logGuildId || null,
             logChannelName,
+            canEdit: isOwner(req, guildId),
             banGuildIds: settings.banGuildIds || [],
             guilds,
             lastSweepAt: settings.lastSweepAt || null,
