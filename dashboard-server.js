@@ -1504,6 +1504,8 @@ async function notifyNewMcTicket(ticket) {
 }
 
 const MC_TICKET_DELETE_AFTER_MS = 24 * 60 * 60 * 1000;
+const MC_EMAIL_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const MC_EMAIL_TTL_MS = MC_EMAIL_MAX_AGE_MS - 10 * 60 * 1000;
 const MC_TICKET_IMAGE_MAX_BYTES = 8 * 1024 * 1024;
 
 const mcImageUpload = multer({
@@ -1622,8 +1624,13 @@ app.post('/api/site/mc-tickets/create', async (req, res) => {
         if (!plan) return res.status(400).json({ error: 'invalid_plan' });
         if (acceptTerms !== true) return res.status(400).json({ error: 'terms_not_accepted' });
 
-        const check = await checkEmailDeliverable(email);
-        if (!check.valid) return res.status(400).json({ error: check.reason });
+        const wantsEmail = typeof email === 'string' && email.trim() !== '';
+        let cleanEmail = null;
+        if (wantsEmail) {
+            const check = await checkEmailDeliverable(email);
+            if (!check.valid) return res.status(400).json({ error: check.reason });
+            cleanEmail = check.email;
+        }
 
         const { db } = global.PredCord;
         const u = req.session.siteUser;
@@ -1638,7 +1645,8 @@ app.post('/api/site/mc-tickets/create', async (req, res) => {
                 userId: u.id,
                 userName: displayName,
                 userAvatar: siteUserAvatarUrl(u),
-                email: check.email,
+                email: cleanEmail,
+                emailExpiresAt: cleanEmail ? new Date(Date.now() + MC_EMAIL_TTL_MS) : null,
                 planKey,
                 plan: plan.name,
                 price: plan.price
@@ -1831,6 +1839,15 @@ app.post('/api/site/mc-tickets/:ticketNumber/status', async (req, res) => {
         serverError(res, e);
     }
 });
+
+async function purgeExpiredMcEmails() {
+    try {
+        const result = await global.PredCord.db.purgeExpiredMcEmailsDB(new Date(), MC_EMAIL_MAX_AGE_MS);
+        if (result.tickets || result.transcripts) console.log(`[MC TICKET] purged expired emails: ${result.tickets} ticket(s), ${result.transcripts} transcript(s)`);
+    } catch (e) {
+        console.error('[MC TICKET] email purge failed:', e.message);
+    }
+}
 
 async function cleanupExpiredMcTickets() {
     try {
@@ -3987,6 +4004,8 @@ app.get('/dashboard', requireAuth, (req, res) => {
 waitForBot().then(() => {
     cleanupExpiredMcTickets();
     setInterval(cleanupExpiredMcTickets, 10 * 60 * 1000);
+    purgeExpiredMcEmails();
+    setInterval(purgeExpiredMcEmails, 60 * 1000);
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`Dashboard running on http://0.0.0.0:${PORT}`);
     });
