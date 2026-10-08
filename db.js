@@ -155,7 +155,12 @@ const CustomCommandSchema = new mongoose.Schema({
         default: []
     },
     allowedRoles: { type: [String], default: [] },
+    blockedChannels: { type: [String], default: [] },
+    enabled: { type: Boolean, default: true },
     duration: { type: Number, default: null },
+    durationUnit: { type: String, default: 'days' },
+    roleAction: { type: String, default: null },
+    targetRoleId: { type: String, default: null },
     isBase: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
@@ -175,6 +180,17 @@ const PendingBanSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 PendingBanSchema.index({ expiresAt: 1 });
+
+const PendingRoleRemovalSchema = new mongoose.Schema({
+    guildId: { type: String, required: true, index: true },
+    userId: { type: String, required: true, index: true },
+    roleId: { type: String, required: true },
+    moderatorId: String,
+    expiresAt: { type: Date, required: true }
+}, { timestamps: true });
+
+PendingRoleRemovalSchema.index({ expiresAt: 1 });
+PendingRoleRemovalSchema.index({ guildId: 1, userId: 1, roleId: 1 }, { unique: true });
 
 const CommandCooldownSchema = new mongoose.Schema({
     userId: { type: String, required: true, index: true },
@@ -473,6 +489,7 @@ const Warning = mongoose.model('Warning', WarningSchema);
 const GuildConfig = mongoose.model('GuildConfig', GuildConfigSchema);
 const CustomCommand = mongoose.model('CustomCommand', CustomCommandSchema);
 const PendingBan = mongoose.model('PendingBan', PendingBanSchema);
+const PendingRoleRemoval = mongoose.model('PendingRoleRemoval', PendingRoleRemovalSchema);
 const CommandCooldown = mongoose.model('CommandCooldown', CommandCooldownSchema);
 const DashboardLog = mongoose.model('DashboardLog', DashboardLogSchema);
 const Transcript = mongoose.model('Transcript', TranscriptSchema);
@@ -685,9 +702,15 @@ async function loadCustomCommandsDB(guildId) {
             deleteCommand: doc.deleteCommand,
             thumbnail: doc.thumbnail,
             image: doc.image,
+            buttons: doc.buttons || [],
             extraEmbeds: doc.extraEmbeds || [],
             allowedRoles: doc.allowedRoles || [],
+            blockedChannels: doc.blockedChannels || [],
+            enabled: doc.enabled !== false,
             duration: doc.duration || null,
+            durationUnit: doc.durationUnit || 'days',
+            roleAction: doc.roleAction || null,
+            targetRoleId: doc.targetRoleId || null,
             isBase: doc.isBase || false,
             createdAt: doc.createdAt,
             updatedAt: doc.updatedAt
@@ -747,6 +770,22 @@ async function addPendingBan(data) {
 
 async function getExpiredBans() {
     return await PendingBan.find({ expiresAt: { $lte: new Date() } }).lean();
+}
+
+async function upsertPendingRoleRemoval(data) {
+    return await PendingRoleRemoval.findOneAndUpdate(
+        { guildId: data.guildId, userId: data.userId, roleId: data.roleId },
+        { $set: { moderatorId: data.moderatorId || null, expiresAt: data.expiresAt } },
+        { upsert: true, new: true }
+    );
+}
+
+async function getExpiredRoleRemovals() {
+    return await PendingRoleRemoval.find({ expiresAt: { $lte: new Date() } }).lean();
+}
+
+async function removePendingRoleRemoval(guildId, userId, roleId) {
+    return await PendingRoleRemoval.deleteOne({ guildId, userId, roleId });
 }
 
 async function removePendingBan(guildId, userId) {
@@ -1382,6 +1421,9 @@ module.exports = {
     getCommandCooldownDB,
     setCommandCooldownDB,
     addPendingBan,
+    upsertPendingRoleRemoval,
+    getExpiredRoleRemovals,
+    removePendingRoleRemoval,
     getExpiredBans,
     removePendingBan,
     getPendingBan,
