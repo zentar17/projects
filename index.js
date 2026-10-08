@@ -1311,6 +1311,12 @@ async function warmInviteTriggerMembers() {
 
 client.on('guildMemberAdd', async (member) => {
     try {
+        await db.addJoinLeaveEventDB({ guildId: member.guild.id, userId: member.id, tag: member.user?.tag || member.user?.username || null, type: 'join', date: new Date() });
+    } catch (error) {
+        logCrash('JOIN_EVENT_RECORD', error, { userId: member?.id });
+    }
+
+    try {
         roleSync.onMemberAdd(member);
     } catch (error) {
         logCrash('ROLE_SYNC_MEMBER_ADD', error, { userId: member?.id });
@@ -1341,6 +1347,12 @@ client.on('guildMemberAdd', async (member) => {
 });
 
 client.on('guildMemberRemove', async (member) => {
+    try {
+        await db.addJoinLeaveEventDB({ guildId: member.guild.id, userId: member.id, tag: member.user?.tag || member.user?.username || null, type: 'leave', date: new Date() });
+    } catch (error) {
+        logCrash('LEAVE_EVENT_RECORD', error, { userId: member?.id });
+    }
+
     try {
         roleSync.onMemberRemove(member);
     } catch (error) {
