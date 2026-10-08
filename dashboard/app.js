@@ -2417,7 +2417,7 @@ function renderPreviewEmbed(title, colorHex, thumbnail, responseRaw, text, image
         html += `<div class="discord-embed-desc preview-empty">Fill in the description to see the text.</div>`;
     }
     if (image) {
-        html += `<img class="discord-embed-image" src="${escapeAttr(image)}" alt="" onerror="this.style.display='none'">`;
+        html += `<img class="discord-embed-image" src="${escapeAttr(image)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=&quot;discord-embed-image-error&quot;>Image not loading (link expired or invalid)</div>'">`;
     }
     html += `</div>`;
     return html;
@@ -2494,7 +2494,7 @@ function updatePreview() {
     if (image) {
         let html = `<div class="discord-embed" style="border-left-color: ${escapeAttr(colorHex)};">`;
         html += `<div class="discord-embed-desc">${escapeHtml(text)}</div>`;
-        html += `<img class="discord-embed-image" src="${escapeAttr(image)}" alt="" onerror="this.style.display='none'">`;
+        html += `<img class="discord-embed-image" src="${escapeAttr(image)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=&quot;discord-embed-image-error&quot;>Image not loading (link expired or invalid)</div>'">`;
         html += `</div>`;
         html += renderPreviewButtons();
         preview.innerHTML = html;
@@ -3615,122 +3615,91 @@ async function loadDropmaps() {
     }
 }
 
-let blacklistSyncTimer = null;
-
 function formatSyncDate(value) {
     return value ? new Date(value).toLocaleString('en-US') : '';
 }
 
-function stopBlacklistSyncPolling() {
-    if (blacklistSyncTimer) {
-        clearTimeout(blacklistSyncTimer);
-        blacklistSyncTimer = null;
-    }
-}
+async function loadBlacklistSettings() {
+    const box = document.getElementById('blacklistSettings');
+    const saveBtn = document.getElementById('saveBlacklistSettingsBtn');
+    const info = document.getElementById('blacklistSweepInfo');
+    if (!box || !saveBtn || !info) return;
 
-function renderBlacklistSyncStatus(status) {
-    const btn = document.getElementById('blacklistSyncBtn');
-    const info = document.getElementById('blacklistSyncInfo');
-    if (!btn || !info) return;
-
-    btn.classList.remove('hidden');
-    btn.disabled = !status.available;
-
-    if (status.running) {
-        const p = status.progress || { processed: 0, total: 0 };
-        btn.textContent = 'Syncing...';
-        info.innerHTML = `Syncing blacklist: <b>${p.processed}/${p.total}</b> &middot; ${p.banned} banned &middot; ${p.alreadyBanned} already banned &middot; ${p.failed} failed`;
-        info.classList.remove('hidden');
-        return;
-    }
-
-    btn.textContent = 'Sync Blacklist';
-
-    const parts = [];
-    const r = status.lastResult;
-    if (r) {
-        parts.push(`Last sync: ${escapeHtml(formatSyncDate(r.finishedAt))} &middot; ${r.banned} banned &middot; ${r.alreadyBanned} already banned &middot; ${r.failed} failed`);
-        if (r.errors && r.errors.length) parts.push(`<span class="blacklist-sync-errors">${r.errors.map(escapeHtml).join('<br>')}</span>`);
-    }
-    if (!status.available && status.nextAvailableAt) {
-        parts.push(`Available again on ${escapeHtml(formatSyncDate(status.nextAvailableAt))}`);
-    }
-
-    info.innerHTML = parts.join('<br>');
-    info.classList.toggle('hidden', parts.length === 0);
-}
-
-async function refreshBlacklistSyncStatus() {
-    stopBlacklistSyncPolling();
-    const btn = document.getElementById('blacklistSyncBtn');
-    const info = document.getElementById('blacklistSyncInfo');
-    if (!btn || !info) return;
-
-    if (!['predcord', 'community', 'masterclassServer'].includes(selectedServer) || !currentGuild) {
-        btn.classList.add('hidden');
-        info.classList.add('hidden');
+    if (!['predcord', 'community', 'masterclassServer'].includes(selectedServer) || !currentGuild || !isOwner()) {
+        box.classList.add('hidden');
+        saveBtn.classList.add('hidden');
         return;
     }
 
     try {
-        const res = await fetch(`/api/blacklist/sync-status?guildId=${encodeURIComponent(currentGuild)}`);
-        if (!res.ok) {
-            btn.classList.add('hidden');
-            info.classList.add('hidden');
-            return;
+        const [settingsRes, channelsRes] = await Promise.all([
+            fetch(`/api/blacklist/settings?guildId=${encodeURIComponent(currentGuild)}`),
+            fetch(`/api/channels/${currentGuild}`)
+        ]);
+        if (!settingsRes.ok || !channelsRes.ok) throw new Error('Failed to load');
+        const settings = await settingsRes.json();
+        const channels = await channelsRes.json();
+
+        const textChannels = channels.filter(c => c.type === 'text').map(c => ({ id: c.id, name: c.name }));
+        if (settings.logChannelId && !textChannels.some(c => c.id === settings.logChannelId)) {
+            textChannels.unshift({ id: settings.logChannelId, name: `${settings.logChannelName || settings.logChannelId} (other server)` });
         }
-        const status = await res.json();
-        renderBlacklistSyncStatus(status);
-        if (status.running) {
-            blacklistSyncTimer = setTimeout(async () => {
-                const active = document.getElementById('tab-blacklist');
-                if (!active || active.classList.contains('hidden')) return;
-                await refreshBlacklistSyncStatus();
-            }, 2500);
-        } else if (blacklistSyncWasRunning) {
-            blacklistSyncWasRunning = false;
-            loadBlacklist();
+
+        renderSingleSelectList('blLogChannelList', textChannels, settings.logChannelId, 'blLogChannel');
+        renderPermissionsList('blBanServersList', settings.guilds || [], settings.banGuildIds || []);
+
+        const parts = [];
+        if (settings.lastSweepAt) {
+            const r = settings.lastSweepResult;
+            let line = `Last check: ${escapeHtml(formatSyncDate(settings.lastSweepAt))}`;
+            if (r) line += ` &middot; ${r.users} users &middot; ${r.banned} banned &middot; ${r.alreadyBanned} already banned &middot; ${r.failed} failed`;
+            parts.push(line);
         }
-        if (status.running) blacklistSyncWasRunning = true;
+        info.innerHTML = parts.join('<br>');
+        info.classList.toggle('hidden', parts.length === 0);
+
+        box.classList.remove('hidden');
+        saveBtn.classList.remove('hidden');
     } catch (e) {
-        btn.classList.add('hidden');
-        info.classList.add('hidden');
+        box.classList.add('hidden');
+        saveBtn.classList.add('hidden');
     }
 }
 
-let blacklistSyncWasRunning = false;
-
-function startBlacklistSync() {
-    showConfirmDialog(
-        'Sync Blacklist',
-        'The bot will check every blacklisted user and ban the ones who are not banned in this server yet. This can be done only once every 14 days. Continue?',
-        async () => {
-            const btn = document.getElementById('blacklistSyncBtn');
-            if (btn) btn.disabled = true;
-            try {
-                const res = await fetch('/api/blacklist/sync', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ guildId: currentGuild })
-                });
-                const data = await res.json().catch(() => ({}));
-                if (!res.ok) {
-                    showToast(data.error || 'Sync failed', 'error');
-                } else {
-                    showToast('Blacklist sync started');
-                }
-            } catch (e) {
-                showToast('Connection error', 'error');
-            }
-            await refreshBlacklistSyncStatus();
+async function saveBlacklistSettings() {
+    const btn = document.getElementById('saveBlacklistSettingsBtn');
+    if (!btn || !isOwner()) return;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = 'Saving...';
+    btn.disabled = true;
+    try {
+        const res = await fetch('/api/blacklist/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                guildId: currentGuild,
+                logChannelId: getSelectedValue('blLogChannelList'),
+                banGuildIds: getCheckedIds('blBanServersList')
+            })
+        });
+        if (res.ok) {
+            showToast('Blacklist settings saved');
+        } else {
+            const err = await res.json().catch(() => ({}));
+            showToast(err.error || 'Error', 'error');
         }
-    );
+    } catch (e) {
+        showToast('Connection error', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
 }
 
 async function loadBlacklist() {
     const list = document.getElementById('blacklistList');
     list.innerHTML = '<div class="loading">Loading</div>';
-    refreshBlacklistSyncStatus();
+    loadBlacklistSettings();
 
     try {
         const res = await fetch(`/api/blacklist?guildId=${currentGuild}`);
@@ -3752,21 +3721,22 @@ function renderBlacklist(entries) {
     }
     list.innerHTML = entries.map((entry, i) => {
         const date = entry.date ? new Date(entry.date).toLocaleString('en-US') : '';
-        const servers = (entry.servers || []).length;
+        const servers = (entry.bannedServers || []).length;
         return `
         <div class="modlog-card" data-idx="${i}" data-target-id="${escapeAttr(entry.userId)}">
             <div class="modlog-row">
-                <span class="modlog-line"><span class="log-user">${escapeHtml(entry.userTag || entry.userId)}</span> (${escapeHtml(entry.userId || '')})</span>
+                <span class="modlog-line"><span class="log-user">${escapeHtml(entry.userName || entry.userId)}</span> (${escapeHtml(entry.userId || '')})</span>
                 <button class="modlog-arrow" type="button" aria-label="Details">&#9662;</button>
             </div>
             <div class="modlog-details">
                 <div class="modlog-details-inner">
                     <div><b>Reason:</b> <span class="ban-reason-text">${escapeHtml(entry.reason || 'No reason provided')}</span></div>
-                    <div><b>Blacklisted by:</b> ${escapeHtml(entry.modTag || entry.modId || 'Unknown')}</div>
+                    <div><b>Blacklisted by:</b> ${escapeHtml(entry.bannedBy || entry.bannedById || 'Unknown')}</div>
                     <div><b>Date:</b> ${escapeHtml(date)}</div>
                     <div><b>Servers:</b> ${servers}</div>
                     <div class="modlog-actions">
                         <button type="button" class="modlog-action-btn change-reason" data-action="change-reason">Change Reason</button>
+                        <button type="button" class="modlog-action-btn" data-action="unblacklist">Unblacklist</button>
                     </div>
                 </div>
             </div>
@@ -3779,6 +3749,27 @@ function renderBlacklist(entries) {
         });
 
         const targetId = card.getAttribute('data-target-id');
+
+        const unblBtn = card.querySelector('[data-action="unblacklist"]');
+        if (unblBtn) {
+            unblBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showConfirmDialog('Unblacklist', 'Remove this user from the blacklist and unban them from the configured servers?', () => {
+                    fetch('/api/blacklist-action', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'unblacklist', userId: targetId, guildId: currentGuild })
+                    }).then(async (res) => {
+                        if (!res.ok) {
+                            const err = await res.json().catch(() => ({}));
+                            throw new Error(err.error || 'Error');
+                        }
+                        showToast('User unblacklisted');
+                        loadBlacklist();
+                    }).catch((err) => showToast(err.message, 'error'));
+                });
+            });
+        }
 
         const reasonBtn = card.querySelector('[data-action="change-reason"]');
         if (reasonBtn) {
@@ -4788,8 +4779,8 @@ function setupEvents() {
     const changeServerBtn = document.getElementById('changeServerBtn');
     if (changeServerBtn) changeServerBtn.onclick = showServerSelectScreen;
 
-    const blacklistSyncBtn = document.getElementById('blacklistSyncBtn');
-    if (blacklistSyncBtn) blacklistSyncBtn.onclick = startBlacklistSync;
+    const saveBlacklistSettingsBtn = document.getElementById('saveBlacklistSettingsBtn');
+    if (saveBlacklistSettingsBtn) saveBlacklistSettingsBtn.onclick = saveBlacklistSettings;
 
     document.querySelectorAll('.masterclass-guild-pill').forEach(pill => {
         pill.onclick = () => setMasterclassGuild(pill.getAttribute('data-guild'));
