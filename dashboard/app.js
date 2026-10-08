@@ -643,7 +643,7 @@ const SERVER_INFO = {
     masterclassServer: { name: 'Masterclass', img: '/images/masterclass-pfp.png' }
 };
 
-let masterclassGuildKey = 'community';
+let masterclassGuildKey = 'masterclassServer';
 
 async function selectServer(server) {
     const guildNav = document.getElementById('guildNavTabs');
@@ -712,12 +712,8 @@ async function selectServer(server) {
 }
 
 function setMasterclassGuild(key) {
-    masterclassGuildKey = key === 'predcord' ? 'predcord' : 'community';
-    currentGuild = masterclassGuildKey === 'community' ? knownGuilds.community : knownGuilds.predcord;
-
-    document.querySelectorAll('.masterclass-guild-pill').forEach(p => {
-        p.classList.toggle('active', p.dataset.guild === masterclassGuildKey);
-    });
+    masterclassGuildKey = 'masterclassServer';
+    currentGuild = knownGuilds.masterclassServer || '1557430638783627304';
 
     rolesLoaded = false;
 
@@ -4779,9 +4775,6 @@ function setupEvents() {
     const saveBlacklistSettingsBtn = document.getElementById('saveBlacklistSettingsBtn');
     if (saveBlacklistSettingsBtn) saveBlacklistSettingsBtn.onclick = saveBlacklistSettings;
 
-    document.querySelectorAll('.masterclass-guild-pill').forEach(pill => {
-        pill.onclick = () => setMasterclassGuild(pill.getAttribute('data-guild'));
-    });
 
     const newCmdBtn = document.getElementById('newCmdBtn');
     if (newCmdBtn) newCmdBtn.onclick = () => openModal();
