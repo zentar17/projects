@@ -3680,23 +3680,47 @@ app.get('/hexora', (req, res) => {
 });
 
 const HEXORA_TEAM_IDS = ['1346238732495355944', '825654941238034462', '887758994683338772', '1297667554487042130'];
+const hexoraTeamGood = {};
 let hexoraTeamCache = { at: 0, data: null };
+let hexoraTeamInflight = null;
+
+function refreshHexoraTeam() {
+    if (hexoraTeamInflight) return hexoraTeamInflight;
+    hexoraTeamInflight = (async () => {
+        const client = global.PredCord && global.PredCord.client;
+        if (client && client.isReady()) {
+            await Promise.all(HEXORA_TEAM_IDS.map(async (id) => {
+                try {
+                    const user = await client.users.fetch(id, { force: true });
+                    hexoraTeamGood[id] = { id, username: user.username, avatar: user.displayAvatarURL({ extension: 'png', size: 128 }) };
+                } catch {}
+            }));
+        }
+        const data = HEXORA_TEAM_IDS.map(id => hexoraTeamGood[id] || { id, username: null, avatar: null });
+        if (data.some(u => u.username)) hexoraTeamCache = { at: Date.now(), data };
+        return data;
+    })().finally(() => { hexoraTeamInflight = null; });
+    return hexoraTeamInflight;
+}
+
+setTimeout(() => { refreshHexoraTeam().catch(() => {}); }, 8000);
+setTimeout(() => { refreshHexoraTeam().catch(() => {}); }, 30000);
+setInterval(() => { refreshHexoraTeam().catch(() => {}); }, 10 * 60 * 1000);
 
 app.get('/api/site/hexora-team', async (req, res) => {
-    res.set('Cache-Control', 'public, max-age=300');
-    if (hexoraTeamCache.data && Date.now() - hexoraTeamCache.at < 10 * 60 * 1000) return res.json(hexoraTeamCache.data);
-    const client = global.PredCord && global.PredCord.client;
-    const out = await Promise.all(HEXORA_TEAM_IDS.map(async (id) => {
-        try {
-            if (!client || !client.isReady()) return { id, username: null, avatar: null };
-            const user = await client.users.fetch(id, { force: true });
-            return { id, username: user.username, avatar: user.displayAvatarURL({ extension: 'png', size: 128 }) };
-        } catch {
-            return { id, username: null, avatar: null };
-        }
-    }));
-    if (out.every(u => u.username)) hexoraTeamCache = { at: Date.now(), data: out };
-    res.json(out);
+    res.set('Cache-Control', 'no-store');
+    const fresh = hexoraTeamCache.data && Date.now() - hexoraTeamCache.at < 10 * 60 * 1000;
+    if (fresh) return res.json(hexoraTeamCache.data);
+    if (hexoraTeamCache.data) {
+        refreshHexoraTeam().catch(() => {});
+        return res.json(hexoraTeamCache.data);
+    }
+    try {
+        const data = await Promise.race([refreshHexoraTeam(), new Promise(resolve => setTimeout(() => resolve(null), 6000))]);
+        res.json(data || HEXORA_TEAM_IDS.map(id => ({ id, username: null, avatar: null })));
+    } catch {
+        res.json(HEXORA_TEAM_IDS.map(id => ({ id, username: null, avatar: null })));
+    }
 });
 
 app.get('/terms', (req, res) => {
