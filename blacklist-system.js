@@ -37,6 +37,7 @@ function createBlacklistSystem({ client, db, logCrash }) {
     let locks = 0;
     let timer = null;
     let firstTimer = null;
+    let queue = Promise.resolve();
 
     async function getSettings() {
         return db.getBlacklistSettingsDB();
@@ -196,10 +197,15 @@ function createBlacklistSystem({ client, db, logCrash }) {
     async function withChange(fn) {
         locks++;
         abortRequested = true;
+        const previous = queue;
+        let release;
+        queue = new Promise(resolve => { release = resolve; });
         try {
+            await previous;
             if (currentSweep) await currentSweep.catch(() => {});
             return await fn();
         } finally {
+            release();
             locks--;
             if (locks === 0) {
                 abortRequested = false;
@@ -209,6 +215,7 @@ function createBlacklistSystem({ client, db, logCrash }) {
     }
 
     async function blacklistUser({ user, reason, actor, fallbackGuild }) {
+        if (user.bot || (client.user && user.id === client.user.id)) return { ok: false, code: 'bot' };
         return withChange(async () => {
             const existing = await db.getActiveBlacklistEntryDB(user.id);
             if (existing) return { ok: false, code: 'already', entry: existing };
@@ -303,6 +310,14 @@ function createBlacklistSystem({ client, db, logCrash }) {
 
         for (const guild of guilds) {
             if (abortRequested) return { aborted: true };
+            if (!hasBanPerms(guild)) {
+                for (const s of state.values()) {
+                    s.servers.delete(guild.id);
+                    s.errors.push(`${guild.name} - Missing Ban Members permission`);
+                }
+                summary.failed += entries.length;
+                continue;
+            }
             let bannedIds;
             try {
                 bannedIds = await fetchAllBannedIds(guild);
