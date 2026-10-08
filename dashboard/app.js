@@ -640,7 +640,7 @@ function updatePermissionsTabVisibility() {
 const SERVER_INFO = {
     community: { name: 'Predage Community', img: '/images/dragon-pfp.webp' },
     predcord: { name: 'PredCord', img: '/images/predcord-pfp.webp' },
-    masterclassServer: { name: 'Masterclass', img: '/images/dragon-logo.png' }
+    masterclassServer: { name: 'Masterclass', img: '/images/masterclass-pfp.png' }
 };
 
 let masterclassGuildKey = 'community';
