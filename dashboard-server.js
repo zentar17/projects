@@ -3398,11 +3398,12 @@ app.post('/api/blacklist/settings', requireAuth, writeLimiter, async (req, res) 
                 return res.status(400).json({ error: 'Invalid command roles' });
             }
             const cleanIds = (arr) => Array.isArray(arr) ? [...new Set(arr.filter(r => typeof r === 'string' && /^\d+$/.test(r)))] : [];
-            const commandRoles = {};
+            const current = await db.getBlacklistSettingsDB();
+            const commandRoles = { ...(current.commandRoles || {}) };
             for (const gid of Object.keys(body.commandRoles)) {
                 if (!isDashboardGuildId(gid)) continue;
                 const entry = body.commandRoles[gid] || {};
-                commandRoles[gid] = { manage: cleanIds(entry.manage), view: cleanIds(entry.view) };
+                commandRoles[gid] = { manage: cleanIds(entry.manage), view: cleanIds(entry.view), protected: cleanIds(entry.protected) };
             }
             update.commandRoles = commandRoles;
         }
