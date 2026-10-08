@@ -5257,3 +5257,8 @@ main .mc-ticket-num, main .mc-ticket-claim.claimed, main .modlog-server-badge { 
 #blacklistSyncBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .confirm-modal-actions .btn-primary { flex: 1; height: 36px; font-family: 'Montserrat', sans-serif; font-weight: 600; }
+
+.confirm-modal-icon { line-height: 0; padding: 0; }
+.confirm-modal-icon svg { display: block; margin: 0 auto; transform: translateY(-1px); }
+.confirm-modal-actions { align-items: stretch; }
+.confirm-modal-actions button { flex: 1 1 0; min-width: 0; width: 50%; height: 36px; padding-left: 0; padding-right: 0; display: inline-flex; align-items: center; justify-content: center; }
