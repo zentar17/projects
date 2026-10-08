@@ -102,6 +102,7 @@ const GuildConfigSchema = new mongoose.Schema({
     inviteTriggerRoleId2: { type: String, default: null },
     targetInviteGuildId: { type: String, default: null },
     modTargetInviteGuildId: { type: String, default: null },
+    modInviteMessage: { type: String, default: null },
     adminRoleIds: { type: [String], default: [] },
     modRoleIds: { type: [String], default: [] },
     trialModRoleIds: { type: [String], default: [] },
