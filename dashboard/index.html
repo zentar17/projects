@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/dashboard/style.css?v=20261008s">
+<link rel="stylesheet" href="/dashboard/style.css?v=20261008t">
 </head>
 <body>
 
@@ -769,7 +769,10 @@
                 <div id="blacklistCommandRoles"></div>
             </div>
 
-            <p id="blacklistCount" class="bans-count"></p>
+            <div class="bl-count-row">
+                <p id="blacklistCount" class="bans-count"></p>
+                <button type="button" id="blacklistSyncBtn" class="btn-primary hidden">Sync Blacklist</button>
+            </div>
 
             <div class="logs-container">
                 <div id="blacklistList" class="modlogs-list">
@@ -1144,7 +1147,7 @@
     <span class="form-toast-text">Fill all fields</span>
 </div>
 
-<script src="/dashboard/app.js?v=20261008s"></script>
+<script src="/dashboard/app.js?v=20261008t"></script>
 
 </body>
 </html>
