@@ -115,7 +115,7 @@ function markFieldInvalid(el) {
     });
 }
 
-function showConfirmDialog(title, message, onConfirm) {
+function showConfirmDialog(title, message, onConfirm, confirmLabel) {
     const modal = document.getElementById('confirmModal');
     const titleEl = document.getElementById('confirmModalTitle');
     const textEl = document.getElementById('confirmModalText');
@@ -126,6 +126,9 @@ function showConfirmDialog(title, message, onConfirm) {
 
     titleEl.textContent = title;
     textEl.textContent = message;
+    okBtn.textContent = confirmLabel || 'Delete';
+    okBtn.classList.toggle('btn-danger', !confirmLabel);
+    okBtn.classList.toggle('btn-primary', !!confirmLabel);
 
     const closeDialog = () => {
         modal.classList.add('hidden');
@@ -3717,7 +3720,8 @@ function startBlacklistSync() {
                 setBlacklistSyncRunning(false);
                 showToast('Connection error', 'error');
             }
-        }
+        },
+        'Confirm'
     );
 }
 
