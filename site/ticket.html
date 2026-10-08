@@ -800,9 +800,9 @@ body {
         <img src="/images/dragon-logo.png" alt="Predage">
         <span>Predage</span>
     </a>
-    <a class="back-link" href="/masterclass">
+    <a class="back-link" id="backLink" href="/masterclass">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        Masterclass
+        <span id="backLinkText">Masterclass</span>
     </a>
 </div>
 
@@ -1017,7 +1017,17 @@ body {
         chatBanner.textContent = text;
     }
 
+    function renderBackLink() {
+        var link = document.getElementById('backLink');
+        var text = document.getElementById('backLinkText');
+        if (!link || !text) return;
+        var staff = !!(viewer && viewer.isStaff);
+        link.setAttribute('href', staff ? '/dashboard#mc-tickets' : '/masterclass');
+        text.textContent = staff ? 'Tickets list' : 'Masterclass';
+    }
+
     function renderHeader() {
+        renderBackLink();
         var priceText = ticket.price ? ' · ' + ticket.price + ' / month' : '';
         chatTitle.textContent = 'Ticket #' + String(ticket.ticketNumber).padStart(4, '0') + ' · ' + ticket.plan + priceText;
         chatMeta.textContent = 'Opened ' + fullDate(ticket.createdAt);
