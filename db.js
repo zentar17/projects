@@ -197,11 +197,13 @@ const CommandCooldownSchema = new mongoose.Schema({
     userId: { type: String, required: true, index: true },
     guildId: { type: String, required: true, index: true },
     action: { type: String, required: true, index: true },
-    expiresAt: { type: Date, required: true }
+    expiresAt: { type: Date, required: true },
+    ttlAt: { type: Date, default: null }
 }, { timestamps: true });
 
 CommandCooldownSchema.index({ userId: 1, guildId: 1, action: 1 }, { unique: true });
 CommandCooldownSchema.index({ expiresAt: 1 });
+CommandCooldownSchema.index({ ttlAt: 1 }, { expireAfterSeconds: 3600 });
 
 const DashboardLogSchema = new mongoose.Schema({
     guildId: { type: String, required: true, index: true },
@@ -218,9 +220,11 @@ const DashboardLogSchema = new mongoose.Schema({
     channelId: { type: String, default: null },
     transcriptId: { type: String, default: null },
     extra: { type: mongoose.Schema.Types.Mixed, default: null },
-    date: { type: Date, default: Date.now, index: true }
+    date: { type: Date, default: Date.now, index: true },
+    expireAt: { type: Date, default: undefined }
 }, { timestamps: true });
 
+DashboardLogSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });
 DashboardLogSchema.index({ guildId: 1, date: -1 });
 DashboardLogSchema.index({ guildId: 1, type: 1, date: -1 });
 
@@ -605,16 +609,34 @@ async function clearWarningsDB(guildId, userId) {
     return result.deletedCount > 0;
 }
 
+const READ_CACHE_TTL_MS = 5000;
+const guildConfigCache = new Map();
+const customCommandsCache = new Map();
+let blacklistSettingsCache = null;
+
+function cacheGet(map, key) {
+    const hit = map.get(key);
+    if (hit && Date.now() - hit.at < READ_CACHE_TTL_MS) return hit.value;
+    return undefined;
+}
+
+function cacheSet(map, key, value) {
+    map.set(key, { at: Date.now(), value });
+    if (map.size > 500) map.delete(map.keys().next().value);
+    return value;
+}
+
 async function getGuildConfigDB(guildId) {
-    const config = await GuildConfig.findOneAndUpdate(
-        { guildId },
-        { $setOnInsert: { guildId } },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
-    ).lean();
-    return config;
+    const key = String(guildId);
+    const cached = cacheGet(guildConfigCache, key);
+    if (cached) return { ...cached };
+    const config = await GuildConfig.findOne({ guildId: key }).lean();
+    if (config) return { ...cacheSet(guildConfigCache, key, config) };
+    return { ...cacheSet(guildConfigCache, key, new GuildConfig({ guildId: key }).toObject()) };
 }
 
 async function saveGuildConfigDB(guildId, key, value) {
+    guildConfigCache.delete(String(guildId));
     await GuildConfig.findOneAndUpdate(
         { guildId },
         { $set: { [key]: value } },
@@ -634,6 +656,7 @@ async function getDashboardPermissionsDB(guildId) {
 }
 
 async function saveDashboardPermissionsDB(guildId, perms) {
+    guildConfigCache.delete(String(guildId));
     await GuildConfig.findOneAndUpdate(
         { guildId },
         {
@@ -662,6 +685,7 @@ async function getDashboardSpecialUsersDB(guildId) {
 async function saveDashboardSpecialUsersDB(guildId, users) {
     const filterIds = (arr) => Array.isArray(arr) ? arr.filter(r => typeof r === 'string' && /^\d+$/.test(r)) : [];
 
+    guildConfigCache.delete(String(guildId));
     await GuildConfig.findOneAndUpdate(
         { guildId },
         {
@@ -683,6 +707,7 @@ async function getProjectedRolesDB(guildId) {
 
 async function saveProjectedRolesDB(guildId, roles) {
     const filterIds = (arr) => Array.isArray(arr) ? arr.filter(r => typeof r === 'string' && /^\d+$/.test(r)) : [];
+    guildConfigCache.delete(String(guildId));
     await GuildConfig.findOneAndUpdate(
         { guildId },
         { $set: { projectedRoles: filterIds(roles) } },
@@ -697,6 +722,7 @@ async function getVideoAccessRolesDB(guildId) {
 
 async function saveVideoAccessRolesDB(guildId, roles) {
     const filterIds = (arr) => Array.isArray(arr) ? arr.filter(r => typeof r === 'string' && /^\d+$/.test(r)) : [];
+    guildConfigCache.delete(String(guildId));
     await GuildConfig.findOneAndUpdate(
         { guildId },
         { $set: { videoAccessRoleIds: filterIds(roles) } },
@@ -705,6 +731,8 @@ async function saveVideoAccessRolesDB(guildId, roles) {
 }
 
 async function loadCustomCommandsDB(guildId) {
+    const cachedCommands = cacheGet(customCommandsCache, String(guildId));
+    if (cachedCommands) return cachedCommands;
     const docs = await CustomCommand.find({ guildId }).lean();
     const obj = {};
     for (const doc of docs) {
@@ -733,10 +761,11 @@ async function loadCustomCommandsDB(guildId) {
             updatedAt: doc.updatedAt
         };
     }
-    return obj;
+    return cacheSet(customCommandsCache, String(guildId), obj);
 }
 
 async function saveCustomCommandDB(guildId, name, data) {
+    customCommandsCache.delete(String(guildId));
     await CustomCommand.findOneAndUpdate(
         { guildId, name: name.toLowerCase() },
         { $set: { ...data, name: name.toLowerCase(), guildId, updatedAt: new Date() } },
@@ -745,6 +774,7 @@ async function saveCustomCommandDB(guildId, name, data) {
 }
 
 async function deleteCustomCommandDB(guildId, name) {
+    customCommandsCache.delete(String(guildId));
     const result = await CustomCommand.deleteOne({ guildId, name: name.toLowerCase() });
     return result.deletedCount > 0;
 }
@@ -754,6 +784,7 @@ async function getBaseCommandsCount(guildId) {
 }
 
 async function setIsBaseDB(guildId, name, isBase) {
+    customCommandsCache.delete(String(guildId));
     const result = await CustomCommand.findOneAndUpdate(
         { guildId, name: name.toLowerCase() },
         { $set: { isBase: !!isBase, updatedAt: new Date() } },
@@ -776,7 +807,7 @@ async function setCommandCooldownDB(userId, guildId, action, seconds) {
     const expiresAt = new Date(Date.now() + seconds * 1000);
     await CommandCooldown.findOneAndUpdate(
         { userId, guildId, action },
-        { $set: { expiresAt } },
+        { $set: { expiresAt, ttlAt: expiresAt } },
         { upsert: true, new: true }
     );
 }
@@ -830,7 +861,8 @@ async function saveDashboardLogDB(guildId, data) {
             channelId: data.channelId || null,
             transcriptId: data.transcriptId || null,
             extra: data.extra || null,
-            date: new Date()
+            date: new Date(),
+            expireAt: data.type === 'command' ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : undefined
         });
         return doc.toObject();
     } catch (err) {
@@ -1223,11 +1255,13 @@ async function updateBlacklistReasonDB(userId, newReason) {
 }
 
 async function getBlacklistSettingsDB() {
+    if (blacklistSettingsCache && Date.now() - blacklistSettingsCache.at < READ_CACHE_TTL_MS) return blacklistSettingsCache.value;
     const doc = await BlacklistSettings.findOneAndUpdate(
         { key: 'global' },
         { $setOnInsert: { key: 'global' } },
         { new: true, upsert: true, setDefaultsOnInsert: true }
     ).lean();
+    blacklistSettingsCache = { at: Date.now(), value: doc };
     return doc;
 }
 
@@ -1237,6 +1271,7 @@ async function saveBlacklistSettingsDB(data) {
     if (data.logGuildId !== undefined) set.logGuildId = data.logGuildId || null;
     if (data.banGuildIds !== undefined) set.banGuildIds = data.banGuildIds;
     if (data.commandRoles !== undefined) set.commandRoles = data.commandRoles;
+    blacklistSettingsCache = null;
     return BlacklistSettings.findOneAndUpdate(
         { key: 'global' },
         { $set: set, $setOnInsert: { key: 'global' } },
@@ -1245,6 +1280,7 @@ async function saveBlacklistSettingsDB(data) {
 }
 
 async function saveBlacklistSweepResultDB(result) {
+    blacklistSettingsCache = null;
     await BlacklistSettings.updateOne({ key: 'global' }, { $set: { lastSweepAt: new Date(), lastSweepResult: result } }, { upsert: true });
 }
 
