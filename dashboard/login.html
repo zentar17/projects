@@ -3,57 +3,681 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login • PredCord Dashboard</title>
-<link rel="icon" type="image/png" href="/dashboard/favicon.png">
-<link rel="shortcut icon" type="image/png" href="/dashboard/favicon.png">
-<link rel="apple-touch-icon" href="/dashboard/favicon.png">
-<link rel="stylesheet" href="/dashboard/style.css">
-</head>
-<body class="login-page">
+<title>Login • Predage - Admin Panels</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<style>
 
-<header class="topbar">
-    <div class="logo">
-        <img src="/dashboard/favicon.png" alt="PredCord" class="logo-img">
-        <span class="logo-accent">PredCord</span>
-        <span class="logo-sub">Dashboard</span>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --primary: #fafafa;
+    --accent: #38BDF8;
+    --bg-dark: #09090b;
+    --bg-card: #09090b;
+    --bg-bar: #0c0c0e;
+    --border: #27272a;
+    --text: #fafafa;
+    --text-dim: #a1a1aa;
+}
+
+html, body {
+    min-height: 100%;
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #27272a var(--bg-dark);
+}
+
+html::-webkit-scrollbar {
+    width: 10px;
+}
+
+html::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+html::-webkit-scrollbar-thumb {
+    background: #27272a;
+    border-radius: 10px;
+    border: 2px solid var(--bg-dark);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+    background: #3f3f46;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    animation: pageFadeIn 0.4s ease;
+}
+
+body.page-fade-out {
+    animation: pageFadeOut 0.22s ease forwards;
+}
+
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pageFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: 0.7fr 2.2fr 0.7fr;
+    align-items: center;
+    padding: 18px 48px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.header-spacer { height: 78px; }
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+header img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+
+.header-nav a {
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.3px;
+    transition: color 0.15s ease;
+}
+
+.header-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0;
+    height: 2px;
+    background: var(--text);
+    transition: width 0.25s ease;
+}
+
+.header-nav a:hover { color: var(--text); }
+.header-nav a:hover::after { width: 100%; }
+.header-nav a.hidden { display: none; }
+.nav-videos-group { display: none; align-items: center; gap: 30px; }
+.nav-videos-group.visible { display: flex; }
+
+.header-brand span { font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 20px; letter-spacing: 0.3px; }
+
+.nav-dot { color: var(--text-dim); opacity: 0.5; font-size: 14px; }
+
+.header-auth {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.lang-switcher { position: relative; }
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+}
+
+.lang-btn:hover { border-color: #3f3f46; }
+.lang-btn .flag-icon { width: 21px; height: 14px; border-radius: 2px; overflow: hidden; flex-shrink: 0; display: block; }
+.lang-btn svg.chev { width: 12px; height: 12px; stroke: var(--text-dim); }
+
+.lang-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #09090b;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.lang-dropdown.open { display: flex; }
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    background: none;
+    border: none;
+    font-family: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.lang-option:hover { background: rgba(255,255,255,0.06); }
+.lang-option.active { color: var(--primary); }
+.lang-option .flag-icon { width: 22px; height: 15px; border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+
+.auth-btn {
+    position: relative;
+    overflow: hidden;
+    background: #fafafa;
+    color: #18181b;
+    border: 1px solid #fafafa;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-btn.logged-in {
+    background: transparent;
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
+}
+
+.auth-btn.logged-in:hover { border-color: rgba(255,255,255,0.6); }
+
+.user-menu { position: relative; display: inline-block; }
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    display: none;
+}
+
+.user-avatar.has-menu { cursor: pointer; }
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #09090b;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.user-dropdown.open { display: flex; }
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.user-dropdown-item:hover { background: rgba(255,255,255,0.06); }
+
+
+
+
+
+
+
+
+
+
+.site-footer {
+    background: var(--bg-bar);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 40px 40px;
+    display: flex;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+.footer-brand { max-width: 360px; }
+
+.footer-brand-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.footer-brand-top img {
+    width: 68px;
+    height: 68px;
+    border-radius: 16px;
+    object-fit: cover;
+}
+
+.footer-brand-top span {
+    font-family: 'Poppins', sans-serif;
+    font-size: 36px;
+    font-weight: 600;
+}
+
+.footer-brand p {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+
+.footer-cols {
+    display: flex;
+    gap: 60px;
+}
+
+.footer-col h4 {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+}
+
+.footer-col a {
+    display: block;
+    width: fit-content;
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13.5px;
+    margin-bottom: 12px;
+    transition: color 0.2s ease;
+}
+
+.footer-col a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 1px;
+    background: var(--text);
+    transition: width 0.25s ease;
+}
+
+.footer-col a:hover { color: var(--text); }
+.footer-col a:hover::after { width: 100%; }
+
+.footer-socials-row { display: flex; gap: 12px; margin-top: 18px; }
+.footer-social-icon { display: flex; align-items: center; justify-content: center; width: 54px; height: 54px; border-radius: 12px; color: #fff; opacity: 0.8; background: rgba(255,255,255,0.05); border: 1px solid var(--border); transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease; }
+.footer-social-icon svg { width: 28px; height: 28px; }
+.footer-social-icon:hover { opacity: 1; background: rgba(255,255,255,0.1); border-color: #3f3f46; }
+
+.footer-bottom {
+    border-top: 1px solid var(--border);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    color: var(--text-dim);
+    font-size: 12px;
+}
+
+.footer-bottom-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.footer-bottom-legal { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.footer-bottom-legal a { color: var(--text-dim); text-decoration: none; transition: color 0.2s ease; }
+.footer-bottom-legal a:hover { color: var(--text); }
+.footer-bottom-divider { opacity: 0.4; }
+
+.footer-disclaimer { opacity: 0.65; font-size: 11.5px; }
+
+@media (max-width: 860px) {
+    header { grid-template-columns: 1fr; row-gap: 12px; padding: 14px 20px; }
+    .header-nav { justify-content: center; gap: 22px; flex-wrap: wrap; }
+}
+
+@media (max-width: 720px) {
+    .footer-inner { flex-direction: column; gap: 32px; }
+    .footer-cols { flex-wrap: wrap; gap: 32px; }
+    .footer-bottom { flex-direction: column; text-align: center; padding: 18px 20px; }
+    .footer-bottom-left { justify-content: center; }
+    .footer-socials-row { justify-content: center; }
+}
+
+body { min-height: 100vh; }
+
+.login-main {
+    flex: 1;
+    min-height: calc(100vh - 78px - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 24px;
+}
+
+.login-panel {
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    background: #09090b;
+    border: 1px solid #27272a;
+    border-radius: 16px;
+    padding: 44px 36px 40px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    animation: loginIn 0.5s ease both;
+}
+
+.login-icon {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 24px;
+    border-radius: 18px;
+    background: #18181b;
+    border: 1px solid #27272a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fafafa;
+}
+
+.login-icon svg { width: 30px; height: 30px; }
+
+@keyframes loginIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.login-panel h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+}
+
+.login-panel p {
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.login-discord {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 28px;
+    width: 100%;
+    height: 46px;
+    padding: 0 22px;
+    border-radius: 8px;
+    background: #fafafa;
+    color: #18181b;
+    border: 1px solid #fafafa;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.login-discord:hover { background: #e4e4e7; border-color: #e4e4e7; }
+.login-discord svg { width: 20px; height: 20px; }
+
+</style>
+</head>
+<body>
+
+<header>
+    <div class="header-brand">
+        <img src="/images/dragon-logo.png" alt="Predage">
+        <span>Predage</span>
     </div>
 
-    <nav class="dash-header-nav">
-        <a href="/">Community</a>
-        <a href="/staff-application">Staff Application</a>
-        <a href="/appeals">Ban Appeals</a>
-        <a href="/dashboard">Dashboard</a>
+    <nav class="header-nav">
+        <a href="/" data-i18n="nav_home">Home</a>
+        <span class="nav-dot">•</span>
+        <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
+        <span class="nav-videos-group" id="navVideosGroup">
+            <span class="nav-dot">•</span>
+            <a href="/videos" data-i18n="nav_videos">Videos</a>
+        </span>
+        <script>try{if(localStorage.getItem('pdCanViewVideos')==='1')document.getElementById('navVideosGroup').classList.add('visible');}catch(e){}</script>
+        <span class="nav-dot">•</span>
+        <a href="/community" data-i18n="nav_community">Community</a>
+        <span class="nav-dot">•</span>
+        <a href="#" data-i18n="nav_merch">Merch</a>
     </nav>
 
-    <div></div>
+    <div class="header-auth">
+        <div class="lang-switcher" id="langSwitcher">
+            <button class="lang-btn" id="langBtn">
+                <span class="flag-icon" id="langBtnFlag"></span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="lang-dropdown" id="langDropdown"></div>
+        </div>
+        <button class="auth-btn" id="authBtn" data-i18n="auth_signin">Sign In</button>
+    </div>
 </header>
+<div class="header-spacer" id="headerSpacer"></div>
 
-<div class="login-content">
-<div class="login-box">
-    <div class="login-logo">
-    <img src="/dashboard/favicon.png" alt="PredCord Logo">
-</div>
-    <h1>PredCord <span>Dashboard</span></h1>
-    <p>Sign in to the control panel</p>
+<main class="login-main">
+    <div class="login-panel">
+        <div class="login-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h1 data-i18n="login_title">Authentication Required</h1>
+        <p data-i18n="login_text">Log in with Discord to see the admin panels</p>
+        <a href="/auth/discord" class="login-discord">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/></svg>
+            <span data-i18n="login_button">Log in with Discord</span>
+        </a>
+    </div>
+</main>
 
-    <a href="/auth/discord" class="btn-discord">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
-            <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/>
-        </svg>
-        <span>Sign in with Discord</span>
-    </a>
+<footer class="site-footer" id="siteFooter">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <div class="footer-brand-top">
+                <img src="/images/dragon-logo.png" alt="Predage">
+                <span>Predage</span>
+            </div>
+            <div class="footer-socials-row">
+                <a class="footer-social-icon" href="https://x.com/Predage1" target="_blank" rel="noopener" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+                <a class="footer-social-icon" href="https://www.youtube.com/@predagefn" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg></a>
+                <a class="footer-social-icon" href="https://www.twitch.tv/predagefn" target="_blank" rel="noopener" aria-label="Twitch"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714z"/></svg></a>
+                <a class="footer-social-icon" href="https://www.instagram.com/predagefn/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" stroke="none"/></svg></a>
+            </div>
+        </div>
 
-    <p id="loginError" class="error hidden"></p>
-</div>
-</div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <h4>Navigation</h4>
+                <a href="/">Home</a>
+                <a href="/masterclass">Masterclass</a>
+                <a href="/community">Community</a>
+                <a href="#">Merch</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Socials</h4>
+                <a href="https://x.com/Predage1" target="_blank" rel="noopener">Twitter</a>
+                <a href="https://www.youtube.com/@predagefn" target="_blank" rel="noopener">YouTube</a>
+                <a href="https://www.twitch.tv/predagefn" target="_blank" rel="noopener">Twitch</a>
+                <a href="https://www.instagram.com/predagefn/" target="_blank" rel="noopener">Instagram</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="footer-bottom-left">
+            <span>Predage © 2026. All rights reserved.</span>
+            <span class="footer-bottom-divider">•</span>
+            <div class="footer-bottom-legal">
+                <a href="/terms">Terms of Service</a>
+                <a href="/privacy">Privacy Policy</a>
+            </div>
+        </div>
+        <span class="footer-disclaimer">Not affiliated with Epic Games, Inc.</span>
+    </div>
+</footer>
 
 <script>
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('error') === 'access_denied') {
-    const errEl = document.getElementById('loginError');
-    errEl.textContent = '❌ Access denied: you do not have the required roles or you are not in the server.';
-    errEl.classList.remove('hidden');
-}
+(function() {
+    var FLAGS = {
+        it: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#009246"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ce2b37"/></svg>',
+        en: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#00247d"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#fff" stroke-width="4"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#cf142b" stroke-width="2"/><path d="M15,0 V20 M0,10 H30" stroke="#fff" stroke-width="6"/><path d="M15,0 V20 M0,10 H30" stroke="#cf142b" stroke-width="3.2"/></svg>',
+        de: '<svg viewBox="0 0 30 20"><rect width="30" height="6.66" y="0" fill="#000"/><rect width="30" height="6.66" y="6.66" fill="#dd0000"/><rect width="30" height="6.67" y="13.33" fill="#ffce00"/></svg>',
+        es: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#aa151b"/><rect width="30" height="10" y="5" fill="#f1bf00"/></svg>',
+        fr: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#0055a4"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ef4135"/></svg>'
+    };
+
+    var LANGS = [
+        { code: 'it', name: 'Italiano' },
+        { code: 'en', name: 'English' },
+        { code: 'de', name: 'Deutsch' },
+        { code: 'es', name: 'Español' },
+        { code: 'fr', name: 'Français' }
+    ];
+
+    var I18N = {
+        it: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Accedi", login_title: "Autenticazione richiesta", login_text: "Accedi con Discord per vedere i pannelli admin", login_button: "Accedi con Discord" },
+        en: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Sign In", login_title: "Authentication Required", login_text: "Log in with Discord to see the admin panels", login_button: "Log in with Discord" },
+        de: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Anmelden", login_title: "Authentifizierung erforderlich", login_text: "Melde dich mit Discord an, um die Admin-Panels zu sehen", login_button: "Mit Discord anmelden" },
+        es: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Iniciar sesión", login_title: "Autenticación requerida", login_text: "Inicia sesión con Discord para ver los paneles de administración", login_button: "Iniciar sesión con Discord" },
+        fr: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Se connecter", login_title: "Authentification requise", login_text: "Connecte-toi avec Discord pour voir les panneaux d'administration", login_button: "Se connecter avec Discord" }
+    };
+
+    var currentLang = 'en';
+    var langBtnFlag = document.getElementById('langBtnFlag');
+    var langDropdown = document.getElementById('langDropdown');
+    var langBtn = document.getElementById('langBtn');
+    var authBtn = document.getElementById('authBtn');
+
+    function renderLangUI() {
+        langBtnFlag.innerHTML = FLAGS[currentLang];
+        langDropdown.innerHTML = LANGS.map(function(l) {
+            return '<button class="lang-option' + (l.code === currentLang ? ' active' : '') + '" data-code="' + l.code + '">' +
+                '<span class="flag-icon">' + FLAGS[l.code] + '</span><span>' + l.name + '</span>' +
+            '</button>';
+        }).join('');
+    }
+
+    function applyTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n');
+            if (I18N[currentLang][key]) el.textContent = I18N[currentLang][key];
+        });
+        document.documentElement.setAttribute('lang', currentLang);
+    }
+
+    function setLang(code) {
+        currentLang = code;
+        renderLangUI();
+        applyTranslations();
+    }
+
+    langBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        langDropdown.classList.toggle('open');
+    });
+
+    langDropdown.addEventListener('click', function(e) {
+        var opt = e.target.closest('.lang-option');
+        if (!opt) return;
+        langDropdown.classList.remove('open');
+        setLang(opt.getAttribute('data-code'));
+    });
+
+    document.addEventListener('click', function() {
+        langDropdown.classList.remove('open');
+    });
+
+    authBtn.addEventListener('click', function() {
+        window.location.href = '/auth/discord';
+    });
+
+    var headerEl = document.querySelector('header');
+    var headerSpacer = document.getElementById('headerSpacer');
+    function syncHeaderSpacer() {
+        headerSpacer.style.height = headerEl.offsetHeight + 'px';
+    }
+    syncHeaderSpacer();
+    window.addEventListener('resize', syncHeaderSpacer);
+
+    document.querySelectorAll('.header-nav a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            var href = link.getAttribute('href');
+            if (!href || href.charAt(0) !== '/') return;
+            e.preventDefault();
+            document.body.classList.add('page-fade-out');
+            setTimeout(function() { window.location.href = href; }, 200);
+        });
+    });
+
+    window.addEventListener('pageshow', function() {
+        document.body.classList.remove('page-fade-out');
+    });
+
+    renderLangUI();
+    applyTranslations();
+})();
 </script>
+
 </body>
 </html>
