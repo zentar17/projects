@@ -369,6 +369,7 @@ const BlacklistSettingsSchema = new mongoose.Schema({
     logChannelId: { type: String, default: null },
     logGuildId: { type: String, default: null },
     banGuildIds: { type: [String], default: [] },
+    commandRoles: { type: mongoose.Schema.Types.Mixed, default: {} },
     lastSweepAt: { type: Date, default: null },
     lastSweepResult: { type: mongoose.Schema.Types.Mixed, default: null }
 }, { timestamps: true });
@@ -1235,6 +1236,7 @@ async function saveBlacklistSettingsDB(data) {
     if (data.logChannelId !== undefined) set.logChannelId = data.logChannelId || null;
     if (data.logGuildId !== undefined) set.logGuildId = data.logGuildId || null;
     if (data.banGuildIds !== undefined) set.banGuildIds = data.banGuildIds;
+    if (data.commandRoles !== undefined) set.commandRoles = data.commandRoles;
     return BlacklistSettings.findOneAndUpdate(
         { key: 'global' },
         { $set: set, $setOnInsert: { key: 'global' } },
