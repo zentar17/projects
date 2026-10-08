@@ -251,6 +251,7 @@ async function init() {
         await restoreDashState();
     } catch (e) {
         console.error('[INIT] Error:', e);
+        endRestoring();
     }
 }
 
@@ -278,7 +279,19 @@ function clearDashState() {
     try { localStorage.removeItem('pdDashState'); } catch (e) {}
 }
 
+function endRestoring() {
+    document.documentElement.classList.remove('pd-restoring');
+}
+
 async function restoreDashState() {
+    try {
+        await restoreDashStateInner();
+    } finally {
+        endRestoring();
+    }
+}
+
+async function restoreDashStateInner() {
     if (selectedServer) return;
     const st = loadDashState();
     if (!st.server) return;
@@ -5140,9 +5153,9 @@ function setupEvents() {
                     setTimeout(() => {
                         if (myToken !== tabTransitionToken) return;
                         targetContent.style.opacity = '';
-                    }, 350);
+                    }, 160);
                 });
-            }, 180);
+            }, 70);
         };
     });
 
