@@ -268,6 +268,7 @@ function applyServerAccessRestrictions() {
     if (communityCard) communityCard.classList.toggle('hidden', !serverAccess.community);
     if (predcordCard) predcordCard.classList.toggle('hidden', !serverAccess.predcord);
     if (masterclassCard) masterclassCard.classList.toggle('hidden', !isOwner() && !canAccessMasterclass && !canMcTickets);
+    refreshSideUserRole();
 
     const allowed = Object.keys(serverAccess).filter(k => serverAccess[k]);
 
@@ -381,6 +382,11 @@ function refreshSideUserRole() {
     if (myRole === 'owner') label = 'Owner';
     else if (isAdmin) label = 'Admin';
     el.textContent = label;
+    const ssRole = document.getElementById('ssUserRole');
+    if (ssRole) ssRole.textContent = myRole === 'owner' ? 'Owner' : 'Admin';
+    document.querySelectorAll('.ss-role').forEach(b => {
+        b.textContent = myRole === 'owner' ? 'Owner' : 'Admin';
+    });
 }
 
 function updateNavGroups() {
@@ -448,6 +454,13 @@ async function loadUserMenu() {
         const username = me.username || '';
         const sideName = document.getElementById('sideUserName');
         if (sideName) sideName.textContent = displayName;
+        const ssAvatar = document.getElementById('ssUserAvatar');
+        if (ssAvatar) {
+            ssAvatar.src = avatarUrl;
+            ssAvatar.onerror = () => { ssAvatar.src = defaultAvatar; };
+        }
+        const ssName = document.getElementById('ssUserName');
+        if (ssName) ssName.textContent = displayName;
         refreshSideUserRole();
 
         if (ddDisplayName) ddDisplayName.textContent = displayName;
@@ -803,20 +816,17 @@ function renderCommands() {
             badge = `<span class="command-badge roles">${cmd.allowedRoles.length} role${cmd.allowedRoles.length === 1 ? '' : 's'}</span>`;
         }
 
-        const baseBadge = cmd.isBase
-            ? '<span class="command-badge base">Base</span>'
-            : '';
         const typeLabels = { text: 'Normal', embed: 'Embed', ban: 'Ban', kick: 'Kick', mute: 'Mute', warn: 'Warn', role: 'Role' };
         const typeBadge = `<span class="command-badge type">${escapeHtml(typeLabels[cmd.type || 'text'] || cmd.type)}</span>`;
         const offBadge = cmd.enabled === false ? '<span class="command-badge none">Disabled</span>' : '';
 
-        const cardClass = cmd.isBase ? 'command-card base-command' : 'command-card';
+        const cardClass = 'command-card';
 
         return `
         <div class="${cardClass}">
             <div class="command-info">
                 <h4>${escapeHtml((cmd.prefix || '*') + name)}</h4>
-                <div class="command-badges">${typeBadge}${badge}${baseBadge}${offBadge}</div>
+                <div class="command-badges">${typeBadge}${badge}${offBadge}</div>
             </div>
             <div class="command-actions">
                 <button class="btn-edit" data-name="${escapeAttr(name)}">Edit</button>
@@ -2235,9 +2245,6 @@ function openModal(name = null) {
         if (Array.isArray(cmd.extraEmbeds)) cmd.extraEmbeds.forEach(e => addEmbedBlock(e, true));
         clearButtons();
         if (Array.isArray(cmd.buttons)) cmd.buttons.forEach(b => addButtonBlock(b, true));
-
-        const baseToggle = document.getElementById('cmdIsBase');
-        if (baseToggle) baseToggle.checked = !!cmd.isBase;
     } else {
         title.textContent = 'New command';
         document.getElementById('cmdName').disabled = false;
@@ -2248,11 +2255,8 @@ function openModal(name = null) {
         document.getElementById('cmdEnabled').checked = true;
         clearExtraEmbeds();
         clearButtons();
-        const baseToggle = document.getElementById('cmdIsBase');
-        if (baseToggle) baseToggle.checked = false;
     }
 
-    updateBaseToggleVisibility();
     cmSyncColor();
     cmFillTargetRoles();
     closePermissionsBox();
@@ -2266,13 +2270,6 @@ function openModal(name = null) {
         const n = document.getElementById('cmdName');
         if (n && !n.disabled) n.focus();
     }, 100);
-}
-
-function updateBaseToggleVisibility() {
-    const wrap = document.getElementById('baseToggleWrap');
-    if (!wrap) return;
-    if (myRole === 'owner' || isAdmin) wrap.classList.remove('hidden');
-    else wrap.classList.add('hidden');
 }
 
 function closeModal() {
@@ -2630,19 +2627,6 @@ async function saveCommand(e) {
             body: JSON.stringify({ name, data, isEdit: !!editingName })
         });
         if (res.ok) {
-            const baseToggle = document.getElementById('cmdIsBase');
-            if (baseToggle && (myRole === 'owner' || isAdmin)) {
-                const wantBase = baseToggle.checked;
-                const currentBase = editingName && currentCommands[editingName] ? !!currentCommands[editingName].isBase : false;
-                if (wantBase !== currentBase) {
-                    await fetch(`/api/commands/${currentGuild}/${name}/setbase`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ isBase: wantBase })
-                    });
-                }
-            }
-
             closeModal();
             await loadCommands();
             showToast(`Command ${prefix}${name} saved`);
@@ -2741,12 +2725,6 @@ function setupCommandModal() {
 async function deleteCommand(name) {
     if (!userHasDashboardPermission('deleteRoles')) {
         showAccessDenied();
-        return;
-    }
-
-    const cmd = currentCommands[name];
-    if (cmd && cmd.isBase) {
-        showToast('This command is Base: remove the Base flag first to delete it', 'error');
         return;
     }
 
