@@ -877,6 +877,35 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
+.email-notice-overlay { z-index: 1100; }
+
+.email-notice-box {
+    max-width: 420px;
+    padding: 30px 28px 26px;
+    background: linear-gradient(180deg, #1a1a22 0%, #14141a 100%);
+    border-radius: 20px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 80px rgba(230, 126, 34, 0.12);
+}
+
+.email-notice-box .plan-modal-title { margin-top: 0; }
+
+.email-notice-p {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.email-notice-p a {
+    color: var(--primary);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(230, 126, 34, 0.4);
+    font-weight: 700;
+}
+
+.email-notice-p a:hover { border-bottom-color: var(--primary); }
+.email-notice-box .plan-create-btn { margin-top: 12px; }
+
 .plan-create-btn:hover:not(:disabled) { transform: translateY(-1px); }
 .plan-create-btn:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
 
@@ -1303,6 +1332,16 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
     </div>
 </div>
 
+<div class="modal-overlay email-notice-overlay" id="emailNoticeModal">
+    <div class="modal-box email-notice-box">
+        <h3 class="plan-modal-title" id="emailNoticeTitle"></h3>
+        <p class="email-notice-p" id="emailNoticeP1"></p>
+        <p class="email-notice-p" id="emailNoticeP2"></p>
+        <p class="email-notice-p" id="emailNoticeP3"></p>
+        <button type="button" class="plan-create-btn" id="emailNoticeBtn"></button>
+    </div>
+</div>
+
 <div class="modal-overlay" id="resultModal">
     <div class="modal-box modal-box-wide">
         <button class="modal-close" id="resultModalClose">&times;</button>
@@ -1330,6 +1369,12 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 
     var I18N = {
         it: {
+            plan_notice_title: 'Email facoltativa',
+            plan_notice_p1: 'L\'inserimento dell\'email è facoltativo e non è necessario per utilizzare il servizio.',
+            plan_notice_p2: 'Se la inserisci, verrà associata al tuo account Discord ed eliminata automaticamente entro 7 giorni.',
+            plan_notice_p3: 'Per maggiori informazioni, consulta la nostra {privacy}.',
+            plan_notice_link: 'Informativa Privacy',
+            plan_notice_btn: 'Ho capito',
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
             auth_signin: 'Accedi', auth_logout: 'Esci', user_admin_panel: 'Pannello Admin',
             mc_description: 'Da qualche mese, Predage mette a disposizione la sua vasta esperienza come fortnite pro player per aiutare a migliorare tutti i fan che lo supportano ogni giorno. Predage compete nel mondo del Fortnite competitivo da diversi anni, raggiungendo sempre i massimi livelli e portando l\'Italia in alto.',
@@ -1339,8 +1384,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_subscribe: 'Iscriviti Ora',
             mc_month: '/mese',
             plan_title: 'Ottieni il tuo piano',
-            plan_sub: 'Inserisci la tua email e apri un ticket. Il nostro team ti risponderà lì per completare l\'acquisto.',
-            plan_email_label: 'Inserisci la tua email',
+            plan_sub: 'Apri un ticket. Il nostro team ti risponderà lì per completare l\'acquisto. L\'email è facoltativa.',
+            plan_email_label: 'Inserisci la tua email (facoltativa)',
             plan_checking: 'Controllo email…',
             plan_valid: 'Email verificata',
             plan_invalid_format: 'Questa email non è valida',
@@ -1371,6 +1416,12 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             footer_disclaimer: 'Non affiliato né approvato da Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Sviluppato da'
         },
         en: {
+            plan_notice_title: 'Optional email',
+            plan_notice_p1: 'Entering your email is optional and is not required to use the service.',
+            plan_notice_p2: 'If you enter it, it will be linked to your Discord account and automatically deleted within 7 days.',
+            plan_notice_p3: 'For more information, see our {privacy}.',
+            plan_notice_link: 'Privacy Policy',
+            plan_notice_btn: 'Got it',
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
             auth_signin: 'Sign In', auth_logout: 'Log Out', user_admin_panel: 'Admin Panel',
             mc_description: 'For a few months now, Predage has been sharing his extensive experience as a Fortnite pro player to help improve every fan who supports him every day. Predage has competed in the world of competitive Fortnite for several years, always reaching the highest levels and flying Italy\'s flag high.',
@@ -1380,8 +1431,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_subscribe: 'Subscribe Now',
             mc_month: '/month',
             plan_title: 'Get your plan',
-            plan_sub: 'Enter your email and open a ticket. Our team will reply there to complete your purchase.',
-            plan_email_label: 'Enter Your Email',
+            plan_sub: 'Open a ticket. Our team will reply there to complete your purchase. Email is optional.',
+            plan_email_label: 'Enter Your Email (optional)',
             plan_checking: 'Checking email…',
             plan_valid: 'Email verified',
             plan_invalid_format: 'This email is not valid',
@@ -1412,6 +1463,12 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             footer_disclaimer: 'Not affiliated with or endorsed by Epic Games, Inc., Twitch Interactive, Inc., or Discord Inc.', footer_dev: 'Developed by'
         },
         de: {
+            plan_notice_title: 'Optionale E-Mail',
+            plan_notice_p1: 'Die Angabe deiner E-Mail-Adresse ist freiwillig und für die Nutzung des Dienstes nicht erforderlich.',
+            plan_notice_p2: 'Wenn du sie angibst, wird sie mit deinem Discord-Konto verknüpft und innerhalb von 7 Tagen automatisch gelöscht.',
+            plan_notice_p3: 'Weitere Informationen findest du in unserer {privacy}.',
+            plan_notice_link: 'Datenschutzrichtlinie',
+            plan_notice_btn: 'Verstanden',
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
             auth_signin: 'Anmelden', auth_logout: 'Abmelden', user_admin_panel: 'Admin-Panel',
             mc_description: 'Seit einigen Monaten stellt Predage seine umfangreiche Erfahrung als Fortnite-Pro-Spieler zur Verfügung, um allen Fans, die ihn jeden Tag unterstützen, beim Verbessern zu helfen. Predage tritt seit mehreren Jahren in der Welt des competitiven Fortnite an, erreicht dabei stets Höchstleistungen und trägt Italiens Namen ganz nach oben.',
@@ -1421,8 +1478,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_subscribe: 'Jetzt abonnieren',
             mc_month: '/Monat',
             plan_title: 'Hol dir deinen Plan',
-            plan_sub: 'Gib deine E-Mail ein und öffne ein Ticket. Unser Team antwortet dir dort, um den Kauf abzuschließen.',
-            plan_email_label: 'Gib deine E-Mail ein',
+            plan_sub: 'Öffne ein Ticket. Unser Team antwortet dir dort, um den Kauf abzuschließen. Die E-Mail ist optional.',
+            plan_email_label: 'Gib deine E-Mail ein (optional)',
             plan_checking: 'E-Mail wird geprüft…',
             plan_valid: 'E-Mail bestätigt',
             plan_invalid_format: 'Diese E-Mail ist ungültig',
@@ -1453,6 +1510,12 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             footer_disclaimer: 'Nicht verbunden mit oder unterstützt von Epic Games, Inc., Twitch Interactive, Inc. oder Discord Inc.', footer_dev: 'Entwickelt von'
         },
         es: {
+            plan_notice_title: 'Correo opcional',
+            plan_notice_p1: 'Introducir tu correo es opcional y no es necesario para usar el servicio.',
+            plan_notice_p2: 'Si lo introduces, se asociará a tu cuenta de Discord y se eliminará automáticamente en un máximo de 7 días.',
+            plan_notice_p3: 'Para más información, consulta nuestra {privacy}.',
+            plan_notice_link: 'Política de Privacidad',
+            plan_notice_btn: 'Entendido',
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
             auth_signin: 'Iniciar sesión', auth_logout: 'Cerrar sesión', user_admin_panel: 'Panel de Administración',
             mc_description: 'Desde hace algunos meses, Predage pone a disposición su amplia experiencia como jugador profesional de Fortnite para ayudar a mejorar a todos los fans que lo apoyan cada día. Predage compite en el mundo del Fortnite competitivo desde hace varios años, alcanzando siempre los niveles más altos y llevando a Italia a lo más alto.',
@@ -1462,8 +1525,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_subscribe: 'Suscríbete ahora',
             mc_month: '/mes',
             plan_title: 'Consigue tu plan',
-            plan_sub: 'Introduce tu email y abre un ticket. Nuestro equipo te responderá allí para completar la compra.',
-            plan_email_label: 'Introduce tu email',
+            plan_sub: 'Abre un ticket. Nuestro equipo te responderá allí para completar la compra. El email es opcional.',
+            plan_email_label: 'Introduce tu email (opcional)',
             plan_checking: 'Comprobando email…',
             plan_valid: 'Email verificado',
             plan_invalid_format: 'Este email no es válido',
@@ -1494,6 +1557,12 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             footer_disclaimer: 'No afiliado ni respaldado por Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Desarrollado por'
         },
         fr: {
+            plan_notice_title: 'E-mail facultatif',
+            plan_notice_p1: 'La saisie de ton e-mail est facultative et n\'est pas nécessaire pour utiliser le service.',
+            plan_notice_p2: 'Si tu le saisis, il sera associé à ton compte Discord et supprimé automatiquement sous 7 jours.',
+            plan_notice_p3: 'Pour plus d\'informations, consulte notre {privacy}.',
+            plan_notice_link: 'Politique de Confidentialité',
+            plan_notice_btn: 'Compris',
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
             auth_signin: 'Se connecter', auth_logout: 'Déconnexion', user_admin_panel: 'Panneau Admin',
             mc_description: 'Depuis quelques mois, Predage met à disposition sa vaste expérience de joueur professionnel Fortnite pour aider à progresser tous les fans qui le soutiennent chaque jour. Predage évolue dans le monde du Fortnite compétitif depuis plusieurs années, atteignant toujours les plus hauts niveaux et portant l\'Italie au sommet.',
@@ -1503,8 +1572,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             mc_subscribe: 'Inscris-toi maintenant',
             mc_month: '/mois',
             plan_title: 'Obtiens ton plan',
-            plan_sub: 'Entre ton email et ouvre un ticket. Notre équipe te répondra là-bas pour finaliser ton achat.',
-            plan_email_label: 'Entre ton email',
+            plan_sub: 'Ouvre un ticket. Notre équipe te répondra là-bas pour finaliser ton achat. L\'e-mail est facultatif.',
+            plan_email_label: 'Entre ton email (facultatif)',
             plan_checking: 'Vérification de l\'email…',
             plan_valid: 'Email vérifié',
             plan_invalid_format: 'Cet email n\'est pas valide',
@@ -1881,13 +1950,16 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         clearTimeout(planState.checkTimer);
         planState.checkSeq++;
         planState.key = null;
+        emailNoticeShown = false;
     }
 
     function updateCreateBtn() {
         var btn = document.getElementById('planCreateBtn');
         var terms = document.getElementById('planTermsInput');
         if (!btn || !terms) return;
-        btn.disabled = !(planState.emailValid && terms.checked);
+        var emailInput = document.getElementById('planEmailInput');
+        var emailEmpty = !emailInput || emailInput.value.trim() === '';
+        btn.disabled = !((emailEmpty || planState.emailValid) && terms.checked);
     }
 
     function setEmailState(state, message) {
@@ -1928,6 +2000,41 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         });
     }
 
+    var emailNoticeShown = false;
+    var emailNoticeModal = document.getElementById('emailNoticeModal');
+    var emailNoticeBtn = document.getElementById('emailNoticeBtn');
+
+    function closeEmailNotice() {
+        if (!emailNoticeModal || !emailNoticeModal.classList.contains('open')) return;
+        emailNoticeModal.classList.remove('open');
+        var input = document.getElementById('planEmailInput');
+        if (input) input.focus();
+    }
+
+    function openEmailNotice() {
+        if (!emailNoticeModal) return;
+        emailNoticeShown = true;
+        document.getElementById('emailNoticeTitle').textContent = planText('notice_title');
+        document.getElementById('emailNoticeP1').textContent = planText('notice_p1');
+        document.getElementById('emailNoticeP2').textContent = planText('notice_p2');
+        document.getElementById('emailNoticeP3').innerHTML = planText('notice_p3')
+            .replace('{privacy}', '<a href="/privacy" target="_blank" rel="noopener">' + planText('notice_link') + '</a>');
+        emailNoticeBtn.textContent = planText('notice_btn');
+        emailNoticeModal.classList.add('open');
+        setTimeout(function() { emailNoticeBtn.focus(); }, 30);
+    }
+
+    if (emailNoticeBtn) emailNoticeBtn.addEventListener('click', closeEmailNotice);
+    if (emailNoticeModal) emailNoticeModal.addEventListener('click', function(e) {
+        if (e.target === emailNoticeModal) closeEmailNotice();
+    });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && emailNoticeModal && emailNoticeModal.classList.contains('open')) {
+            e.stopImmediatePropagation();
+            closeEmailNotice();
+        }
+    }, true);
+
     function renderPlanSignIn(tier) {
         planModalContent.innerHTML =
             '<span class="plan-chip">' + planChipText(tier) + '</span>' +
@@ -1965,6 +2072,10 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
         var terms = document.getElementById('planTermsInput');
         var createBtn = document.getElementById('planCreateBtn');
 
+        input.addEventListener('focus', function() {
+            if (!emailNoticeShown) openEmailNotice();
+        });
+
         input.addEventListener('input', function() {
             clearTimeout(planState.checkTimer);
             planState.checkSeq++;
@@ -1995,7 +2106,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             fetch('/api/site/mc-tickets/create', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: input.value.trim(), planKey: tier.key, acceptTerms: terms.checked })
+                body: JSON.stringify({ email: input.value.trim() || null, planKey: tier.key, acceptTerms: terms.checked })
             }).then(function(res) {
                 return res.json().then(function(body) { return { ok: res.ok, status: res.status, body: body || {} }; });
             }).then(function(r) {
@@ -2025,7 +2136,6 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             });
         });
 
-        setTimeout(function() { input.focus(); }, 80);
     }
 
     function renderPlanAlreadyOpen(tier, ticket) {
