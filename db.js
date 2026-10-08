@@ -350,13 +350,27 @@ VideoWatchSchema.index({ userId: 1, videoId: 1 }, { unique: true });
 
 const BlacklistEntrySchema = new mongoose.Schema({
     userId: { type: String, required: true, unique: true, index: true },
-    userTag: String,
-    reason: String,
-    modId: String,
-    modTag: String,
+    userName: { type: String, default: null },
+    reason: { type: String, default: 'No reason provided' },
+    bannedBy: { type: String, default: null },
+    bannedById: { type: String, default: null },
     date: { type: Date, default: Date.now },
-    servers: { type: [String], default: [] },
-    lastErrors: { type: [String], default: [] }
+    bannedServers: { type: [String], default: [] },
+    isUnblacklisted: { type: Boolean, default: false, index: true },
+    errors: { type: [String], default: [] },
+    unblacklistReason: { type: String, default: null },
+    unblacklistedAt: { type: Date, default: null },
+    unblacklistedBy: { type: String, default: null },
+    unblacklistedById: { type: String, default: null }
+});
+
+const BlacklistSettingsSchema = new mongoose.Schema({
+    key: { type: String, required: true, unique: true, default: 'global' },
+    logChannelId: { type: String, default: null },
+    logGuildId: { type: String, default: null },
+    banGuildIds: { type: [String], default: [] },
+    lastSweepAt: { type: Date, default: null },
+    lastSweepResult: { type: mongoose.Schema.Types.Mixed, default: null }
 }, { timestamps: true });
 
 const TicketBlockSchema = new mongoose.Schema({
@@ -501,6 +515,7 @@ const McTicket = mongoose.model('McTicket', McTicketSchema);
 const McTicketTranscript = mongoose.model('McTicketTranscript', McTicketTranscriptSchema);
 const McTicketImage = mongoose.model('McTicketImage', McTicketImageSchema);
 const BlacklistEntry = mongoose.model('BlacklistEntry', BlacklistEntrySchema);
+const BlacklistSettings = mongoose.model('BlacklistSettings', BlacklistSettingsSchema);
 const TicketBlock = mongoose.model('TicketBlock', TicketBlockSchema);
 const TempRole = mongoose.model('TempRole', TempRoleSchema);
 const DropmapImage = mongoose.model('DropmapImage', DropmapImageSchema);
@@ -1120,65 +1135,115 @@ async function saveHlsSegmentsDB(videoId, segments) {
     ).lean();
 }
 
+const ACTIVE_BLACKLIST = { isUnblacklisted: { $ne: true } };
+
+async function migrateBlacklistSchemaDB() {
+    const col = BlacklistEntry.collection;
+    const legacy = await col.countDocuments({ $or: [
+        { userTag: { $exists: true } }, { modTag: { $exists: true } }, { modId: { $exists: true } },
+        { servers: { $exists: true } }, { lastErrors: { $exists: true } }, { isUnblacklisted: { $exists: false } }
+    ] });
+    if (!legacy) return 0;
+    await col.updateMany({}, [
+        { $set: {
+            userName: { $ifNull: ['$userName', '$userTag'] },
+            bannedBy: { $ifNull: ['$bannedBy', '$modTag'] },
+            bannedById: { $ifNull: ['$bannedById', '$modId'] },
+            bannedServers: { $ifNull: ['$bannedServers', { $ifNull: ['$servers', []] }] },
+            errors: { $ifNull: ['$errors', { $ifNull: ['$lastErrors', []] }] },
+            isUnblacklisted: { $ifNull: ['$isUnblacklisted', false] },
+            unblacklistReason: { $ifNull: ['$unblacklistReason', null] },
+            unblacklistedAt: { $ifNull: ['$unblacklistedAt', null] },
+            unblacklistedBy: { $ifNull: ['$unblacklistedBy', null] },
+            unblacklistedById: { $ifNull: ['$unblacklistedById', null] }
+        } },
+        { $unset: ['userTag', 'modTag', 'modId', 'servers', 'lastErrors', 'createdAt', 'updatedAt'] }
+    ]);
+    return legacy;
+}
+
 async function addBlacklistEntryDB(data) {
     return BlacklistEntry.findOneAndUpdate(
         { userId: data.userId },
-        { $set: data },
-        { new: true, upsert: true }
+        { $set: {
+            userName: data.userName || null,
+            reason: data.reason || 'No reason provided',
+            bannedBy: data.bannedBy || null,
+            bannedById: data.bannedById || null,
+            date: data.date || new Date(),
+            bannedServers: data.bannedServers || [],
+            errors: data.errors || [],
+            isUnblacklisted: false,
+            unblacklistReason: null,
+            unblacklistedAt: null,
+            unblacklistedBy: null,
+            unblacklistedById: null
+        } },
+        { new: true, upsert: true, setDefaultsOnInsert: true }
     ).lean();
 }
 
-async function removeBlacklistEntryDB(userId) {
-    const result = await BlacklistEntry.findOneAndDelete({ userId });
-    return !!result;
+async function unblacklistEntryDB(userId, data) {
+    return BlacklistEntry.findOneAndUpdate(
+        { userId, ...ACTIVE_BLACKLIST },
+        { $set: {
+            isUnblacklisted: true,
+            unblacklistReason: data.reason || 'No reason provided',
+            unblacklistedAt: new Date(),
+            unblacklistedBy: data.by || null,
+            unblacklistedById: data.byId || null
+        } },
+        { new: true }
+    ).lean();
 }
 
 async function getBlacklistEntryDB(userId) {
     return BlacklistEntry.findOne({ userId }).lean();
 }
 
+async function getActiveBlacklistEntryDB(userId) {
+    return BlacklistEntry.findOne({ userId, ...ACTIVE_BLACKLIST }).lean();
+}
+
 async function getAllBlacklistDB() {
-    return BlacklistEntry.find({}).lean();
+    return BlacklistEntry.find(ACTIVE_BLACKLIST).lean();
 }
 
-async function getBlacklistSyncGuildIdsDB() {
-    const configs = await GuildConfig.find({ blacklistSyncEnabled: true }).select('guildId').lean();
-    return configs.map(c => c.guildId);
-}
-
-async function claimBlacklistSyncDB(guildId, cooldownMs) {
-    await getGuildConfigDB(guildId);
-    const now = new Date();
-    const threshold = new Date(now.getTime() - cooldownMs);
-    const claimed = await GuildConfig.findOneAndUpdate(
-        {
-            guildId,
-            $or: [
-                { blacklistSyncLastRunAt: null },
-                { blacklistSyncLastRunAt: { $exists: false } },
-                { blacklistSyncLastRunAt: { $lte: threshold } }
-            ]
-        },
-        { $set: { blacklistSyncLastRunAt: now } },
-        { new: false }
-    ).lean();
-    return claimed ? { previousRunAt: claimed.blacklistSyncLastRunAt || null, runAt: now } : null;
-}
-
-async function releaseBlacklistSyncDB(guildId, previousRunAt) {
-    await GuildConfig.updateOne({ guildId }, { $set: { blacklistSyncLastRunAt: previousRunAt || null } });
-}
-
-async function saveBlacklistSyncResultDB(guildId, result) {
-    await GuildConfig.updateOne({ guildId }, { $set: { blacklistSyncLastResult: result } });
+async function setBlacklistEntryResultDB(userId, bannedServers, errors) {
+    return BlacklistEntry.updateOne({ userId, ...ACTIVE_BLACKLIST }, { $set: { bannedServers, errors } });
 }
 
 async function addBlacklistEntryServerDB(userId, guildId) {
-    await BlacklistEntry.updateOne({ userId }, { $addToSet: { servers: guildId } });
+    await BlacklistEntry.updateOne({ userId, ...ACTIVE_BLACKLIST }, { $addToSet: { bannedServers: guildId } });
 }
 
 async function updateBlacklistReasonDB(userId, newReason) {
-    return BlacklistEntry.findOneAndUpdate({ userId }, { $set: { reason: newReason } }, { new: true }).lean();
+    return BlacklistEntry.findOneAndUpdate({ userId, ...ACTIVE_BLACKLIST }, { $set: { reason: newReason } }, { new: true }).lean();
+}
+
+async function getBlacklistSettingsDB() {
+    const doc = await BlacklistSettings.findOneAndUpdate(
+        { key: 'global' },
+        { $setOnInsert: { key: 'global' } },
+        { new: true, upsert: true, setDefaultsOnInsert: true }
+    ).lean();
+    return doc;
+}
+
+async function saveBlacklistSettingsDB(data) {
+    const set = {};
+    if (data.logChannelId !== undefined) set.logChannelId = data.logChannelId || null;
+    if (data.logGuildId !== undefined) set.logGuildId = data.logGuildId || null;
+    if (data.banGuildIds !== undefined) set.banGuildIds = data.banGuildIds;
+    return BlacklistSettings.findOneAndUpdate(
+        { key: 'global' },
+        { $set: set, $setOnInsert: { key: 'global' } },
+        { new: true, upsert: true, setDefaultsOnInsert: true }
+    ).lean();
+}
+
+async function saveBlacklistSweepResultDB(result) {
+    await BlacklistSettings.updateOne({ key: 'global' }, { $set: { lastSweepAt: new Date(), lastSweepResult: result } }, { upsert: true });
 }
 
 async function addTicketBlockDB(data) {
@@ -1479,13 +1544,16 @@ module.exports = {
     getWatchedVideoIdsDB,
     BlacklistEntry,
     addBlacklistEntryDB,
-    removeBlacklistEntryDB,
     getBlacklistEntryDB,
     getAllBlacklistDB,
-    getBlacklistSyncGuildIdsDB,
-    claimBlacklistSyncDB,
-    releaseBlacklistSyncDB,
-    saveBlacklistSyncResultDB,
+    unblacklistEntryDB,
+    getActiveBlacklistEntryDB,
+    setBlacklistEntryResultDB,
+    getBlacklistSettingsDB,
+    saveBlacklistSettingsDB,
+    saveBlacklistSweepResultDB,
+    migrateBlacklistSchemaDB,
+    BlacklistSettings,
     addBlacklistEntryServerDB,
     updateBlacklistReasonDB,
     TicketBlock,
