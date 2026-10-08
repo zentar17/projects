@@ -3346,10 +3346,10 @@ app.post('/api/blacklist/sync', requireAuth, writeLimiter, async (req, res) => {
         const { blacklist, db } = global.PredCord;
         if (blacklist.isSweeping()) return res.json({ started: false, running: true });
         const settings = await db.getBlacklistSettingsDB();
-        if (!settings.banGuildIds || settings.banGuildIds.length === 0) {
-            return res.status(400).json({ error: 'Select at least one Ban Server first' });
+        if (!(settings.banGuildIds || []).includes(guildId)) {
+            return res.status(400).json({ error: 'Enable this server in Ban Servers and save first' });
         }
-        blacklist.runSweep();
+        blacklist.runSweep([guildId]);
         res.json({ started: true, running: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
