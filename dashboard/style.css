@@ -5070,3 +5070,11 @@ main .mc-ticket-num, main .mc-ticket-claim.claimed, main .modlog-server-badge { 
 #serverSelectScreen .ss-badge, #serverSelectScreen .ss-role { display: none; }
 #serverSelectScreen .ss-hero { text-align: center; }
 #serverSelectScreen .server-select-card.ss-item img[src$="masterclass-pfp.png"] { background: #fff; }
+
+.logo { display: flex; align-items: center; gap: 10px; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 17px; color: #fafafa; }
+.logo-img { width: 34px; height: 34px; object-fit: contain; }
+.logo-accent { color: #fafafa; }
+.logo-sub { color: #a1a1aa; font-weight: 500; }
+.dash-header-nav { display: flex; align-items: center; justify-content: center; gap: 32px; }
+.dash-header-nav a { color: #a1a1aa; text-decoration: none; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; font-size: 14px; transition: color 0.15s ease; }
+.dash-header-nav a:hover, .dash-header-nav a.active { color: #fafafa; }
