@@ -30,6 +30,11 @@ function createRoleSync({ client, db, botClients, logCrash }) {
         return (rolesClient && rolesClient.guilds.cache.get(guildId)) || client.guilds.cache.get(guildId) || null;
     }
 
+    async function fetchAllMembers(guild) {
+        if (guild.members.cache.size >= guild.memberCount) return guild.members.cache;
+        return guild.members.fetch().catch(() => null);
+    }
+
     async function getMember(guild, userId) {
         if (!guild) return null;
         return guild.members.cache.get(userId) || await guild.members.fetch(userId).catch(() => null);
@@ -94,12 +99,12 @@ function createRoleSync({ client, db, botClients, logCrash }) {
         for (const rule of sourceRules) {
             const sourceGuild = client.guilds.cache.get(rule.sourceGuildId);
             if (!sourceGuild || !sourceGuild.roles.cache.has(rule.sourceRoleId)) return;
-            const sourceMembers = await sourceGuild.members.fetch().catch(() => null);
+            const sourceMembers = await fetchAllMembers(sourceGuild);
             if (!sourceMembers) return;
             holders.push(new Set(sourceMembers.filter((m) => m.roles.cache.has(rule.sourceRoleId)).map((m) => m.id)));
         }
 
-        const members = await guild.members.fetch().catch(() => null);
+        const members = await fetchAllMembers(guild);
         if (!members) return;
 
         for (const member of members.values()) {
