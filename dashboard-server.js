@@ -3335,11 +3335,9 @@ app.get('/api/blacklist/settings', requireAuth, async (req, res) => {
 
         const { client, db } = global.PredCord;
         const settings = await db.getBlacklistSettingsDB();
-        const ids = [MAIN_GUILD_ID, COMMUNITY_GUILD_ID, MASTERCLASS_GUILD_ID].filter(Boolean);
-        const guilds = ids
-            .map(id => client.guilds.cache.get(id))
-            .filter(Boolean)
-            .map(g => ({ id: g.id, name: g.name }));
+        const guilds = [...client.guilds.cache.values()]
+            .map(g => ({ id: g.id, name: g.name }))
+            .sort((a, b) => a.name.localeCompare(b.name));
 
         let logChannelName = null;
         if (settings.logChannelId) {
@@ -3389,7 +3387,7 @@ app.post('/api/blacklist/settings', requireAuth, writeLimiter, async (req, res) 
 
         if (body.banGuildIds !== undefined) {
             if (!Array.isArray(body.banGuildIds)) return res.status(400).json({ error: 'Invalid servers' });
-            const valid = [...new Set(body.banGuildIds.map(String))].filter(id => isDashboardGuildId(id));
+            const valid = [...new Set(body.banGuildIds.map(String))].filter(id => client.guilds.cache.has(id));
             update.banGuildIds = valid;
         }
 
