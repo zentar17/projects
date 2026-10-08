@@ -121,6 +121,25 @@ function createBlacklistSystem({ client, db, logCrash }) {
         return { manage, view: manage || has(cfg.view) };
     }
 
+    async function findProtectedRole(userId) {
+        const settings = await getSettings();
+        const cfgs = settings.commandRoles || {};
+        for (const gid of Object.keys(cfgs)) {
+            const ids = (cfgs[gid] && cfgs[gid].protected) || [];
+            if (!ids.length) continue;
+            const guild = client.guilds.cache.get(gid);
+            if (!guild) continue;
+            const member = await guild.members.fetch(userId).catch(() => null);
+            if (!member) continue;
+            const roleId = ids.find(r => member.roles.cache.has(r));
+            if (roleId) {
+                const role = guild.roles.cache.get(roleId);
+                return { roleName: role ? role.name : roleId, guildName: guild.name };
+            }
+        }
+        return null;
+    }
+
     function hasBanPerms(guild) {
         const me = guild.members.me;
         return !!(me && me.permissions.has(PermissionsBitField.Flags.BanMembers));
@@ -192,6 +211,9 @@ function createBlacklistSystem({ client, db, logCrash }) {
         return withChange(async () => {
             const existing = await db.getActiveBlacklistEntryDB(user.id);
             if (existing) return { ok: false, code: 'already', entry: existing };
+
+            const protectedHit = await findProtectedRole(user.id);
+            if (protectedHit) return { ok: false, code: 'protected', roleName: protectedHit.roleName, guildName: protectedHit.guildName };
 
             const guilds = await getTargetGuilds(fallbackGuild);
             const bannedServers = [];
