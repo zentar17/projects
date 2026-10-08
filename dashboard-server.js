@@ -2996,10 +2996,6 @@ app.post('/api/commands/:guildId', requireAuth, writeLimiter, async (req, res) =
         const lowerName = name.toLowerCase();
         const existing = await db.CustomCommand.findOne({ guildId, name: lowerName }).lean();
 
-        if (existing && existing.isBase && !isOwner(req, guildId)) {
-            return res.status(403).json({ error: 'This command is Base and cannot be modified' });
-        }
-
         let allowedRoles = [];
         if (Array.isArray(data.allowedRoles)) {
             allowedRoles = data.allowedRoles.filter(r => typeof r === 'string' && /^\d+$/.test(r));
@@ -3093,36 +3089,6 @@ app.post('/api/commands/:guildId', requireAuth, writeLimiter, async (req, res) =
     }
 });
 
-app.post('/api/commands/:guildId/:name/setbase', requireAuth, writeLimiter, async (req, res) => {
-    try {
-        const { db } = global.PredCord;
-
-        if (!isOwner(req, req.params.guildId)) {
-            return res.status(403).json({ error: 'Only the Owner can manage Base commands' });
-        }
-
-        const { guildId, name } = req.params;
-        const { isBase } = req.body;
-
-        const command = await db.CustomCommand.findOne({ guildId, name: name.toLowerCase() }).lean();
-        if (!command) {
-            return res.status(404).json({ error: 'Command not found' });
-        }
-
-        if (isBase) {
-            const currentCount = await db.getBaseCommandsCount(guildId);
-            if (!command.isBase && currentCount >= MAX_BASE_COMMANDS) {
-                return res.status(400).json({ error: `Maximum ${MAX_BASE_COMMANDS} Base commands reached` });
-            }
-        }
-
-        await db.setIsBaseDB(guildId, name, !!isBase);
-        res.json({ success: true, isBase: !!isBase });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
-    }
-});
-
 app.delete('/api/commands/:guildId/:name', requireAuth, writeLimiter, async (req, res) => {
     try {
         const { db } = global.PredCord;
@@ -3137,10 +3103,6 @@ app.delete('/api/commands/:guildId/:name', requireAuth, writeLimiter, async (req
         const command = await db.CustomCommand.findOne({ guildId, name: name.toLowerCase() }).lean();
         if (!command) {
             return res.status(404).json({ error: 'Command not found' });
-        }
-
-        if (command.isBase) {
-            return res.status(403).json({ error: 'This command is Base: remove the Base flag first to delete it' });
         }
 
         const deleted = await db.deleteCustomCommandDB(guildId, name);
