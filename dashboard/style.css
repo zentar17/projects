@@ -5104,3 +5104,9 @@ main .mc-ticket-num, main .mc-ticket-claim.claimed, main .modlog-server-badge { 
 @keyframes fxSub { 0% { opacity: 0; letter-spacing: 0.45em; filter: blur(8px); } 100% { opacity: 1; letter-spacing: 0.01em; filter: blur(0); } }
 @keyframes fxCaret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .fx-l, .fx-sub, .fx-aura { animation: none; opacity: 1; } .fx-dot { display: none; } }
+
+@media (max-width: 700px) {
+    .panel-header > .btn-primary { flex: 1 1 100%; width: 100%; max-width: none; text-align: center; justify-content: center; }
+}
+
+.btn-primary { display: inline-flex; align-items: center; justify-content: center; line-height: 1; padding-top: 0; padding-bottom: 0; text-align: center; }
