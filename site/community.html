@@ -784,7 +784,10 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 .footer-bottom-legal a { color: var(--text-dim); text-decoration: none; transition: color 0.2s ease; }
 .footer-bottom-legal a:hover { color: var(--text); }
 .footer-bottom-divider { opacity: 0.4; }
-.footer-disclaimer { opacity: 0.65; font-size: 11.5px; }
+.footer-disclaimer { opacity: 0.65; font-size: 11.5px; margin-left: 10px; }
+.footer-dev { color: var(--text-dim); text-decoration: none; font-size: 12px; transition: color 0.2s ease; }
+.footer-dev b { font-weight: 700; color: var(--text); }
+.footer-dev:hover b { text-decoration: underline; }
 
 @media (max-width: 900px) {
     header { grid-template-columns: 1fr; row-gap: 14px; padding: 16px 20px; }
@@ -1013,8 +1016,9 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
                 <a href="/terms" data-i18n="footer_terms">Terms of Service</a>
                 <a href="/privacy" data-i18n="footer_privacy">Privacy Policy</a>
             </div>
+            <span class="footer-disclaimer" data-i18n="footer_disclaimer">Not affiliated with or endorsed by Epic Games, Inc., Twitch Interactive, Inc., or Discord Inc.</span>
         </div>
-        <span class="footer-disclaimer" data-i18n="footer_disclaimer">Not affiliated with Epic Games, Inc.</span>
+        <a class="footer-dev" href="/hexora"><span data-i18n="footer_dev">Developed by</span> <b>@HexoraCompany</b></a>
     </div>
 </footer>
 
@@ -1078,7 +1082,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             appeal_title_1: 'Fai ricorso ai tuoi', appeal_title_2: 'Ban',
             appeal_p: 'Qui puoi inviare la tua richiesta per una seconda possibilità sui server di Predage. Se pensi di aver fatto un errore, hai ricevuto una punizione che vorresti far rivedere, o semplicemente credi di meritare un\'altra occasione per dimostrare di saper seguire le regole della community, questo è il posto giusto. Spiega la tua situazione nel dettaglio: raccontaci cos\'è successo, perché pensi di meritare una seconda possibilità e cosa farai diversamente in futuro per evitare che si ripeta. La tua richiesta sarà esaminata dal team staff, che terrà conto di tutto ciò che condividi insieme al contesto completo. Sii onesto, rispettoso e il più dettagliato possibile: una richiesta ben spiegata rende molto più facile per lo staff capire il tuo punto di vista e prendere una decisione giusta.',
             footer_platform: 'Navigazione', footer_socials: 'Social', footer_legal: 'Legale', footer_terms: 'Termini di Servizio', footer_privacy: 'Informativa sulla Privacy',
-            footer_copyright: 'Predage © 2026. Tutti i diritti riservati.', footer_disclaimer: 'Non affiliato con Epic Games, Inc.'
+            footer_copyright: 'Predage © 2026. Tutti i diritti riservati.', footer_disclaimer: 'Non affiliato né approvato da Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Sviluppato da'
         },
         en: {
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
@@ -1116,7 +1120,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             appeal_title_1: 'Appeal Your', appeal_title_2: 'Bans',
             appeal_p: 'This is where you can submit your request for a second chance on Predage\'s servers. If you think you made a mistake, got a punishment you\'d like reviewed, or simply believe you deserve another shot at showing you can follow the community\'s rules, this is the right place. Explain your situation in detail: tell us what happened, why you think you deserve a second chance, and what you plan to do differently going forward so it doesn\'t happen again. Your request will be reviewed by the staff team, who\'ll take everything you share into account along with the full context. Be honest, respectful, and as detailed as you can, a well-explained request makes it a lot easier for staff to understand your side and make a fair call.',
             footer_platform: 'Navigation', footer_socials: 'Socials', footer_legal: 'Legal', footer_terms: 'Terms of Service', footer_privacy: 'Privacy Policy',
-            footer_copyright: 'Predage © 2026. All rights reserved.', footer_disclaimer: 'Not affiliated with Epic Games, Inc.'
+            footer_copyright: 'Predage © 2026. All rights reserved.', footer_disclaimer: 'Not affiliated with or endorsed by Epic Games, Inc., Twitch Interactive, Inc., or Discord Inc.', footer_dev: 'Developed by'
         },
         de: {
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
@@ -1154,7 +1158,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             appeal_title_1: 'Lege Einspruch gegen deine', appeal_title_2: 'Banns ein',
             appeal_p: 'Hier kannst du deine Anfrage für eine zweite Chance auf Predages Servern einreichen. Wenn du denkst, einen Fehler gemacht zu haben, eine Strafe erhalten hast, die du überprüft haben möchtest, oder einfach glaubst, eine weitere Chance zu verdienen, um zu zeigen, dass du die Regeln der Community befolgen kannst, bist du hier richtig. Erkläre deine Situation im Detail: erzähl uns, was passiert ist, warum du denkst, eine zweite Chance zu verdienen, und was du künftig anders machen wirst, damit es nicht wieder vorkommt. Deine Anfrage wird vom Staff-Team geprüft, das alles, was du teilst, zusammen mit dem gesamten Kontext berücksichtigt. Sei ehrlich, respektvoll und so detailliert wie möglich, eine gut erklärte Anfrage macht es dem Staff viel leichter, deine Seite zu verstehen und eine faire Entscheidung zu treffen.',
             footer_platform: 'Navigation', footer_socials: 'Soziale Medien', footer_legal: 'Rechtliches', footer_terms: 'Nutzungsbedingungen', footer_privacy: 'Datenschutzrichtlinie',
-            footer_copyright: 'Predage © 2026. Alle Rechte vorbehalten.', footer_disclaimer: 'Nicht verbunden mit Epic Games, Inc.'
+            footer_copyright: 'Predage © 2026. Alle Rechte vorbehalten.', footer_disclaimer: 'Nicht verbunden mit oder unterstützt von Epic Games, Inc., Twitch Interactive, Inc. oder Discord Inc.', footer_dev: 'Entwickelt von'
         },
         es: {
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
@@ -1192,7 +1196,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             appeal_title_1: 'Apela Tus', appeal_title_2: 'Baneos',
             appeal_p: 'Aquí puedes enviar tu solicitud para una segunda oportunidad en los servidores de Predage. Si crees que cometiste un error, recibiste un castigo que te gustaría que se revisara, o simplemente crees que mereces otra oportunidad para demostrar que puedes seguir las reglas de la comunidad, este es el lugar correcto. Explica tu situación en detalle: cuéntanos qué pasó, por qué crees que mereces una segunda oportunidad y qué harás de forma diferente a partir de ahora para que no vuelva a ocurrir. Tu solicitud será revisada por el equipo de staff, que tendrá en cuenta todo lo que compartas junto con el contexto completo. Sé honesto, respetuoso y lo más detallado posible: una solicitud bien explicada facilita mucho que el staff entienda tu punto de vista y tome una decisión justa.',
             footer_platform: 'Navegación', footer_socials: 'Redes Sociales', footer_legal: 'Legal', footer_terms: 'Términos de Servicio', footer_privacy: 'Política de Privacidad',
-            footer_copyright: 'Predage © 2026. Todos los derechos reservados.', footer_disclaimer: 'No afiliado con Epic Games, Inc.'
+            footer_copyright: 'Predage © 2026. Todos los derechos reservados.', footer_disclaimer: 'No afiliado ni respaldado por Epic Games, Inc., Twitch Interactive, Inc. o Discord Inc.', footer_dev: 'Desarrollado por'
         },
         fr: {
             nav_home: 'Home', nav_masterclass: 'Masterclass', nav_videos: 'Videos', nav_merch: 'Merch', nav_community: 'Community',
@@ -1230,7 +1234,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             appeal_title_1: 'Conteste Tes', appeal_title_2: 'Bannissements',
             appeal_p: 'C\'est ici que tu peux soumettre ta demande pour une seconde chance sur les serveurs de Predage. Si tu penses avoir fait une erreur, reçu une sanction que tu aimerais voir réexaminée, ou si tu penses simplement mériter une nouvelle chance de montrer que tu peux suivre les règles de la communauté, c\'est le bon endroit. Explique ta situation en détail : raconte-nous ce qui s\'est passé, pourquoi tu penses mériter une seconde chance, et ce que tu comptes faire différemment pour que ça ne se reproduise pas. Ta demande sera examinée par l\'équipe staff, qui prendra en compte tout ce que tu partages ainsi que le contexte complet. Sois honnête, respectueux et aussi détaillé que possible, une demande bien expliquée facilite grandement la tâche du staff pour comprendre ton point de vue et prendre une décision juste.',
             footer_platform: 'Navigation', footer_socials: 'Réseaux Sociaux', footer_legal: 'Mentions Légales', footer_terms: 'Conditions d\'Utilisation', footer_privacy: 'Politique de Confidentialité',
-            footer_copyright: 'Predage © 2026. Tous droits réservés.', footer_disclaimer: 'Non affilié à Epic Games, Inc.'
+            footer_copyright: 'Predage © 2026. Tous droits réservés.', footer_disclaimer: 'Non affilié à ni approuvé par Epic Games, Inc., Twitch Interactive, Inc. ou Discord Inc.', footer_dev: 'Développé par'
         }
     };
 
