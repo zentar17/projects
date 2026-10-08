@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hexora Company</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Poppins:wght@500;600;700&family=Montserrat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --primary: #fafafa;
+    --accent: #fafafa;
+    --bg-dark: #09090b;
+    --bg-card: #0c0c0e;
+    --bg-bar: #0c0c0e;
+    --border: #27272a;
+    --text: #fafafa;
+    --text-dim: #a1a1aa;
+}
+
+html, body {
+    min-height: 100%;
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) var(--bg-dark);
+}
+
+html::-webkit-scrollbar {
+    width: 10px;
+}
+
+html::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+html::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    border: 2px solid var(--bg-dark);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    animation: pageFadeIn 0.4s ease;
+}
+
+body.page-fade-out {
+    animation: pageFadeOut 0.22s ease forwards;
+}
+
+@keyframes pageFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pageFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: 0.7fr 2.2fr 0.7fr;
+    align-items: center;
+    padding: 18px 48px;
+    background: var(--bg-dark);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.header-spacer { height: 78px; }
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+header img {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+
+.header-nav a {
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.3px;
+    transition: color 0.15s ease;
+}
+
+.header-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0;
+    height: 2px;
+    background: var(--text);
+    transition: width 0.25s ease;
+}
+
+.header-nav a:hover { color: var(--text); }
+.header-nav a:hover::after { width: 100%; }
+.header-nav a.hidden { display: none; }
+.nav-videos-group { display: none; align-items: center; gap: 30px; }
+.nav-videos-group.visible { display: flex; }
+
+.header-brand span { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
+
+.nav-dot { color: var(--text-dim); opacity: 0.5; font-size: 14px; }
+
+.header-auth {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+}
+
+.lang-switcher { position: relative; }
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+}
+
+.lang-btn:hover { border-color: rgba(255,255,255,0.25); }
+.lang-btn .flag-icon { width: 21px; height: 14px; border-radius: 2px; overflow: hidden; flex-shrink: 0; display: block; }
+.lang-btn svg.chev { width: 12px; height: 12px; stroke: var(--text-dim); }
+
+.lang-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.lang-dropdown.open { display: flex; }
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    background: none;
+    border: none;
+    font-family: inherit;
+    text-align: left;
+    width: 100%;
+}
+
+.lang-option:hover { background: rgba(255,255,255,0.06); }
+.lang-option.active { color: var(--primary); }
+.lang-option .flag-icon { width: 22px; height: 15px; border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+
+.auth-btn {
+    position: relative;
+    overflow: hidden;
+    background: var(--primary);
+    color: #fff;
+    border: 1px solid transparent;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.auth-btn.logged-in {
+    background: transparent;
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
+}
+
+.auth-btn.logged-in:hover { border-color: rgba(255,255,255,0.6); }
+
+.user-menu { position: relative; display: inline-block; }
+
+.user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    display: none;
+}
+
+.user-avatar.has-menu { cursor: pointer; }
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: #14141c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 170px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 500;
+}
+
+.user-dropdown.open { display: flex; }
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.user-dropdown-item:hover { background: rgba(255,255,255,0.06); }
+
+.legal-page {
+    flex: 1;
+    flex-shrink: 0;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 40px 80px;
+    width: 100%;
+}
+
+.legal-title {
+    font-size: 34px;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.legal-updated {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 42px;
+}
+
+.legal-section {
+    margin-bottom: 30px;
+}
+
+.legal-section h2 {
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: var(--text);
+}
+
+.legal-section p {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+.legal-section ul {
+    margin: 10px 0 0 20px;
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.9;
+}
+
+.legal-section a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.legal-section a:hover { text-decoration: underline; }
+
+.site-footer {
+    background: var(--bg-bar);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 40px 40px;
+    display: flex;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+.footer-brand { max-width: 360px; }
+
+.footer-brand-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.footer-brand-top img {
+    width: 68px;
+    height: 68px;
+    border-radius: 16px;
+    object-fit: cover;
+}
+
+.footer-brand-top span {
+    font-size: 36px;
+    font-weight: 800;
+}
+
+.footer-brand p {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    line-height: 1.6;
+}
+
+.footer-cols {
+    display: flex;
+    gap: 60px;
+}
+
+.footer-col h4 {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+}
+
+.footer-col a {
+    display: block;
+    width: fit-content;
+    position: relative;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 13.5px;
+    margin-bottom: 12px;
+    transition: color 0.2s ease;
+}
+
+.footer-col a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 1px;
+    background: var(--text);
+    transition: width 0.25s ease;
+}
+
+.footer-col a:hover { color: var(--text); }
+.footer-col a:hover::after { width: 100%; }
+
+.footer-socials-row { display: flex; gap: 12px; margin-top: 18px; }
+.footer-social-icon { display: flex; align-items: center; justify-content: center; width: 54px; height: 54px; border-radius: 12px; color: #fff; opacity: 0.8; background: rgba(255,255,255,0.05); border: 1px solid var(--border); transition: opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease; }
+.footer-social-icon svg { width: 28px; height: 28px; }
+.footer-social-icon:hover { opacity: 1; background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); }
+
+.footer-bottom {
+    border-top: 1px solid var(--border);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    color: var(--text-dim);
+    font-size: 12px;
+}
+
+.footer-bottom-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.footer-bottom-legal { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.footer-bottom-legal a { color: var(--text-dim); text-decoration: none; transition: color 0.2s ease; }
+.footer-bottom-legal a:hover { color: var(--text); }
+.footer-bottom-divider { opacity: 0.4; }
+
+.footer-disclaimer { opacity: 0.65; font-size: 11.5px; margin-left: 10px; }
+.footer-dev { color: var(--text-dim); text-decoration: none; font-size: 12px; transition: color 0.2s ease; }
+.footer-dev b { font-weight: 700; color: var(--text); }
+.footer-dev:hover b { text-decoration: underline; }
+
+@media (max-width: 860px) {
+    header { grid-template-columns: 1fr; row-gap: 12px; padding: 14px 20px; }
+    .header-nav { justify-content: center; gap: 22px; flex-wrap: wrap; }
+}
+
+@media (max-width: 720px) {
+    .footer-inner { flex-direction: column; gap: 32px; }
+    .footer-cols { flex-wrap: wrap; gap: 32px; }
+    .footer-bottom { flex-direction: column; text-align: center; padding: 18px 20px; }
+    .footer-bottom-left { justify-content: center; }
+    .footer-socials-row { justify-content: center; }
+}
+
+.hx-page { flex: 1; width: 100%; max-width: 1080px; margin: 0 auto; padding: 90px 40px 110px; min-height: calc(100vh - 78px - 40px); display: grid; grid-template-columns: 1.1fr 1fr; gap: 72px; align-items: center; align-content: center; }
+.hx-brand { display: flex; align-items: center; gap: 18px; margin-bottom: 22px; }
+.hx-logo { width: 64px; height: 64px; flex-shrink: 0; display: block; }
+.hx-logo svg { width: 100%; height: 100%; display: block; }
+.hx-title { font-family: 'Poppins', sans-serif; font-size: 42px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+.hx-desc { font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dim); font-size: 17px; line-height: 1.75; max-width: 480px; }
+.hx-devs-title { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 16px; }
+.hx-list { display: flex; flex-direction: column; gap: 10px; }
+.hx-dev { background: #0c0c0e; border: 1px solid #27272a; border-radius: 12px; overflow: hidden; transition: border-color 0.2s ease, background 0.2s ease; }
+.hx-dev:hover { background: #111113; }
+.hx-dev.open { border-color: #3f3f46; background: #111113; }
+.hx-dev-head { width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: none; border: none; color: var(--text); font-family: inherit; cursor: pointer; text-align: left; }
+.hx-dev-pfp { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #18181b; flex-shrink: 0; }
+.hx-dev-name { flex: 1; font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600; }
+.hx-dev-chev { width: 20px; height: 20px; color: var(--text-dim); transition: transform 0.25s ease; flex-shrink: 0; }
+.hx-dev.open .hx-dev-chev { transform: rotate(180deg); }
+.hx-dev-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.28s ease; }
+.hx-dev.open .hx-dev-body { grid-template-rows: 1fr; }
+.hx-dev-body-inner { overflow: hidden; }
+.hx-dev-info { padding: 14px 18px 18px 76px; margin: 0 18px 0 0; border-top: 1px solid #27272a; margin-left: 18px; padding-left: 58px; display: flex; flex-direction: column; gap: 12px; }
+.hx-row { display: flex; flex-direction: column; gap: 3px; }
+.hx-row span { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); }
+.hx-row b { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; word-break: break-all; }
+@media (max-width: 860px) {
+    .hx-page { grid-template-columns: 1fr; gap: 48px; padding: 56px 20px 80px; min-height: 0; align-content: start; }
+    .hx-title { font-size: 34px; }
+    .hx-logo { width: 52px; height: 52px; }
+    .hx-dev-info { padding-left: 0; }
+}
+
+body { position: relative; }
+body::before { content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(ellipse 60% 50% at 18% 40%, rgba(255,255,255,0.07), transparent 70%), radial-gradient(ellipse 50% 45% at 85% 25%, rgba(255,255,255,0.045), transparent 70%), radial-gradient(ellipse 70% 40% at 50% 100%, rgba(255,255,255,0.05), transparent 70%); opacity: 0; animation: hxGlowIn 1.8s ease 0.1s forwards, hxGlowDrift 14s ease-in-out 1.9s infinite alternate; }
+header, .header-spacer, .hx-page, .site-footer { position: relative; z-index: 1; }
+header { position: fixed; }
+@keyframes hxGlowIn { to { opacity: 1; } }
+@keyframes hxGlowDrift { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(-1.5%,1.5%,0) scale(1.06); } }
+@keyframes hxFadeUp { from { opacity: 0; transform: translateY(22px); filter: blur(8px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes hxLogoGlow { 0%,100% { filter: drop-shadow(0 0 6px rgba(255,255,255,0.25)); } 50% { filter: drop-shadow(0 0 18px rgba(255,255,255,0.5)); } }
+@keyframes hxLine { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.hx-brand { opacity: 0; animation: hxFadeUp 0.9s cubic-bezier(.2,.7,.2,1) 0.15s forwards; }
+.hx-logo { animation: hxLogoGlow 3.6s ease-in-out 1s infinite; }
+.hx-title { background: linear-gradient(95deg, #fafafa 30%, #a1a1aa 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hx-desc { opacity: 0; animation: hxFadeUp 0.9s cubic-bezier(.2,.7,.2,1) 0.4s forwards; }
+.hx-about::after { content: ''; display: block; width: 72px; height: 2px; margin-top: 28px; border-radius: 2px; background: linear-gradient(90deg, #fafafa, transparent); transform-origin: left; transform: scaleX(0); animation: hxLine 1s ease 0.9s forwards; }
+.hx-devs-title { opacity: 0; animation: hxFadeUp 0.8s ease 0.5s forwards; }
+.hx-dev { opacity: 0; animation: hxFadeUp 0.8s cubic-bezier(.2,.7,.2,1) forwards; }
+.hx-dev:nth-child(1) { animation-delay: 0.6s; }
+.hx-dev:nth-child(2) { animation-delay: 0.75s; }
+.hx-dev:nth-child(3) { animation-delay: 0.9s; }
+.hx-dev:nth-child(4) { animation-delay: 1.05s; }
+.hx-dev:hover { border-color: #52525b; box-shadow: 0 0 28px rgba(255,255,255,0.06); transform: translateY(-2px); }
+.hx-dev.open { border-color: #71717a; box-shadow: 0 0 32px rgba(255,255,255,0.08); }
+.hx-dev { transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease; }
+.hx-dev-pfp { box-shadow: 0 0 0 2px #27272a; transition: box-shadow 0.3s ease; }
+.hx-dev:hover .hx-dev-pfp, .hx-dev.open .hx-dev-pfp { box-shadow: 0 0 0 2px #fafafa, 0 0 14px rgba(255,255,255,0.45); }
+.hx-dev.open .hx-dev-chev { color: #fafafa; }
+.hx-dev-body-inner { opacity: 0; transition: opacity 0.35s ease 0.08s; }
+.hx-dev.open .hx-dev-body-inner { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0s !important; } .hx-brand, .hx-desc, .hx-devs-title, .hx-dev { opacity: 1; } body::before { opacity: 1; } }
+.auth-btn { background: #fafafa; color: #18181b; box-shadow: none; }
+.auth-btn:hover { background: #e4e4e7; }
+.header-nav a.active, .header-nav a:hover { color: #fafafa; }
+.hx-copy { cursor: pointer; position: relative; width: fit-content; border-radius: 4px; transition: color 0.2s ease, background 0.2s ease; outline: none; }
+.hx-copy:hover, .hx-copy:focus-visible { color: #fff; background: rgba(255,255,255,0.08); box-shadow: 0 0 0 4px rgba(255,255,255,0.08); }
+.hx-copy.copied { color: #4ade80; }
+.hx-copy.copied::after { content: attr(data-msg); position: absolute; left: calc(100% + 12px); top: 50%; transform: translateY(-50%); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #4ade80; white-space: nowrap; animation: hxFadeUp 0.3s ease; }
+</style>
+<link rel="stylesheet" href="/mobile.css?v=1">
+</head>
+<body>
+
+<header>
+    <div class="header-brand">
+        <img src="/images/dragon-logo.png" alt="Predage">
+        <span>Predage</span>
+    </div>
+
+    <nav class="header-nav">
+        <a href="/" data-i18n="nav_home">Home</a>
+        <span class="nav-dot">•</span>
+        <a href="/masterclass" data-i18n="nav_masterclass">Masterclass</a>
+        <span class="nav-videos-group" id="navVideosGroup">
+            <span class="nav-dot">•</span>
+            <a href="/videos" data-i18n="nav_videos">Videos</a>
+        </span>
+        <script>try{if(localStorage.getItem('pdCanViewVideos')==='1')document.getElementById('navVideosGroup').classList.add('visible');}catch(e){}</script>
+        <span class="nav-dot">•</span>
+        <a href="/community" data-i18n="nav_community">Community</a>
+        <span class="nav-dot">•</span>
+        <a href="#" data-i18n="nav_merch">Merch</a>
+    </nav>
+
+    <div class="header-auth">
+        <div class="lang-switcher" id="langSwitcher">
+            <button class="lang-btn" id="langBtn">
+                <span class="flag-icon" id="langBtnFlag"></span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="lang-dropdown" id="langDropdown"></div>
+        </div>
+        <button class="auth-btn" id="authBtn">Sign In</button>
+        <div class="user-menu" id="userMenu">
+            <img class="user-avatar" id="userAvatar" alt="">
+            <div class="user-dropdown" id="userDropdown">
+                <a href="/dashboard" class="user-dropdown-item" data-i18n="user_admin_panel">Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="header-spacer" id="headerSpacer"></div>
+
+<main class="hx-page">
+    <section class="hx-about">
+        <div class="hx-brand">
+            <span class="hx-logo"><svg viewBox="0 0 64 64" fill="none"><defs><linearGradient id="hxg" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fafafa"/><stop offset="1" stop-color="#71717a"/></linearGradient></defs><path d="M32 4l24 14v28L32 60 8 46V18z" stroke="url(#hxg)" stroke-width="4" stroke-linejoin="round"/><path d="M23 22v20M41 22v20M23 32h18" stroke="url(#hxg)" stroke-width="5" stroke-linecap="round"/></svg></span>
+            <h1 class="hx-title">Hexora Company</h1>
+        </div>
+        <p class="hx-desc" data-i18n="hx_desc">We are a team that helps people build their ideas through websites &amp; Discord bots, turning concepts into polished and reliable products.</p>
+    </section>
+    <section class="hx-devs">
+        <h2 class="hx-devs-title" data-i18n="hx_developers">Developers</h2>
+        <div class="hx-list" id="hxList"></div>
+    </section>
+</main>
+
+<footer class="site-footer" id="siteFooter">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <div class="footer-brand-top">
+                <img src="/images/dragon-logo.png" alt="Predage">
+                <span>Predage</span>
+            </div>
+            <div class="footer-socials-row">
+                <a class="footer-social-icon" href="https://x.com/Predage1" target="_blank" rel="noopener" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l16 16M20 4L4 20"/></svg></a>
+                <a class="footer-social-icon" href="https://www.youtube.com/@predagefn" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg></a>
+                <a class="footer-social-icon" href="https://www.twitch.tv/predagefn" target="_blank" rel="noopener" aria-label="Twitch"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714z"/></svg></a>
+                <a class="footer-social-icon" href="https://www.instagram.com/predagefn/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.75" fill="currentColor" stroke="none"/></svg></a>
+            </div>
+        </div>
+
+        <div class="footer-cols">
+            <div class="footer-col">
+                <h4>Navigation</h4>
+                <a href="/">Home</a>
+                <a href="/masterclass">Masterclass</a>
+                <a href="/community">Community</a>
+                <a href="#">Merch</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Socials</h4>
+                <a href="https://x.com/Predage1" target="_blank" rel="noopener">Twitter</a>
+                <a href="https://www.youtube.com/@predagefn" target="_blank" rel="noopener">YouTube</a>
+                <a href="https://www.twitch.tv/predagefn" target="_blank" rel="noopener">Twitch</a>
+                <a href="https://www.instagram.com/predagefn/" target="_blank" rel="noopener">Instagram</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="footer-bottom-left">
+            <span>Predage © 2026. All rights reserved.</span>
+            <span class="footer-bottom-divider">•</span>
+            <div class="footer-bottom-legal">
+                <a href="/terms">Terms of Service</a>
+                <a href="/privacy">Privacy Policy</a>
+            </div>
+            <span class="footer-disclaimer">Not affiliated with or endorsed by Epic Games, Inc., Twitch Interactive, Inc., or Discord Inc.</span>
+        </div>
+        <a class="footer-dev" href="/hexora">Developed by <b>@HexoraCompany</b></a>
+    </div>
+</footer>
+
+<script>
+(function() {
+    var FLAGS = {
+        it: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#009246"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ce2b37"/></svg>',
+        en: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#00247d"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#fff" stroke-width="4"/><path d="M0,0 L30,20 M30,0 L0,20" stroke="#cf142b" stroke-width="2"/><path d="M15,0 V20 M0,10 H30" stroke="#fff" stroke-width="6"/><path d="M15,0 V20 M0,10 H30" stroke="#cf142b" stroke-width="3.2"/></svg>',
+        de: '<svg viewBox="0 0 30 20"><rect width="30" height="6.66" y="0" fill="#000"/><rect width="30" height="6.66" y="6.66" fill="#dd0000"/><rect width="30" height="6.67" y="13.33" fill="#ffce00"/></svg>',
+        es: '<svg viewBox="0 0 30 20"><rect width="30" height="20" fill="#aa151b"/><rect width="30" height="10" y="5" fill="#f1bf00"/></svg>',
+        fr: '<svg viewBox="0 0 30 20"><rect width="10" height="20" x="0" fill="#0055a4"/><rect width="10" height="20" x="10" fill="#fff"/><rect width="10" height="20" x="20" fill="#ef4135"/></svg>'
+    };
+
+    var LANGS = [
+        { code: 'it', name: 'Italiano' },
+        { code: 'en', name: 'English' },
+        { code: 'de', name: 'Deutsch' },
+        { code: 'es', name: 'Español' },
+        { code: 'fr', name: 'Français' }
+    ];
+
+    var I18N = {
+        it: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Accedi", auth_logout: "Esci", user_admin_panel: "Pannello Admin", hx_desc: "Siamo un team che aiuta le persone a costruire le proprie idee tramite siti web e bot Discord, trasformando i concetti in prodotti curati e affidabili.", hx_developers: "Sviluppatori", hx_username: "Username", hx_discord_id: "ID Discord", hx_email: "Email", hx_copied: "Copiato!" },
+        en: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Sign In", auth_logout: "Log Out", user_admin_panel: "Admin Panel", hx_desc: "We are a team that helps people build their ideas through websites & Discord bots, turning concepts into polished and reliable products.", hx_developers: "Developers", hx_username: "Username", hx_discord_id: "Discord ID", hx_email: "Email", hx_copied: "Copied!" },
+        de: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Anmelden", auth_logout: "Abmelden", user_admin_panel: "Admin-Panel", hx_desc: "Wir sind ein Team, das Menschen dabei hilft, ihre Ideen durch Websites und Discord-Bots zu verwirklichen und aus Konzepten ausgereifte, zuverlässige Produkte zu machen.", hx_developers: "Entwickler", hx_username: "Benutzername", hx_discord_id: "Discord-ID", hx_email: "E-Mail", hx_copied: "Kopiert!" },
+        es: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Iniciar sesión", auth_logout: "Cerrar sesión", user_admin_panel: "Panel de Administración", hx_desc: "Somos un equipo que ayuda a las personas a construir sus ideas a través de sitios web y bots de Discord, convirtiendo conceptos en productos pulidos y fiables.", hx_developers: "Desarrolladores", hx_username: "Usuario", hx_discord_id: "ID de Discord", hx_email: "Correo", hx_copied: "¡Copiado!" },
+        fr: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Se connecter", auth_logout: "Déconnexion", user_admin_panel: "Panneau Admin", hx_desc: "Nous sommes une équipe qui aide les gens à concrétiser leurs idées grâce à des sites web et des bots Discord, en transformant les concepts en produits soignés et fiables.", hx_developers: "Développeurs", hx_username: "Nom d'utilisateur", hx_discord_id: "ID Discord", hx_email: "E-mail", hx_copied: "Copié !" }
+    };
+
+    var currentLang = 'en';
+    var loggedIn = false;
+    var canAccessDashboard = false;
+    var langBtnFlag = document.getElementById('langBtnFlag');
+    var langDropdown = document.getElementById('langDropdown');
+    var langBtn = document.getElementById('langBtn');
+    var authBtn = document.getElementById('authBtn');
+    var userMenu = document.getElementById('userMenu');
+    var userAvatar = document.getElementById('userAvatar');
+    var userDropdown = document.getElementById('userDropdown');
+
+    function renderLangUI() {
+        langBtnFlag.innerHTML = FLAGS[currentLang];
+        langDropdown.innerHTML = LANGS.map(function(l) {
+            return '<button class="lang-option' + (l.code === currentLang ? ' active' : '') + '" data-code="' + l.code + '">' +
+                '<span class="flag-icon">' + FLAGS[l.code] + '</span><span>' + l.name + '</span>' +
+            '</button>';
+        }).join('');
+    }
+
+    function applyStaticTranslations() {
+        document.querySelectorAll('[data-i18n]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n');
+            if (I18N[currentLang][key]) el.textContent = I18N[currentLang][key];
+        });
+        document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+            var key = el.getAttribute('data-i18n-html');
+            if (I18N[currentLang][key]) el.innerHTML = I18N[currentLang][key];
+        });
+    }
+
+    function updateAuthBtn() {
+        authBtn.textContent = loggedIn ? I18N[currentLang].auth_logout : I18N[currentLang].auth_signin;
+        authBtn.classList.toggle('logged-in', loggedIn);
+        userAvatar.style.display = loggedIn ? 'block' : 'none';
+        userAvatar.classList.toggle('has-menu', canAccessDashboard);
+        if (!loggedIn || !canAccessDashboard) userDropdown.classList.remove('open');
+    }
+
+    userAvatar.addEventListener('click', function(e) {
+        if (!canAccessDashboard) return;
+        e.stopPropagation();
+        userDropdown.classList.toggle('open');
+    });
+
+    function setLang(code) {
+        currentLang = code;
+        renderLangUI();
+        applyStaticTranslations();
+        renderDevs();
+        updateAuthBtn();
+    }
+
+    langBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        langDropdown.classList.toggle('open');
+    });
+
+    langDropdown.addEventListener('click', function(e) {
+        var opt = e.target.closest('.lang-option');
+        if (!opt) return;
+        langDropdown.classList.remove('open');
+        setLang(opt.getAttribute('data-code'));
+    });
+
+    document.addEventListener('click', function() {
+        langDropdown.classList.remove('open');
+        userDropdown.classList.remove('open');
+    });
+
+
+    var HX_DEVS = [
+        { id: '1346238732495355944', name: 'Zentar', email: 'zentardevv@gmail.com' },
+        { id: '825654941238034462', name: 'Porceddu', email: 'porceddduuu@gmail.com' },
+        { id: '887758994683338772', name: 'Tama', email: '131131@gmail.com' },
+        { id: '1297667554487042130', name: 'Felix', email: '131131@gmail.com' }
+    ];
+    var hxData = {};
+    var hxOpen = {};
+    var CHEV = '<svg class="hx-dev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
+    function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function defaultAvatar(id) {
+        var n = 0;
+        try { n = Number((BigInt(id) >> 22n) % 6n); } catch (e) {}
+        return 'https://cdn.discordapp.com/embed/avatars/' + n + '.png';
+    }
+    function renderDevs() {
+        var t = I18N[currentLang];
+        document.getElementById('hxList').innerHTML = HX_DEVS.map(function(d) {
+            var info = hxData[d.id] || {};
+            var open = !!hxOpen[d.id];
+            return '<div class="hx-dev' + (open ? ' open' : '') + '" data-id="' + d.id + '">' +
+                '<button class="hx-dev-head" type="button" aria-expanded="' + open + '">' +
+                    '<img class="hx-dev-pfp" src="' + esc(info.avatar || defaultAvatar(d.id)) + '" alt="" data-fallback="' + esc(defaultAvatar(d.id)) + '">' +
+                    '<span class="hx-dev-name">' + esc(d.name) + '</span>' + CHEV +
+                '</button>' +
+                '<div class="hx-dev-body"><div class="hx-dev-body-inner"><div class="hx-dev-info">' +
+                    '<div class="hx-row"><span>' + esc(t.hx_username) + '</span><b>' + esc(info.username ? '@' + info.username : '-') + '</b></div>' +
+                    '<div class="hx-row"><span>' + esc(t.hx_discord_id) + '</span><b class="hx-copy" data-copy="' + d.id + '" tabindex="0" role="button">' + d.id + '</b></div>' +
+                    '<div class="hx-row"><span>' + esc(t.hx_email) + '</span><b class="hx-copy" data-copy="' + esc(d.email) + '" tabindex="0" role="button">' + esc(d.email) + '</b></div>' +
+                '</div></div></div>' +
+            '</div>';
+        }).join('');
+        document.querySelectorAll('.hx-dev-pfp').forEach(function(img) {
+            img.addEventListener('error', function() {
+                var fb = img.getAttribute('data-fallback');
+                if (fb && img.src !== fb) img.src = fb;
+            });
+        });
+    }
+    document.getElementById('hxList').addEventListener('click', function(e) {
+        var head = e.target.closest('.hx-dev-head');
+        if (!head) return;
+        var card = head.parentNode;
+        var id = card.getAttribute('data-id');
+        hxOpen[id] = !hxOpen[id];
+        card.classList.toggle('open', hxOpen[id]);
+        head.setAttribute('aria-expanded', hxOpen[id] ? 'true' : 'false');
+    });
+    function copyText(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
+        return new Promise(function(resolve, reject) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            var ok = false;
+            try { ok = document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(ta);
+            ok ? resolve() : reject();
+        });
+    }
+    function handleCopy(el) {
+        copyText(el.getAttribute('data-copy')).then(function() {
+            el.setAttribute('data-msg', I18N[currentLang].hx_copied);
+            el.classList.add('copied');
+            clearTimeout(el._t);
+            el._t = setTimeout(function() { el.classList.remove('copied'); }, 1400);
+        }).catch(function() {});
+    }
+    document.getElementById('hxList').addEventListener('click', function(e) {
+        var c = e.target.closest('.hx-copy');
+        if (c) handleCopy(c);
+    });
+    document.getElementById('hxList').addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var c = e.target.closest('.hx-copy');
+        if (c) { e.preventDefault(); handleCopy(c); }
+    });
+    fetch('/api/site/hexora-team').then(function(r) { return r.json(); }).then(function(list) {
+        (list || []).forEach(function(u) { hxData[u.id] = u; });
+        renderDevs();
+    }).catch(function() {});
+
+    renderLangUI();
+    applyStaticTranslations();
+    renderDevs();
+
+    var headerEl = document.querySelector('header');
+    var headerSpacer = document.getElementById('headerSpacer');
+    function syncHeaderSpacer() {
+        headerSpacer.style.height = headerEl.offsetHeight + 'px';
+    }
+    syncHeaderSpacer();
+    window.addEventListener('resize', syncHeaderSpacer);
+
+    updateAuthBtn();
+    var navVideosGroup = document.getElementById('navVideosGroup');
+    fetch('/api/site/me').then(function(res) { return res.json(); }).then(function(data) {
+        loggedIn = !!data.loggedIn;
+        canAccessDashboard = !!data.canAccessDashboard;
+        if (navVideosGroup) navVideosGroup.classList.toggle('visible', !!data.canViewVideos);
+        try { localStorage.setItem('pdCanViewVideos', data.canViewVideos ? '1' : '0'); } catch (e) {}
+        if (loggedIn && data.avatar) userAvatar.src = data.avatar;
+        updateAuthBtn();
+    }).catch(function() {});
+
+    authBtn.addEventListener('click', function() {
+        if (loggedIn) {
+            try { localStorage.removeItem('pdCanViewVideos'); } catch (e) {}
+            fetch('/api/site/logout', { method: 'POST' }).then(function() {
+                window.location.reload();
+            });
+        } else {
+            window.location.href = '/site-auth/discord?next=' + encodeURIComponent(window.location.pathname);
+        }
+    });
+
+    document.querySelectorAll('.header-nav a').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            var href = link.getAttribute('href');
+            if (!href || href.charAt(0) !== '/' || link.classList.contains('active')) return;
+            e.preventDefault();
+            document.body.classList.add('page-fade-out');
+            setTimeout(function() { window.location.href = href; }, 200);
+        });
+    });
+
+    window.addEventListener('pageshow', function() {
+        document.body.classList.remove('page-fade-out');
+    });
+})();
+</script>
+
+<script src="/mobile.js?v=1"></script>
+</body>
+</html>
