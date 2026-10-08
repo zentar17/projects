@@ -4217,7 +4217,7 @@ async function loadTicketsSection() {
     }
 }
 
-let statsPeriod = 'tutto';
+let statsPeriod = 'oggi';
 
 async function loadStatsSection() {
     if (!currentGuild) return;
@@ -4260,172 +4260,248 @@ async function loadJoinLeaveStats() {
         const data = await res.json();
 
         grid.innerHTML = `
-            <div class="permission-card stat-tile"><span class="stat-value">${data.windowed.joins}</span><span class="stat-label">Joins (selected period)</span></div>
-            <div class="permission-card stat-tile"><span class="stat-value">${data.windowed.leaves}</span><span class="stat-label">Leaves (selected period)</span></div>
-            <div class="permission-card stat-tile"><span class="stat-value">${data.windowed.joins - data.windowed.leaves}</span><span class="stat-label">Net (selected period)</span></div>
-            <div class="permission-card stat-tile"><span class="stat-value">${data.memberCount ?? '—'}</span><span class="stat-label">Current members</span></div>
-            <div class="permission-card stat-tile"><span class="stat-value">${data.totals.joins}</span><span class="stat-label">Total joins (all time)</span></div>
-            <div class="permission-card stat-tile"><span class="stat-value">${data.totals.leaves}</span><span class="stat-label">Total leaves (all time)</span></div>
+            <div class="permission-card stat-tile"><span class="stat-value">${data.windowed.joins}</span><span class="stat-label">Joins</span></div>
+            <div class="permission-card stat-tile"><span class="stat-value">${data.windowed.leaves}</span><span class="stat-label">Leaves</span></div>
+            <div class="permission-card stat-tile"><span class="stat-value">${data.windowed.joins - data.windowed.leaves}</span><span class="stat-label">Net</span></div>
         `;
 
-        renderJoinLeaveChart(data.series || []);
+        renderJoinLeaveChart(data);
     } catch (e) {
         grid.innerHTML = `<div class="permission-card"><h3>Error: ${e.message}</h3></div>`;
     }
 }
 
-function fillJoinLeaveSeries(series) {
-    if (!series || series.length === 0) return [];
-    const byDay = {};
-    series.forEach(s => { byDay[s.day] = s; });
-    const sorted = series.map(s => s.day).sort();
-    const start = new Date(sorted[0] + 'T00:00:00Z');
-    let end = new Date(sorted[sorted.length - 1] + 'T00:00:00Z');
-    if (statsPeriod !== 'ieri') {
-        const now = new Date();
-        const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-        if (today > end) end = today;
-    }
-    const out = [];
-    for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
-        const key = d.toISOString().slice(0, 10);
-        out.push(byDay[key] || { day: key, joins: 0, leaves: 0 });
-    }
-    return out;
-}
-
-let joinLeaveChartInstance = null;
-
 const JL_SERIES = [
-    { key: 'joins', label: 'Joins', color: '#fafafa', top: 'rgba(250, 250, 250, 0.55)', bottom: 'rgba(250, 250, 250, 0.02)' },
-    { key: 'leaves', label: 'Leaves', color: '#8b8b94', top: 'rgba(161, 161, 170, 0.42)', bottom: 'rgba(161, 161, 170, 0.02)' }
+    { key: 'joins', label: 'Joins', color: '#fafafa' },
+    { key: 'leaves', label: 'Leaves', color: '#8b8b94' }
 ];
 
-function jlFormatDay(day, withWeekday) {
-    const d = new Date(day + 'T00:00:00Z');
-    const opts = withWeekday
-        ? { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }
-        : { month: 'short', day: 'numeric', timeZone: 'UTC' };
-    return d.toLocaleDateString('en-US', opts);
+const JL_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function jlPad(n) {
+    return String(n).padStart(2, '0');
 }
 
-function joinLeaveTooltip(context, days) {
-    const { chart, tooltip } = context;
-    const wrap = chart.canvas.parentNode;
-    let el = wrap.querySelector('.jl-tooltip');
-    if (!el) {
-        el = document.createElement('div');
-        el.className = 'jl-tooltip';
-        wrap.appendChild(el);
-    }
-    if (tooltip.opacity === 0 || !tooltip.dataPoints || !tooltip.dataPoints.length) {
-        el.style.opacity = '0';
-        return;
-    }
-    const points = tooltip.dataPoints.slice().sort((a, b) => a.datasetIndex - b.datasetIndex);
-    const day = days[points[0].dataIndex];
-    el.innerHTML = `<div class="jl-tt-title">${escapeHtml(jlFormatDay(day, true))}</div>` + points.map(pt => {
-        const meta = JL_SERIES[pt.datasetIndex];
-        return `<div class="jl-tt-row"><i style="background:${meta.color}"></i><span class="jl-tt-label">${meta.label}</span><b>${pt.raw}</b></div>`;
-    }).join('');
-    el.style.opacity = '1';
-    const w = el.offsetWidth;
-    const h = el.offsetHeight;
-    let left = tooltip.caretX + 16;
-    if (left + w > wrap.clientWidth - 4) left = tooltip.caretX - w - 16;
-    if (left < 4) left = 4;
-    let top = tooltip.caretY - h / 2;
-    top = Math.max(4, Math.min(top, wrap.clientHeight - h - 4));
-    el.style.left = left + 'px';
-    el.style.top = top + 'px';
+function jlDayLabel(date) {
+    return JL_MONTHS[date.getUTCMonth()] + ' ' + date.getUTCDate();
 }
 
-function renderJoinLeaveChart(series) {
-    const canvas = document.getElementById('joinLeaveChart');
-    if (!canvas || typeof Chart === 'undefined') return;
+function jlBuildPoints(data) {
+    const series = data.series || [];
+    const byKey = {};
+    series.forEach(s => { byKey[s.day] = s; });
+    const start = new Date(data.rangeStart);
+    const end = new Date(data.rangeEnd);
+    const points = [];
 
-    if (joinLeaveChartInstance) {
-        joinLeaveChartInstance.destroy();
-        joinLeaveChartInstance = null;
+    if (data.granularity === 'hour') {
+        const dayStart = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate());
+        const now = Date.now();
+        for (let h = 0; h < 24; h++) {
+            const t = new Date(dayStart + h * 3600000);
+            const key = `${t.getUTCFullYear()}-${jlPad(t.getUTCMonth() + 1)}-${jlPad(t.getUTCDate())} ${jlPad(t.getUTCHours())}`;
+            const row = byKey[key] || { joins: 0, leaves: 0 };
+            points.push({
+                label: `${jlPad(h)}:00`,
+                title: `${jlDayLabel(t)}, ${jlPad(h)}:00 - ${jlPad(h)}:59 UTC`,
+                joins: row.joins,
+                leaves: row.leaves,
+                future: t.getTime() > now
+            });
+        }
+        return points;
     }
 
-    const filled = fillJoinLeaveSeries(series);
-    const days = filled.map(s => s.day);
-    const labels = days.map(d => jlFormatDay(d, false));
-    const small = filled.length <= 2;
+    const first = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()));
+    const last = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()));
+    for (let d = new Date(first); d <= last; d.setUTCDate(d.getUTCDate() + 1)) {
+        const key = `${d.getUTCFullYear()}-${jlPad(d.getUTCMonth() + 1)}-${jlPad(d.getUTCDate())}`;
+        const row = byKey[key] || { joins: 0, leaves: 0 };
+        points.push({
+            label: jlDayLabel(d),
+            title: jlDayLabel(d) + ', ' + d.getUTCFullYear(),
+            joins: row.joins,
+            leaves: row.leaves,
+            future: false
+        });
+    }
+    return points;
+}
 
-    const ctx = canvas.getContext('2d');
-    const chartHeight = canvas.parentElement ? canvas.parentElement.clientHeight : 300;
+function jlSmoothPath(xs, ys) {
+    const n = xs.length;
+    if (n === 0) return '';
+    if (n === 1) return `M${xs[0]},${ys[0]}`;
+    const dx = [];
+    const m = [];
+    for (let i = 0; i < n - 1; i++) {
+        dx.push(xs[i + 1] - xs[i]);
+        m.push((ys[i + 1] - ys[i]) / dx[i]);
+    }
+    const t = [m[0]];
+    for (let i = 1; i < n - 1; i++) {
+        t.push(m[i - 1] * m[i] <= 0 ? 0 : (m[i - 1] + m[i]) / 2);
+    }
+    t.push(m[n - 2]);
+    for (let i = 0; i < n - 1; i++) {
+        if (m[i] === 0) {
+            t[i] = 0;
+            t[i + 1] = 0;
+        } else {
+            const a = t[i] / m[i];
+            const b = t[i + 1] / m[i];
+            const h = Math.hypot(a, b);
+            if (h > 3) {
+                const k = 3 / h;
+                t[i] = k * a * m[i];
+                t[i + 1] = k * b * m[i];
+            }
+        }
+    }
+    let d = `M${xs[0].toFixed(2)},${ys[0].toFixed(2)}`;
+    for (let i = 0; i < n - 1; i++) {
+        const c1x = xs[i] + dx[i] / 3;
+        const c1y = ys[i] + t[i] * dx[i] / 3;
+        const c2x = xs[i + 1] - dx[i] / 3;
+        const c2y = ys[i + 1] - t[i + 1] * dx[i] / 3;
+        d += ` C${c1x.toFixed(2)},${c1y.toFixed(2)} ${c2x.toFixed(2)},${c2y.toFixed(2)} ${xs[i + 1].toFixed(2)},${ys[i + 1].toFixed(2)}`;
+    }
+    return d;
+}
 
-    const datasets = JL_SERIES.map((meta, i) => {
-        const gradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
-        gradient.addColorStop(0, meta.top);
-        gradient.addColorStop(1, meta.bottom);
-        return {
-            label: meta.label,
-            data: filled.map(s => s[meta.key]),
-            borderColor: meta.color,
-            backgroundColor: gradient,
-            borderWidth: 1.5,
-            fill: true,
-            cubicInterpolationMode: 'monotone',
-            tension: 0.4,
-            pointRadius: small ? 3 : 0,
-            pointHoverRadius: 4.5,
-            pointBackgroundColor: meta.color,
-            pointHoverBackgroundColor: '#ffffff',
-            pointBorderColor: '#09090b',
-            pointHoverBorderColor: '#09090b',
-            pointBorderWidth: 1.5,
-            order: i === 0 ? 2 : 1
-        };
-    });
+let joinLeaveLastData = null;
+let joinLeaveResizeBound = false;
+
+function renderJoinLeaveChart(data) {
+    const host = document.getElementById('joinLeaveChart');
+    if (!host) return;
+    if (data) joinLeaveLastData = data;
+    if (!joinLeaveLastData) return;
 
     const legend = document.getElementById('joinLeaveLegend');
     if (legend) {
         legend.innerHTML = JL_SERIES.map(m => `<span class="jl-legend-item"><i style="background:${m.color}"></i>${m.label}</span>`).join('');
     }
 
-    joinLeaveChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: { labels, datasets },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            animation: { duration: 700, easing: 'easeOutCubic' },
-            layout: { padding: { top: 8, right: 4, left: 0, bottom: 0 } },
-            scales: {
-                x: {
-                    ticks: {
-                        color: '#a1a1aa',
-                        autoSkip: true,
-                        maxTicksLimit: 8,
-                        maxRotation: 0,
-                        minRotation: 0,
-                        padding: 10,
-                        font: { family: "'Inter', 'Manrope', sans-serif", size: 12 }
-                    },
-                    grid: { display: false },
-                    border: { display: false }
-                },
-                y: {
-                    beginAtZero: true,
-                    grace: '8%',
-                    ticks: { display: false, precision: 0 },
-                    grid: { color: 'rgba(255, 255, 255, 0.06)', drawTicks: false },
-                    border: { display: false }
-                }
-            },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    enabled: false,
-                    external: (context) => joinLeaveTooltip(context, days)
-                }
-            }
+    const points = jlBuildPoints(joinLeaveLastData);
+    const W = Math.max(host.clientWidth, 200);
+    const H = Math.max(host.clientHeight, 200);
+    const pad = { top: 10, right: 6, bottom: 30, left: 6 };
+    const plotW = W - pad.left - pad.right;
+    const plotH = H - pad.top - pad.bottom;
+    const n = points.length;
+    const step = n > 1 ? plotW / (n - 1) : 0;
+    const xAt = i => pad.left + (n > 1 ? i * step : plotW / 2);
+
+    const rawMax = Math.max(1, ...points.map(p => Math.max(p.joins, p.leaves)));
+    const maxY = rawMax * 1.12;
+    const yAt = v => pad.top + plotH - (v / maxY) * plotH;
+
+    const lastReal = points.reduce((acc, p, i) => (p.future ? acc : i), -1);
+    const live = points.slice(0, lastReal + 1);
+
+    let svg = `<svg class="jl-svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs>`;
+    JL_SERIES.forEach(m => {
+        svg += `<linearGradient id="jlGrad-${m.key}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${m.color}" stop-opacity="0.5"/><stop offset="100%" stop-color="${m.color}" stop-opacity="0.02"/></linearGradient>`;
+    });
+    svg += '</defs>';
+
+    for (let g = 0; g <= 4; g++) {
+        const y = pad.top + (plotH / 4) * g;
+        svg += `<line class="jl-grid" x1="${pad.left}" x2="${W - pad.right}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+    }
+
+    const bottom = pad.top + plotH;
+    const order = ['leaves', 'joins'];
+    order.forEach(key => {
+        const meta = JL_SERIES.find(m => m.key === key);
+        if (!live.length) return;
+        const xs = live.map((p, i) => xAt(i));
+        const ys = live.map(p => yAt(p[key]));
+        const line = jlSmoothPath(xs, ys);
+        if (live.length > 1) {
+            const area = `${line} L${xs[xs.length - 1].toFixed(2)},${bottom} L${xs[0].toFixed(2)},${bottom} Z`;
+            svg += `<path d="${area}" fill="url(#jlGrad-${key})"/>`;
+            svg += `<path d="${line}" fill="none" stroke="${meta.color}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>`;
+        } else {
+            svg += `<circle cx="${xs[0]}" cy="${ys[0]}" r="3.5" fill="${meta.color}"/>`;
         }
     });
+
+    const maxLabels = Math.max(2, Math.floor(plotW / 78));
+    const every = Math.max(1, Math.ceil(n / maxLabels));
+    points.forEach((p, i) => {
+        if (i % every !== 0) return;
+        const anchor = i === 0 ? 'start' : (i === n - 1 ? 'end' : 'middle');
+        svg += `<text class="jl-xlabel" x="${xAt(i).toFixed(1)}" y="${H - 8}" text-anchor="${anchor}">${p.label}</text>`;
+    });
+
+    svg += `<line class="jl-cursor" id="jlCursor" x1="0" x2="0" y1="${pad.top}" y2="${bottom}" style="opacity:0"/>`;
+    JL_SERIES.forEach(m => {
+        svg += `<circle class="jl-dot" id="jlDot-${m.key}" r="4.5" fill="${m.color}" style="opacity:0"/>`;
+    });
+    svg += `<rect id="jlHit" x="0" y="0" width="${W}" height="${H}" fill="transparent"/>`;
+    svg += '</svg>';
+
+    host.innerHTML = svg + '<div class="jl-tooltip" id="jlTooltip"></div>';
+
+    const hit = host.querySelector('#jlHit');
+    const tip = host.querySelector('#jlTooltip');
+    const cursor = host.querySelector('#jlCursor');
+    const dots = {};
+    JL_SERIES.forEach(m => { dots[m.key] = host.querySelector('#jlDot-' + m.key); });
+
+    const hide = () => {
+        tip.style.opacity = '0';
+        cursor.style.opacity = '0';
+        JL_SERIES.forEach(m => { dots[m.key].style.opacity = '0'; });
+    };
+
+    const show = (clientX) => {
+        const rect = host.getBoundingClientRect();
+        const px = clientX - rect.left;
+        let idx = n > 1 ? Math.round((px - pad.left) / step) : 0;
+        idx = Math.max(0, Math.min(n - 1, idx));
+        const p = points[idx];
+        if (p.future) { hide(); return; }
+        const x = xAt(idx);
+        cursor.setAttribute('x1', x);
+        cursor.setAttribute('x2', x);
+        cursor.style.opacity = '1';
+        JL_SERIES.forEach(m => {
+            dots[m.key].setAttribute('cx', x);
+            dots[m.key].setAttribute('cy', yAt(p[m.key]));
+            dots[m.key].style.opacity = '1';
+        });
+        tip.innerHTML = `<div class="jl-tt-title">${escapeHtml(p.title)}</div>` + JL_SERIES.map(m =>
+            `<div class="jl-tt-row"><i style="background:${m.color}"></i><span class="jl-tt-label">${m.label}</span><b>${p[m.key]}</b></div>`
+        ).join('');
+        tip.style.opacity = '1';
+        const tw = tip.offsetWidth;
+        const th = tip.offsetHeight;
+        let left = x + 14;
+        if (left + tw > W - 4) left = x - tw - 14;
+        if (left < 4) left = 4;
+        const top = Math.max(4, Math.min(yAt(Math.max(p.joins, p.leaves)) - th / 2, H - th - 4));
+        tip.style.left = left + 'px';
+        tip.style.top = top + 'px';
+    };
+
+    hit.addEventListener('pointermove', e => show(e.clientX));
+    hit.addEventListener('pointerdown', e => show(e.clientX));
+    hit.addEventListener('pointerleave', hide);
+
+    if (!joinLeaveResizeBound) {
+        joinLeaveResizeBound = true;
+        let t = null;
+        window.addEventListener('resize', () => {
+            clearTimeout(t);
+            t = setTimeout(() => {
+                const tab = document.getElementById('tab-stats');
+                if (tab && !tab.classList.contains('hidden')) renderJoinLeaveChart();
+            }, 120);
+        });
+    }
 }
 
 async function loadTicketStats() {
