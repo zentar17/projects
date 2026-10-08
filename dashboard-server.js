@@ -3326,6 +3326,36 @@ app.post('/api/blacklist-action', requireAuth, writeLimiter, async (req, res) =>
     }
 });
 
+app.get('/api/blacklist/sync-status', requireAuth, async (req, res) => {
+    try {
+        const guildId = req.query.guildId;
+        if (!guildId || !isDashboardGuildId(guildId)) return res.status(404).json({ error: 'Not available for this server' });
+        if (!isOwner(req, guildId)) return res.status(403).json({ error: 'Access Denied' });
+        const { blacklist } = global.PredCord;
+        res.json({ running: blacklist.isSweeping() });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/api/blacklist/sync', requireAuth, writeLimiter, async (req, res) => {
+    try {
+        const guildId = req.body && req.body.guildId;
+        if (!guildId || !isDashboardGuildId(guildId)) return res.status(404).json({ error: 'Not available for this server' });
+        if (!isOwner(req, guildId)) return res.status(403).json({ error: 'Access Denied' });
+        const { blacklist, db } = global.PredCord;
+        if (blacklist.isSweeping()) return res.json({ started: false, running: true });
+        const settings = await db.getBlacklistSettingsDB();
+        if (!settings.banGuildIds || settings.banGuildIds.length === 0) {
+            return res.status(400).json({ error: 'Select at least one Ban Server first' });
+        }
+        blacklist.runSweep();
+        res.json({ started: true, running: true });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.get('/api/blacklist/settings', requireAuth, async (req, res) => {
     try {
         const guildId = req.query.guildId;
