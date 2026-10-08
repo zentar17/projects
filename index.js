@@ -1623,7 +1623,11 @@ client.on('messageCreate', async (message) => {
         }
 
         if (firstChar === '-') {
-            if (!(await isAdminSafe(message.member))) { await message.delete().catch(() => {}); return; }
+            const isAdminUser = await isAdminSafe(message.member);
+            const blAccess = await blacklistSystem.getMemberAccess(message.member, isAdminUser);
+            const manageCommands = ['blacklist', 'bl', 'unbl', 'unblacklist', 'reason'];
+            const allowedHere = (manageCommands.includes(command) && blAccess.manage) || (command === 'bll' && blAccess.view);
+            if (!allowedHere) { await message.delete().catch(() => {}); return; }
 
             if (command === 'blacklist' || command === 'bl') {
                 const userId = parseBlacklistUserId(args[0]);
