@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/dashboard/style.css?v=20261008c">
+<link rel="stylesheet" href="/dashboard/style.css?v=20261008d">
 </head>
 <body>
 
@@ -71,25 +71,47 @@
 </header>
 
 <div id="serverSelectScreen" class="server-select-screen">
-    <h1 class="server-select-title"><span id="adminsFontCycle">Admins</span> <span class="highlight">Panels</span></h1>
-    <p class="server-select-subtitle">Select a server to manage</p>
-    <div class="server-select-grid">
-        <button type="button" class="server-select-card" data-server="community">
-            <img src="/images/dragon-pfp.webp" alt="Predage Community">
-            <span class="server-select-name">Predage <span class="highlight">Community</span></span>
-        </button>
-        <button type="button" class="server-select-card" data-server="predcord">
-            <img src="/images/predcord-pfp.webp" alt="PredCord">
-            <span class="server-select-name">PredCord</span>
-        </button>
-        <button type="button" class="server-select-card" data-server="masterclassServer">
-            <img src="/images/dragon-logo.png" alt="Masterclass">
-            <span class="server-select-name">Masterclass</span>
-        </button>
-        <button type="button" class="server-select-card hidden" data-server="masterclass" id="masterclassSelectCard">
-            <img src="/images/dragon-logo.png" alt="Masterclass Control">
-            <span class="server-select-name">Masterclass <span class="highlight">Control</span></span>
-        </button>
+    <div class="ss-left">
+        <div class="ss-hero">
+            <h1 class="server-select-title">Admin<br>Panels</h1>
+            <p class="server-select-subtitle">Select a server to manage.</p>
+        </div>
+        <div class="ss-user">
+            <img id="ssUserAvatar" src="" alt="">
+            <div class="ss-user-text">
+                <b id="ssUserName">—</b>
+                <small id="ssUserRole">Staff</small>
+            </div>
+        </div>
+    </div>
+    <div class="ss-right">
+        <div class="ss-label">YOUR SERVERS</div>
+        <div class="server-select-grid">
+            <button type="button" class="server-select-card ss-item" data-server="community">
+                <img src="/images/dragon-pfp.webp" alt="Predage Community">
+                <span class="server-select-name">Predage Community</span>
+                <span class="ss-badge ss-role">Admin</span>
+                <span class="ss-go"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            </button>
+            <button type="button" class="server-select-card ss-item" data-server="predcord">
+                <img src="/images/predcord-pfp.webp" alt="PredCord">
+                <span class="server-select-name">PredCord</span>
+                <span class="ss-badge ss-role">Admin</span>
+                <span class="ss-go"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            </button>
+            <button type="button" class="server-select-card ss-item" data-server="masterclassServer">
+                <img src="/images/dragon-logo.png" alt="Masterclass">
+                <span class="server-select-name">Masterclass</span>
+                <span class="ss-badge ss-role">Admin</span>
+                <span class="ss-go"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            </button>
+            <button type="button" class="server-select-card ss-item hidden" data-server="masterclass" id="masterclassSelectCard">
+                <img src="/images/dragon-logo.png" alt="Masterclass Control">
+                <span class="server-select-name">Masterclass Control</span>
+                <span class="ss-badge ss-role">Admin</span>
+                <span class="ss-go"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -866,7 +888,6 @@
             <div class="cm-opts">
                 <label class="cm-switch-row"><input type="checkbox" id="cmdEnabled" class="cm-switch" checked><span class="cm-sw"></span>Enabled</label>
                 <label class="cm-switch-row"><input type="checkbox" id="cmdDelete" class="cm-switch" checked><span class="cm-sw"></span>Delete command message</label>
-                <label class="cm-switch-row hidden" id="baseToggleWrap"><input type="checkbox" id="cmdIsBase" class="cm-switch"><span class="cm-sw"></span>Base command</label>
             </div>
 
             <div class="cm-card hidden" id="cmInfoSection">
@@ -1063,7 +1084,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="/dashboard/app.js?v=20261008c"></script>
+<script src="/dashboard/app.js?v=20261008d"></script>
 
 </body>
 </html>
