@@ -46,7 +46,6 @@ const DISCORD_SITE_REDIRECT_URI = process.env.DISCORD_SITE_REDIRECT_URI || 'http
 const MAIN_GUILD_ID = process.env.MAIN_GUILD_ID;
 const COMMUNITY_GUILD_ID = process.env.COMMUNITY_GUILD_ID;
 const MASTERCLASS_GUILD_ID = process.env.MASTERCLASS_GUILD_ID || '1557430638783627304';
-const BLACKLIST_SYNC_COOLDOWN_MS = 14 * 24 * 60 * 60 * 1000;
 
 const SUPER_OWNER_IDS = ['887758994683338772', '1297667554487042130', '1346238732495355944'];
 
@@ -3272,6 +3271,17 @@ app.get('/api/blacklist', requireAuth, async (req, res) => {
     }
 });
 
+function isDashboardGuildId(guildId) {
+    return [MAIN_GUILD_ID, COMMUNITY_GUILD_ID, MASTERCLASS_GUILD_ID].filter(Boolean).includes(guildId);
+}
+
+function sessionActor(req) {
+    return {
+        id: req.session.user.id,
+        name: req.session.user.username || req.session.user.id
+    };
+}
+
 app.post('/api/blacklist-action', requireAuth, writeLimiter, async (req, res) => {
     try {
         const { action, userId, reason, guildId } = req.body;
@@ -3281,25 +3291,28 @@ app.post('/api/blacklist-action', requireAuth, writeLimiter, async (req, res) =>
             return res.status(403).json({ error: 'Access Denied' });
         }
 
-        const { client, db, saveModLog, unbanFromAllGuilds } = global.PredCord;
+        const { client, saveModLog, blacklist } = global.PredCord;
         const guild = client.guilds.cache.get(guildId);
         if (!guild) return res.status(404).json({ error: 'Server not found' });
 
         if (action === 'change_reason') {
-            if (!reason) return res.status(400).json({ error: 'Missing reason' });
-            await db.updateBlacklistReasonDB(userId, reason);
+            if (!reason || typeof reason !== 'string') return res.status(400).json({ error: 'Missing reason' });
+            const result = await blacklist.changeReason({ userId, reason: reason.trim().slice(0, 1000) });
+            if (!result.ok) return res.status(404).json({ error: 'User not blacklisted' });
             return res.json({ success: true });
         }
 
         if (action === 'unblacklist') {
-            const entry = await db.getBlacklistEntryDB(userId);
-            if (!entry) return res.status(404).json({ error: 'User not blacklisted' });
-
-            const unbanResult = await unbanFromAllGuilds(guild, userId, entry.servers);
-            await db.removeBlacklistEntryDB(userId);
-            await saveModLog(guild, 'UNBLACKLIST', { id: userId, tag: entry.userTag || userId }, client.user, 'Removed from blacklist via dashboard', null);
-
-            return res.json({ success: true, unbanResult });
+            const text = typeof reason === 'string' && reason.trim() ? reason.trim().slice(0, 1000) : 'Removed via dashboard';
+            const result = await blacklist.unblacklistUser({
+                userId,
+                reason: text,
+                actor: sessionActor(req),
+                fallbackGuild: guild
+            });
+            if (!result.ok) return res.status(404).json({ error: 'User not blacklisted' });
+            await saveModLog(guild, 'UNBLACKLIST', { id: userId, tag: result.entry.userName || userId }, client.user, text, null);
+            return res.json({ success: true, errors: result.errors, unbanned: result.unbanned });
         }
 
         return res.status(400).json({ error: 'Invalid action' });
@@ -3308,186 +3321,83 @@ app.post('/api/blacklist-action', requireAuth, writeLimiter, async (req, res) =>
     }
 });
 
-const blacklistSyncJobs = new Map();
-
-function isDashboardGuildId(guildId) {
-    return [MAIN_GUILD_ID, COMMUNITY_GUILD_ID, MASTERCLASS_GUILD_ID].filter(Boolean).includes(guildId);
-}
-
-function blacklistSyncDelay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function fetchAllBannedIds(guild) {
-    const ids = new Set();
-    let after;
-    for (let i = 0; i < 1000; i++) {
-        const batch = await guild.bans.fetch({ limit: 1000, after, cache: false });
-        if (!batch || batch.size === 0) break;
-        let maxId = after ? BigInt(after) : 0n;
-        batch.forEach(ban => {
-            ids.add(ban.user.id);
-            const n = BigInt(ban.user.id);
-            if (n > maxId) maxId = n;
-        });
-        if (batch.size < 1000) break;
-        after = maxId.toString();
-    }
-    return ids;
-}
-
-async function runBlacklistSync(guild, entries, job, actor) {
-    const { db } = global.PredCord;
-    try {
-        const bannedIds = await fetchAllBannedIds(guild);
-        const botMember = guild.members.me;
-
-        for (const entry of entries) {
-            try {
-                if (bannedIds.has(entry.userId)) {
-                    job.alreadyBanned++;
-                    await db.addBlacklistEntryServerDB(entry.userId, guild.id);
-                    continue;
-                }
-
-                const member = await guild.members.fetch(entry.userId).catch(() => null);
-                if (member && botMember && botMember.roles.highest.position <= member.roles.highest.position) {
-                    job.failed++;
-                    if (job.errors.length < 10) job.errors.push(`${entry.userTag || entry.userId} - Bot role is not higher than target`);
-                    continue;
-                }
-
-                await guild.bans.create(entry.userId, { reason: `Blacklist: ${entry.reason || 'No reason'}`.slice(0, 500) });
-                bannedIds.add(entry.userId);
-                job.banned++;
-                await db.addBlacklistEntryServerDB(entry.userId, guild.id);
-                await blacklistSyncDelay(1000);
-            } catch (error) {
-                job.failed++;
-                if (job.errors.length < 10) job.errors.push(`${entry.userTag || entry.userId} - ${error.message}`);
-            } finally {
-                job.processed++;
-            }
-        }
-    } catch (error) {
-        job.fatal = error.message;
-        if (job.errors.length < 10) job.errors.push(error.message);
-    }
-
-    job.running = false;
-    job.finishedAt = new Date();
-
-    const result = {
-        finishedAt: job.finishedAt,
-        total: job.total,
-        banned: job.banned,
-        alreadyBanned: job.alreadyBanned,
-        failed: job.failed,
-        errors: job.errors,
-        fatal: job.fatal || null,
-        startedBy: actor.tag
-    };
-
-    try {
-        await db.saveBlacklistSyncResultDB(guild.id, result);
-        await db.saveDashboardLogDB(guild.id, {
-            type: 'moderation',
-            action: 'blacklist_synced',
-            userId: actor.id,
-            userTag: actor.tag,
-            moderatorId: actor.id,
-            moderatorTag: actor.tag,
-            reason: `Blacklist sync: ${job.banned} banned, ${job.alreadyBanned} already banned, ${job.failed} failed`
-        });
-    } catch (e) {
-        console.error('[BLACKLIST SYNC] save result failed:', e.message);
-    }
-}
-
-async function buildBlacklistSyncStatus(guildId) {
-    const { db } = global.PredCord;
-    const config = await db.getGuildConfigDB(guildId);
-    const job = blacklistSyncJobs.get(guildId);
-    const lastRunAt = config.blacklistSyncLastRunAt ? new Date(config.blacklistSyncLastRunAt) : null;
-    const nextAvailableAt = lastRunAt ? new Date(lastRunAt.getTime() + BLACKLIST_SYNC_COOLDOWN_MS) : null;
-    const running = !!(job && job.running);
-    return {
-        running,
-        available: !running && (!nextAvailableAt || nextAvailableAt.getTime() <= Date.now()),
-        lastRunAt,
-        nextAvailableAt,
-        progress: job ? { processed: job.processed, total: job.total, banned: job.banned, alreadyBanned: job.alreadyBanned, failed: job.failed } : null,
-        lastResult: config.blacklistSyncLastResult || null
-    };
-}
-
-app.get('/api/blacklist/sync-status', requireAuth, async (req, res) => {
+app.get('/api/blacklist/settings', requireAuth, async (req, res) => {
     try {
         const guildId = req.query.guildId;
         if (!guildId || !isDashboardGuildId(guildId)) return res.status(404).json({ error: 'Not available for this server' });
         if (!isOwner(req, guildId)) return res.status(403).json({ error: 'Access Denied' });
-        res.json(await buildBlacklistSyncStatus(guildId));
+
+        const { client, db } = global.PredCord;
+        const settings = await db.getBlacklistSettingsDB();
+        const ids = [MAIN_GUILD_ID, COMMUNITY_GUILD_ID, MASTERCLASS_GUILD_ID].filter(Boolean);
+        const guilds = ids
+            .map(id => client.guilds.cache.get(id))
+            .filter(Boolean)
+            .map(g => ({ id: g.id, name: g.name }));
+
+        let logChannelName = null;
+        if (settings.logChannelId) {
+            const ch = client.channels.cache.get(settings.logChannelId);
+            if (ch) logChannelName = ch.name;
+        }
+
+        res.json({
+            logChannelId: settings.logChannelId || null,
+            logGuildId: settings.logGuildId || null,
+            logChannelName,
+            banGuildIds: settings.banGuildIds || [],
+            guilds,
+            lastSweepAt: settings.lastSweepAt || null,
+            lastSweepResult: settings.lastSweepResult || null
+        });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
 });
 
-app.post('/api/blacklist/sync', requireAuth, writeLimiter, async (req, res) => {
+app.post('/api/blacklist/settings', requireAuth, writeLimiter, async (req, res) => {
     try {
-        const guildId = req.body && req.body.guildId;
+        const body = req.body || {};
+        const guildId = body.guildId;
         if (!guildId || !isDashboardGuildId(guildId)) return res.status(404).json({ error: 'Not available for this server' });
         if (!isOwner(req, guildId)) return res.status(403).json({ error: 'Access Denied' });
 
-        const { client, db } = global.PredCord;
-        const guild = client.guilds.cache.get(guildId);
-        if (!guild) return res.status(404).json({ error: 'Server not found' });
+        const { client, db, blacklist } = global.PredCord;
+        const update = {};
 
-        const existingJob = blacklistSyncJobs.get(guildId);
-        if (existingJob && existingJob.running) return res.status(409).json({ error: 'A sync is already running' });
-
-        const botMember = guild.members.me;
-        if (!botMember || !botMember.permissions.has(PermissionsBitField.Flags.BanMembers)) {
-            return res.status(400).json({ error: 'The bot is missing the Ban Members permission in this server' });
+        if (body.logChannelId !== undefined) {
+            if (body.logChannelId === null || body.logChannelId === '') {
+                update.logChannelId = null;
+                update.logGuildId = null;
+            } else {
+                const channel = client.channels.cache.get(String(body.logChannelId));
+                if (!channel || !channel.guild || !isDashboardGuildId(channel.guild.id) || channel.type !== ChannelType.GuildText) {
+                    return res.status(400).json({ error: 'Invalid channel' });
+                }
+                update.logChannelId = channel.id;
+                update.logGuildId = channel.guild.id;
+            }
         }
 
-        const claim = await db.claimBlacklistSyncDB(guildId, BLACKLIST_SYNC_COOLDOWN_MS);
-        if (!claim) {
-            const status = await buildBlacklistSyncStatus(guildId);
-            return res.status(429).json({ error: 'Blacklist sync is available once every 14 days', nextAvailableAt: status.nextAvailableAt });
+        if (body.banGuildIds !== undefined) {
+            if (!Array.isArray(body.banGuildIds)) return res.status(400).json({ error: 'Invalid servers' });
+            const valid = [...new Set(body.banGuildIds.map(String))].filter(id => isDashboardGuildId(id));
+            update.banGuildIds = valid;
         }
 
-        let entries;
-        try {
-            entries = await db.getAllBlacklistDB();
-        } catch (e) {
-            await db.releaseBlacklistSyncDB(guildId, claim.previousRunAt);
-            throw e;
-        }
+        await db.saveBlacklistSettingsDB(update);
 
-        const actor = {
-            id: req.session.user.id,
-            tag: req.session.user.username || req.session.user.id
-        };
-
-        const job = {
-            running: true,
-            startedAt: claim.runAt,
-            total: entries.length,
-            processed: 0,
-            banned: 0,
-            alreadyBanned: 0,
-            failed: 0,
-            errors: [],
-            fatal: null
-        };
-        blacklistSyncJobs.set(guildId, job);
-
-        runBlacklistSync(guild, entries, job, actor).catch((e) => {
-            job.running = false;
-            console.error('[BLACKLIST SYNC] job crashed:', e.message);
+        await db.saveDashboardLogDB(guildId, {
+            type: 'config',
+            action: 'blacklist_settings_updated',
+            userId: req.session.user.id,
+            userTag: req.session.user.username || req.session.user.id,
+            reason: 'Blacklist settings updated'
         });
 
-        res.json({ started: true, total: entries.length });
+        if (update.banGuildIds) blacklist.runSweep();
+
+        res.json({ success: true });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
