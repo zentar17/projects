@@ -67,7 +67,7 @@ function showAccessDenied() {
 }
 
 function shakeModal(modalSelector = '#modal') {
-    const modalContent = document.querySelector(`${modalSelector} .modal-content`);
+    const modalContent = document.querySelector(`${modalSelector} .modal-content, ${modalSelector} .cm-dialog`);
     if (!modalContent) return;
     modalContent.classList.remove('shake');
     void modalContent.offsetWidth;
@@ -287,8 +287,32 @@ function setupUserMenu() {
 
     btn.onclick = (e) => {
         e.stopPropagation();
+        dropdown.style.left = '';
+        dropdown.style.bottom = '';
         dropdown.classList.toggle('hidden');
     };
+
+    const sideUser = document.getElementById('sideUser');
+    if (sideUser) {
+        const openFromSide = (e) => {
+            e.stopPropagation();
+            if (!dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+                return;
+            }
+            const r = sideUser.getBoundingClientRect();
+            dropdown.style.left = Math.max(8, r.left) + 'px';
+            dropdown.style.bottom = Math.max(8, window.innerHeight - r.top + 8) + 'px';
+            dropdown.classList.remove('hidden');
+        };
+        sideUser.onclick = openFromSide;
+        sideUser.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openFromSide(e);
+            }
+        };
+    }
 
     document.addEventListener('click', (e) => {
         if (!dropdown.classList.contains('hidden') && !e.target.closest('#userMenu')) {
@@ -350,6 +374,30 @@ function setupLangSwitcher() {
     renderLangUI();
 }
 
+function refreshSideUserRole() {
+    const el = document.getElementById('sideUserRole');
+    if (!el) return;
+    let label = 'Staff';
+    if (myRole === 'owner') label = 'Owner';
+    else if (isAdmin) label = 'Admin';
+    el.textContent = label;
+}
+
+function updateNavGroups() {
+    document.querySelectorAll('.nav-group-label').forEach(label => {
+        let visible = false;
+        let el = label.nextElementSibling;
+        while (el && !el.classList.contains('nav-group-label')) {
+            if (el.classList.contains('nav-tab') && !el.classList.contains('hidden')) {
+                visible = true;
+                break;
+            }
+            el = el.nextElementSibling;
+        }
+        label.classList.toggle('hidden', !visible);
+    });
+}
+
 async function loadUserMenu() {
     const defaultAvatar = 'https://cdn.discordapp.com/embed/avatars/0.png';
 
@@ -390,9 +438,17 @@ async function loadUserMenu() {
             ddAvatar.src = avatarUrl;
             ddAvatar.onerror = () => { ddAvatar.src = defaultAvatar; };
         }
+        const sideAvatar = document.getElementById('sideUserAvatar');
+        if (sideAvatar) {
+            sideAvatar.src = avatarUrl;
+            sideAvatar.onerror = () => { sideAvatar.src = defaultAvatar; };
+        }
 
         let displayName = me.displayName || me.global_name || me.username || 'User';
         const username = me.username || '';
+        const sideName = document.getElementById('sideUserName');
+        if (sideName) sideName.textContent = displayName;
+        refreshSideUserRole();
 
         if (ddDisplayName) ddDisplayName.textContent = displayName;
         if (ddUsername) {
@@ -426,11 +482,18 @@ async function loadUserMenu() {
                         ddAvatar.src = fullAvatar;
                         ddAvatar.onerror = () => { ddAvatar.src = defaultAvatar; };
                     }
+                    const sideAvatar2 = document.getElementById('sideUserAvatar');
+                    if (sideAvatar2) {
+                        sideAvatar2.src = fullAvatar;
+                        sideAvatar2.onerror = () => { sideAvatar2.src = defaultAvatar; };
+                    }
                 }
 
                 if (full.displayName) {
                     displayName = full.displayName;
                     if (ddDisplayName) ddDisplayName.textContent = displayName;
+                    const sideName2 = document.getElementById('sideUserName');
+                    if (sideName2) sideName2.textContent = displayName;
                 }
             }
         } catch (err) {
@@ -627,6 +690,7 @@ async function selectServer(server) {
 
     await loadMyPermissions();
     updatePermissionsTabVisibility();
+    refreshSideUserRole();
 
     const commandsTab = document.querySelector('.nav-tab[data-tab="commands"]');
     if (commandsTab) commandsTab.click();
@@ -740,16 +804,19 @@ function renderCommands() {
         }
 
         const baseBadge = cmd.isBase
-            ? '<span class="command-badge base">BASE</span>'
+            ? '<span class="command-badge base">Base</span>'
             : '';
+        const typeLabels = { text: 'Normal', embed: 'Embed', ban: 'Ban', kick: 'Kick', mute: 'Mute', warn: 'Warn', role: 'Role' };
+        const typeBadge = `<span class="command-badge type">${escapeHtml(typeLabels[cmd.type || 'text'] || cmd.type)}</span>`;
+        const offBadge = cmd.enabled === false ? '<span class="command-badge none">Disabled</span>' : '';
 
         const cardClass = cmd.isBase ? 'command-card base-command' : 'command-card';
 
         return `
         <div class="${cardClass}">
             <div class="command-info">
-                <h4>${escapeHtml(name)}</h4>
-                <div class="command-badges">${badge}${baseBadge}</div>
+                <h4>${escapeHtml((cmd.prefix || '*') + name)}</h4>
+                <div class="command-badges">${typeBadge}${badge}${baseBadge}${offBadge}</div>
             </div>
             <div class="command-actions">
                 <button class="btn-edit" data-name="${escapeAttr(name)}">Edit</button>
@@ -1406,213 +1473,819 @@ function deleteVideo(videoId) {
     });
 }
 
+const CM_MSG_TYPES = [
+    { value: 'text', label: 'Normal', dot: '#f97316' },
+    { value: 'embed', label: 'Embed', dot: '#f97316' }
+];
+const CM_ACTIONS = [
+    { value: 'ban', label: 'Ban', dot: '#ef4444' },
+    { value: 'kick', label: 'Kick', dot: '#ef4444' },
+    { value: 'mute', label: 'Mute', dot: '#ef4444' },
+    { value: 'warn', label: 'Warn', dot: '#ef4444' },
+    { value: 'role', label: 'Role', dot: '#3b82f6' }
+];
+const CM_ROLE_ACTIONS = [
+    { value: 'add', label: 'Add', sub: 'Gives the role' },
+    { value: 'remove', label: 'Remove', sub: 'Takes the role away' },
+    { value: 'toggle', label: 'Toggle', sub: 'Adds it, or removes it if present' },
+    { value: 'temp', label: 'Temp Role', sub: 'Gives the role for a set time' },
+    { value: 'remove_warn', label: 'Remove + Warn', sub: 'Removes the role and warns the user' },
+    { value: 'remove_mute', label: 'Remove + Mute', sub: 'Removes the role and mutes the user' }
+];
+const CM_UNITS = [
+    { value: 'minutes', label: 'Minutes' },
+    { value: 'hours', label: 'Hours' },
+    { value: 'days', label: 'Days' }
+];
+const CM_UNITS_BAN = CM_UNITS.concat([{ value: 'perm', label: 'Perm' }]);
+const CM_COLORS = ['#2563eb', '#f97316', '#ef4444', '#22c55e', '#a855f7'];
+const CM_UNIT_MINUTES = { minutes: 1, hours: 60, days: 1440 };
+const CM_MAX_MUTE_MINUTES = 28 * 1440;
+
+const CM_VARS_MSG = [
+    ['Users', [
+        ['{user}', 'Mentions who ran the command'],
+        ['{username}', 'Their name'],
+        ['{userid}', 'Their ID'],
+        ['{target}', 'Mentioned user, or you']
+    ]],
+    ['Server', [
+        ['{server}', 'Server name'],
+        ['{membercount}', 'Member count'],
+        ['{channel}', 'Current channel']
+    ]],
+    ['Command', [
+        ['{args}', 'Everything after the command'],
+        ['$1 $2 $3', 'Single arguments'],
+        ['{md}', 'Moderation history'],
+        ['{date}', "Today's date"],
+        ['{hammertime+N}', 'Time N minutes from now']
+    ]]
+];
+const CM_VARS_REASON = [
+    ['Users', [
+        ['{user}', 'Mentions the target'],
+        ['{username}', 'Target name']
+    ]],
+    ['Server', [
+        ['{server}', 'Server name'],
+        ['{membercount}', 'Member count']
+    ]],
+    ['Command', [
+        ['$1 $2 $3', 'Single arguments'],
+        ['{md}', 'Moderation history'],
+        ['{hammertime+N}', 'Time N minutes from now']
+    ]]
+];
+
+const cmSelects = {};
+let cmRoles = [];
+let cmChannels = [];
+let cmRolesLoaded = false;
+let cmChannelsLoaded = false;
+let cmSelRoles = new Set();
+let cmSelChannels = new Set();
+let cmPermTab = 'roles';
+let cmExpanded = new Set();
+let cmTargetRoleId = '';
+let cmLoadToken = 0;
+let cmCopyTimer = null;
+let cmReady = false;
+
+const CM_CHK = '<svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
+const CM_MINUS = '<svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>';
+const CM_CHEV_R = '<svg class="cm-arw" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>';
+
+function cmSelectInit(id, cfg) {
+    const el = document.getElementById(id);
+    if (!el) return null;
+    const st = {
+        id,
+        el,
+        options: cfg.options || [],
+        value: cfg.value || '',
+        placeholder: cfg.placeholder || 'Select...',
+        noneLabel: cfg.noneLabel || null,
+        onChange: cfg.onChange || null,
+        disabled: false
+    };
+    el.innerHTML = '<button type="button" class="cm-sel-btn"><span class="cm-sel-v"></span><svg viewBox="0 0 24 24"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg></button>';
+    st.btn = el.firstChild;
+    st.btn.onclick = (e) => {
+        e.stopPropagation();
+        if (st.disabled) return;
+        cmOpenSelect(st);
+    };
+    cmSelects[id] = st;
+    cmSelectRender(st);
+    return st;
+}
+
+function cmSelectRender(st) {
+    const o = st.options.find(x => x.value === st.value);
+    const v = st.btn.querySelector('.cm-sel-v');
+    if (o) {
+        v.className = 'cm-sel-v';
+        v.innerHTML = (o.dot ? `<span class="cm-dot" style="background:${escapeAttr(o.dot)}"></span>` : '') + escapeHtml(o.label);
+    } else {
+        v.className = 'cm-sel-v ph';
+        v.textContent = st.disabled ? 'Disabled' : st.placeholder;
+    }
+    st.el.classList.toggle('disabled', st.disabled);
+}
+
+function cmSelectGet(id) {
+    return cmSelects[id] ? cmSelects[id].value : '';
+}
+
+function cmSelectSet(id, value) {
+    const st = cmSelects[id];
+    if (!st) return;
+    st.value = value || '';
+    cmSelectRender(st);
+}
+
+function cmSelectSetOptions(id, options) {
+    const st = cmSelects[id];
+    if (!st) return;
+    st.options = options;
+    cmSelectRender(st);
+}
+
+function cmSelectDisable(id, disabled) {
+    const st = cmSelects[id];
+    if (!st) return;
+    st.disabled = !!disabled;
+    cmSelectRender(st);
+}
+
+function cmClosePops() {
+    const sel = document.getElementById('cmSelPop');
+    const vr = document.getElementById('cmVarPop');
+    if (sel) sel.classList.add('hidden');
+    if (vr) vr.classList.add('hidden');
+    const vb = document.getElementById('cmVarBtn');
+    if (vb) vb.classList.remove('on');
+}
+
+function cmPlacePop(pop, anchor, minWidth) {
+    const r = anchor.getBoundingClientRect();
+    pop.style.minWidth = (minWidth || r.width) + 'px';
+    pop.style.left = '0px';
+    pop.style.top = '0px';
+    pop.classList.remove('hidden');
+    const ph = pop.offsetHeight;
+    const pw = pop.offsetWidth;
+    let top = r.bottom + 4;
+    if (top + ph > window.innerHeight - 8) {
+        const above = r.top - ph - 4;
+        top = above >= 8 ? above : Math.max(8, window.innerHeight - ph - 8);
+    }
+    let left = r.left;
+    if (left + pw > window.innerWidth - 8) left = Math.max(8, window.innerWidth - pw - 8);
+    pop.style.left = left + 'px';
+    pop.style.top = top + 'px';
+}
+
+function cmOpenSelect(st) {
+    const pop = document.getElementById('cmSelPop');
+    const wasOpen = !pop.classList.contains('hidden') && pop.dataset.owner === st.id;
+    cmClosePops();
+    if (wasOpen) return;
+    pop.dataset.owner = st.id;
+    let html = '';
+    if (st.noneLabel && st.value) {
+        html += `<div class="cm-it none" data-v="">${escapeHtml(st.noneLabel)}</div>`;
+    }
+    html += st.options.map(o => {
+        const sel = o.value === st.value;
+        const dot = o.dot ? `<span class="cm-dot" style="background:${escapeAttr(o.dot)}"></span>` : '';
+        const sub = o.sub ? `<span class="cm-sub">${escapeHtml(o.sub)}</span>` : '';
+        return `<div class="cm-it${sel ? ' hl' : ''}" data-v="${escapeAttr(o.value)}">${dot}<div class="cm-it-main">${escapeHtml(o.label)}${sub}</div>${sel ? '<svg class="cm-ck" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>' : ''}</div>`;
+    }).join('');
+    if (!st.options.length) html += '<div class="cm-it none">No options</div>';
+    pop.innerHTML = html;
+    pop.querySelectorAll('.cm-it[data-v]').forEach(item => {
+        item.onclick = (e) => {
+            e.stopPropagation();
+            const v = item.dataset.v;
+            cmClosePops();
+            if (v === st.value) return;
+            st.value = v;
+            cmSelectRender(st);
+            if (st.onChange) st.onChange(v);
+        };
+    });
+    cmPlacePop(pop, st.btn, st.btn.offsetWidth);
+}
+
+function cmParseName() {
+    const raw = (document.getElementById('cmdName').value || '').trim();
+    let prefix = '*';
+    let name = raw;
+    if (raw && !/[a-zA-Z0-9]/.test(raw.charAt(0))) {
+        prefix = raw.charAt(0);
+        name = raw.slice(1);
+    }
+    name = name.replace(/[^a-zA-Z0-9]/g, '').slice(0, 32);
+    return { prefix, name };
+}
+
+function cmUnitWord(n, unit) {
+    const w = { minutes: 'minute', hours: 'hour', days: 'day' }[unit] || 'day';
+    return `${n} ${w}${Number(n) === 1 ? '' : 's'}`;
+}
+
+function cmReadDuration(inputId, unitId) {
+    const unit = cmSelectGet(unitId) || 'days';
+    const raw = (document.getElementById(inputId).value || '').trim();
+    const n = parseInt(raw, 10);
+    return { unit, n: isNaN(n) || n < 1 ? null : n };
+}
+
+function cmCurrentKind() {
+    const msg = cmSelectGet('cmMsgType');
+    const action = cmSelectGet('cmAction');
+    return { msg, action, type: msg || action || '' };
+}
+
+function cmRoleName(id) {
+    const r = cmRoles.find(x => x.id === id);
+    return r ? r.name : null;
+}
+
+function cmDurationVisible() {
+    const { action } = cmCurrentKind();
+    return action === 'ban' || action === 'mute';
+}
+
+function cmTempDurVisible() {
+    const { action } = cmCurrentKind();
+    const ra = cmSelectGet('cmRoleAction');
+    return action === 'role' && (ra === 'temp' || ra === 'remove_mute');
+}
+
+function cmBuildInfo() {
+    const { action } = cmCurrentKind();
+    const { prefix, name } = cmParseName();
+    const base = `${prefix}${name || 'name'}`;
+    let usage = `${base} @user [reason]`;
+    let text = '';
+    if (action === 'ban') {
+        const d = cmReadDuration('cmdDuration', 'cmDurUnit');
+        if (d.unit === 'perm') text = 'Bans the user permanently';
+        else text = d.n ? `Bans the user for ${cmUnitWord(d.n, d.unit)}` : 'Bans the user for a set time';
+    } else if (action === 'kick') {
+        text = 'Kicks the user from the server';
+    } else if (action === 'mute') {
+        const d = cmReadDuration('cmdDuration', 'cmDurUnit');
+        text = d.n ? `Mutes the user for ${cmUnitWord(d.n, d.unit)}` : 'Mutes the user for 28 days';
+    } else if (action === 'warn') {
+        text = 'Warns the user';
+    } else if (action === 'role') {
+        const ra = cmSelectGet('cmRoleAction');
+        const rn = cmRoleName(cmTargetRoleId);
+        const r = `<b>${escapeHtml(rn || 'the role')}</b>`;
+        usage = `${base} @user`;
+        if (ra === 'add') text = `Gives ${r} to the user`;
+        else if (ra === 'remove') text = `Removes ${r} from the user`;
+        else if (ra === 'toggle') text = `Adds or removes ${r} from the user`;
+        else if (ra === 'temp') {
+            const d = cmReadDuration('cmdTempDuration', 'cmTempDurUnit');
+            text = d.n ? `Gives ${r} to the user for ${cmUnitWord(d.n, d.unit)}` : `Gives ${r} to the user for a set time`;
+        } else if (ra === 'remove_warn') {
+            usage = `${base} @user [reason]`;
+            text = `Removes ${r} and warns the user`;
+        } else if (ra === 'remove_mute') {
+            usage = `${base} @user [reason]`;
+            const d = cmReadDuration('cmdTempDuration', 'cmTempDurUnit');
+            text = d.n ? `Removes ${r} and mutes the user for ${cmUnitWord(d.n, d.unit)}` : `Removes ${r} and mutes the user`;
+        } else {
+            text = 'Changes a role of the user';
+        }
+    }
+    return { usage, text };
+}
+
+function cmRefreshInfo() {
+    const { msg, action } = cmCurrentKind();
+    const info = document.getElementById('cmInfoSection');
+    if (action && !msg) {
+        const b = cmBuildInfo();
+        document.getElementById('cmInfoUsage').textContent = b.usage;
+        document.getElementById('cmInfoAction').innerHTML = b.text;
+        info.classList.remove('hidden');
+    } else {
+        info.classList.add('hidden');
+    }
+    const pu = document.getElementById('cmPrevUsage');
+    if (pu) {
+        const { prefix, name } = cmParseName();
+        pu.textContent = `${prefix}${name || 'name'}`;
+    }
+}
+
+function updateTypeUI() {
+    const { msg, action } = cmCurrentKind();
+    const isMsg = !!msg;
+    const isEmbed = msg === 'embed';
+    const isText = msg === 'text';
+    const isMod = ['ban', 'kick', 'mute', 'warn'].includes(action);
+    const roleAct = cmSelectGet('cmRoleAction');
+    const isRole = action === 'role';
+    const showDur = action === 'ban' || action === 'mute';
+    const roleReason = isRole && (roleAct === 'remove_warn' || roleAct === 'remove_mute');
+    const hasContent = isMsg || isMod || roleReason;
+
+    cmSelectDisable('cmAction', isMsg);
+    cmSelectDisable('cmMsgType', !!action && !showDur && !isRole);
+
+    document.getElementById('cmSlotMsg').classList.toggle('hidden', showDur || isRole);
+    document.getElementById('cmSlotDur').classList.toggle('hidden', !showDur);
+    document.getElementById('cmSlotRoleAct').classList.toggle('hidden', !isRole);
+    document.getElementById('cmTargetRoleWrap').classList.toggle('hidden', !isRole);
+
+    if (showDur) {
+        const opts = action === 'ban' ? CM_UNITS_BAN : CM_UNITS;
+        cmSelectSetOptions('cmDurUnit', opts);
+        let u = cmSelectGet('cmDurUnit');
+        if (!opts.find(o => o.value === u)) {
+            u = action === 'ban' ? 'perm' : 'days';
+            cmSelectSet('cmDurUnit', u);
+        }
+        const di = document.getElementById('cmdDuration');
+        const perm = u === 'perm';
+        di.disabled = perm;
+        if (perm) di.value = '';
+        di.placeholder = perm ? '-' : '0';
+    }
+
+    const tempDur = cmTempDurVisible();
+    document.getElementById('cmTempDurWrap').classList.toggle('hidden', !tempDur);
+    if (tempDur) {
+        document.getElementById('cmTempDurLabel').textContent = roleAct === 'remove_mute' ? 'Mute duration' : 'Duration';
+        if (!cmSelectGet('cmTempDurUnit')) cmSelectSet('cmTempDurUnit', 'days');
+    }
+
+    document.getElementById('labelTitle').classList.toggle('hidden', !isEmbed);
+    document.getElementById('labelColor').classList.toggle('hidden', !isEmbed);
+    document.getElementById('labelButtons').classList.toggle('hidden', !isMsg);
+    document.getElementById('cmMoreWrap').classList.toggle('hidden', !isMsg);
+    document.getElementById('labelThumbnail').classList.toggle('hidden', !isEmbed);
+    document.getElementById('extraEmbedsWrap').classList.toggle('hidden', !isEmbed);
+    document.getElementById('labelImage').classList.toggle('hidden', !isMsg);
+
+    const resp = document.getElementById('labelResponse');
+    resp.classList.toggle('hidden', !hasContent);
+    const lbl = document.getElementById('responseLabelText');
+    if (isText) lbl.innerHTML = 'Response <span class="cm-req">*</span>';
+    else if (isEmbed) lbl.textContent = 'Description';
+    else lbl.textContent = 'Default reason';
+
+    document.getElementById('previewSection').classList.toggle('hidden', !isMsg);
+
+    cmRefreshInfo();
+    updatePreview();
+}
+
+function cmOnMsgChange(v) {
+    if (v === 'embed') {
+        const c = document.getElementById('cmdColor');
+        if (c && /^#e67e22$/i.test(c.value)) c.value = '#2563eb';
+        cmSyncColor();
+    }
+    updateTypeUI();
+}
+
+function cmOnActionChange(v) {
+    if (v === 'ban') {
+        const di = document.getElementById('cmdDuration');
+        if (!di.value) cmSelectSet('cmDurUnit', 'perm');
+    } else if (v === 'mute') {
+        if (cmSelectGet('cmDurUnit') === 'perm') cmSelectSet('cmDurUnit', 'days');
+    }
+    if (v === 'role') {
+        cmFillTargetRoles();
+        cmEnsureGuildData();
+    }
+    updateTypeUI();
+}
+
+function cmFillTargetRoles() {
+    const opts = cmRoles.map(r => ({
+        value: r.id,
+        label: r.name,
+        dot: (r.color && r.color !== '#000000') ? r.color : '#a1a1aa'
+    }));
+    if (cmTargetRoleId && !opts.find(o => o.value === cmTargetRoleId)) {
+        opts.unshift({ value: cmTargetRoleId, label: cmRolesLoaded ? 'Unknown role' : 'Loading...', dot: '#a1a1aa' });
+    }
+    cmSelectSetOptions('cmTargetRole', opts);
+    cmSelectSet('cmTargetRole', cmTargetRoleId);
+}
+
+function cmSyncColor() {
+    const c = document.getElementById('cmdColor');
+    const hex = (c.value || '#2563eb').toLowerCase();
+    document.querySelectorAll('#cmSwatches .cm-sw-item').forEach(b => {
+        b.classList.toggle('sel', b.dataset.c.toLowerCase() === hex);
+    });
+    const h = document.getElementById('cmHex');
+    if (h) h.textContent = hex.toUpperCase();
+}
+
+function cmBuildSwatches() {
+    const wrap = document.getElementById('cmSwatches');
+    if (!wrap || wrap.dataset.built) return;
+    wrap.dataset.built = '1';
+    const picker = document.getElementById('cmdColor');
+    CM_COLORS.forEach(c => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'cm-sw-item';
+        b.dataset.c = c;
+        b.style.background = c;
+        b.onclick = () => {
+            picker.value = c;
+            cmSyncColor();
+            updatePreview();
+        };
+        wrap.insertBefore(b, picker);
+    });
+}
+
+function cmUpdatePermBadges() {
+    const rolesN = cmSelRoles.size;
+    let chN;
+    if (cmChannelsLoaded) {
+        const textIds = cmChannels.filter(c => c.type !== 'category').map(c => c);
+        chN = textIds.filter(c => cmSelChannels.has(c.id) || (c.parentId && cmSelChannels.has(c.parentId))).length;
+    } else {
+        chN = cmSelChannels.size;
+    }
+    document.getElementById('cmPermRoles').textContent = rolesN ? `${rolesN} role${rolesN === 1 ? '' : 's'}` : 'No roles';
+    document.getElementById('cmPermChannels').textContent = chN ? `${chN} channel${chN === 1 ? '' : 's'}` : 'No channels';
+    document.getElementById('cmTabRolesCount').textContent = rolesN;
+    document.getElementById('cmTabChannelsCount').textContent = chN;
+}
+
+async function cmEnsureGuildData() {
+    if (!currentGuild) return;
+    const token = cmLoadToken;
+    const guild = currentGuild;
+    if (!cmRolesLoaded) {
+        try {
+            const res = await fetch(`/api/roles/${guild}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (token === cmLoadToken) {
+                    cmRoles = data;
+                    cmRolesLoaded = true;
+                    cmFillTargetRoles();
+                    cmRefreshInfo();
+                    if (!document.getElementById('permissionsBox').classList.contains('hidden')) cmRenderPermList();
+                }
+            }
+        } catch (e) {}
+    }
+    if (!cmChannelsLoaded) {
+        try {
+            const res = await fetch(`/api/channels/${guild}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (token === cmLoadToken) {
+                    cmChannels = data;
+                    cmChannelsLoaded = true;
+                    cmUpdatePermBadges();
+                    if (!document.getElementById('permissionsBox').classList.contains('hidden')) cmRenderPermList();
+                }
+            }
+        } catch (e) {}
+    }
+}
+
+function cmRenderPermList() {
+    const list = document.getElementById('rolesList');
+    const q = (document.getElementById('cmPermSearch').value || '').trim().toLowerCase();
+    document.querySelectorAll('.cm-tab').forEach(t => t.classList.toggle('active', t.dataset.ptab === cmPermTab));
+    document.getElementById('cmPermSearch').placeholder = cmPermTab === 'roles' ? 'Search roles...' : 'Search channels...';
+
+    if (cmPermTab === 'roles') {
+        if (!cmRolesLoaded) { list.innerHTML = '<div class="cm-empty">Loading...</div>'; return; }
+        const rows = cmRoles.filter(r => !q || r.name.toLowerCase().includes(q));
+        if (!rows.length) { list.innerHTML = '<div class="cm-empty">No roles</div>'; return; }
+        list.innerHTML = rows.map(r => {
+            const on = cmSelRoles.has(r.id);
+            const col = (r.color && r.color !== '#000000') ? r.color : '#a1a1aa';
+            return `<div class="cm-row" data-id="${escapeAttr(r.id)}"><span class="cm-cb${on ? ' on' : ''}">${on ? CM_CHK : ''}</span><span class="cm-dot" style="background:${escapeAttr(col)}"></span>${escapeHtml(r.name)}</div>`;
+        }).join('');
+        list.querySelectorAll('.cm-row').forEach(row => {
+            row.onclick = () => {
+                const id = row.dataset.id;
+                if (cmSelRoles.has(id)) cmSelRoles.delete(id); else cmSelRoles.add(id);
+                cmRenderPermList();
+                cmUpdatePermBadges();
+            };
+        });
+        return;
+    }
+
+    if (!cmChannelsLoaded) { list.innerHTML = '<div class="cm-empty">Loading...</div>'; return; }
+    const cats = cmChannels.filter(c => c.type === 'category');
+    const loose = cmChannels.filter(c => c.type !== 'category' && !c.parentId);
+    const kidsOf = (id) => cmChannels.filter(c => c.type !== 'category' && c.parentId === id);
+    const isOn = (c) => cmSelChannels.has(c.id) || (c.parentId && cmSelChannels.has(c.parentId));
+    let html = '';
+    loose.filter(c => !q || c.name.toLowerCase().includes(q)).forEach(c => {
+        const on = isOn(c);
+        html += `<div class="cm-row" data-ch="${escapeAttr(c.id)}"><span class="cm-cb${on ? ' on' : ''}">${on ? CM_CHK : ''}</span><span class="cm-hash">#</span>${escapeHtml(c.name)}</div>`;
+    });
+    cats.forEach(cat => {
+        const kids = kidsOf(cat.id);
+        const matchKids = q ? kids.filter(k => k.name.toLowerCase().includes(q)) : kids;
+        if (q && !cat.name.toLowerCase().includes(q) && !matchKids.length) return;
+        const shownKids = q && cat.name.toLowerCase().includes(q) && !matchKids.length ? kids : matchKids;
+        const all = cmSelChannels.has(cat.id) || (kids.length > 0 && kids.every(k => cmSelChannels.has(k.id)));
+        const some = !all && kids.some(k => cmSelChannels.has(k.id));
+        const open = q ? true : cmExpanded.has(cat.id);
+        const cnt = kids.filter(k => isOn(k)).length;
+        const cbCls = all ? ' on' : (some ? ' on' : '');
+        const cbIn = all ? CM_CHK : (some ? CM_MINUS : '');
+        html += `<div class="cm-row cat" data-cat="${escapeAttr(cat.id)}"><svg class="cm-arw${open ? ' open' : ''}" data-arrow="1" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg><span class="cm-cb${cbCls}">${cbIn}</span><span class="cm-cn">${escapeHtml(cat.name)}</span>${cnt ? `<span class="cm-cnt">${cnt}</span>` : ''}</div>`;
+        if (open) {
+            shownKids.forEach(k => {
+                const on = isOn(k);
+                html += `<div class="cm-row kid" data-ch="${escapeAttr(k.id)}"><span class="cm-cb${on ? ' on' : ''}">${on ? CM_CHK : ''}</span><span class="cm-hash">#</span>${escapeHtml(k.name)}</div>`;
+            });
+        }
+    });
+    list.innerHTML = html || '<div class="cm-empty">No channels</div>';
+
+    list.querySelectorAll('.cm-row[data-ch]').forEach(row => {
+        row.onclick = () => cmToggleChannel(row.dataset.ch);
+    });
+    list.querySelectorAll('.cm-row.cat').forEach(row => {
+        row.onclick = (e) => {
+            const id = row.dataset.cat;
+            if (e.target.closest('[data-arrow]')) {
+                if (cmExpanded.has(id)) cmExpanded.delete(id); else cmExpanded.add(id);
+                cmRenderPermList();
+                return;
+            }
+            cmToggleCategory(id);
+        };
+    });
+}
+
+function cmToggleCategory(catId) {
+    const kids = cmChannels.filter(c => c.type !== 'category' && c.parentId === catId);
+    const all = cmSelChannels.has(catId) || (kids.length > 0 && kids.every(k => cmSelChannels.has(k.id)));
+    if (all) {
+        cmSelChannels.delete(catId);
+        kids.forEach(k => cmSelChannels.delete(k.id));
+    } else {
+        cmSelChannels.add(catId);
+        kids.forEach(k => cmSelChannels.add(k.id));
+    }
+    cmRenderPermList();
+    cmUpdatePermBadges();
+}
+
+function cmToggleChannel(id) {
+    const ch = cmChannels.find(c => c.id === id);
+    if (!ch) return;
+    const parent = ch.parentId;
+    if (parent && cmSelChannels.has(parent)) {
+        cmSelChannels.delete(parent);
+        cmChannels.filter(c => c.type !== 'category' && c.parentId === parent).forEach(k => cmSelChannels.add(k.id));
+    }
+    if (cmSelChannels.has(id)) cmSelChannels.delete(id); else cmSelChannels.add(id);
+    if (parent) {
+        const kids = cmChannels.filter(c => c.type !== 'category' && c.parentId === parent);
+        if (kids.length && kids.every(k => cmSelChannels.has(k.id))) cmSelChannels.add(parent);
+        else cmSelChannels.delete(parent);
+    }
+    cmRenderPermList();
+    cmUpdatePermBadges();
+}
+
+function openPermissionsBox() {
+    cmClosePops();
+    cmPermTab = 'roles';
+    cmExpanded = new Set();
+    document.getElementById('cmPermSearch').value = '';
+    document.getElementById('permissionsBox').classList.remove('hidden');
+    cmRenderPermList();
+    cmEnsureGuildData();
+}
+
+function closePermissionsBox() {
+    const box = document.getElementById('permissionsBox');
+    if (box) box.classList.add('hidden');
+    cmUpdatePermBadges();
+}
+
+function cmCopy(text) {
+    const done = () => {
+        const t = document.getElementById('cmCopyToast');
+        t.querySelector('span').textContent = `Copied ${text}`;
+        t.classList.remove('hidden');
+        if (cmCopyTimer) clearTimeout(cmCopyTimer);
+        cmCopyTimer = setTimeout(() => t.classList.add('hidden'), 1600);
+    };
+    const fallback = () => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+        done();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(fallback);
+    } else {
+        fallback();
+    }
+}
+
+function cmOpenVariables() {
+    const pop = document.getElementById('cmVarPop');
+    const btn = document.getElementById('cmVarBtn');
+    const wasOpen = !pop.classList.contains('hidden');
+    cmClosePops();
+    if (wasOpen) return;
+    const { msg } = cmCurrentKind();
+    const groups = msg ? CM_VARS_MSG : CM_VARS_REASON;
+    const cpy = '<svg class="cm-cpy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    pop.innerHTML = groups.map(([g, items]) =>
+        `<div class="cm-g">${escapeHtml(g)}</div>` + items.map(([c, d]) =>
+            `<div class="cm-it" data-copy="${escapeAttr(c)}"><span class="cm-code">${escapeHtml(c)}</span><span class="cm-d">${escapeHtml(d)}</span>${cpy}</div>`
+        ).join('')
+    ).join('');
+    pop.querySelectorAll('.cm-it[data-copy]').forEach(it => {
+        it.onclick = (e) => {
+            e.stopPropagation();
+            cmCopy(it.dataset.copy);
+        };
+    });
+    btn.classList.add('on');
+    cmPlacePop(pop, btn, 400);
+    const r = btn.getBoundingClientRect();
+    const pw = pop.offsetWidth;
+    pop.style.left = Math.max(8, Math.min(window.innerWidth - pw - 8, r.right - pw)) + 'px';
+}
+
+function cmInitComponents() {
+    if (cmReady) return;
+    cmSelectInit('cmMsgType', { options: CM_MSG_TYPES, placeholder: 'Select...', noneLabel: 'None', onChange: cmOnMsgChange });
+    cmSelectInit('cmAction', { options: CM_ACTIONS, placeholder: 'Select...', noneLabel: 'None', onChange: cmOnActionChange });
+    cmSelectInit('cmRoleAction', { options: CM_ROLE_ACTIONS, placeholder: 'Select...', onChange: updateTypeUI });
+    cmSelectInit('cmDurUnit', { options: CM_UNITS_BAN, value: 'days', onChange: updateTypeUI });
+    cmSelectInit('cmTempDurUnit', { options: CM_UNITS, value: 'days', onChange: updateTypeUI });
+    cmSelectInit('cmTargetRole', {
+        options: [],
+        placeholder: 'Select a role...',
+        onChange: (v) => { cmTargetRoleId = v; cmRefreshInfo(); }
+    });
+    cmBuildSwatches();
+    cmReady = true;
+}
+
+function cmResetState() {
+    cmSelectSet('cmMsgType', '');
+    cmSelectSet('cmAction', '');
+    cmSelectSet('cmRoleAction', '');
+    cmSelectSet('cmDurUnit', 'days');
+    cmSelectSet('cmTempDurUnit', 'days');
+    cmTargetRoleId = '';
+    cmSelectSet('cmTargetRole', '');
+    cmSelRoles = new Set();
+    cmSelChannels = new Set();
+    cmPermTab = 'roles';
+    cmExpanded = new Set();
+}
+
 function openModal(name = null) {
     if (!userHasDashboardPermission('createRoles') && !userHasDashboardPermission('editRoles')) {
         showAccessDenied();
         return;
     }
 
+    cmInitComponents();
     clearInvalidFields();
     hideFormToast();
+    cmClosePops();
 
     editingName = name;
+    cmLoadToken++;
+    cmRoles = [];
+    cmChannels = [];
+    cmRolesLoaded = false;
+    cmChannelsLoaded = false;
+
     const modal = document.getElementById('modal');
     const title = document.getElementById('modalTitle');
     const form = document.getElementById('cmdForm');
     form.reset();
-
-    updatePurgeOptionVisibility();
+    cmResetState();
+    document.getElementById('cmdDuration').disabled = false;
 
     if (name && currentCommands[name]) {
         const cmd = currentCommands[name];
-        title.textContent = 'Edit Command';
-        document.getElementById('cmdName').value = name;
-        document.getElementById('cmdName').disabled = true;
-        document.getElementById('cmdPrefix').value = cmd.prefix || '*';
-        document.getElementById('cmdType').value = cmd.type || 'text';
+        title.textContent = 'Edit command';
+        const nameEl = document.getElementById('cmdName');
+        nameEl.value = `${cmd.prefix || '*'}${name}`;
+        nameEl.disabled = true;
+
+        const type = cmd.type || 'text';
+        if (type === 'text' || type === 'embed') cmSelectSet('cmMsgType', type);
+        else if (['ban', 'kick', 'mute', 'warn', 'role'].includes(type)) cmSelectSet('cmAction', type);
+
         document.getElementById('cmdTitle').value = cmd.title || '';
         document.getElementById('cmdResponse').value = cmd.response || '';
-        document.getElementById('cmdColor').value = '#' + (typeof cmd.color === 'number' ? cmd.color : 0xE67E22).toString(16).padStart(6, '0');
+        document.getElementById('cmdColor').value = '#' + (typeof cmd.color === 'number' ? cmd.color : 0x2563eb).toString(16).padStart(6, '0');
         document.getElementById('cmdThumbnail').value = cmd.thumbnail || '';
         document.getElementById('cmdImage').value = cmd.image || '';
         document.getElementById('cmdDelete').checked = cmd.deleteCommand !== false;
-        document.getElementById('cmdDuration').value = cmd.duration || '';
+        document.getElementById('cmdEnabled').checked = cmd.enabled !== false;
+
+        const unit = cmd.durationUnit || 'days';
+        if (type === 'ban' || type === 'mute') {
+            if (type === 'ban' && (!cmd.duration || unit === 'perm')) {
+                cmSelectSet('cmDurUnit', 'perm');
+            } else {
+                cmSelectSet('cmDurUnit', unit === 'perm' ? 'days' : unit);
+                document.getElementById('cmdDuration').value = cmd.duration || '';
+            }
+        }
+        if (type === 'role') {
+            cmSelectSet('cmRoleAction', cmd.roleAction || '');
+            cmTargetRoleId = cmd.targetRoleId || '';
+            cmSelectSet('cmTempDurUnit', unit === 'perm' ? 'days' : unit);
+            document.getElementById('cmdTempDuration').value = cmd.duration || '';
+        }
+
+        cmSelRoles = new Set(Array.isArray(cmd.allowedRoles) ? cmd.allowedRoles : []);
+        cmSelChannels = new Set(Array.isArray(cmd.blockedChannels) ? cmd.blockedChannels : []);
 
         clearExtraEmbeds();
-        if (Array.isArray(cmd.extraEmbeds)) {
-            cmd.extraEmbeds.forEach(e => addEmbedBlock(e, true));
-        }
-
+        if (Array.isArray(cmd.extraEmbeds)) cmd.extraEmbeds.forEach(e => addEmbedBlock(e, true));
         clearButtons();
-        if (Array.isArray(cmd.buttons)) {
-            cmd.buttons.forEach(b => addButtonBlock(b, true));
-        }
+        if (Array.isArray(cmd.buttons)) cmd.buttons.forEach(b => addButtonBlock(b, true));
 
         const baseToggle = document.getElementById('cmdIsBase');
-        if (baseToggle) {
-            baseToggle.checked = !!cmd.isBase;
-        }
+        if (baseToggle) baseToggle.checked = !!cmd.isBase;
     } else {
-        title.textContent = 'New Command';
+        title.textContent = 'New command';
         document.getElementById('cmdName').disabled = false;
-        document.getElementById('cmdPrefix').value = '*';
-        document.getElementById('cmdColor').value = '#E67E22';
+        document.getElementById('cmdColor').value = '#2563eb';
         document.getElementById('cmdThumbnail').value = '';
         document.getElementById('cmdImage').value = '';
         document.getElementById('cmdDelete').checked = true;
-        document.getElementById('cmdDuration').value = '';
-
+        document.getElementById('cmdEnabled').checked = true;
         clearExtraEmbeds();
         clearButtons();
-
         const baseToggle = document.getElementById('cmdIsBase');
-        if (baseToggle) {
-            baseToggle.checked = false;
-        }
+        if (baseToggle) baseToggle.checked = false;
     }
 
     updateBaseToggleVisibility();
-
-    rolesLoaded = false;
-    currentRoles = [];
-    document.getElementById('rolesList').innerHTML = '<p class="loading-text">Open to load roles...</p>';
+    cmSyncColor();
+    cmFillTargetRoles();
     closePermissionsBox();
     closeMoreOptions();
+    cmUpdatePermBadges();
 
     updateTypeUI();
-    updatePreview();
     modal.classList.remove('hidden');
-    setTimeout(() => document.getElementById('cmdName').focus(), 100);
-}
-
-function updatePurgeOptionVisibility() {
-    const purgeOpt = document.getElementById('purgeOption');
-    if (!purgeOpt) return;
-    if (myRole === 'owner' || isAdmin) {
-        purgeOpt.classList.remove('hidden');
-        purgeOpt.disabled = false;
-    } else {
-        purgeOpt.classList.add('hidden');
-        purgeOpt.disabled = true;
-    }
+    cmEnsureGuildData();
+    setTimeout(() => {
+        const n = document.getElementById('cmdName');
+        if (n && !n.disabled) n.focus();
+    }, 100);
 }
 
 function updateBaseToggleVisibility() {
     const wrap = document.getElementById('baseToggleWrap');
     if (!wrap) return;
-    if (myRole === 'owner' || isAdmin) {
-        wrap.classList.remove('hidden');
-    } else {
-        wrap.classList.add('hidden');
-    }
+    if (myRole === 'owner' || isAdmin) wrap.classList.remove('hidden');
+    else wrap.classList.add('hidden');
 }
 
 function closeModal() {
-    document.getElementById('modal').classList.add('hidden');
-    document.getElementById('modal').classList.remove('open-with-permissions');
+    const modal = document.getElementById('modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    cmClosePops();
     closePermissionsBox();
     closeMoreOptions();
     editingName = null;
-    rolesLoaded = false;
-    currentRoles = [];
-
+    cmLoadToken++;
     clearInvalidFields();
     hideFormToast();
-}
-
-function updateTypeUI() {
-    const type = document.getElementById('cmdType').value;
-    const hint = document.getElementById('responseHint');
-    const responseLabel = document.getElementById('responseLabelText');
-    const response = document.getElementById('cmdResponse');
-    const deleteCheck = document.getElementById('cmdDelete');
-
-    const wrapTitle = document.getElementById('labelTitle');
-    const wrapColor = document.getElementById('labelColor');
-    const wrapThumb = document.getElementById('labelThumbnail');
-    const wrapImage = document.getElementById('labelImage');
-    const wrapButtons = document.getElementById('labelButtons');
-    const wrapExtraEmbeds = document.getElementById('extraEmbedsWrap');
-    const wrapDuration = document.getElementById('labelDuration');
-    const durationInput = document.getElementById('cmdDuration');
-    const durationHint = document.getElementById('durationHint');
-    const durationLabelText = document.getElementById('durationLabelText');
-    const previewSection = document.getElementById('previewSection');
-    const labelResponse = document.getElementById('labelResponse');
-
-    const hints = {
-        text: 'The bot replies with this text. Variables: {user} {username} {server} {membercount} {args} {md} {hammertime+N} | Positional args: $1 $2 $3 ...',
-        embed: 'The bot replies with an embed. Variables: {user} {username} {server} {membercount} {args} {md} {hammertime+N} | Positional args: $1 $2 $3 ...',
-        ban: 'Usage: {prefix}command @user reason. The reason in Response is optional (uses default). Supports $1 $2 $3 ...',
-        kick: 'Usage: {prefix}command @user reason. The reason in Response is optional (uses default). Supports $1 $2 $3 ...',
-        mute: 'Usage: {prefix}command @user reason. The reason in Response is optional (uses default). Supports $1 $2 $3 ...',
-        warn: 'Usage: {prefix}command @user reason. The reason in Response is optional (uses default). Supports $1 $2 $3 ...',
-        purge: 'Usage: {prefix}command [number] - Deletes N messages in the current channel (1-100).'
-    };
-
-    const currentPrefix = document.getElementById('cmdPrefix').value || '*';
-    let hintText = hints[type] || '';
-    hintText = hintText.replace(/{prefix}/g, currentPrefix);
-    hint.textContent = hintText;
-
-    const isEmbed = type === 'embed';
-    const isText = type === 'text';
-    const isPurge = type === 'purge';
-    const isModAction = ['ban', 'kick', 'mute', 'warn'].includes(type);
-    const isBan = type === 'ban';
-    const isMute = type === 'mute';
-    const showDuration = isBan || isMute;
-
-    wrapTitle.style.display = isEmbed ? 'block' : 'none';
-    wrapColor.style.display = isEmbed ? 'block' : 'none';
-    wrapThumb.style.display = isEmbed ? 'block' : 'none';
-    wrapImage.style.display = (isEmbed || isText) ? 'block' : 'none';
-    if (wrapButtons) wrapButtons.style.display = (isEmbed || isText) ? 'block' : 'none';
-    wrapDuration.style.display = showDuration ? 'block' : 'none';
-    if (wrapExtraEmbeds) wrapExtraEmbeds.style.display = isEmbed ? 'block' : 'none';
-
-    if (labelResponse) {
-        labelResponse.style.display = isPurge ? 'none' : 'block';
-    }
-
-    if (previewSection) {
-        previewSection.style.display = (isEmbed || isText) ? 'block' : 'none';
-    }
-
-    if (isEmbed) {
-        const colorInput = document.getElementById('cmdColor');
-        if (colorInput && (!colorInput.value || colorInput.value === '#e67e22' || colorInput.value === '#E67E22')) {
-            colorInput.value = '#7289da';
-        }
-    }
-
-    if (isBan) {
-        durationInput.removeAttribute('max');
-        durationInput.placeholder = 'e.g. 7 (leave empty for permanent ban)';
-        durationLabelText.textContent = 'Duration (days)';
-        durationHint.textContent = 'Leave empty for permanent ban. If filled, the bot will auto-unban after N days.';
-    } else if (isMute) {
-        durationInput.max = 28;
-        durationInput.placeholder = 'e.g. 7 (leave empty for 28 days, max)';
-        durationLabelText.textContent = 'Duration (days)';
-        durationHint.textContent = 'Maximum 28 days. If empty, mute will last 28 days.';
-    }
-
-    if (isPurge) {
-        response.required = false;
-        response.value = '';
-    } else if (isModAction) {
-        responseLabel.textContent = 'Reason (optional)';
-        response.placeholder = 'Default reason (optional)';
-        response.required = false;
-        if (deleteCheck) deleteCheck.checked = true;
-    } else {
-        responseLabel.textContent = 'Response';
-        response.placeholder = 'Variables: {user} {username} {server} {membercount} {args} {md} {hammertime+N}';
-        response.required = false;
-    }
-
-    updatePreview();
 }
 
 let extraEmbedCounter = 0;
@@ -1627,18 +2300,18 @@ function addEmbedBlock(data = {}, silent = false) {
     block.dataset.idx = idx;
     block.innerHTML = `
         <div class="extra-embed-header">
-            <span>Embed extra</span>
+            <span>Embed</span>
             <button type="button" class="extra-embed-remove">&times;</button>
         </div>
         <label>Title</label>
         <input type="text" class="ee-title" value="${escapeAttr(data.title || '')}">
-        <label>Response</label>
+        <label>Description</label>
         <textarea class="ee-response" rows="3">${escapeHtml(data.response || '')}</textarea>
         <label>Color</label>
         <input type="color" class="ee-color" value="${colorHex}">
-        <label>Thumbnail URL (optional)</label>
+        <label>Thumbnail URL</label>
         <input type="url" class="ee-thumbnail" value="${escapeAttr(data.thumbnail || '')}">
-        <label>Image URL (optional)</label>
+        <label>Image URL</label>
         <input type="url" class="ee-image" value="${escapeAttr(data.image || '')}">
     `;
     block.querySelector('.extra-embed-remove').onclick = () => { block.remove(); updatePreview(); };
@@ -1667,14 +2340,18 @@ let buttonBlockCounter = 0;
 function updateAddButtonBtnState() {
     const list = document.getElementById('cmdButtonsList');
     const btn = document.getElementById('addButtonBtn');
+    const counter = document.getElementById('cmBtnCount');
     if (!list || !btn) return;
     const count = list.querySelectorAll('.cmd-button-block').length;
-    if (count >= 5) {
-        btn.disabled = true;
-        btn.textContent = 'Max 5 buttons';
-    } else {
-        btn.disabled = false;
-        btn.textContent = '+ Add buttons';
+    btn.disabled = count >= 5;
+    if (counter) {
+        if (count >= 1) {
+            counter.textContent = `${count}/5`;
+            counter.classList.remove('hidden');
+        } else {
+            counter.textContent = '';
+            counter.classList.add('hidden');
+        }
     }
 }
 
@@ -1684,17 +2361,12 @@ function addButtonBlock(data = {}, silent = false) {
     if (list.querySelectorAll('.cmd-button-block').length >= 5) return;
     const idx = buttonBlockCounter++;
     const block = document.createElement('div');
-    block.className = 'extra-embed-block cmd-button-block';
+    block.className = 'cm-btn-row cmd-button-block';
     block.dataset.idx = idx;
     block.innerHTML = `
-        <div class="extra-embed-header">
-            <span>Button</span>
-            <button type="button" class="extra-embed-remove">&times;</button>
-        </div>
-        <label>Button label</label>
-        <input type="text" class="cb-label" maxlength="80" value="${escapeAttr(data.label || '')}" placeholder="e.g: Join our server">
-        <label>Button URL</label>
-        <input type="url" class="cb-url" value="${escapeAttr(data.url || '')}" placeholder="https://...">
+        <input type="text" class="cm-input cb-label" maxlength="80" value="${escapeAttr(data.label || '')}" placeholder="Label">
+        <input type="url" class="cm-input cb-url" value="${escapeAttr(data.url || '')}" placeholder="https://...">
+        <button type="button" class="cm-icon-btn extra-embed-remove" aria-label="Remove"><svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
     `;
     block.querySelector('.extra-embed-remove').onclick = () => { block.remove(); updateAddButtonBtnState(); updatePreview(); };
     block.querySelectorAll('input').forEach(el => el.addEventListener('input', updatePreview));
@@ -1730,13 +2402,8 @@ function toggleMoreOptions() {
     const btn = document.getElementById('moreBtn');
     if (!panel || !btn) return;
     const isHidden = panel.classList.contains('hidden');
-    if (isHidden) {
-        panel.classList.remove('hidden');
-        btn.classList.add('open');
-    } else {
-        panel.classList.add('hidden');
-        btn.classList.remove('open');
-    }
+    panel.classList.toggle('hidden', !isHidden);
+    btn.classList.toggle('open', isHidden);
 }
 
 function renderPreviewEmbed(title, colorHex, thumbnail, responseRaw, text, image) {
@@ -1750,7 +2417,7 @@ function renderPreviewEmbed(title, colorHex, thumbnail, responseRaw, text, image
     if (responseRaw.trim()) {
         html += `<div class="discord-embed-desc">${escapeHtml(text)}</div>`;
     } else {
-        html += `<div class="discord-embed-desc preview-empty">Fill in the Response field to see the text.</div>`;
+        html += `<div class="discord-embed-desc preview-empty">Fill in the description to see the text.</div>`;
     }
     if (image) {
         html += `<img class="discord-embed-image" src="${escapeAttr(image)}" alt="" onerror="this.style.display='none'">`;
@@ -1770,67 +2437,64 @@ function renderPreviewButtons() {
     return html;
 }
 
-function updatePreview() {
-    const preview = document.getElementById('previewContent');
-    const avatar = document.getElementById('previewAvatar');
-    if (!preview) return;
-
-    if (avatar) {
-        avatar.src = 'https://images-ext-1.discordapp.net/external/Lir9nmM9QUd1ClFMcchk0JDU4CPNed97Iui2Sm_rfOk/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/1510639493642850355/9774661e36e8458550112734ce78dc14.webp?format=webp&width=320&height=320';
-    }
-
-    const type = document.getElementById('cmdType').value;
-    const response = document.getElementById('cmdResponse').value || '';
-    const title = document.getElementById('cmdTitle').value || '';
-    const colorHex = document.getElementById('cmdColor').value || '#E67E22';
-    const thumbnail = document.getElementById('cmdThumbnail').value || '';
-    const image = document.getElementById('cmdImage').value || '';
-
-    const isEmbed = type === 'embed';
-    const isText = type === 'text';
-
-    const text = response
+function cmPreviewText(raw) {
+    const now = new Date();
+    const date = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    return String(raw || '')
         .replace(/{user}/g, '@Mario')
         .replace(/{username}/g, 'Mario')
+        .replace(/{userid}/g, '123456789012345678')
+        .replace(/{target}/g, '@Mario')
         .replace(/{server}/g, 'PredCord')
         .replace(/{membercount}/g, '42')
+        .replace(/{channel}/g, '#general')
+        .replace(/{date}/g, date)
         .replace(/{args}/g, 'example args')
         .replace(/{md}/g, '[modlogs placeholder]')
-        .replace(/{hammertime[+-]\d+}/g, '[orario]')
-        .replace(/\$(\d+)/g, (match, num) => `[arg${num}]`);
+        .replace(/{hammertime[+-]\d+}/g, '[time]')
+        .replace(/\$(\d+)/g, (m, num) => `[arg${num}]`);
+}
 
-    if (isEmbed) {
-        let html = renderPreviewEmbed(title, colorHex, thumbnail, response, text, image);
+function updatePreview() {
+    const preview = document.getElementById('previewContent');
+    if (!preview) return;
+    if (!cmSelects.cmMsgType) return;
 
+    const { msg } = cmCurrentKind();
+    cmRefreshInfo();
+    if (!msg) return;
+
+    const response = document.getElementById('cmdResponse').value || '';
+    const title = document.getElementById('cmdTitle').value || '';
+    const colorHex = document.getElementById('cmdColor').value || '#2563eb';
+    const thumbnail = document.getElementById('cmdThumbnail').value || '';
+    const image = document.getElementById('cmdImage').value || '';
+    const text = cmPreviewText(response);
+
+    if (msg === 'embed') {
+        let html = renderPreviewEmbed(cmPreviewText(title), colorHex, thumbnail, response, text, image);
         document.querySelectorAll('#extraEmbedsList .extra-embed-block').forEach(block => {
-            const eTitle = block.querySelector('.ee-title').value || '';
-            const eColor = block.querySelector('.ee-color').value || '#7289da';
-            const eThumb = block.querySelector('.ee-thumbnail').value || '';
-            const eImage = block.querySelector('.ee-image').value || '';
             const eResponse = block.querySelector('.ee-response').value || '';
-            const eText = eResponse
-                .replace(/{user}/g, '@Mario')
-                .replace(/{username}/g, 'Mario')
-                .replace(/{server}/g, 'PredCord')
-                .replace(/{membercount}/g, '42')
-                .replace(/{args}/g, 'example args')
-                .replace(/{md}/g, '[modlogs placeholder]')
-                .replace(/{hammertime[+-]\d+}/g, '[orario]')
-                .replace(/\$(\d+)/g, (match, num) => `[arg${num}]`);
-            html += renderPreviewEmbed(eTitle, eColor, eThumb, eResponse, eText, eImage);
+            html += renderPreviewEmbed(
+                cmPreviewText(block.querySelector('.ee-title').value || ''),
+                block.querySelector('.ee-color').value || '#7289da',
+                block.querySelector('.ee-thumbnail').value || '',
+                eResponse,
+                cmPreviewText(eResponse),
+                block.querySelector('.ee-image').value || ''
+            );
         });
-
         html += renderPreviewButtons();
         preview.innerHTML = html;
         return;
     }
 
     if (!response.trim()) {
-        preview.innerHTML = '<p class="preview-empty">Fill in the Response field to see the preview.</p>';
+        preview.innerHTML = '<p class="preview-empty">Fill in the response to see the preview.</p>';
         return;
     }
 
-    if (isText && image) {
+    if (image) {
         let html = `<div class="discord-embed" style="border-left-color: ${escapeAttr(colorHex)};">`;
         html += `<div class="discord-embed-desc">${escapeHtml(text)}</div>`;
         html += `<img class="discord-embed-image" src="${escapeAttr(image)}" alt="" onerror="this.style.display='none'">`;
@@ -1842,143 +2506,121 @@ function updatePreview() {
     }
 }
 
-function openPermissionsBox() {
-    const box = document.getElementById('permissionsBox');
-    const modal = document.getElementById('modal');
-
-    box.classList.remove('hidden');
-    modal.classList.add('open-with-permissions');
-
-    if (!rolesLoaded) loadRoles();
-}
-
-function closePermissionsBox() {
-    document.getElementById('permissionsBox').classList.add('hidden');
-    document.getElementById('modal').classList.remove('open-with-permissions');
-}
-
-function togglePermissions() {
-    const box = document.getElementById('permissionsBox');
-    if (box.classList.contains('hidden')) {
-        openPermissionsBox();
-    } else {
-        closePermissionsBox();
-    }
-}
-
-async function loadRoles() {
-    if (!currentGuild) return;
-    const list = document.getElementById('rolesList');
-    list.innerHTML = '<p class="loading-text">Loading roles...</p>';
-
-    try {
-        const res = await fetch(`/api/roles/${currentGuild}`);
-        if (!res.ok) throw new Error('Failed to load roles');
-        currentRoles = await res.json();
-        rolesLoaded = true;
-        renderRoles();
-    } catch (e) {
-        list.innerHTML = `<p class="loading-text">Error: ${e.message}</p>`;
-    }
-}
-
-function renderRoles() {
-    const list = document.getElementById('rolesList');
-
-    if (!currentRoles || currentRoles.length === 0) {
-        list.innerHTML = '<p class="loading-text">No roles available.</p>';
-        return;
-    }
-
-    let selected = [];
-    if (editingName && currentCommands[editingName] && Array.isArray(currentCommands[editingName].allowedRoles)) {
-        selected = currentCommands[editingName].allowedRoles;
-    }
-
-    list.innerHTML = currentRoles.map(role => {
-        const checked = selected.includes(role.id) ? 'checked' : '';
-        return `
-        <div class="role-item" data-role-id="${escapeAttr(role.id)}">
-            <span class="role-name">${escapeHtml(role.name)}</span>
-            <label class="role-toggle">
-                <input type="checkbox" class="role-toggle-input" value="${escapeAttr(role.id)}" ${checked}>
-                <span class="role-toggle-switch"></span>
-            </label>
-        </div>`;
-    }).join('');
+function cmFail(el, message) {
+    if (el) markFieldInvalid(el);
+    showFormToast(message || 'Fill all fields');
+    shakeModal();
 }
 
 async function saveCommand(e) {
     e.preventDefault();
 
     if (editingName) {
-        if (!userHasDashboardPermission('editRoles')) {
-            showAccessDenied();
-            return;
-        }
+        if (!userHasDashboardPermission('editRoles')) { showAccessDenied(); return; }
     } else {
-        if (!userHasDashboardPermission('createRoles')) {
-            showAccessDenied();
-            return;
-        }
+        if (!userHasDashboardPermission('createRoles')) { showAccessDenied(); return; }
     }
+
+    clearInvalidFields();
 
     const nameInput = document.getElementById('cmdName');
-    const responseInput = document.getElementById('cmdResponse');
-    const typeValue = document.getElementById('cmdType').value;
-
-    const name = nameInput.value.trim().toLowerCase();
-    const isPurge = typeValue === 'purge';
-
-    let invalid = false;
+    const parsed = cmParseName();
+    const name = (editingName || parsed.name).toLowerCase();
+    const prefix = editingName ? ((currentCommands[editingName] && currentCommands[editingName].prefix) || '*') : parsed.prefix;
+    const { msg, action, type } = cmCurrentKind();
 
     if (!name || !/^[a-z0-9]{1,32}$/i.test(name)) {
-        markFieldInvalid(nameInput);
-        invalid = true;
+        cmFail(nameInput);
+        return;
     }
-
-    if (invalid) {
-        showFormToast('Fill all fields');
-        shakeModal();
+    if (!type) {
+        cmFail(cmSelects.cmMsgType.btn);
+        markFieldInvalid(cmSelects.cmAction.btn);
         return;
     }
 
+    const responseEl = document.getElementById('cmdResponse');
+    if (msg === 'text' && !responseEl.value.trim()) {
+        cmFail(responseEl);
+        return;
+    }
+
+    let duration = null;
+    let durationUnit = 'days';
+    let roleAction = null;
+    let targetRoleId = null;
+
+    if (action === 'ban') {
+        const d = cmReadDuration('cmdDuration', 'cmDurUnit');
+        durationUnit = d.unit;
+        if (d.unit === 'perm') {
+            duration = null;
+        } else if (!d.n) {
+            cmFail(document.getElementById('cmdDuration'), 'Enter a duration or choose Perm');
+            return;
+        } else {
+            duration = d.n;
+        }
+    } else if (action === 'mute') {
+        const d = cmReadDuration('cmdDuration', 'cmDurUnit');
+        durationUnit = d.unit;
+        duration = d.n;
+        if (duration && duration * CM_UNIT_MINUTES[d.unit] > CM_MAX_MUTE_MINUTES) {
+            cmFail(document.getElementById('cmdDuration'), 'Mute duration cannot exceed 28 days');
+            return;
+        }
+    } else if (action === 'role') {
+        roleAction = cmSelectGet('cmRoleAction');
+        if (!roleAction) {
+            cmFail(cmSelects.cmRoleAction.btn);
+            return;
+        }
+        targetRoleId = cmTargetRoleId;
+        if (!targetRoleId) {
+            cmFail(cmSelects.cmTargetRole.btn, 'Select a target role');
+            return;
+        }
+        if (roleAction === 'temp' || roleAction === 'remove_mute') {
+            const d = cmReadDuration('cmdTempDuration', 'cmTempDurUnit');
+            durationUnit = d.unit;
+            duration = d.n;
+            if (!duration) {
+                cmFail(document.getElementById('cmdTempDuration'), 'Enter a duration');
+                return;
+            }
+            if (roleAction === 'remove_mute' && duration * CM_UNIT_MINUTES[d.unit] > CM_MAX_MUTE_MINUTES) {
+                cmFail(document.getElementById('cmdTempDuration'), 'Mute duration cannot exceed 28 days');
+                return;
+            }
+        }
+    }
+
     const colorHex = document.getElementById('cmdColor').value;
-    const btn = e.target.querySelector('button[type="submit"]');
+    const btn = document.getElementById('cmSaveBtn');
     const originalText = btn.innerHTML;
     btn.innerHTML = 'Saving...';
     btn.disabled = true;
 
-    let prefix = document.getElementById('cmdPrefix').value.trim();
-    if (prefix.length !== 1) prefix = '*';
-
-    let allowedRoles;
-    if (rolesLoaded) {
-        allowedRoles = Array.from(document.querySelectorAll('#rolesList .role-toggle-input:checked'))
-            .map(cb => cb.value);
-    } else if (editingName && currentCommands[editingName] && Array.isArray(currentCommands[editingName].allowedRoles)) {
-        allowedRoles = currentCommands[editingName].allowedRoles;
-    } else {
-        allowedRoles = [];
-    }
-
-    const durationRaw = document.getElementById('cmdDuration').value;
-    const durationValue = parseInt(durationRaw);
-    const duration = isNaN(durationValue) || durationValue < 1 ? null : durationValue;
+    const hasResponse = msg || ['ban', 'kick', 'mute', 'warn'].includes(action) || (action === 'role' && (roleAction === 'remove_warn' || roleAction === 'remove_mute'));
 
     const data = {
-        prefix: prefix,
-        type: typeValue,
-        title: document.getElementById('cmdTitle').value,
-        response: isPurge ? '' : document.getElementById('cmdResponse').value,
+        prefix,
+        type,
+        title: msg === 'embed' ? document.getElementById('cmdTitle').value : '',
+        response: hasResponse ? responseEl.value : '',
         color: parseInt(colorHex.replace('#', ''), 16),
-        thumbnail: document.getElementById('cmdThumbnail').value || null,
-        image: document.getElementById('cmdImage').value || null,
-        extraEmbeds: typeValue === 'embed' ? collectExtraEmbeds() : [],
-        buttons: (typeValue === 'embed' || typeValue === 'text') ? collectButtons() : [],
+        thumbnail: msg === 'embed' ? (document.getElementById('cmdThumbnail').value || null) : null,
+        image: msg ? (document.getElementById('cmdImage').value || null) : null,
+        extraEmbeds: msg === 'embed' ? collectExtraEmbeds() : [],
+        buttons: msg ? collectButtons() : [],
         deleteCommand: document.getElementById('cmdDelete').checked,
-        allowedRoles: allowedRoles,
-        duration: duration
+        enabled: document.getElementById('cmdEnabled').checked,
+        allowedRoles: Array.from(cmSelRoles),
+        blockedChannels: Array.from(cmSelChannels),
+        duration,
+        durationUnit,
+        roleAction,
+        targetRoleId
     };
 
     try {
@@ -2005,7 +2647,7 @@ async function saveCommand(e) {
             await loadCommands();
             showToast(`Command ${prefix}${name} saved`);
         } else {
-            const err = await res.json();
+            const err = await res.json().catch(() => ({}));
             if (res.status === 403) {
                 showAccessDenied();
             } else {
@@ -2018,6 +2660,82 @@ async function saveCommand(e) {
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
+}
+
+function setupCommandModal() {
+    cmInitComponents();
+
+    const nameEl = document.getElementById('cmdName');
+    if (nameEl) nameEl.oninput = () => {
+        let v = nameEl.value.replace(/\s/g, '');
+        let pre = '';
+        if (v && !/[a-zA-Z0-9]/.test(v.charAt(0))) {
+            pre = v.charAt(0);
+            v = v.slice(1);
+        }
+        v = v.replace(/[^a-zA-Z0-9]/g, '').slice(0, 32);
+        nameEl.value = pre + v;
+        cmRefreshInfo();
+    };
+
+    ['cmdDuration', 'cmdTempDuration'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.oninput = () => {
+            el.value = el.value.replace(/[^0-9]/g, '');
+            cmRefreshInfo();
+        };
+    });
+
+    ['cmdResponse', 'cmdTitle', 'cmdThumbnail', 'cmdImage'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.oninput = updatePreview;
+    });
+
+    const color = document.getElementById('cmdColor');
+    if (color) color.oninput = () => { cmSyncColor(); updatePreview(); };
+
+    const moreBtn = document.getElementById('moreBtn');
+    if (moreBtn) moreBtn.onclick = toggleMoreOptions;
+
+    const addEmbedBtn = document.getElementById('addEmbedBtn');
+    if (addEmbedBtn) addEmbedBtn.onclick = () => addEmbedBlock();
+
+    const addButtonBtn = document.getElementById('addButtonBtn');
+    if (addButtonBtn) addButtonBtn.onclick = () => addButtonBlock();
+
+    const permBtn = document.getElementById('permissionsBtn');
+    if (permBtn) permBtn.onclick = openPermissionsBox;
+
+    const permClose = document.getElementById('permissionsClose');
+    if (permClose) permClose.onclick = closePermissionsBox;
+
+    const varBtn = document.getElementById('cmVarBtn');
+    if (varBtn) varBtn.onclick = (e) => { e.stopPropagation(); cmOpenVariables(); };
+
+    document.querySelectorAll('.cm-tab').forEach(t => {
+        t.onclick = () => {
+            cmPermTab = t.dataset.ptab;
+            document.getElementById('cmPermSearch').value = '';
+            cmRenderPermList();
+        };
+    });
+
+    const search = document.getElementById('cmPermSearch');
+    if (search) search.oninput = cmRenderPermList;
+
+    const box = document.getElementById('permissionsBox');
+    if (box) box.addEventListener('mousedown', (e) => {
+        if (e.target === box) closePermissionsBox();
+    });
+
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('#cmSelPop') || e.target.closest('#cmVarPop')) return;
+        cmClosePops();
+    });
+
+    const dialog = document.getElementById('cmDialog');
+    if (dialog) dialog.addEventListener('scroll', cmClosePops);
+    window.addEventListener('resize', cmClosePops);
 }
 
 async function deleteCommand(name) {
@@ -3600,6 +4318,50 @@ function fillJoinLeaveSeries(series) {
 
 let joinLeaveChartInstance = null;
 
+const JL_SERIES = [
+    { key: 'joins', label: 'Joins', color: '#fafafa', top: 'rgba(250, 250, 250, 0.55)', bottom: 'rgba(250, 250, 250, 0.02)' },
+    { key: 'leaves', label: 'Leaves', color: '#8b8b94', top: 'rgba(161, 161, 170, 0.42)', bottom: 'rgba(161, 161, 170, 0.02)' }
+];
+
+function jlFormatDay(day, withWeekday) {
+    const d = new Date(day + 'T00:00:00Z');
+    const opts = withWeekday
+        ? { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }
+        : { month: 'short', day: 'numeric', timeZone: 'UTC' };
+    return d.toLocaleDateString('en-US', opts);
+}
+
+function joinLeaveTooltip(context, days) {
+    const { chart, tooltip } = context;
+    const wrap = chart.canvas.parentNode;
+    let el = wrap.querySelector('.jl-tooltip');
+    if (!el) {
+        el = document.createElement('div');
+        el.className = 'jl-tooltip';
+        wrap.appendChild(el);
+    }
+    if (tooltip.opacity === 0 || !tooltip.dataPoints || !tooltip.dataPoints.length) {
+        el.style.opacity = '0';
+        return;
+    }
+    const points = tooltip.dataPoints.slice().sort((a, b) => a.datasetIndex - b.datasetIndex);
+    const day = days[points[0].dataIndex];
+    el.innerHTML = `<div class="jl-tt-title">${escapeHtml(jlFormatDay(day, true))}</div>` + points.map(pt => {
+        const meta = JL_SERIES[pt.datasetIndex];
+        return `<div class="jl-tt-row"><i style="background:${meta.color}"></i><span class="jl-tt-label">${meta.label}</span><b>${pt.raw}</b></div>`;
+    }).join('');
+    el.style.opacity = '1';
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    let left = tooltip.caretX + 16;
+    if (left + w > wrap.clientWidth - 4) left = tooltip.caretX - w - 16;
+    if (left < 4) left = 4;
+    let top = tooltip.caretY - h / 2;
+    top = Math.max(4, Math.min(top, wrap.clientHeight - h - 4));
+    el.style.left = left + 'px';
+    el.style.top = top + 'px';
+}
+
 function renderJoinLeaveChart(series) {
     const canvas = document.getElementById('joinLeaveChart');
     if (!canvas || typeof Chart === 'undefined') return;
@@ -3611,139 +4373,77 @@ function renderJoinLeaveChart(series) {
 
     const filled = fillJoinLeaveSeries(series);
     const days = filled.map(s => s.day);
-    const longRange = filled.length > 7;
+    const labels = days.map(d => jlFormatDay(d, false));
+    const small = filled.length <= 2;
 
     const ctx = canvas.getContext('2d');
     const chartHeight = canvas.parentElement ? canvas.parentElement.clientHeight : 300;
 
-    const joinsGradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
-    joinsGradient.addColorStop(0, 'rgba(52, 211, 153, 0.95)');
-    joinsGradient.addColorStop(1, 'rgba(52, 211, 153, 0.35)');
+    const datasets = JL_SERIES.map((meta, i) => {
+        const gradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
+        gradient.addColorStop(0, meta.top);
+        gradient.addColorStop(1, meta.bottom);
+        return {
+            label: meta.label,
+            data: filled.map(s => s[meta.key]),
+            borderColor: meta.color,
+            backgroundColor: gradient,
+            borderWidth: 1.5,
+            fill: true,
+            cubicInterpolationMode: 'monotone',
+            tension: 0.4,
+            pointRadius: small ? 3 : 0,
+            pointHoverRadius: 4.5,
+            pointBackgroundColor: meta.color,
+            pointHoverBackgroundColor: '#ffffff',
+            pointBorderColor: '#09090b',
+            pointHoverBorderColor: '#09090b',
+            pointBorderWidth: 1.5,
+            order: i === 0 ? 2 : 1
+        };
+    });
 
-    const leavesGradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
-    leavesGradient.addColorStop(0, 'rgba(239, 68, 68, 0.95)');
-    leavesGradient.addColorStop(1, 'rgba(239, 68, 68, 0.35)');
-
-    const netAreaGradient = ctx.createLinearGradient(0, 0, 0, chartHeight);
-    netAreaGradient.addColorStop(0, 'rgba(230, 126, 34, 0.3)');
-    netAreaGradient.addColorStop(1, 'rgba(230, 126, 34, 0)');
-
-    const series_ = filled;
-    const labels = days;
-
-    const tickLabel = (index) => {
-        const day = days[index];
-        if (!day) return '';
-        const d = new Date(day + 'T00:00:00Z');
-        if (!longRange) return d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
-        if (index === 0 || d.getUTCDate() === 1) return d.toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
-        return '';
-    };
+    const legend = document.getElementById('joinLeaveLegend');
+    if (legend) {
+        legend.innerHTML = JL_SERIES.map(m => `<span class="jl-legend-item"><i style="background:${m.color}"></i>${m.label}</span>`).join('');
+    }
 
     joinLeaveChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [
-                {
-                    type: 'bar',
-                    label: 'Joins',
-                    data: series_.map(s => s.joins),
-                    backgroundColor: joinsGradient,
-                    hoverBackgroundColor: 'rgba(52, 211, 153, 1)',
-                    borderRadius: { topLeft: 6, topRight: 6 },
-                    borderSkipped: false,
-                    barPercentage: 0.8,
-                    categoryPercentage: 0.7,
-                    order: 2
-                },
-                {
-                    type: 'bar',
-                    label: 'Leaves',
-                    data: series_.map(s => s.leaves),
-                    backgroundColor: leavesGradient,
-                    hoverBackgroundColor: 'rgba(239, 68, 68, 1)',
-                    borderRadius: { topLeft: 6, topRight: 6 },
-                    borderSkipped: false,
-                    barPercentage: 0.8,
-                    categoryPercentage: 0.7,
-                    order: 2
-                },
-                {
-                    type: 'line',
-                    label: 'Net',
-                    data: series_.map(s => s.joins - s.leaves),
-                    borderColor: '#E67E22',
-                    backgroundColor: netAreaGradient,
-                    borderWidth: 2.5,
-                    pointRadius: 0,
-                    pointBackgroundColor: '#E67E22',
-                    pointBorderColor: '#15151c',
-                    pointBorderWidth: 1.5,
-                    pointHoverRadius: 5,
-                    tension: 0.4,
-                    fill: true,
-                    order: 1
-                }
-            ]
-        },
+        type: 'line',
+        data: { labels, datasets },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
-            animation: { duration: 900, easing: 'easeOutQuart' },
+            animation: { duration: 700, easing: 'easeOutCubic' },
+            layout: { padding: { top: 8, right: 4, left: 0, bottom: 0 } },
             scales: {
                 x: {
                     ticks: {
-                        color: '#9aa0ab',
-                        autoSkip: false,
+                        color: '#a1a1aa',
+                        autoSkip: true,
+                        maxTicksLimit: 8,
                         maxRotation: 0,
                         minRotation: 0,
-                        font: { family: "'Manrope', sans-serif", size: 11, weight: '600' },
-                        callback: (value, index) => tickLabel(index)
+                        padding: 10,
+                        font: { family: "'Inter', 'Manrope', sans-serif", size: 12 }
                     },
                     grid: { display: false },
-                    border: { color: 'rgba(255,255,255,0.08)' }
+                    border: { display: false }
                 },
                 y: {
                     beginAtZero: true,
-                    ticks: { color: '#9aa0ab', precision: 0, font: { family: "'Manrope', sans-serif", size: 11 } },
-                    grid: { color: 'rgba(255,255,255,0.05)', drawTicks: false },
+                    grace: '8%',
+                    ticks: { display: false, precision: 0 },
+                    grid: { color: 'rgba(255, 255, 255, 0.06)', drawTicks: false },
                     border: { display: false }
                 }
             },
             plugins: {
-                legend: {
-                    position: 'top',
-                    align: 'end',
-                    labels: {
-                        color: '#e4e6eb',
-                        usePointStyle: true,
-                        pointStyle: 'circle',
-                        boxWidth: 8,
-                        font: { family: "'Manrope', sans-serif", size: 12, weight: '600' },
-                        padding: 18
-                    }
-                },
+                legend: { display: false },
                 tooltip: {
-                    backgroundColor: '#15151cf2',
-                    titleColor: '#fff',
-                    bodyColor: '#c7cad1',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderWidth: 1,
-                    padding: 12,
-                    cornerRadius: 10,
-                    displayColors: true,
-                    usePointStyle: true,
-                    titleFont: { family: "'Manrope', sans-serif", weight: '700' },
-                    bodyFont: { family: "'Manrope', sans-serif" },
-                    callbacks: {
-                        title: (items) => {
-                            const day = items.length ? days[items[0].dataIndex] : null;
-                            if (!day) return '';
-                            return new Date(day + 'T00:00:00Z').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
-                        }
-                    }
+                    enabled: false,
+                    external: (context) => joinLeaveTooltip(context, days)
                 }
             }
         }
@@ -4021,6 +4721,12 @@ async function saveTicketsConfig() {
 }
 
 function setupEvents() {
+    const guildNav = document.getElementById('guildNavTabs');
+    if (guildNav && typeof MutationObserver !== 'undefined') {
+        new MutationObserver(updateNavGroups).observe(guildNav, { attributes: true, subtree: true, attributeFilter: ['class'] });
+        updateNavGroups();
+    }
+
     document.querySelectorAll('.server-select-card').forEach(card => {
         card.onclick = () => selectServer(card.getAttribute('data-server'));
     });
@@ -4098,54 +4804,7 @@ function setupEvents() {
     const cmdForm = document.getElementById('cmdForm');
     if (cmdForm) cmdForm.onsubmit = saveCommand;
 
-    const cmdType = document.getElementById('cmdType');
-    if (cmdType) cmdType.onchange = updateTypeUI;
-
-    const cmdNameInput = document.getElementById('cmdName');
-    if (cmdNameInput) cmdNameInput.oninput = () => {
-        cmdNameInput.value = cmdNameInput.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 32);
-    };
-
-    const cmdPrefix = document.getElementById('cmdPrefix');
-    if (cmdPrefix) cmdPrefix.oninput = () => {
-        cmdPrefix.value = cmdPrefix.value.replace(/[a-zA-Z0-9\s]/g, '').slice(0, 1);
-        updateTypeUI();
-    };
-
-    const cmdDuration = document.getElementById('cmdDuration');
-    if (cmdDuration) cmdDuration.oninput = () => {
-        cmdDuration.value = cmdDuration.value.replace(/[^0-9]/g, '');
-    };
-
-    const cmdResponse = document.getElementById('cmdResponse');
-    if (cmdResponse) cmdResponse.oninput = updatePreview;
-
-    const cmdTitle = document.getElementById('cmdTitle');
-    if (cmdTitle) cmdTitle.oninput = updatePreview;
-
-    const cmdColor = document.getElementById('cmdColor');
-    if (cmdColor) cmdColor.oninput = updatePreview;
-
-    const cmdThumbnail = document.getElementById('cmdThumbnail');
-    if (cmdThumbnail) cmdThumbnail.oninput = updatePreview;
-
-    const cmdImage = document.getElementById('cmdImage');
-    if (cmdImage) cmdImage.oninput = updatePreview;
-
-    const moreBtn = document.getElementById('moreBtn');
-    if (moreBtn) moreBtn.onclick = toggleMoreOptions;
-
-    const addEmbedBtn = document.getElementById('addEmbedBtn');
-    if (addEmbedBtn) addEmbedBtn.onclick = () => addEmbedBlock();
-
-    const addButtonBtn = document.getElementById('addButtonBtn');
-    if (addButtonBtn) addButtonBtn.onclick = () => addButtonBlock();
-
-    const permissionsBtn = document.getElementById('permissionsBtn');
-    if (permissionsBtn) permissionsBtn.onclick = togglePermissions;
-
-    const permissionsClose = document.getElementById('permissionsClose');
-    if (permissionsClose) permissionsClose.onclick = closePermissionsBox;
+    setupCommandModal();
 
     const savePermissionsBtn = document.getElementById('savePermissionsBtn');
     if (savePermissionsBtn) savePermissionsBtn.onclick = savePermissions;
@@ -4321,7 +4980,16 @@ function setupEvents() {
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            closeModal();
+            const selPop = document.getElementById('cmSelPop');
+            const varPop = document.getElementById('cmVarPop');
+            const permBox = document.getElementById('permissionsBox');
+            if ((selPop && !selPop.classList.contains('hidden')) || (varPop && !varPop.classList.contains('hidden'))) {
+                cmClosePops();
+            } else if (permBox && !permBox.classList.contains('hidden')) {
+                closePermissionsBox();
+            } else {
+                closeModal();
+            }
         }
     });
 }
