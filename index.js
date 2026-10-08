@@ -1656,6 +1656,10 @@ client.on('messageCreate', async (message) => {
                         fallbackGuild: message.guild
                     });
 
+                    if (!result.ok && result.code === 'protected') {
+                        await replyBlacklistError(message, `**${user.username}** can't be blacklisted - protected role **${result.roleName}** (${result.guildName}).`);
+                        return;
+                    }
                     if (!result.ok && result.code === 'already') {
                         await replyBlacklistError(message, `**${result.entry.userName || user.username}** is already blacklisted. Use \`-bll ${user.id}\` for more information.`);
                         return;
