@@ -756,9 +756,17 @@ header { position: fixed; }
         if (!head) return;
         var card = head.parentNode;
         var id = card.getAttribute('data-id');
-        hxOpen[id] = !hxOpen[id];
-        card.classList.toggle('open', hxOpen[id]);
-        head.setAttribute('aria-expanded', hxOpen[id] ? 'true' : 'false');
+        var willOpen = !hxOpen[id];
+        hxOpen = {};
+        document.querySelectorAll('.hx-dev').forEach(function(c) {
+            c.classList.remove('open');
+            c.querySelector('.hx-dev-head').setAttribute('aria-expanded', 'false');
+        });
+        if (willOpen) {
+            hxOpen[id] = true;
+            card.classList.add('open');
+            head.setAttribute('aria-expanded', 'true');
+        }
     });
     function copyText(text) {
         if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text);
