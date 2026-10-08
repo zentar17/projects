@@ -2783,11 +2783,12 @@ app.get('/api/stats/joinleave/:guildId', requireAuth, async (req, res) => {
         const period = req.query.period || 'tutto';
 
         const now = new Date();
+        const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
         let startTime = new Date(0);
         if (period === 'oggi') {
-            startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            startTime = todayUtc;
         } else if (period === 'ieri') {
-            startTime = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+            startTime = new Date(todayUtc.getTime() - 24 * 60 * 60 * 1000);
         } else if (period === '3giorni') {
             startTime = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
         } else if (period === '7giorni') {
@@ -2798,21 +2799,25 @@ app.get('/api/stats/joinleave/:guildId', requireAuth, async (req, res) => {
             startTime = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         }
         let endTime = now;
-        if (period === 'ieri') endTime = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        if (period === 'ieri') endTime = new Date(todayUtc.getTime() - 1);
 
         const windowed = await db.getJoinLeaveStatsDB(guildId, startTime, endTime);
         const totals = await db.getJoinLeaveTotalsDB(guildId);
 
+        const hourly = period === 'oggi' || period === 'ieri';
         let seriesStart = startTime;
         if (period === 'tutto') {
             seriesStart = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
         }
-        const series = await db.getJoinLeaveSeriesDB(guildId, seriesStart, endTime);
+        const series = await db.getJoinLeaveSeriesDB(guildId, seriesStart, endTime, hourly);
 
         const guild = client ? client.guilds.cache.get(guildId) : null;
 
         res.json({
             period,
+            granularity: hourly ? 'hour' : 'day',
+            rangeStart: seriesStart.toISOString(),
+            rangeEnd: endTime.toISOString(),
             windowed,
             totals,
             series,
