@@ -510,6 +510,8 @@ header { position: fixed; z-index: 1000; }
 .hx-copy:hover, .hx-copy:focus-visible { color: #fff; background: rgba(255,255,255,0.08); box-shadow: 0 0 0 4px rgba(255,255,255,0.08); }
 .hx-copy.copied { color: #4ade80; }
 .hx-copy.copied::after { content: attr(data-msg); position: absolute; left: calc(100% + 12px); top: 50%; transform: translateY(-50%); font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; color: #4ade80; white-space: nowrap; animation: hxFadeUp 0.3s ease; }
+.hx-link { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; color: #fafafa; text-decoration: none; width: fit-content; border-bottom: 1px solid #52525b; transition: border-color 0.2s ease, color 0.2s ease; }
+.hx-link:hover { border-color: #fafafa; }
 </style>
 <link rel="stylesheet" href="/mobile.css?v=1">
 </head>
@@ -636,11 +638,11 @@ header { position: fixed; z-index: 1000; }
     ];
 
     var I18N = {
-        it: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Accedi", auth_logout: "Esci", user_admin_panel: "Pannello Admin", hx_desc: "Siamo un team che aiuta le persone a costruire le proprie idee tramite siti web e bot Discord, trasformando i concetti in prodotti curati e affidabili.", hx_developers: "Sviluppatori", hx_username: "Username", hx_discord_id: "ID Discord", hx_email: "Email", hx_copied: "Copiato!" },
-        en: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Sign In", auth_logout: "Log Out", user_admin_panel: "Admin Panel", hx_desc: "We are a team that helps people build their ideas through websites & Discord bots, turning concepts into polished and reliable products.", hx_developers: "Developers", hx_username: "Username", hx_discord_id: "Discord ID", hx_email: "Email", hx_copied: "Copied!" },
-        de: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Anmelden", auth_logout: "Abmelden", user_admin_panel: "Admin-Panel", hx_desc: "Wir sind ein Team, das Menschen dabei hilft, ihre Ideen durch Websites und Discord-Bots zu verwirklichen und aus Konzepten ausgereifte, zuverlässige Produkte zu machen.", hx_developers: "Entwickler", hx_username: "Benutzername", hx_discord_id: "Discord-ID", hx_email: "E-Mail", hx_copied: "Kopiert!" },
-        es: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Iniciar sesión", auth_logout: "Cerrar sesión", user_admin_panel: "Panel de Administración", hx_desc: "Somos un equipo que ayuda a las personas a construir sus ideas a través de sitios web y bots de Discord, convirtiendo conceptos en productos pulidos y fiables.", hx_developers: "Desarrolladores", hx_username: "Usuario", hx_discord_id: "ID de Discord", hx_email: "Correo", hx_copied: "¡Copiado!" },
-        fr: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Se connecter", auth_logout: "Déconnexion", user_admin_panel: "Panneau Admin", hx_desc: "Nous sommes une équipe qui aide les gens à concrétiser leurs idées grâce à des sites web et des bots Discord, en transformant les concepts en produits soignés et fiables.", hx_developers: "Développeurs", hx_username: "Nom d'utilisateur", hx_discord_id: "ID Discord", hx_email: "E-mail", hx_copied: "Copié !" }
+        it: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Accedi", auth_logout: "Esci", user_admin_panel: "Pannello Admin", hx_desc: "Siamo un team che aiuta le persone a costruire le proprie idee tramite siti web e bot Discord, trasformando i concetti in prodotti curati e affidabili.", hx_developers: "Sviluppatori", hx_username: "Username", hx_discord_id: "ID Discord", hx_email: "Email", hx_twitter: "Twitter", hx_copied: "Copiato!" },
+        en: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Sign In", auth_logout: "Log Out", user_admin_panel: "Admin Panel", hx_desc: "We are a team that helps people build their ideas through websites & Discord bots, turning concepts into polished and reliable products.", hx_developers: "Developers", hx_username: "Username", hx_discord_id: "Discord ID", hx_email: "Email", hx_twitter: "Twitter", hx_copied: "Copied!" },
+        de: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Anmelden", auth_logout: "Abmelden", user_admin_panel: "Admin-Panel", hx_desc: "Wir sind ein Team, das Menschen dabei hilft, ihre Ideen durch Websites und Discord-Bots zu verwirklichen und aus Konzepten ausgereifte, zuverlässige Produkte zu machen.", hx_developers: "Entwickler", hx_username: "Benutzername", hx_discord_id: "Discord-ID", hx_email: "E-Mail", hx_twitter: "Twitter", hx_copied: "Kopiert!" },
+        es: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Iniciar sesión", auth_logout: "Cerrar sesión", user_admin_panel: "Panel de Administración", hx_desc: "Somos un equipo que ayuda a las personas a construir sus ideas a través de sitios web y bots de Discord, convirtiendo conceptos en productos pulidos y fiables.", hx_developers: "Desarrolladores", hx_username: "Usuario", hx_discord_id: "ID de Discord", hx_email: "Correo", hx_twitter: "Twitter", hx_copied: "¡Copiado!" },
+        fr: { nav_home: "Home", nav_masterclass: "Masterclass", nav_videos: "Videos", nav_merch: "Merch", nav_community: "Community", auth_signin: "Se connecter", auth_logout: "Déconnexion", user_admin_panel: "Panneau Admin", hx_desc: "Nous sommes une équipe qui aide les gens à concrétiser leurs idées grâce à des sites web et des bots Discord, en transformant les concepts en produits soignés et fiables.", hx_developers: "Développeurs", hx_username: "Nom d'utilisateur", hx_discord_id: "ID Discord", hx_email: "E-mail", hx_twitter: "Twitter", hx_copied: "Copié !" }
     };
 
     var currentLang = 'en';
@@ -715,10 +717,10 @@ header { position: fixed; z-index: 1000; }
 
 
     var HX_DEVS = [
-        { id: '1346238732495355944', name: 'Zentar', email: 'zentardevv@gmail.com' },
-        { id: '825654941238034462', name: 'Porceddu', email: 'porceddduuu@gmail.com' },
-        { id: '887758994683338772', name: 'Tama', email: '131131@gmail.com' },
-        { id: '1297667554487042130', name: 'Felix', email: '131131@gmail.com' }
+        { id: '1346238732495355944', name: 'Zentar', email: 'zentardevv@gmail.com', twitter: 'zentar17_' },
+        { id: '825654941238034462', name: 'Porceddu', email: 'porceddduuu@gmail.com', twitter: 'Porceddduu' },
+        { id: '887758994683338772', name: 'Tama', email: '131131@gmail.com', twitter: '' },
+        { id: '1297667554487042130', name: 'Felix', email: '131131@gmail.com', twitter: 'felixxzeu' }
     ];
     var hxData = {};
     var hxLoaded = false;
@@ -745,6 +747,7 @@ header { position: fixed; z-index: 1000; }
                     '<div class="hx-row"><span>' + esc(t.hx_username) + '</span><b class="hx-username">' + esc(info.username ? '@' + info.username : '-') + '</b></div>' +
                     '<div class="hx-row"><span>' + esc(t.hx_discord_id) + '</span><b class="hx-copy" data-copy="' + d.id + '" tabindex="0" role="button">' + d.id + '</b></div>' +
                     '<div class="hx-row"><span>' + esc(t.hx_email) + '</span><b class="hx-copy" data-copy="' + esc(d.email) + '" tabindex="0" role="button">' + esc(d.email) + '</b></div>' +
+                    '<div class="hx-row"><span>' + esc(t.hx_twitter) + '</span>' + (d.twitter ? '<a class="hx-link" href="https://x.com/' + esc(d.twitter) + '" target="_blank" rel="noopener noreferrer">@' + esc(d.twitter) + '</a>' : '<b>-</b>') + '</div>' +
                 '</div></div></div>' +
             '</div>';
         }).join('');
