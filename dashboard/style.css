@@ -5248,3 +5248,6 @@ main .mc-ticket-num, main .mc-ticket-claim.claimed, main .modlog-server-badge { 
 }
 
 .site-footer { position: relative; z-index: 1; margin-top: 0; }
+
+.bl-cmd-title { margin-top: 8px; }
+.bl-cmd-server { font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600; color: #fafafa; margin: 22px 0 12px; }
