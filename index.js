@@ -137,11 +137,44 @@ function applyHammertime(text) {
     });
 }
 
+const CMD_UNIT_MS = { minutes: 60 * 1000, hours: 60 * 60 * 1000, days: 24 * 60 * 60 * 1000 };
+const CMD_UNIT_WORD = { minutes: 'minute', hours: 'hour', days: 'day' };
+
+function getCmdDurationMs(cmdData) {
+    if (!cmdData || cmdData.durationUnit === 'perm') return null;
+    const n = parseInt(cmdData.duration, 10);
+    if (isNaN(n) || n < 1) return null;
+    return n * (CMD_UNIT_MS[cmdData.durationUnit] || CMD_UNIT_MS.days);
+}
+
+function formatCmdDuration(cmdData) {
+    const n = parseInt(cmdData.duration, 10);
+    const unit = CMD_UNIT_WORD[cmdData.durationUnit] || 'day';
+    return `${n} ${unit}${n === 1 ? '' : 's'}`;
+}
+
+function isCommandBlockedInChannel(cmdData, channel) {
+    const blocked = cmdData && cmdData.blockedChannels;
+    if (!Array.isArray(blocked) || !blocked.length || !channel) return false;
+    if (blocked.includes(channel.id)) return true;
+    if (channel.parentId && blocked.includes(channel.parentId)) return true;
+    if (typeof channel.isThread === 'function' && channel.isThread() && channel.parent && channel.parent.parentId && blocked.includes(channel.parent.parentId)) return true;
+    return false;
+}
+
+function formatCmdDate() {
+    return new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+}
+
 async function substituteAll(text, message, mdTarget, args) {
     if (!text) return '';
     let result = text;
     result = result.replace(/{user}/g, message.author.toString());
     result = result.replace(/{username}/g, message.author.username);
+    result = result.replace(/{userid}/g, message.author.id);
+    result = result.replace(/{target}/g, mdTarget ? mdTarget.toString() : message.author.toString());
+    result = result.replace(/{channel}/g, message.channel.toString());
+    result = result.replace(/{date}/g, formatCmdDate());
     result = result.replace(/{server}/g, message.guild.name);
     result = result.replace(/{membercount}/g, message.guild.memberCount);
     result = result.replace(/{args}/g, args.join(' '));
@@ -1345,6 +1378,8 @@ client.on('messageCreate', async (message) => {
             const cmdPrefix = cmdData.prefix || '*';
 
             if (cmdPrefix === firstChar) {
+                if (cmdData.enabled === false) return;
+                if (isCommandBlockedInChannel(cmdData, message.channel)) return;
                 const hasPermission = checkCustomCommandPermission(cmdData, message.member);
                 if (hasPermission) {
                     const cooldown = await db.getCommandCooldownDB(message.author.id, message.guild.id, `custom_${command}`);
@@ -2519,9 +2554,152 @@ async function checkExpiredTempRolesAllGuilds() {
 
 setInterval(checkExpiredTempRolesAllGuilds, 3600000);
 
+async function handleRoleCommand(message, command, args, cmdData) {
+    const prefix = cmdData.prefix || '*';
+    const finish = async () => {
+        if (cmdData.deleteCommand !== false) await message.delete().catch(() => {});
+    };
+    const fail = async (text) => {
+        const embed = new EmbedBuilder().setDescription(text).setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
+        await message.channel.send({ embeds: [embed] });
+        await finish();
+    };
+
+    const input = args[0];
+    if (!input) return fail(`Usage: \`${prefix}${command} @user\``);
+
+    const result = await getUserFromInput(message.guild, input);
+    if (!result || !result.user) return fail('User not found.');
+    const user = result.user;
+    const member = result.member;
+    if (!member) return fail('This user is not in the server.');
+    if (await projectedRoleBlock(message, member)) return;
+
+    const roleId = cmdData.targetRoleId;
+    const role = roleId ? (message.guild.roles.cache.get(roleId) || await message.guild.roles.fetch(roleId).catch(() => null)) : null;
+    if (!role) return fail('The target role no longer exists.');
+    if (!role.editable) return fail('I cannot manage this role.');
+
+    const action = cmdData.roleAction;
+    const has = member.roles.cache.has(role.id);
+    const warnVariant = action === 'remove_warn' || action === 'remove_mute';
+
+    let reason = null;
+    if (warnVariant) {
+        reason = args.slice(1).join(' ');
+        if (!reason) {
+            reason = (cmdData.response || 'No reason provided')
+                .replace(/{user}/g, user.toString())
+                .replace(/{username}/g, user.username)
+                .replace(/{server}/g, message.guild.name)
+                .replace(/{membercount}/g, message.guild.memberCount)
+                .replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+            reason = applyPositionalArgs(reason, args);
+        } else {
+            reason = reason.replace(/{md}/g, await formatModerationHistory(user.id, message.guild.id, user.username, 1));
+        }
+        reason = applyHammertime(reason);
+    }
+
+    const done = async (text, logAction, extra = null) => {
+        const embed = new EmbedBuilder().setDescription(text).setColor(BLACK);
+        await message.channel.send({ embeds: [embed] });
+        await db.saveDashboardLogDB(message.guild.id, {
+            type: 'moderation',
+            action: logAction,
+            userId: message.author.id,
+            userTag: message.author.tag,
+            targetId: user.id,
+            targetTag: user.tag,
+            moderatorId: message.author.id,
+            moderatorTag: message.author.tag,
+            reason: reason || undefined,
+            details: `Custom command: ${prefix}${command} (${role.name})${extra ? ` ${extra}` : ''}`,
+            channelId: message.channel.id
+        }).catch(() => {});
+        await finish();
+    };
+
+    const label = `**${user.username}** (${user.id})`;
+
+    try {
+        if (action === 'add') {
+            if (has) return fail(`${label} already has **${role.name}**.`);
+            await member.roles.add(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            return done(`Added **${role.name}** to ${label}`, 'role_added');
+        }
+
+        if (action === 'remove') {
+            if (!has) return fail(`${label} does not have **${role.name}**.`);
+            await member.roles.remove(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            await db.removePendingRoleRemoval(message.guild.id, user.id, role.id).catch(() => {});
+            return done(`Removed **${role.name}** from ${label}`, 'role_removed');
+        }
+
+        if (action === 'toggle') {
+            if (has) {
+                await member.roles.remove(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+                await db.removePendingRoleRemoval(message.guild.id, user.id, role.id).catch(() => {});
+                return done(`Removed **${role.name}** from ${label}`, 'role_removed');
+            }
+            await member.roles.add(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            return done(`Added **${role.name}** to ${label}`, 'role_added');
+        }
+
+        if (action === 'temp') {
+            const ms = getCmdDurationMs(cmdData);
+            if (!ms) return fail('This command has no valid duration.');
+            if (!has) await member.roles.add(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            await db.upsertPendingRoleRemoval({
+                guildId: message.guild.id,
+                userId: user.id,
+                roleId: role.id,
+                moderatorId: message.author.id,
+                expiresAt: new Date(Date.now() + ms)
+            });
+            const text = formatCmdDuration(cmdData);
+            return done(`Added **${role.name}** to ${label} for **${text}**`, 'role_added', `(${text})`);
+        }
+
+        if (action === 'remove_warn') {
+            if (has) await member.roles.remove(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            await db.removePendingRoleRemoval(message.guild.id, user.id, role.id).catch(() => {});
+            await addWarning(message.guild, user, message.author, reason);
+            await sendActionDM(user, 'warned', reason, { tag: message.author.tag, guild: message.guild });
+            await saveModLog(message.guild, 'User warned', user, message.author, reason);
+            return done(`Removed **${role.name}** from ${label} and warned them for the reason **${reason}**`, 'role_removed');
+        }
+
+        if (action === 'remove_mute') {
+            const maxMuteMs = 28 * 24 * 60 * 60 * 1000;
+            const configured = getCmdDurationMs(cmdData);
+            if (!configured) return fail('This command has no valid duration.');
+            const ms = Math.min(configured, maxMuteMs);
+            const text = configured > maxMuteMs ? '28 days' : formatCmdDuration(cmdData);
+            if (!member.moderatable) return fail('I cannot mute this user.');
+            if (has) await member.roles.remove(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
+            await db.removePendingRoleRemoval(message.guild.id, user.id, role.id).catch(() => {});
+            await member.timeout(ms, reason);
+            await sendActionDM(user, 'muted', reason, { tag: message.author.tag, guild: message.guild }, text);
+            await saveModLog(message.guild, 'User muted', user, message.author, reason, text);
+            return done(`Removed **${role.name}** from ${label} and muted them for **${text}** for the reason **${reason}**`, 'role_removed', `(${text})`);
+        }
+
+        return fail('This command is not configured correctly.');
+    } catch (err) {
+        await message.channel.send({ embeds: [new EmbedBuilder().setDescription('Error while changing the role: ' + err.message).setColor(COLORS.ERROR)] }).catch(() => {});
+        await finish();
+    }
+}
+
 async function handleCustomCommand(message, command, args, cmdData) {
     const cmdType = cmdData.type || 'text';
     const cmdThumbnail = cmdData.thumbnail && isValidUrl(cmdData.thumbnail) ? cmdData.thumbnail : null;
+
+    if (cmdType === 'role') {
+        await handleRoleCommand(message, command, args, cmdData);
+        return;
+    }
 
     if (cmdType === 'ban') {
         const input = args[0];
@@ -2556,8 +2734,9 @@ async function handleCustomCommand(message, command, args, cmdData) {
         }
         reason = applyHammertime(reason);
 
-        const durationDays = cmdData.duration ? parseInt(cmdData.duration) : null;
-        const isTemporary = durationDays && durationDays > 0;
+        const banDurationMs = getCmdDurationMs(cmdData);
+        const isTemporary = !!banDurationMs;
+        const banDurationText = isTemporary ? formatCmdDuration(cmdData) : null;
 
         try {
             if (member) {
@@ -2575,7 +2754,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
             }
 
             if (isTemporary) {
-                const expiresAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+                const expiresAt = new Date(Date.now() + banDurationMs);
                 await db.addPendingBan({
                     guildId: message.guild.id,
                     userId: user.id,
@@ -2592,7 +2771,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
                 .setDescription(`**${user.username}** (${user.id}) has been banned for the reason **${reason}**`)
                 .setColor(BLACK);
             await message.channel.send({ embeds: [embed] });
-            await saveModLog(message.guild, 'User banned', { id: user.id, tag: user.tag }, message.author, reason, isTemporary ? `${durationDays} days` : null);
+            await saveModLog(message.guild, 'User banned', { id: user.id, tag: user.tag }, message.author, reason, banDurationText);
 
             await db.saveDashboardLogDB(message.guild.id, {
                 type: 'moderation',
@@ -2604,13 +2783,13 @@ async function handleCustomCommand(message, command, args, cmdData) {
                 moderatorId: message.author.id,
                 moderatorTag: message.author.tag,
                 reason: reason,
-                details: `Custom command: ${cmdData.prefix || '*'}${command}${isTemporary ? ` (${durationDays} days)` : ''}`,
+                details: `Custom command: ${cmdData.prefix || '*'}${command}${isTemporary ? ` (${banDurationText})` : ''}`,
                 channelId: message.channel.id
             });
         } catch (err) {
             await message.channel.send({ embeds: [new EmbedBuilder().setDescription('Error during ban: ' + err.message).setColor(COLORS.ERROR)] });
         }
-        await message.delete().catch(() => {});
+        if (cmdData.deleteCommand !== false) await message.delete().catch(() => {});
         return;
     }
 
@@ -2677,7 +2856,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
         } catch (err) {
             await message.channel.send({ embeds: [new EmbedBuilder().setDescription('Error during kick.').setColor(COLORS.ERROR)] });
         }
-        await message.delete().catch(() => {});
+        if (cmdData.deleteCommand !== false) await message.delete().catch(() => {});
         return;
     }
 
@@ -2700,12 +2879,14 @@ async function handleCustomCommand(message, command, args, cmdData) {
         const member = result.member;
         if (await projectedRoleBlock(message, member)) return;
 
-        let durationDays = cmdData.duration ? parseInt(cmdData.duration) : 28;
-        if (isNaN(durationDays) || durationDays < 1) durationDays = 28;
-        if (durationDays > 28) durationDays = 28;
-
-        let durationMs = durationDays * 24 * 60 * 60 * 1000;
-        let durationText = `${durationDays} day${durationDays === 1 ? '' : 's'}`;
+        const maxMuteMs = 28 * 24 * 60 * 60 * 1000;
+        const configuredMuteMs = getCmdDurationMs(cmdData);
+        let durationMs = configuredMuteMs || maxMuteMs;
+        let durationText = configuredMuteMs ? formatCmdDuration(cmdData) : '28 days';
+        if (durationMs > maxMuteMs) {
+            durationMs = maxMuteMs;
+            durationText = '28 days';
+        }
         let reasonArgs = args.slice(1);
         if (args.length > 1) {
             const lastDuration = parseMuteDuration(args[args.length - 1]);
@@ -2768,7 +2949,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
         } catch (err) {
             await message.channel.send({ embeds: [new EmbedBuilder().setDescription('Error during mute.').setColor(COLORS.ERROR)] });
         }
-        await message.delete().catch(() => {});
+        if (cmdData.deleteCommand !== false) await message.delete().catch(() => {});
         return;
     }
 
@@ -2829,7 +3010,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
         } catch (err) {
             await message.channel.send({ embeds: [new EmbedBuilder().setDescription('Error during warn.').setColor(COLORS.ERROR)] });
         }
-        await message.delete().catch(() => {});
+        if (cmdData.deleteCommand !== false) await message.delete().catch(() => {});
         return;
     }
 
@@ -3921,6 +4102,34 @@ setInterval(async () => {
         }
     } catch (error) {
         logCrash('AUTO_UNBAN_SCHEDULER', error);
+    }
+}, 60000);
+
+setInterval(async () => {
+    try {
+        const expired = await db.getExpiredRoleRemovals();
+        for (const item of expired) {
+            try {
+                const guild = client.guilds.cache.get(item.guildId);
+                if (!guild) {
+                    await db.removePendingRoleRemoval(item.guildId, item.userId, item.roleId).catch(() => {});
+                    continue;
+                }
+                const member = await guild.members.fetch(item.userId);
+                if (member.roles.cache.has(item.roleId)) {
+                    await member.roles.remove(item.roleId, 'Temporary role expired');
+                }
+                await db.removePendingRoleRemoval(item.guildId, item.userId, item.roleId).catch(() => {});
+            } catch (err) {
+                if (err.code === 10007 || err.code === 10011 || err.code === 50013) {
+                    await db.removePendingRoleRemoval(item.guildId, item.userId, item.roleId).catch(() => {});
+                } else {
+                    console.error(`[TEMP-ROLE] Error on ${item.userId}:`, err.message);
+                }
+            }
+        }
+    } catch (error) {
+        logCrash('TEMP_ROLE_SCHEDULER', error);
     }
 }, 60000);
 
