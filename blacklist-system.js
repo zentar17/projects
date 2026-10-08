@@ -33,6 +33,7 @@ function createBlacklistSystem({ client, db, logCrash }) {
     let currentSweep = null;
     let abortRequested = false;
     let pendingRestart = false;
+    let sweepScope = null;
     let locks = 0;
     let timer = null;
     let firstTimer = null;
@@ -282,10 +283,11 @@ function createBlacklistSystem({ client, db, logCrash }) {
         });
     }
 
-    async function sweepOnce() {
+    async function sweepOnce(scope) {
         const settings = await getSettings();
         const guilds = [];
         for (const id of settings.banGuildIds || []) {
+            if (scope && !scope.includes(id)) continue;
             const g = client.guilds.cache.get(id);
             if (g) guilds.push(g);
         }
@@ -336,18 +338,30 @@ function createBlacklistSystem({ client, db, logCrash }) {
 
         for (const s of state.values()) {
             const servers = [...s.servers];
+            const kept = (s.entry.errors || []).filter(e => !guilds.some(g => e.startsWith(g.name + ' - ')));
+            const errors = kept.concat(s.errors);
             const before = [...(s.entry.bannedServers || [])].sort().join(',');
             const beforeErr = (s.entry.errors || []).join('|');
-            if (before !== servers.slice().sort().join(',') || beforeErr !== s.errors.join('|')) {
-                await db.setBlacklistEntryResultDB(s.entry.userId, servers, s.errors);
+            if (before !== servers.slice().sort().join(',') || beforeErr !== errors.join('|')) {
+                await db.setBlacklistEntryResultDB(s.entry.userId, servers, errors);
             }
         }
 
-        await db.saveBlacklistSweepResultDB(summary);
+        if (!scope) await db.saveBlacklistSweepResultDB(summary);
         return { done: true, summary };
     }
 
-    function runSweep() {
+    function mergeScope(scope) {
+        if (running || pendingRestart) {
+            if (scope && sweepScope) sweepScope = [...new Set([...sweepScope, ...scope])];
+            else sweepScope = null;
+        } else {
+            sweepScope = scope || null;
+        }
+    }
+
+    function runSweep(scope) {
+        mergeScope(scope);
         if (running || locks > 0) {
             pendingRestart = true;
             return currentSweep;
@@ -357,9 +371,10 @@ function createBlacklistSystem({ client, db, logCrash }) {
             try {
                 do {
                     pendingRestart = false;
+                    const scopeNow = sweepScope;
                     let res;
                     try {
-                        res = await sweepOnce();
+                        res = await sweepOnce(scopeNow);
                     } catch (e) {
                         log('BLACKLIST_SWEEP', e);
                         res = { error: true };
