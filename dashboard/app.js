@@ -3663,10 +3663,9 @@ let blacklistCommandGuilds = [];
 async function renderBlacklistCommandRoles(settings) {
     const host = document.getElementById('blacklistCommandRoles');
     if (!host) return;
-    const guilds = settings.guilds || [];
+    const guilds = (settings.guilds || []).filter(g => g.id === currentGuild);
     blacklistCommandGuilds = guilds.map(g => g.id);
     host.innerHTML = guilds.map(g => `
-        <h3 class="bl-cmd-server">${escapeHtml(g.name)}</h3>
         <div class="permissions-grid">
             <div class="permission-card">
                 <h3>Blacklist &amp; Unblacklist &amp; Reason Command</h3>
@@ -3677,6 +3676,11 @@ async function renderBlacklistCommandRoles(settings) {
                 <h3>Bll Command</h3>
                 <p class="permission-desc">Roles that can use -bll</p>
                 <div id="blCmdView_${escapeAttr(g.id)}" class="roles-list"><p class="loading-text">Loading...</p></div>
+            </div>
+            <div class="permission-card">
+                <h3>Protected Roles</h3>
+                <p class="permission-desc">Users with these roles can't be blacklisted</p>
+                <div id="blCmdProtected_${escapeAttr(g.id)}" class="roles-list"><p class="loading-text">Loading...</p></div>
             </div>
         </div>`).join('');
 
@@ -3689,6 +3693,7 @@ async function renderBlacklistCommandRoles(settings) {
         const cfg = (settings.commandRoles || {})[g.id] || {};
         renderPermissionsList(`blCmdManage_${g.id}`, roles, cfg.manage || []);
         renderPermissionsList(`blCmdView_${g.id}`, roles, cfg.view || []);
+        renderPermissionsList(`blCmdProtected_${g.id}`, roles, cfg.protected || []);
     }));
 }
 
@@ -3697,7 +3702,8 @@ function collectBlacklistCommandRoles() {
     blacklistCommandGuilds.forEach(gid => {
         out[gid] = {
             manage: getCheckedIds(`blCmdManage_${gid}`),
-            view: getCheckedIds(`blCmdView_${gid}`)
+            view: getCheckedIds(`blCmdView_${gid}`),
+            protected: getCheckedIds(`blCmdProtected_${gid}`)
         };
     });
     return out;
