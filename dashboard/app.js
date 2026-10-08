@@ -3645,6 +3645,8 @@ async function loadBlacklistSettings() {
         await renderBlacklistCommandRoles(settings);
 
         box.classList.remove('hidden');
+        const syncBtn = document.getElementById('blacklistSyncBtn');
+        if (syncBtn) syncBtn.classList.toggle('hidden', !settings.canEdit);
         if (settings.canEdit) {
             saveBtn.classList.remove('hidden');
         } else {
@@ -3655,7 +3657,68 @@ async function loadBlacklistSettings() {
     } catch (e) {
         box.classList.add('hidden');
         saveBtn.classList.add('hidden');
+        const syncBtnErr = document.getElementById('blacklistSyncBtn');
+        if (syncBtnErr) syncBtnErr.classList.add('hidden');
     }
+}
+
+let blacklistSyncPoll = null;
+
+function setBlacklistSyncRunning(running) {
+    const btn = document.getElementById('blacklistSyncBtn');
+    if (!btn) return;
+    btn.disabled = running;
+    btn.textContent = running ? 'Syncing...' : 'Sync Blacklist';
+}
+
+function pollBlacklistSync() {
+    if (blacklistSyncPoll) clearTimeout(blacklistSyncPoll);
+    blacklistSyncPoll = setTimeout(async () => {
+        try {
+            const res = await fetch(`/api/blacklist/sync-status?guildId=${encodeURIComponent(currentGuild)}`);
+            const data = res.ok ? await res.json() : { running: false };
+            if (data.running) {
+                pollBlacklistSync();
+            } else {
+                blacklistSyncPoll = null;
+                setBlacklistSyncRunning(false);
+                showToast('Blacklist sync completed');
+                loadBlacklist();
+            }
+        } catch (e) {
+            blacklistSyncPoll = null;
+            setBlacklistSyncRunning(false);
+        }
+    }, 3000);
+}
+
+function startBlacklistSync() {
+    if (!isOwner()) return;
+    showConfirmDialog(
+        'Sync Blacklist',
+        'The bot will check every Ban Server and ban all blacklisted users who are not banned yet. Continue?',
+        async () => {
+            setBlacklistSyncRunning(true);
+            try {
+                const res = await fetch('/api/blacklist/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ guildId: currentGuild })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    setBlacklistSyncRunning(false);
+                    showToast(data.error || 'Sync failed', 'error');
+                    return;
+                }
+                showToast(data.started ? 'Blacklist sync started' : 'Sync already running');
+                pollBlacklistSync();
+            } catch (e) {
+                setBlacklistSyncRunning(false);
+                showToast('Connection error', 'error');
+            }
+        }
+    );
 }
 
 let blacklistCommandGuilds = [];
@@ -3782,7 +3845,6 @@ function renderBlacklist(entries) {
                     <div><b>Servers:</b> ${servers}</div>
                     <div class="modlog-actions">
                         <button type="button" class="modlog-action-btn change-reason" data-action="change-reason">Change Reason</button>
-                        <button type="button" class="modlog-action-btn" data-action="unblacklist">Unblacklist</button>
                     </div>
                 </div>
             </div>
@@ -3795,27 +3857,6 @@ function renderBlacklist(entries) {
         });
 
         const targetId = card.getAttribute('data-target-id');
-
-        const unblBtn = card.querySelector('[data-action="unblacklist"]');
-        if (unblBtn) {
-            unblBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                showConfirmDialog('Unblacklist', 'Remove this user from the blacklist and unban them from the configured servers?', () => {
-                    fetch('/api/blacklist-action', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'unblacklist', userId: targetId, guildId: currentGuild })
-                    }).then(async (res) => {
-                        if (!res.ok) {
-                            const err = await res.json().catch(() => ({}));
-                            throw new Error(err.error || 'Error');
-                        }
-                        showToast('User unblacklisted');
-                        loadBlacklist();
-                    }).catch((err) => showToast(err.message, 'error'));
-                });
-            });
-        }
 
         const reasonBtn = card.querySelector('[data-action="change-reason"]');
         if (reasonBtn) {
@@ -4827,6 +4868,8 @@ function setupEvents() {
 
     const saveBlacklistSettingsBtn = document.getElementById('saveBlacklistSettingsBtn');
     if (saveBlacklistSettingsBtn) saveBlacklistSettingsBtn.onclick = saveBlacklistSettings;
+    const blacklistSyncBtn = document.getElementById('blacklistSyncBtn');
+    if (blacklistSyncBtn) blacklistSyncBtn.onclick = startBlacklistSync;
 
 
     const newCmdBtn = document.getElementById('newCmdBtn');
