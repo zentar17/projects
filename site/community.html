@@ -785,7 +785,8 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
 .footer-bottom-legal a:hover { color: var(--text); }
 .footer-bottom-divider { opacity: 0.4; }
 .footer-disclaimer { opacity: 0.65; font-size: 11.5px; margin-left: 10px; }
-.footer-dev { color: var(--text-dim); text-decoration: none; font-size: 12px; transition: color 0.2s ease; }
+.footer-dev { display: inline-flex; align-items: center; gap: 8px; color: var(--text-dim); text-decoration: none; font-size: 12px; transition: color 0.2s ease; }
+.footer-dev-logo { width: 20px; height: 20px; flex-shrink: 0; display: block; }
 .footer-dev b { font-weight: 700; color: var(--text); }
 .footer-dev:hover b { text-decoration: underline; }
 
@@ -1018,7 +1019,7 @@ header img.brand-logo { width: 44px; height: 44px; object-fit: contain; }
             </div>
             <span class="footer-disclaimer" data-i18n="footer_disclaimer">Not affiliated with or endorsed by Epic Games, Inc., Twitch Interactive, Inc., or Discord Inc.</span>
         </div>
-        <a class="footer-dev" href="/hexora"><span data-i18n="footer_dev">Developed by</span> <b>@HexoraCompany</b></a>
+        <a class="footer-dev" href="/hexora"><span class="footer-dev-text"><span data-i18n="footer_dev">Developed by</span> <b>@HexoraCompany</b></span><svg class="footer-dev-logo" viewBox="0 0 64 64" fill="none" aria-hidden="true"><defs><linearGradient id="hxfg" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fafafa"/><stop offset="1" stop-color="#71717a"/></linearGradient></defs><path d="M32 4l24 14v28L32 60 8 46V18z" stroke="url(#hxfg)" stroke-width="4" stroke-linejoin="round"/><path d="M23 22v20M41 22v20M23 32h18" stroke="url(#hxfg)" stroke-width="5" stroke-linecap="round"/></svg></a>
     </div>
 </footer>
 
