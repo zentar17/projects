@@ -111,6 +111,16 @@ function createBlacklistSystem({ client, db, logCrash }) {
         }
     }
 
+    async function getMemberAccess(member, isAdmin) {
+        if (isAdmin) return { manage: true, view: true };
+        if (!member || !member.guild) return { manage: false, view: false };
+        const settings = await getSettings();
+        const cfg = (settings.commandRoles || {})[member.guild.id] || {};
+        const has = (ids) => Array.isArray(ids) && ids.some(r => member.roles.cache.has(r));
+        const manage = has(cfg.manage);
+        return { manage, view: manage || has(cfg.view) };
+    }
+
     function hasBanPerms(guild) {
         const me = guild.members.me;
         return !!(me && me.permissions.has(PermissionsBitField.Flags.BanMembers));
@@ -358,6 +368,7 @@ function createBlacklistSystem({ client, db, logCrash }) {
     return {
         BAN_REASON,
         getTargetGuilds,
+        getMemberAccess,
         blacklistUser,
         unblacklistUser,
         changeReason,
