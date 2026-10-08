@@ -454,7 +454,9 @@ header img {
 .hx-dev:hover { background: #111113; }
 .hx-dev.open { border-color: #3f3f46; background: #111113; }
 .hx-dev-head { width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: none; border: none; color: var(--text); font-family: inherit; cursor: pointer; text-align: left; }
-.hx-dev-pfp { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #18181b; flex-shrink: 0; }
+.hx-dev-pfp { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #18181b; flex-shrink: 0; opacity: 1; transition: opacity 0.4s ease, box-shadow 0.3s ease; }
+.hx-dev-pfp.loading { opacity: 0.35; background: linear-gradient(100deg, #18181b 30%, #27272a 50%, #18181b 70%); background-size: 200% 100%; animation: hxSkel 1.2s linear infinite; }
+@keyframes hxSkel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 .hx-dev-name { flex: 1; font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600; }
 .hx-dev-chev { width: 20px; height: 20px; color: var(--text-dim); transition: transform 0.25s ease; flex-shrink: 0; }
 .hx-dev.open .hx-dev-chev { transform: rotate(180deg); }
@@ -495,7 +497,7 @@ header { position: fixed; z-index: 1000; }
 .hx-dev:hover { border-color: #52525b; box-shadow: 0 0 28px rgba(255,255,255,0.06); transform: translateY(-2px); }
 .hx-dev.open { border-color: #71717a; box-shadow: 0 0 32px rgba(255,255,255,0.08); }
 .hx-dev { transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease; }
-.hx-dev-pfp { box-shadow: 0 0 0 2px #27272a; transition: box-shadow 0.3s ease; }
+.hx-dev-pfp { box-shadow: 0 0 0 2px #27272a; transition: box-shadow 0.3s ease, opacity 0.4s ease; }
 .hx-dev:hover .hx-dev-pfp, .hx-dev.open .hx-dev-pfp { box-shadow: 0 0 0 2px #fafafa, 0 0 14px rgba(255,255,255,0.45); }
 .hx-dev.open .hx-dev-chev { color: #fafafa; }
 .hx-dev-body-inner { opacity: 0; transition: opacity 0.35s ease 0.08s; }
@@ -719,6 +721,8 @@ header { position: fixed; z-index: 1000; }
         { id: '1297667554487042130', name: 'Felix', email: '131131@gmail.com' }
     ];
     var hxData = {};
+    var hxLoaded = false;
+    try { var hxCached = JSON.parse(localStorage.getItem('hxTeamV1') || '[]'); (hxCached || []).forEach(function(u) { if (u && u.id) hxData[u.id] = u; }); } catch (e) {}
     var hxOpen = {};
     var CHEV = '<svg class="hx-dev-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>';
     function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -734,21 +738,39 @@ header { position: fixed; z-index: 1000; }
             var open = !!hxOpen[d.id];
             return '<div class="hx-dev' + (open ? ' open' : '') + '" data-id="' + d.id + '">' +
                 '<button class="hx-dev-head" type="button" aria-expanded="' + open + '">' +
-                    '<img class="hx-dev-pfp" src="' + esc(info.avatar || defaultAvatar(d.id)) + '" alt="" data-fallback="' + esc(defaultAvatar(d.id)) + '">' +
+                    '<img class="hx-dev-pfp' + (info.avatar ? '' : ' loading') + '"' + (info.avatar ? ' src="' + esc(info.avatar) + '"' : '') + ' alt="" data-fallback="' + esc(defaultAvatar(d.id)) + '">' +
                     '<span class="hx-dev-name">' + esc(d.name) + '</span>' + CHEV +
                 '</button>' +
                 '<div class="hx-dev-body"><div class="hx-dev-body-inner"><div class="hx-dev-info">' +
-                    '<div class="hx-row"><span>' + esc(t.hx_username) + '</span><b>' + esc(info.username ? '@' + info.username : '-') + '</b></div>' +
+                    '<div class="hx-row"><span>' + esc(t.hx_username) + '</span><b class="hx-username">' + esc(info.username ? '@' + info.username : '-') + '</b></div>' +
                     '<div class="hx-row"><span>' + esc(t.hx_discord_id) + '</span><b class="hx-copy" data-copy="' + d.id + '" tabindex="0" role="button">' + d.id + '</b></div>' +
                     '<div class="hx-row"><span>' + esc(t.hx_email) + '</span><b class="hx-copy" data-copy="' + esc(d.email) + '" tabindex="0" role="button">' + esc(d.email) + '</b></div>' +
                 '</div></div></div>' +
             '</div>';
         }).join('');
-        document.querySelectorAll('.hx-dev-pfp').forEach(function(img) {
-            img.addEventListener('error', function() {
-                var fb = img.getAttribute('data-fallback');
-                if (fb && img.src !== fb) img.src = fb;
-            });
+        document.querySelectorAll('.hx-dev-pfp').forEach(bindPfp);
+    }
+    function bindPfp(img) {
+        function ready() { img.classList.remove('loading'); img.classList.add('ready'); }
+        if (img.complete && img.getAttribute('src')) ready();
+        img.addEventListener('load', function() { if (img.getAttribute('src')) ready(); });
+        img.addEventListener('error', function() {
+            var fb = img.getAttribute('data-fallback');
+            if (fb && img.getAttribute('src') !== fb) img.src = fb;
+            else ready();
+        });
+    }
+    function applyTeam(list, final) {
+        (list || []).forEach(function(u) { if (u && u.id) hxData[u.id] = u; });
+        HX_DEVS.forEach(function(d) {
+            var card = document.querySelector('.hx-dev[data-id="' + d.id + '"]');
+            if (!card) return;
+            var info = hxData[d.id] || {};
+            var img = card.querySelector('.hx-dev-pfp');
+            var want = info.avatar || (final ? defaultAvatar(d.id) : '');
+            if (want && img.getAttribute('src') !== want) img.src = want;
+            var un = card.querySelector('.hx-username');
+            if (un) un.textContent = info.username ? '@' + info.username : '-';
         });
     }
     document.getElementById('hxList').addEventListener('click', function(e) {
@@ -800,10 +822,14 @@ header { position: fixed; z-index: 1000; }
         var c = e.target.closest('.hx-copy');
         if (c) { e.preventDefault(); handleCopy(c); }
     });
-    fetch('/api/site/hexora-team').then(function(r) { return r.json(); }).then(function(list) {
-        (list || []).forEach(function(u) { hxData[u.id] = u; });
-        renderDevs();
-    }).catch(function() {});
+    fetch('/api/site/hexora-team', { cache: 'no-store' }).then(function(r) { return r.json(); }).then(function(list) {
+        hxLoaded = true;
+        applyTeam(list, true);
+        try { if (list && list.some(function(u) { return u.avatar; })) localStorage.setItem('hxTeamV1', JSON.stringify(list.filter(function(u) { return u.avatar; }))); } catch (e) {}
+    }).catch(function() {
+        hxLoaded = true;
+        applyTeam([], true);
+    });
 
     renderLangUI();
     applyStaticTranslations();
