@@ -1507,7 +1507,7 @@ async function loadMcTickets() {
                         ${claimChip}
                         ${deleteInfo}
                     </div>
-                    <div class="mc-ticket-user">${escapeHtml(t.userName || t.userId)} · ${escapeHtml(t.email || '')}</div>
+                    <div class="mc-ticket-user">${escapeHtml(t.userName || t.userId)}${t.email ? ' · ' + escapeHtml(t.email) : ''}</div>
                 </div>
                 <div class="mc-ticket-time">${escapeHtml(timeAgo(t.lastMessageAt || t.createdAt))}</div>
             </a>`;
