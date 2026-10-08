@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField, Events, ModalBuilder, LabelBuilder, TextInputBuilder, TextInputStyle, RadioGroupBuilder, RadioGroupOptionBuilder, UserSelectMenuBuilder, SlashCommandBuilder, REST, Routes } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField, Events, ModalBuilder, LabelBuilder, TextInputBuilder, TextInputStyle, RadioGroupBuilder, RadioGroupOptionBuilder, UserSelectMenuBuilder, SlashCommandBuilder, REST, Routes } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const db = require('./db');
@@ -64,7 +64,8 @@ const client = new Client({
         GatewayIntentBits.GuildModeration,
         GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.DirectMessages
-    ]
+    ],
+    partials: [Partials.Message]
 });
 
 const roleSync = createRoleSync({ client, db, botClients, logCrash });
@@ -1173,12 +1174,127 @@ client.once('clientReady', async () => {
     }
 });
 
+function resolveLogChannel(channelId) {
+    if (!channelId) return null;
+    return botClients.getLogsClient(client).channels.cache.get(channelId) || client.channels.cache.get(channelId) || null;
+}
+
+function cutText(value, max) {
+    const text = String(value || '');
+    return text.length > max ? text.slice(0, max - 3) + '...' : text;
+}
+
+client.on('messageDelete', async (message) => {
+    try {
+        if (!message.guild) return;
+        if (message.author && message.author.bot) return;
+        const config = await getGuildConfig(message.guild.id);
+        if (!config.messageLogChannelId || message.channelId === config.messageLogChannelId) return;
+        const logChannel = resolveLogChannel(config.messageLogChannelId);
+        if (!logChannel) return;
+
+        const embed = new EmbedBuilder()
+            .setTitle('Message Deleted')
+            .setColor(RED)
+            .addFields(
+                { name: 'Channel', value: `<#${message.channelId}>`, inline: true },
+                { name: 'Author', value: message.author ? `${message.author.toString()} (${message.author.id})` : 'Unknown', inline: true },
+                { name: 'Message ID', value: message.id, inline: true },
+                { name: 'Content', value: message.content ? cutText(message.content, 1024) : (message.partial ? '*Content unavailable (message was not cached)*' : '*No text content*'), inline: false }
+            )
+            .setTimestamp();
+        if (message.author) embed.setThumbnail(message.author.displayAvatarURL({ dynamic: true }));
+        const attachments = message.attachments ? [...message.attachments.values()] : [];
+        if (attachments.length) {
+            embed.addFields({ name: 'Attachments', value: cutText(attachments.map(a => a.name || a.url).join('\n'), 1024), inline: false });
+        }
+        await logChannel.send({ embeds: [embed] }).catch(() => {});
+    } catch (error) {
+        logCrash('MESSAGE_DELETE_LOG', error, { messageId: message?.id });
+    }
+});
+
+client.on('messageDeleteBulk', async (messages, channel) => {
+    try {
+        if (!channel || !channel.guild) return;
+        const config = await getGuildConfig(channel.guild.id);
+        if (!config.messageLogChannelId || channel.id === config.messageLogChannelId) return;
+        const logChannel = resolveLogChannel(config.messageLogChannelId);
+        if (!logChannel) return;
+        const embed = new EmbedBuilder()
+            .setTitle('Messages Bulk Deleted')
+            .setColor(RED)
+            .addFields(
+                { name: 'Channel', value: `<#${channel.id}>`, inline: true },
+                { name: 'Messages', value: `${messages.size}`, inline: true }
+            )
+            .setTimestamp();
+        await logChannel.send({ embeds: [embed] }).catch(() => {});
+    } catch (error) {
+        logCrash('MESSAGE_BULK_DELETE_LOG', error, { channelId: channel?.id });
+    }
+});
+
+client.on('messageUpdate', async (oldMessage, newMessage) => {
+    try {
+        if (!newMessage.guild) return;
+        if (newMessage.author && newMessage.author.bot) return;
+        if (oldMessage.partial || newMessage.partial) return;
+        if (oldMessage.content === newMessage.content) return;
+        const config = await getGuildConfig(newMessage.guild.id);
+        if (!config.messageLogChannelId || newMessage.channelId === config.messageLogChannelId) return;
+        const logChannel = resolveLogChannel(config.messageLogChannelId);
+        if (!logChannel) return;
+
+        const embed = new EmbedBuilder()
+            .setTitle('Message Edited')
+            .setColor(BLACK)
+            .setThumbnail(newMessage.author.displayAvatarURL({ dynamic: true }))
+            .addFields(
+                { name: 'Channel', value: `<#${newMessage.channelId}>`, inline: true },
+                { name: 'Author', value: `${newMessage.author.toString()} (${newMessage.author.id})`, inline: true },
+                { name: 'Jump', value: `[Go to message](${newMessage.url})`, inline: true },
+                { name: 'Before', value: oldMessage.content ? cutText(oldMessage.content, 1024) : '*No text content*', inline: false },
+                { name: 'After', value: newMessage.content ? cutText(newMessage.content, 1024) : '*No text content*', inline: false }
+            )
+            .setTimestamp();
+        await logChannel.send({ embeds: [embed] }).catch(() => {});
+    } catch (error) {
+        logCrash('MESSAGE_UPDATE_LOG', error, { messageId: newMessage?.id });
+    }
+});
+
+async function handleRoleLog(oldMember, newMember) {
+    if (!newMember || !newMember.guild || !oldMember || oldMember.partial) return;
+    if (newMember.user && newMember.user.bot) return;
+    const added = newMember.roles.cache.filter(r => !oldMember.roles.cache.has(r.id));
+    const removed = oldMember.roles.cache.filter(r => !newMember.roles.cache.has(r.id));
+    if (!added.size && !removed.size) return;
+    const config = await getGuildConfig(newMember.guild.id);
+    if (!config.roleLogChannelId) return;
+    const logChannel = resolveLogChannel(config.roleLogChannelId);
+    if (!logChannel) return;
+
+    const embed = new EmbedBuilder()
+        .setTitle('Member Roles Updated')
+        .setColor(BLACK)
+        .setThumbnail(newMember.user.displayAvatarURL({ dynamic: true }))
+        .addFields({ name: 'User', value: `${newMember.toString()} (${newMember.id})`, inline: false })
+        .setTimestamp();
+    if (added.size) embed.addFields({ name: 'Roles Added', value: cutText(added.map(r => r.toString()).join(' '), 1024), inline: false });
+    if (removed.size) embed.addFields({ name: 'Roles Removed', value: cutText(removed.map(r => r.toString()).join(' '), 1024), inline: false });
+    await logChannel.send({ embeds: [embed] }).catch(() => {});
+}
+
 client.on('guildMemberUpdate', (oldMember, newMember) => {
     try {
         roleSync.onMemberUpdate(oldMember, newMember);
     } catch (error) {
         logCrash('ROLE_SYNC_MEMBER_UPDATE', error, { userId: newMember?.id });
     }
+    handleRoleLog(oldMember, newMember).catch((error) => {
+        logCrash('ROLE_LOG', error, { userId: newMember?.id });
+    });
     handleInviteTriggerRoles(oldMember, newMember).catch((error) => {
         logCrash('INVITE_TRIGGER', error, { userId: newMember?.id });
     });
