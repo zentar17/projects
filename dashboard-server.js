@@ -2980,7 +2980,12 @@ app.post('/api/commands/:guildId', requireAuth, writeLimiter, async (req, res) =
             return res.status(400).json({ error: 'This name is reserved for a built-in command' });
         }
 
-        const restrictedTypes = ['ban', 'kick', 'mute', 'warn'];
+        const allowedTypes = ['text', 'embed', 'ban', 'kick', 'mute', 'warn', 'role'];
+        if (!allowedTypes.includes(data.type || 'text')) {
+            return res.status(400).json({ error: 'Invalid command type' });
+        }
+
+        const restrictedTypes = ['ban', 'kick', 'mute', 'warn', 'role'];
         if (restrictedTypes.includes(data.type) && !isOwner(req, guildId)) {
             return res.status(403).json({ error: 'Only the Owner can create or edit moderation commands' });
         }
@@ -3000,10 +3005,43 @@ app.post('/api/commands/:guildId', requireAuth, writeLimiter, async (req, res) =
             allowedRoles = data.allowedRoles.filter(r => typeof r === 'string' && /^\d+$/.test(r));
         }
 
+        let blockedChannels = [];
+        if (Array.isArray(data.blockedChannels)) {
+            blockedChannels = Array.from(new Set(data.blockedChannels.filter(c => typeof c === 'string' && /^\d+$/.test(c)))).slice(0, 1000);
+        }
+
+        const unitMinutes = { minutes: 1, hours: 60, days: 1440 };
+        let durationUnit = ['minutes', 'hours', 'days', 'perm'].includes(data.durationUnit) ? data.durationUnit : 'days';
         let duration = null;
         if (data.duration !== null && data.duration !== undefined && data.duration !== '') {
             const d = parseInt(data.duration);
             if (!isNaN(d) && d > 0) duration = d;
+        }
+        if (durationUnit === 'perm' && data.type !== 'ban') durationUnit = 'days';
+        if (durationUnit === 'perm') duration = null;
+        if (duration && data.type === 'mute' && duration * unitMinutes[durationUnit] > 28 * 1440) {
+            return res.status(400).json({ error: 'Mute duration cannot exceed 28 days' });
+        }
+        if (duration && data.type === 'role' && data.roleAction === 'remove_mute' && duration * unitMinutes[durationUnit] > 28 * 1440) {
+            return res.status(400).json({ error: 'Mute duration cannot exceed 28 days' });
+        }
+        if (!['ban', 'mute', 'role'].includes(data.type)) duration = null;
+
+        let roleAction = null;
+        let targetRoleId = null;
+        if (data.type === 'role') {
+            const validRoleActions = ['add', 'remove', 'toggle', 'temp', 'remove_warn', 'remove_mute'];
+            if (!validRoleActions.includes(data.roleAction)) {
+                return res.status(400).json({ error: 'Invalid role action' });
+            }
+            if (typeof data.targetRoleId !== 'string' || !/^\d+$/.test(data.targetRoleId)) {
+                return res.status(400).json({ error: 'Select a target role' });
+            }
+            if ((data.roleAction === 'temp' || data.roleAction === 'remove_mute') && !duration) {
+                return res.status(400).json({ error: 'A duration is required' });
+            }
+            roleAction = data.roleAction;
+            targetRoleId = data.targetRoleId;
         }
 
         let buttons = [];
@@ -3032,6 +3070,11 @@ app.post('/api/commands/:guildId', requireAuth, writeLimiter, async (req, res) =
             response: data.response || '',
             color: typeof data.color === 'number' ? data.color : 0xE67E22,
             deleteCommand: data.deleteCommand !== false,
+            enabled: data.enabled !== false,
+            blockedChannels: blockedChannels,
+            durationUnit: durationUnit,
+            roleAction: roleAction,
+            targetRoleId: targetRoleId,
             thumbnail: data.thumbnail || null,
             image: data.image || null,
             buttons: buttons,
