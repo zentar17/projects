@@ -3622,8 +3622,7 @@ function formatSyncDate(value) {
 async function loadBlacklistSettings() {
     const box = document.getElementById('blacklistSettings');
     const saveBtn = document.getElementById('saveBlacklistSettingsBtn');
-    const info = document.getElementById('blacklistSweepInfo');
-    if (!box || !saveBtn || !info) return;
+    if (!box || !saveBtn) return;
 
     if (!['predcord', 'community', 'masterclassServer'].includes(selectedServer) || !currentGuild || !isOwner()) {
         box.classList.add('hidden');
@@ -3647,16 +3646,6 @@ async function loadBlacklistSettings() {
 
         renderSingleSelectList('blLogChannelList', textChannels, settings.logChannelId, 'blLogChannel');
         renderPermissionsList('blBanServersList', settings.guilds || [], settings.banGuildIds || []);
-
-        const parts = [];
-        if (settings.lastSweepAt) {
-            const r = settings.lastSweepResult;
-            let line = `Last check: ${escapeHtml(formatSyncDate(settings.lastSweepAt))}`;
-            if (r) line += ` &middot; ${r.users} users &middot; ${r.banned} banned &middot; ${r.alreadyBanned} already banned &middot; ${r.failed} failed`;
-            parts.push(line);
-        }
-        info.innerHTML = parts.join('<br>');
-        info.classList.toggle('hidden', parts.length === 0);
 
         box.classList.remove('hidden');
         saveBtn.classList.remove('hidden');
