@@ -805,7 +805,7 @@ async function loadGuilds() {
     } catch (e) {
         console.error('[INIT] loadGuilds error:', e);
         document.getElementById('commandsList').innerHTML =
-            `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
+            `<div class="empty-state"><h3>Error</h3><p>${escapeHtml(e.message)}</p></div>`;
     }
 }
 
@@ -841,7 +841,7 @@ async function loadCommands() {
         renderCommands();
     } catch (e) {
         console.error('[INIT] loadCommands error:', e);
-        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
+        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${escapeHtml(e.message)}</p></div>`;
     }
 }
 
@@ -932,7 +932,7 @@ async function loadVideos() {
         renderVideos();
     } catch (e) {
         console.error('[VIDEOS] loadVideos error:', e);
-        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
+        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${escapeHtml(e.message)}</p></div>`;
     }
     loadVideoAccessRoles();
 }
@@ -970,7 +970,7 @@ async function loadVideoAccessRoles() {
             </div>`;
         }).join('');
     } catch (e) {
-        list.innerHTML = `<p class="loading-text">Error: ${e.message}</p>`;
+        list.innerHTML = `<p class="loading-text">Error: ${escapeHtml(e.message)}</p>`;
     }
 }
 
@@ -1171,7 +1171,7 @@ async function loadVideoRoles(preselected = []) {
         videoRolesLoaded = true;
         renderVideoRoles();
     } catch (e) {
-        list.innerHTML = `<p class="loading-text">Error: ${e.message}</p>`;
+        list.innerHTML = `<p class="loading-text">Error: ${escapeHtml(e.message)}</p>`;
     }
 }
 
@@ -2807,7 +2807,7 @@ async function loadModlogs() {
         currentModlogs = await res.json();
         renderModlogs(currentModlogs);
     } catch (e) {
-        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
+        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${escapeHtml(e.message)}</p></div>`;
     }
 }
 
@@ -2901,7 +2901,7 @@ async function loadBans() {
         const bans = await res.json();
         renderBans(bans);
     } catch (e) {
-        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
+        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${escapeHtml(e.message)}</p></div>`;
     }
 }
 
@@ -3868,7 +3868,7 @@ async function loadBlacklist() {
         const entries = await res.json();
         renderBlacklist(entries);
     } catch (e) {
-        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${e.message}</p></div>`;
+        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${escapeHtml(e.message)}</p></div>`;
     }
 }
 
@@ -3986,7 +3986,7 @@ async function loadPermissionsSection() {
         renderSpecialUsers('ownerUsersList', dashboardPermissions.ownerUsers, 'owner');
 
     } catch (e) {
-        if (createList) createList.innerHTML = `<p class="loading-text">Error: ${e.message}</p>`;
+        if (createList) createList.innerHTML = `<p class="loading-text">Error: ${escapeHtml(e.message)}</p>`;
     }
 }
 
@@ -4296,7 +4296,7 @@ async function loadConfigSection() {
         console.error('[CONFIG] loadConfigSection error:', e);
         containers.forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.innerHTML = `<p class="loading-text">Error: ${e.message}</p>`;
+            if (el) el.innerHTML = `<p class="loading-text">Error: ${escapeHtml(e.message)}</p>`;
         });
     }
 }
@@ -4342,7 +4342,7 @@ async function loadTicketsSection() {
         console.error('[TICKETS] loadTicketsSection error:', e);
         containers.forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.innerHTML = `<p class="loading-text">Error: ${e.message}</p>`;
+            if (el) el.innerHTML = `<p class="loading-text">Error: ${escapeHtml(e.message)}</p>`;
         });
     }
 }
@@ -4397,7 +4397,7 @@ async function loadJoinLeaveStats() {
 
         renderJoinLeaveChart(data);
     } catch (e) {
-        grid.innerHTML = `<div class="permission-card"><h3>Error: ${e.message}</h3></div>`;
+        grid.innerHTML = `<div class="permission-card"><h3>Error: ${escapeHtml(e.message)}</h3></div>`;
     }
 }
 
@@ -4658,7 +4658,7 @@ async function loadTicketStats() {
             </div>
         `).join('');
     } catch (e) {
-        list.innerHTML = `<p class="loading-text">Error: ${e.message}</p>`;
+        list.innerHTML = `<p class="loading-text">Error: ${escapeHtml(e.message)}</p>`;
     }
 }
 
@@ -4690,7 +4690,7 @@ async function loadModeratorStats() {
 
         result.innerHTML = rows || '<p class="loading-text">No data.</p>';
     } catch (e) {
-        result.innerHTML = `<p class="loading-text">Error: ${e.message}</p>`;
+        result.innerHTML = `<p class="loading-text">Error: ${escapeHtml(e.message)}</p>`;
     }
 }
 
@@ -4819,7 +4819,7 @@ async function loadStaffAppConfig() {
         console.error('[STAFF APP CONFIG] load error:', e);
         containers.forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.innerHTML = `<p class="loading-text">Error: ${e.message}</p>`;
+            if (el) el.innerHTML = `<p class="loading-text">Error: ${escapeHtml(e.message)}</p>`;
         });
     }
 }
@@ -4858,7 +4858,7 @@ async function loadBanAppealConfig() {
         console.error('[BAN APPEAL CONFIG] load error:', e);
         containers.forEach(id => {
             const el = document.getElementById(id);
-            if (el) el.innerHTML = `<p class="loading-text">Error: ${e.message}</p>`;
+            if (el) el.innerHTML = `<p class="loading-text">Error: ${escapeHtml(e.message)}</p>`;
         });
     }
 }
