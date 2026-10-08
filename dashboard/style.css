@@ -5049,3 +5049,20 @@ main .mc-ticket-num, main .mc-ticket-claim.claimed, main .modlog-server-badge { 
     #serverSelectScreen .ss-right { padding: 24px 20px 40px; align-items: stretch; }
     #serverSelectScreen .ss-label, #serverSelectScreen .server-select-grid { max-width: none; }
 }
+
+#statsJoinLeaveGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 20px; }
+
+.jl-chart .chart-canvas-wrap { cursor: default; min-height: 260px; }
+.jl-host { position: absolute; inset: 0; }
+.jl-svg { display: block; overflow: visible; }
+.jl-grid { stroke: #27272a; stroke-width: 1; stroke-dasharray: 0; }
+.jl-xlabel { fill: #a1a1aa; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; }
+.jl-cursor { stroke: #3f3f46; stroke-width: 1; stroke-dasharray: 3 3; transition: opacity 0.1s; }
+.jl-dot { stroke: #09090b; stroke-width: 2; transition: opacity 0.1s; }
+.jl-tooltip { font-family: 'Plus Jakarta Sans', sans-serif; transition: opacity 0.1s; }
+.jl-tt-title { font-family: 'Poppins', sans-serif; }
+.jl-tt-row b { font-family: 'Montserrat', sans-serif; }
+
+@media (max-width: 700px) {
+    #statsJoinLeaveGrid { grid-template-columns: 1fr; }
+}
