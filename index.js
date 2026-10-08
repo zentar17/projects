@@ -12,6 +12,8 @@ const CRASH_LOG_FILE = './crash_log.json';
 const MAX_CRASH_LOGS = 100;
 const LOGS_PER_PAGE = 5;
 const NATIVE_PREFIX = '*';
+const NATIVE_COMMANDS = new Set(['av', 'ban', 'block', 'channelinfo', 'clearwarns', 'help', 'kick', 'map', 'md', 'modlogs', 'mute', 'page', 'purge', 'roleinfo', 'server', 'serverinfo', 'setupdropmap', 'social', 'tempo', 'tempolist', 'tickets', 'unban', 'unblock', 'unmute', 'w', 'warn', 'warnings']);
+const BLACKLIST_COMMANDS = new Set(['blacklist', 'bl', 'unbl', 'unblacklist', 'reason', 'bll']);
 const ticketClaims = new Map();
 const COMMAND_COOLDOWN_SECONDS = 5;
 
@@ -62,11 +64,10 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildModeration,
-        GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.DirectMessages
+        GatewayIntentBits.GuildModeration
     ],
-    partials: [Partials.Message]
+    partials: [Partials.Message],
+    allowedMentions: { parse: ['users'], repliedUser: false }
 });
 
 const roleSync = createRoleSync({ client, db, botClients, logCrash });
@@ -172,6 +173,8 @@ function formatCmdDate() {
 
 async function substituteAll(text, message, mdTarget, args) {
     if (!text) return '';
+    const safeArgs = args.map(stripMentions);
+    args = safeArgs;
     let result = text;
     result = result.replace(/{user}/g, message.author.toString());
     result = result.replace(/{username}/g, message.author.username);
@@ -182,7 +185,8 @@ async function substituteAll(text, message, mdTarget, args) {
     result = result.replace(/{server}/g, message.guild.name);
     result = result.replace(/{membercount}/g, message.guild.memberCount);
     result = result.replace(/{args}/g, args.join(' '));
-    result = result.replace(/{md}/g, await formatModerationHistory(mdTarget.id, message.guild.id, mdTarget.username, 1));
+    const historyTarget = mdTarget || message.author;
+    result = result.replace(/{md}/g, await formatModerationHistory(historyTarget.id, message.guild.id, historyTarget.username, 1));
     result = applyPositionalArgs(result, args);
     result = applyHammertime(result);
     return result;
@@ -297,6 +301,97 @@ async function projectedRoleBlock(message, targetMember) {
         return true;
     }
     return false;
+}
+
+function actorOutranksTarget(message, member, allowSelf = false) {
+    if (!member) return true;
+    const actor = message.member;
+    if (!actor) return false;
+    if (member.id === actor.id) return allowSelf;
+    if (member.id === client.user.id) return false;
+    const guild = message.guild;
+    if (guild.ownerId === actor.id) return true;
+    if (member.id === guild.ownerId) return false;
+    return actor.roles.highest.comparePositionTo(member.roles.highest) > 0;
+}
+
+async function hierarchyBlock(message, member, allowSelf = false) {
+    if (actorOutranksTarget(message, member, allowSelf)) return false;
+    const embed = new EmbedBuilder()
+        .setDescription('You cannot moderate this user because they are you, or their highest role is equal to or higher than yours.')
+        .setColor(PROJECTED_ERROR);
+    await message.channel.send({ embeds: [embed] }).catch(() => {});
+    await message.delete().catch(() => {});
+    return true;
+}
+
+const commandBursts = new Map();
+const COMMAND_BURST_LIMIT = 8;
+const COMMAND_BURST_WINDOW_MS = 10000;
+
+function isCommandBurstLimited(userId) {
+    const now = Date.now();
+    const list = (commandBursts.get(userId) || []).filter(t => now - t < COMMAND_BURST_WINDOW_MS);
+    list.push(now);
+    commandBursts.set(userId, list);
+    if (commandBursts.size > 5000) {
+        for (const [key, value] of commandBursts) {
+            if (!value.length || now - value[value.length - 1] > COMMAND_BURST_WINDOW_MS) commandBursts.delete(key);
+        }
+    }
+    return list.length > COMMAND_BURST_LIMIT;
+}
+
+const cooldownNotices = new Map();
+
+async function replyCooldown(message, cooldown) {
+    await message.delete().catch(() => {});
+    const key = `${message.author.id}:${message.channel.id}`;
+    const now = Date.now();
+    if (now - (cooldownNotices.get(key) || 0) < 4000) return;
+    cooldownNotices.set(key, now);
+    if (cooldownNotices.size > 2000) {
+        for (const [k, t] of cooldownNotices) {
+            if (now - t > 10000) cooldownNotices.delete(k);
+        }
+    }
+    const remaining = Math.max(1, Math.ceil((new Date(cooldown.expiresAt).getTime() - now) / 1000));
+    const embed = new EmbedBuilder()
+        .setDescription(`Wait **${remaining}s** before using this command again.`)
+        .setColor(COLORS.WARNING);
+    const msg = await message.channel.send({ embeds: [embed] }).catch(() => null);
+    if (msg) setTimeout(() => msg.delete().catch(() => {}), 3000);
+}
+
+function stripMentions(text) {
+    return String(text)
+        .replace(/@(everyone|here)/gi, '@\u200b$1')
+        .replace(/<@&(\d+)>/g, '<@\u200b&$1>');
+}
+
+const ticketCreationCooldown = new Map();
+const TICKET_CREATION_COOLDOWN_MS = 45000;
+
+function ticketCooldownActive(interaction) {
+    const key = `${interaction.guildId}:${interaction.user.id}`;
+    const now = Date.now();
+    if (now - (ticketCreationCooldown.get(key) || 0) < TICKET_CREATION_COOLDOWN_MS) return true;
+    ticketCreationCooldown.set(key, now);
+    if (ticketCreationCooldown.size > 5000) {
+        for (const [k, t] of ticketCreationCooldown) {
+            if (now - t > TICKET_CREATION_COOLDOWN_MS) ticketCreationCooldown.delete(k);
+        }
+    }
+    return false;
+}
+
+const claimedInteractionMessages = new Set();
+
+function claimInteractionOnce(messageId) {
+    if (claimedInteractionMessages.has(messageId)) return false;
+    claimedInteractionMessages.add(messageId);
+    setTimeout(() => claimedInteractionMessages.delete(messageId), 60000);
+    return true;
 }
 
 async function getUserFromInput(guild, input) {
@@ -1553,6 +1648,7 @@ client.on('messageCreate', async (message) => {
 
         const args = message.content.slice(1).trim().split(/ +/);
         const command = args.shift().toLowerCase();
+        if (!command || command.length > 40) return;
 
         const customCmds = await db.loadCustomCommandsDB(message.guild.id);
 
@@ -1562,18 +1658,13 @@ client.on('messageCreate', async (message) => {
 
             if (cmdPrefix === firstChar) {
                 if (cmdData.enabled === false) return;
+                if (isCommandBurstLimited(message.author.id)) return;
                 if (isCommandBlockedInChannel(cmdData, message.channel)) return;
                 const hasPermission = checkCustomCommandPermission(cmdData, message.member);
                 if (hasPermission) {
                     const cooldown = await db.getCommandCooldownDB(message.author.id, message.guild.id, `custom_${command}`);
                     if (cooldown) {
-                        const remaining = Math.ceil((new Date(cooldown.expiresAt).getTime() - Date.now()) / 1000);
-                        const embed = new EmbedBuilder()
-                            .setDescription(`Wait **${remaining}s** before using this command again.`)
-                            .setColor(COLORS.WARNING);
-                        const msg = await message.channel.send({ embeds: [embed] });
-                        setTimeout(() => msg.delete().catch(() => {}), 3000);
-                        await message.delete().catch(() => {});
+                        await replyCooldown(message, cooldown);
                         return;
                     }
                     await db.setCommandCooldownDB(message.author.id, message.guild.id, `custom_${command}`, COMMAND_COOLDOWN_SECONDS);
@@ -1596,15 +1687,11 @@ client.on('messageCreate', async (message) => {
         }
 
         if (firstChar === NATIVE_PREFIX || firstChar === '!') {
+            if (!NATIVE_COMMANDS.has(command)) return;
+            if (isCommandBurstLimited(message.author.id)) return;
             const cooldown = await db.getCommandCooldownDB(message.author.id, message.guild.id, `native_${command}`);
             if (cooldown) {
-                const remaining = Math.ceil((new Date(cooldown.expiresAt).getTime() - Date.now()) / 1000);
-                const embed = new EmbedBuilder()
-                    .setDescription(`Wait **${remaining}s** before using this command again.`)
-                    .setColor(COLORS.WARNING);
-                const msg = await message.channel.send({ embeds: [embed] });
-                setTimeout(() => msg.delete().catch(() => {}), 3000);
-                await message.delete().catch(() => {});
+                await replyCooldown(message, cooldown);
                 return;
             }
             await db.setCommandCooldownDB(message.author.id, message.guild.id, `native_${command}`, COMMAND_COOLDOWN_SECONDS);
@@ -1623,6 +1710,12 @@ client.on('messageCreate', async (message) => {
         }
 
         if (firstChar === '-') {
+            if (!BLACKLIST_COMMANDS.has(command)) return;
+            if (isCommandBurstLimited(message.author.id)) return;
+            const blGuildSettings = await db.getBlacklistSettingsDB();
+            const blAllowedGuild = (blGuildSettings.banGuildIds || []).includes(message.guild.id)
+                || [process.env.MAIN_GUILD_ID, process.env.COMMUNITY_GUILD_ID, process.env.MASTERCLASS_GUILD_ID || '1557430638783627304'].includes(message.guild.id);
+            if (!blAllowedGuild) return;
             const isAdminUser = await isAdminSafe(message.member);
             const blAccess = await blacklistSystem.getMemberAccess(message.member, isAdminUser);
             const manageCommands = ['blacklist', 'bl', 'unbl', 'unblacklist', 'reason'];
@@ -1658,6 +1751,10 @@ client.on('messageCreate', async (message) => {
 
                     if (!result.ok && result.code === 'protected') {
                         await replyBlacklistError(message, `**${user.username}** can't be blacklisted - protected role **${result.roleName}** (${result.guildName}).`);
+                        return;
+                    }
+                    if (!result.ok && result.code === 'bot') {
+                        await replyBlacklistError(message, 'Bots can\'t be blacklisted.');
                         return;
                     }
                     if (!result.ok && result.code === 'already') {
@@ -1814,14 +1911,13 @@ client.on('messageCreate', async (message) => {
                 const lines = entries.slice(0, 25).map(e => `**${e.userName || e.userId}** (${e.userId}) — ${e.reason || 'No reason provided'} — by ${e.bannedBy || 'Unknown'}`);
                 const embed = new EmbedBuilder()
                     .setTitle(`Blacklist (${entries.length})`)
-                    .setDescription(lines.join('\n'))
+                    .setDescription(lines.join('\n').slice(0, 4000))
                     .setColor(BLACK);
                 await message.channel.send({ embeds: [embed] });
                 await message.delete().catch(() => {});
                 return;
             }
 
-            await message.delete().catch(() => {});
             return;
         }
 
@@ -2160,7 +2256,8 @@ async function handleNativeCommand(message, command, args) {
         const user = result.user;
         const member = result.member;
         if (await projectedRoleBlock(message, member)) return;
-        const reason = args.slice(1).join(' ') || 'No reason provided';
+        if (await hierarchyBlock(message, member, false)) return;
+        const reason = (args.slice(1).join(' ') || 'No reason provided').slice(0, 450);
 
         try {
             if (member) {
@@ -2171,10 +2268,10 @@ async function handleNativeCommand(message, command, args) {
                     return;
                 }
                 await sendActionDM(user, 'banned', reason, { tag: message.author.tag, guild: message.guild });
-                await member.ban({ reason });
+                await member.ban({ reason: String(reason).slice(0, 450) });
             } else {
                 await sendActionDM(user, 'banned', reason, { tag: message.author.tag, guild: message.guild });
-                await message.guild.bans.create(user.id, { reason });
+                await message.guild.bans.create(user.id, { reason: String(reason).slice(0, 450) });
             }
 
             const embed = new EmbedBuilder()
@@ -2269,7 +2366,8 @@ async function handleNativeCommand(message, command, args) {
         const user = result.user;
         const member = result.member;
         if (await projectedRoleBlock(message, member)) return;
-        const reason = args.slice(1).join(' ') || 'No reason provided';
+        if (await hierarchyBlock(message, member, false)) return;
+        const reason = (args.slice(1).join(' ') || 'No reason provided').slice(0, 450);
         if (!member || !member.kickable) {
             const embed = new EmbedBuilder().setDescription('I cannot kick this user.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
             await message.channel.send({ embeds: [embed] });
@@ -2278,7 +2376,7 @@ async function handleNativeCommand(message, command, args) {
         }
         try {
             await sendActionDM(user, 'kicked', reason, { tag: message.author.tag, guild: message.guild });
-            await member.kick(reason);
+            await member.kick(String(reason).slice(0, 450));
             const embed = new EmbedBuilder()
                 .setDescription(`**${user.username}** (${user.id}) has been kicked for the reason **${reason}**`)
                 .setColor(BLACK);
@@ -2324,6 +2422,7 @@ async function handleNativeCommand(message, command, args) {
         const user = result.user;
         const member = result.member;
         if (await projectedRoleBlock(message, member)) return;
+        if (await hierarchyBlock(message, member, false)) return;
         const parsed = extractMuteDuration(args);
         if (!parsed.duration) {
             const embed = new EmbedBuilder().setDescription('Usage: `*mute @user reason duration`\n`10` = 10 minutes, `10h` = 10 hours, `10d` = 10 days.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
@@ -2346,7 +2445,7 @@ async function handleNativeCommand(message, command, args) {
             return;
         }
         try {
-            await member.timeout(duration.ms, reason);
+            await member.timeout(duration.ms, String(reason).slice(0, 450));
             const durationText = duration.text;
             await sendActionDM(user, 'muted', reason, { tag: message.author.tag, guild: message.guild }, durationText);
             const embed = new EmbedBuilder()
@@ -2394,7 +2493,8 @@ async function handleNativeCommand(message, command, args) {
         }
         const user = result.user;
         const member = result.member;
-        const reason = args.slice(1).join(' ') || 'No reason provided';
+        const reason = (args.slice(1).join(' ') || 'No reason provided').slice(0, 450);
+        if (member && await hierarchyBlock(message, member)) return;
         if (!member || !member.moderatable) {
             const embed = new EmbedBuilder().setDescription('I cannot unmute this user.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
             await message.channel.send({ embeds: [embed] });
@@ -2449,7 +2549,8 @@ async function handleNativeCommand(message, command, args) {
         const user = result.user;
         const member = result.member;
         if (await projectedRoleBlock(message, member)) return;
-        const reason = args.slice(1).join(' ') || 'No reason provided';
+        if (await hierarchyBlock(message, member, false)) return;
+        const reason = (args.slice(1).join(' ') || 'No reason provided').slice(0, 450);
         try {
             await addWarning(message.guild, user, message.author, reason);
             await sendActionDM(user, 'warned', reason, { tag: message.author.tag, guild: message.guild });
@@ -2603,7 +2704,7 @@ async function handleNativeCommand(message, command, args) {
             await message.delete().catch(() => {});
             return;
         }
-        const reason = args.slice(1).join(' ') || 'No reason provided';
+        const reason = (args.slice(1).join(' ') || 'No reason provided').slice(0, 450);
         const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         await db.addTicketBlockDB({
             guildId: message.guild.id,
@@ -2751,6 +2852,7 @@ async function handleRoleCommand(message, command, args, cmdData) {
     const member = result.member;
     if (!member) return fail('This user is not in the server.');
     if (await projectedRoleBlock(message, member)) return;
+    if (await hierarchyBlock(message, member, true)) return;
 
     const roleId = cmdData.targetRoleId;
     const role = roleId ? (message.guild.roles.cache.get(roleId) || await message.guild.roles.fetch(roleId).catch(() => null)) : null;
@@ -2856,7 +2958,7 @@ async function handleRoleCommand(message, command, args, cmdData) {
             if (!member.moderatable) return fail('I cannot mute this user.');
             if (has) await member.roles.remove(role, `Custom command ${prefix}${command} by ${message.author.tag}`);
             await db.removePendingRoleRemoval(message.guild.id, user.id, role.id).catch(() => {});
-            await member.timeout(ms, reason);
+            await member.timeout(ms, String(reason).slice(0, 450));
             await sendActionDM(user, 'muted', reason, { tag: message.author.tag, guild: message.guild }, text);
             await saveModLog(message.guild, 'User muted', user, message.author, reason, text);
             return done(`Removed **${role.name}** from ${label} and muted them for **${text}** for the reason **${reason}**`, 'role_removed', `(${text})`);
@@ -2896,6 +2998,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
         const user = result.user;
         const member = result.member;
         if (await projectedRoleBlock(message, member)) return;
+        if (await hierarchyBlock(message, member, false)) return;
         let reason = args.slice(1).join(' ');
         if (!reason) {
             reason = (cmdData.response || 'No reason provided')
@@ -2924,10 +3027,10 @@ async function handleCustomCommand(message, command, args, cmdData) {
                     return;
                 }
                 await sendActionDM(user, 'banned', reason, { tag: message.author.tag, guild: message.guild });
-                await member.ban({ reason });
+                await member.ban({ reason: String(reason).slice(0, 450) });
             } else {
                 await sendActionDM(user, 'banned', reason, { tag: message.author.tag, guild: message.guild });
-                await message.guild.bans.create(user.id, { reason });
+                await message.guild.bans.create(user.id, { reason: String(reason).slice(0, 450) });
             }
 
             if (isTemporary) {
@@ -2988,6 +3091,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
         const user = result.user;
         const member = result.member;
         if (await projectedRoleBlock(message, member)) return;
+        if (await hierarchyBlock(message, member, false)) return;
         let reason = args.slice(1).join(' ');
         if (!reason) {
             reason = (cmdData.response || 'No reason provided')
@@ -3010,7 +3114,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
         }
         try {
             await sendActionDM(user, 'kicked', reason, { tag: message.author.tag, guild: message.guild });
-            await member.kick(reason);
+            await member.kick(String(reason).slice(0, 450));
             const embed = new EmbedBuilder()
                 .setDescription(`**${user.username}** (${user.id}) has been kicked for the reason **${reason}**`)
                 .setColor(BLACK);
@@ -3055,6 +3159,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
         const user = result.user;
         const member = result.member;
         if (await projectedRoleBlock(message, member)) return;
+        if (await hierarchyBlock(message, member, false)) return;
 
         const maxMuteMs = 28 * 24 * 60 * 60 * 1000;
         const configuredMuteMs = getCmdDurationMs(cmdData);
@@ -3102,7 +3207,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
             return;
         }
         try {
-            await member.timeout(durationMs, reason);
+            await member.timeout(durationMs, String(reason).slice(0, 450));
             await sendActionDM(user, 'muted', reason, { tag: message.author.tag, guild: message.guild }, durationText);
             const embed = new EmbedBuilder()
                 .setDescription(`**${user.username}** (${user.id}) has been muted for **${durationText}** for the reason **${reason}**`)
@@ -3148,6 +3253,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
         const user = result.user;
         const member = result.member;
         if (await projectedRoleBlock(message, member)) return;
+        if (await hierarchyBlock(message, member, false)) return;
         let reason = args.slice(1).join(' ');
         if (!reason) {
             reason = (cmdData.response || 'No reason provided')
@@ -3256,7 +3362,7 @@ async function handleCustomCommand(message, command, args, cmdData) {
         if (replyText.trim()) embed.setDescription(replyText);
         await message.channel.send({ embeds: [embed], components: cmdComponents }).catch(err => console.error('[CUSTOM-CMD] send failed:', err.message));
     } else {
-        await message.channel.send({ content: replyText.trim() ? replyText : '​', components: cmdComponents }).catch(err => console.error('[CUSTOM-CMD] send failed:', err.message));
+        await message.channel.send({ content: replyText.trim() ? replyText : '​', components: cmdComponents, allowedMentions: { parse: ['users', 'roles'] } }).catch(err => console.error('[CUSTOM-CMD] send failed:', err.message));
     }
 
     if (cmdData.deleteCommand) await message.delete().catch(() => {});
@@ -3423,6 +3529,9 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         if (interaction.isModalSubmit() && interaction.customId === 'community_ticket_modal') {
+            if (ticketCooldownActive(interaction)) {
+                return interaction.reply({ content: 'Please wait a moment before opening another ticket.', flags: 64 });
+            }
             const block = await db.getTicketBlockDB(interaction.guild.id, interaction.user.id);
             if (block && new Date(block.expiresAt) > new Date()) {
                 return interaction.reply({
@@ -3566,6 +3675,7 @@ client.on('interactionCreate', async (interaction) => {
 
             await ticketChannel.send({
                 content: `${interaction.user.toString()}${staffRolesInGuild.map(id => ` <@&${id}>`).join('')}`,
+                allowedMentions: { users: [interaction.user.id], roles: staffRolesInGuild },
                 embeds: [embed],
                 components: [row]
             });
@@ -3588,6 +3698,9 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         if (interaction.isModalSubmit() && interaction.customId === 'support_modal') {
+            if (ticketCooldownActive(interaction)) {
+                return interaction.reply({ content: 'Please wait a moment before opening another ticket.', flags: 64 });
+            }
             const block = await db.getTicketBlockDB(interaction.guild.id, interaction.user.id);
             if (block && new Date(block.expiresAt) > new Date()) {
                 return interaction.reply({
@@ -3720,6 +3833,7 @@ client.on('interactionCreate', async (interaction) => {
 
             await ticketChannel.send({
                 content: `${interaction.user.toString()}${staffRolesInGuild.map(id => ` <@&${id}>`).join('')}`,
+                allowedMentions: { users: [interaction.user.id], roles: staffRolesInGuild },
                 embeds: [embed],
                 components: [row]
             });
@@ -3742,6 +3856,9 @@ client.on('interactionCreate', async (interaction) => {
         }
 
         if (interaction.isModalSubmit() && interaction.customId === 'report_player_modal') {
+            if (ticketCooldownActive(interaction)) {
+                return interaction.reply({ content: 'Please wait a moment before opening another ticket.', flags: 64 });
+            }
             const reportBlock = await db.getTicketBlockDB(interaction.guild.id, interaction.user.id);
             if (reportBlock && new Date(reportBlock.expiresAt) > new Date()) {
                 return interaction.reply({
@@ -3887,6 +4004,7 @@ client.on('interactionCreate', async (interaction) => {
 
             await ticketChannel.send({
                 content: `${interaction.user.toString()}${staffRolesInGuild.map(id => ` <@&${id}>`).join('')}`,
+                allowedMentions: { users: [interaction.user.id], roles: staffRolesInGuild },
                 embeds: [embed],
                 components: [row]
             });
@@ -4106,6 +4224,9 @@ client.on('interactionCreate', async (interaction) => {
             if (!(await canReviewApplications(interaction.member))) {
                 return interaction.reply({ content: 'You do not have permission to use this button.', flags: 64 });
             }
+            if (!claimInteractionOnce(interaction.message.id)) {
+                return interaction.reply({ content: 'This application is already being processed.', flags: 64 });
+            }
 
             const targetUserId = interaction.customId.replace('app_accept_', '');
             await interaction.deferUpdate();
@@ -4151,6 +4272,9 @@ client.on('interactionCreate', async (interaction) => {
             if (!(await canReviewApplications(interaction.member))) {
                 return interaction.reply({ content: 'You do not have permission to use this button.', flags: 64 });
             }
+            if (!claimInteractionOnce(interaction.message.id)) {
+                return interaction.reply({ content: 'This application is already being processed.', flags: 64 });
+            }
 
             const targetUserId = interaction.customId.replace('app_reject_', '');
             await interaction.deferUpdate();
@@ -4175,6 +4299,9 @@ client.on('interactionCreate', async (interaction) => {
         if (interaction.isButton() && interaction.customId.startsWith('appeal_accept_')) {
             if (!(await isStaffSafe(interaction.member))) {
                 return interaction.reply({ content: 'You do not have permission to use this button.', flags: 64 });
+            }
+            if (!claimInteractionOnce(interaction.message.id)) {
+                return interaction.reply({ content: 'This appeal is already being processed.', flags: 64 });
             }
 
             const targetUserId = interaction.customId.replace('appeal_accept_', '');
@@ -4242,6 +4369,9 @@ client.on('interactionCreate', async (interaction) => {
 
             const targetUserId = interaction.customId.replace('appeal_deny_modal_', '');
             const reason = interaction.fields.getTextInputValue('deny_reason');
+            if (!claimInteractionOnce(interaction.message.id)) {
+                return interaction.reply({ content: 'This appeal is already being processed.', flags: 64 });
+            }
 
             await interaction.deferUpdate();
 
@@ -4307,7 +4437,12 @@ client.on('interactionCreate', async (interaction) => {
     }
 });
 
+let autoUnbanRunning = false;
+let tempRoleRunning = false;
+
 setInterval(async () => {
+    if (autoUnbanRunning) return;
+    autoUnbanRunning = true;
     try {
         const expired = await db.getExpiredBans();
         for (const ban of expired) {
@@ -4349,10 +4484,14 @@ setInterval(async () => {
         }
     } catch (error) {
         logCrash('AUTO_UNBAN_SCHEDULER', error);
+    } finally {
+        autoUnbanRunning = false;
     }
 }, 60000);
 
 setInterval(async () => {
+    if (tempRoleRunning) return;
+    tempRoleRunning = true;
     try {
         const expired = await db.getExpiredRoleRemovals();
         for (const item of expired) {
@@ -4377,11 +4516,19 @@ setInterval(async () => {
         }
     } catch (error) {
         logCrash('TEMP_ROLE_SCHEDULER', error);
+    } finally {
+        tempRoleRunning = false;
     }
 }, 60000);
 
-process.on('SIGINT', () => { process.exit(); });
-process.on('SIGTERM', () => { process.exit(); });
+function shutdown() {
+    try { blacklistSystem.stop(); } catch {}
+    try { client.destroy(); } catch {}
+    setTimeout(() => process.exit(0), 1500).unref();
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
 
 if (!process.env.DISCORD_TOKEN) {
     console.error('DISCORD_TOKEN missing in .env file!');
