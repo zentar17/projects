@@ -1240,6 +1240,8 @@ function getSiteOrigin() {
     }
 }
 
+const MC_TICKET_PING_ROLE_ID = '1557432087391248425';
+
 async function notifyNewMcTicket(ticket) {
     try {
         const { client, db } = global.PredCord;
@@ -1256,7 +1258,11 @@ async function notifyNewMcTicket(ticket) {
                 { name: 'User', value: `<@${ticket.userId}>`, inline: true }
             );
         const origin = getSiteOrigin();
-        const payload = { embeds: [embed] };
+        const payload = {
+            content: `<@&${MC_TICKET_PING_ROLE_ID}>`,
+            embeds: [embed],
+            allowedMentions: { roles: [MC_TICKET_PING_ROLE_ID] }
+        };
         if (origin) {
             payload.components = [new ActionRowBuilder().addComponents(
                 new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel('Open Ticket').setURL(`${origin}/ticket/${ticket.ticketNumber}`)
