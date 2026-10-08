@@ -1485,7 +1485,7 @@ aside h3 {
     font-size: 12px;
     line-height: 1.7;
     color: var(--text-dim);
-    margin: -8px 0 14px 0;
+    margin: 4px 0 14px 0;
 }
 
 .blacklist-sync-info b {
@@ -1496,7 +1496,7 @@ aside h3 {
     color: #fca5a5;
 }
 
-#blacklistSyncBtn:disabled {
+#saveBlacklistSettingsBtn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
@@ -2533,6 +2533,12 @@ aside h3 {
     margin-left: 12px;
     margin-bottom: 6px;
     object-fit: cover;
+}
+
+.discord-embed-image-error {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #f87171;
 }
 
 .discord-embed-image {
