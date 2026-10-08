@@ -1328,12 +1328,13 @@ async function getJoinLeaveTotalsDB(guildId) {
     return { joins, leaves };
 }
 
-async function getJoinLeaveSeriesDB(guildId, startTime, endTime) {
+async function getJoinLeaveSeriesDB(guildId, startTime, endTime, hourly) {
+    const fmt = hourly ? '%Y-%m-%d %H' : '%Y-%m-%d';
     const rows = await JoinLeaveEvent.aggregate([
         { $match: { guildId, date: { $gte: startTime, $lte: endTime } } },
         {
             $group: {
-                _id: { day: { $dateToString: { format: '%Y-%m-%d', date: '$date' } }, type: '$type' },
+                _id: { day: { $dateToString: { format: fmt, date: '$date' } }, type: '$type' },
                 count: { $sum: 1 }
             }
         },
