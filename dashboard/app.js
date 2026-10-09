@@ -826,6 +826,142 @@ function userHasDashboardPermission(permKey) {
     return !!myPermissions[permKey];
 }
 
+let nativeCommands = [];
+let editingNative = null;
+let cmdSubTab = 'default';
+
+function setCmdSubTab(tab) {
+    cmdSubTab = tab === 'custom' ? 'custom' : 'default';
+    document.querySelectorAll('#cmdSubtabs .cmd-subtab').forEach(b => b.classList.toggle('active', b.dataset.sub === cmdSubTab));
+    const nl = document.getElementById('nativeList');
+    const cl = document.getElementById('commandsList');
+    if (nl) nl.classList.toggle('hidden', cmdSubTab !== 'default');
+    if (cl) cl.classList.toggle('hidden', cmdSubTab !== 'custom');
+    const nb = document.getElementById('newCmdBtn');
+    if (nb) nb.classList.toggle('hidden', cmdSubTab !== 'custom');
+}
+
+async function loadNativeCommands() {
+    const list = document.getElementById('nativeList');
+    if (!list) return;
+    if (!currentGuild) {
+        list.innerHTML = '<div class="empty-state"><h3>No server selected</h3></div>';
+        return;
+    }
+    list.innerHTML = '<div class="loading">Loading</div>';
+    try {
+        const res = await fetch(`/api/native-commands/${currentGuild}`);
+        if (!res.ok) throw new Error(`GET /api/native-commands → status ${res.status}`);
+        nativeCommands = await res.json();
+        renderNativeCommands();
+    } catch (e) {
+        console.error('[INIT] loadNativeCommands error:', e);
+        list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${escapeHtml(e.message)}</p></div>`;
+    }
+}
+
+function renderNativeCommands() {
+    const list = document.getElementById('nativeList');
+    if (!list) return;
+    list.innerHTML = nativeCommands.map(cmd => {
+        const n = Array.isArray(cmd.allowedRoles) ? cmd.allowedRoles.length : 0;
+        const rolesBadge = n > 0
+            ? `<span class="command-badge roles">${n} role${n === 1 ? '' : 's'}</span>`
+            : '<span class="command-badge roles">Default permissions</span>';
+        const keepBadge = cmd.deleteCommand === false ? '<span class="command-badge keep">Keeps message</span>' : '';
+        return `
+        <div class="command-card">
+            <div class="command-info">
+                <h4>${escapeHtml((cmd.prefix || '*') + cmd.name)}</h4>
+                <div class="command-badges"><span class="command-badge default">Default</span>${rolesBadge}${keepBadge}</div>
+            </div>
+            <div class="command-actions">
+                <button class="btn-edit" data-name="${escapeAttr(cmd.name)}">Edit</button>
+            </div>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('.btn-edit').forEach(b => b.onclick = () => {
+        if (!userHasDashboardPermission('editRoles')) {
+            showAccessDenied();
+            return;
+        }
+        openNativeModal(b.dataset.name);
+    });
+}
+
+function openNativeModal(name) {
+    const cmd = nativeCommands.find(c => c.name === name);
+    if (!cmd) return;
+
+    cmInitComponents();
+    clearInvalidFields();
+    hideFormToast();
+    cmClosePops();
+
+    editingName = null;
+    editingNative = name;
+    cmLoadToken++;
+    cmRoles = [];
+    cmChannels = [];
+    cmRolesLoaded = false;
+    cmChannelsLoaded = false;
+
+    const form = document.getElementById('cmdForm');
+    form.reset();
+    cmResetState();
+    document.getElementById('cmDialog').classList.add('cm-native');
+    document.getElementById('permissionsBox').classList.add('cm-native');
+    document.getElementById('modalTitle').textContent = 'Edit default command';
+    const nameEl = document.getElementById('cmdName');
+    nameEl.value = `${cmd.prefix || '*'}${name}`;
+    nameEl.disabled = true;
+    document.getElementById('cmdDelete').checked = cmd.deleteCommand !== false;
+    cmSelRoles = new Set(Array.isArray(cmd.allowedRoles) ? cmd.allowedRoles : []);
+    cmSelChannels = new Set();
+    document.getElementById('cmSaveBtn').textContent = 'Save';
+
+    closePermissionsBox();
+    cmUpdatePermBadges();
+    document.getElementById('modal').classList.remove('hidden');
+    cmEnsureGuildData();
+}
+
+async function saveNativeCommand(e) {
+    e.preventDefault();
+    if (!userHasDashboardPermission('editRoles')) { showAccessDenied(); return; }
+    const name = editingNative;
+    if (!name) return;
+    const btn = document.getElementById('cmSaveBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = 'Saving...';
+    btn.disabled = true;
+    try {
+        const res = await fetch(`/api/native-commands/${currentGuild}/${encodeURIComponent(name)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                allowedRoles: Array.from(cmSelRoles),
+                deleteCommand: document.getElementById('cmdDelete').checked
+            })
+        });
+        if (res.ok) {
+            closeModal();
+            await loadNativeCommands();
+            showToast(`Command *${name} saved`);
+        } else {
+            const err = await res.json().catch(() => ({}));
+            if (res.status === 403) showAccessDenied();
+            else showToast(err.error || 'Error', 'error');
+        }
+    } catch (err) {
+        showToast('Connection error', 'error');
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
 async function loadCommands() {
     if (!currentGuild) {
         document.getElementById('commandsList').innerHTML =
@@ -839,6 +975,7 @@ async function loadCommands() {
         if (!res.ok) throw new Error(`GET /api/commands → status ${res.status}`);
         currentCommands = await res.json();
         renderCommands();
+        loadNativeCommands();
     } catch (e) {
         console.error('[INIT] loadCommands error:', e);
         list.innerHTML = `<div class="empty-state"><h3>Error</h3><p>${escapeHtml(e.message)}</p></div>`;
@@ -2231,6 +2368,7 @@ function openModal(name = null) {
         return;
     }
 
+    leaveNativeMode();
     cmInitComponents();
     clearInvalidFields();
     hideFormToast();
@@ -2319,10 +2457,21 @@ function openModal(name = null) {
     }, 100);
 }
 
+function leaveNativeMode() {
+    editingNative = null;
+    const dlg = document.getElementById('cmDialog');
+    const box = document.getElementById('permissionsBox');
+    if (dlg) dlg.classList.remove('cm-native');
+    if (box) box.classList.remove('cm-native');
+    const saveBtn = document.getElementById('cmSaveBtn');
+    if (saveBtn) saveBtn.textContent = 'Save command';
+}
+
 function closeModal() {
     const modal = document.getElementById('modal');
     if (!modal) return;
     modal.classList.add('hidden');
+    leaveNativeMode();
     cmClosePops();
     closePermissionsBox();
     closeMoreOptions();
@@ -2557,6 +2706,7 @@ function cmFail(el, message) {
 }
 
 async function saveCommand(e) {
+    if (editingNative) return saveNativeCommand(e);
     e.preventDefault();
 
     if (editingName) {
@@ -4926,6 +5076,8 @@ function setupEvents() {
 
     const newCmdBtn = document.getElementById('newCmdBtn');
     if (newCmdBtn) newCmdBtn.onclick = () => openModal();
+    document.querySelectorAll('#cmdSubtabs .cmd-subtab').forEach(b => b.onclick = () => setCmdSubTab(b.dataset.sub));
+    setCmdSubTab('default');
 
     const newVideoBtn = document.getElementById('newVideoBtn');
     if (newVideoBtn) newVideoBtn.onclick = () => openVideoModal();
