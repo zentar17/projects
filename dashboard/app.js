@@ -1399,7 +1399,7 @@ async function saveVideo(e) {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10 * 60 * 1000);
+    const timeoutId = setTimeout(() => controller.abort(), 4 * 60 * 60 * 1000);
 
     try {
         const res = await fetch(isEditing ? `/api/videos/${editingVideoId}` : '/api/videos/upload', {
