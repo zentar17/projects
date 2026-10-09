@@ -169,6 +169,15 @@ const CustomCommandSchema = new mongoose.Schema({
 
 CustomCommandSchema.index({ guildId: 1, name: 1 }, { unique: true });
 
+const NativeCommandSettingSchema = new mongoose.Schema({
+    guildId: { type: String, required: true },
+    name: { type: String, required: true },
+    allowedRoles: { type: [String], default: [] },
+    deleteCommand: { type: Boolean, default: true }
+}, { timestamps: true });
+
+NativeCommandSettingSchema.index({ guildId: 1, name: 1 }, { unique: true });
+
 const PendingBanSchema = new mongoose.Schema({
     guildId: { type: String, required: true, index: true },
     userId: { type: String, required: true, index: true },
@@ -510,6 +519,7 @@ const ModLog = mongoose.model('ModLog', ModLogSchema);
 const Warning = mongoose.model('Warning', WarningSchema);
 const GuildConfig = mongoose.model('GuildConfig', GuildConfigSchema);
 const CustomCommand = mongoose.model('CustomCommand', CustomCommandSchema);
+const NativeCommandSetting = mongoose.model('NativeCommandSetting', NativeCommandSettingSchema);
 const PendingBan = mongoose.model('PendingBan', PendingBanSchema);
 const PendingRoleRemoval = mongoose.model('PendingRoleRemoval', PendingRoleRemovalSchema);
 const CommandCooldown = mongoose.model('CommandCooldown', CommandCooldownSchema);
@@ -614,6 +624,7 @@ async function clearWarningsDB(guildId, userId) {
 const READ_CACHE_TTL_MS = 5000;
 const guildConfigCache = new Map();
 const customCommandsCache = new Map();
+const nativeSettingsCache = new Map();
 let blacklistSettingsCache = null;
 
 function cacheGet(map, key) {
@@ -771,6 +782,34 @@ async function saveCustomCommandDB(guildId, name, data) {
     await CustomCommand.findOneAndUpdate(
         { guildId, name: name.toLowerCase() },
         { $set: { ...data, name: name.toLowerCase(), guildId, updatedAt: new Date() } },
+        { upsert: true, new: true }
+    );
+}
+
+async function loadNativeCommandSettingsDB(guildId) {
+    const cached = cacheGet(nativeSettingsCache, String(guildId));
+    if (cached) return cached;
+    const docs = await NativeCommandSetting.find({ guildId: String(guildId) }).lean();
+    const obj = {};
+    for (const doc of docs) {
+        obj[doc.name] = {
+            allowedRoles: Array.isArray(doc.allowedRoles) ? doc.allowedRoles : [],
+            deleteCommand: doc.deleteCommand !== false
+        };
+    }
+    return cacheSet(nativeSettingsCache, String(guildId), obj);
+}
+
+async function getNativeCommandSettingDB(guildId, name) {
+    const all = await loadNativeCommandSettingsDB(guildId);
+    return all[String(name).toLowerCase()] || null;
+}
+
+async function saveNativeCommandSettingDB(guildId, name, data) {
+    nativeSettingsCache.delete(String(guildId));
+    await NativeCommandSetting.findOneAndUpdate(
+        { guildId: String(guildId), name: String(name).toLowerCase() },
+        { $set: { allowedRoles: data.allowedRoles, deleteCommand: data.deleteCommand !== false } },
         { upsert: true, new: true }
     );
 }
@@ -1544,6 +1583,10 @@ module.exports = {
     loadCustomCommandsDB,
     saveCustomCommandDB,
     deleteCustomCommandDB,
+    NativeCommandSetting,
+    loadNativeCommandSettingsDB,
+    getNativeCommandSettingDB,
+    saveNativeCommandSettingDB,
     getBaseCommandsCount,
     setIsBaseDB,
     getCommandCooldownDB,
