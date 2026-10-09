@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/dashboard/style.css?v=20261008z">
+<link rel="stylesheet" href="/dashboard/style.css?v=20261009a">
 <script>try{var s=JSON.parse(localStorage.getItem("pdDashState")||"{}");if(s&&s.server){document.documentElement.classList.add("pd-restoring");setTimeout(function(){document.documentElement.classList.remove("pd-restoring")},7000)}}catch(e){}</script>
 </head>
 <body>
@@ -156,7 +156,14 @@
                 <h2>Custom Commands</h2>
                 <button id="newCmdBtn" class="btn-primary cmd-new-btn"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg>New command</button>
             </div>
-            <div id="commandsList" class="commands-list">
+            <div class="cmd-subtabs" id="cmdSubtabs" role="tablist">
+                <button type="button" class="cmd-subtab active" data-sub="default" role="tab">Default</button>
+                <button type="button" class="cmd-subtab" data-sub="custom" role="tab">Customs</button>
+            </div>
+            <div id="nativeList" class="commands-list">
+                <div class="loading">Loading</div>
+            </div>
+            <div id="commandsList" class="commands-list hidden">
                 <div class="loading">Loading</div>
             </div>
         </div>
@@ -850,7 +857,7 @@
         <h2 id="modalTitle" class="cm-title">New command</h2>
         <form id="cmdForm" novalidate autocomplete="off">
             <div class="cm-grid">
-                <div class="cm-f">
+                <div class="cm-f" id="cmNameWrap">
                     <label class="cm-lbl" for="cmdName">Name <span class="cm-req">*</span></label>
                     <input type="text" id="cmdName" class="cm-input" maxlength="33" placeholder="*welcome" spellcheck="false">
                 </div>
@@ -887,6 +894,10 @@
                         <input type="text" id="cmdTempDuration" class="cm-input" inputmode="numeric" placeholder="0" maxlength="5">
                         <div class="cm-select" id="cmTempDurUnit"></div>
                     </div>
+                </div>
+
+                <div class="cm-f hidden" id="cmNativeNote">
+                    <p class="cm-native-note">This is a default command: name and prefix can't be changed. If no role is selected, the default server staff permissions apply. Administrators can always use it.</p>
                 </div>
 
                 <div class="cm-f" id="cmPermWrap">
@@ -951,7 +962,7 @@
             </div>
 
             <div class="cm-opts">
-                <label class="cm-switch-row"><input type="checkbox" id="cmdEnabled" class="cm-switch" checked><span class="cm-sw"></span>Enabled</label>
+                <label class="cm-switch-row" id="cmEnabledRow"><input type="checkbox" id="cmdEnabled" class="cm-switch" checked><span class="cm-sw"></span>Enabled</label>
                 <label class="cm-switch-row"><input type="checkbox" id="cmdDelete" class="cm-switch" checked><span class="cm-sw"></span>Delete command message</label>
             </div>
 
@@ -1148,7 +1159,7 @@
     <span class="form-toast-text">Fill all fields</span>
 </div>
 
-<script src="/dashboard/app.js?v=20261008z"></script>
+<script src="/dashboard/app.js?v=20261009a"></script>
 
 </body>
 </html>
