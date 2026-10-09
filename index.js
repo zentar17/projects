@@ -12,6 +12,7 @@ const CRASH_LOG_FILE = './crash_log.json';
 const MAX_CRASH_LOGS = 100;
 const LOGS_PER_PAGE = 5;
 const NATIVE_PREFIX = '*';
+const NATIVE_CONFIGURABLE = new Set(['md', 'modlogs', 'mute', 'unmute', 'ban', 'unban', 'warn', 'kick']);
 const NATIVE_COMMANDS = new Set(['av', 'ban', 'block', 'channelinfo', 'clearwarns', 'help', 'kick', 'map', 'md', 'modlogs', 'mute', 'page', 'purge', 'roleinfo', 'server', 'serverinfo', 'setupdropmap', 'social', 'tempo', 'tempolist', 'tickets', 'unban', 'unblock', 'unmute', 'w', 'warn', 'warnings']);
 const BLACKLIST_COMMANDS = new Set(['blacklist', 'bl', 'unbl', 'unblacklist', 'reason', 'bll']);
 const ticketClaims = new Map();
@@ -265,6 +266,11 @@ async function isStaffSafe(member) {
         if (Array.isArray(config.supportRoleIds) && config.supportRoleIds.some(roleId => member.roles?.cache?.has(roleId))) return true;
         return false;
     } catch { return false; }
+}
+
+async function nativeAllowed(message, fallback) {
+    if (message.__nativeAllowed) return true;
+    return await fallback(message.member);
 }
 
 async function hasModPerms(member) {
@@ -1688,6 +1694,20 @@ client.on('messageCreate', async (message) => {
 
         if (firstChar === NATIVE_PREFIX || firstChar === '!') {
             if (!NATIVE_COMMANDS.has(command)) return;
+            if (NATIVE_CONFIGURABLE.has(command)) {
+                const nativeSetting = await db.getNativeCommandSettingDB(message.guild.id, command);
+                if (nativeSetting) {
+                    if (nativeSetting.deleteCommand === false) message.delete = async () => message;
+                    if (Array.isArray(nativeSetting.allowedRoles) && nativeSetting.allowedRoles.length > 0) {
+                        const roleOk = nativeSetting.allowedRoles.some(roleId => message.member?.roles?.cache?.has(roleId));
+                        if (!roleOk && !(await isAdminSafe(message.member))) {
+                            await message.delete().catch(() => {});
+                            return;
+                        }
+                        message.__nativeAllowed = true;
+                    }
+                }
+            }
             if (isCommandBurstLimited(message.author.id)) return;
             const cooldown = await db.getCommandCooldownDB(message.author.id, message.guild.id, `native_${command}`);
             if (cooldown) {
@@ -2000,7 +2020,7 @@ async function handleNativeCommand(message, command, args) {
     }
 
     if (command === 'md') {
-        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        if (!(await nativeAllowed(message, isStaffSafe))) { await message.delete().catch(() => {}); return; }
 
         const input = args[0];
         const pageArg = args[1] ? parseInt(args[1]) : 1;
@@ -2045,7 +2065,7 @@ async function handleNativeCommand(message, command, args) {
     }
 
     if (command === 'modlogs') {
-        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        if (!(await nativeAllowed(message, isStaffSafe))) { await message.delete().catch(() => {}); return; }
 
         const pageArg = args[0] ? parseInt(args[0]) : 1;
         if (isNaN(pageArg) || pageArg < 1) {
@@ -2238,7 +2258,7 @@ async function handleNativeCommand(message, command, args) {
     }
 
     if (command === 'ban') {
-        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        if (!(await nativeAllowed(message, isStaffSafe))) { await message.delete().catch(() => {}); return; }
         const input = args[0];
         if (!input) {
             const embed = new EmbedBuilder().setDescription('You need to mention a user or provide an ID.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
@@ -2301,7 +2321,7 @@ async function handleNativeCommand(message, command, args) {
     }
 
     if (command === 'unban') {
-        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        if (!(await nativeAllowed(message, isStaffSafe))) { await message.delete().catch(() => {}); return; }
         const userId = args[0];
         if (!userId) {
             const embed = new EmbedBuilder().setDescription('You need to specify the user ID to unban.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
@@ -2348,7 +2368,7 @@ async function handleNativeCommand(message, command, args) {
     }
 
     if (command === 'kick') {
-        if (!(await hasModPerms(message.member))) { await message.delete().catch(() => {}); return; }
+        if (!(await nativeAllowed(message, hasModPerms))) { await message.delete().catch(() => {}); return; }
         const input = args[0];
         if (!input) {
             const embed = new EmbedBuilder().setDescription('You need to mention a user or provide an ID.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
@@ -2404,7 +2424,7 @@ async function handleNativeCommand(message, command, args) {
     }
 
     if (command === 'mute') {
-        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        if (!(await nativeAllowed(message, isStaffSafe))) { await message.delete().catch(() => {}); return; }
         const input = args[0];
         if (!input) {
             const embed = new EmbedBuilder().setDescription('You need to mention a user or provide an ID.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
@@ -2476,7 +2496,7 @@ async function handleNativeCommand(message, command, args) {
     }
 
     if (command === 'unmute') {
-        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        if (!(await nativeAllowed(message, isStaffSafe))) { await message.delete().catch(() => {}); return; }
         const input = args[0];
         if (!input) {
             const embed = new EmbedBuilder().setDescription('You need to mention a user or provide an ID.').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
@@ -2531,7 +2551,7 @@ async function handleNativeCommand(message, command, args) {
     }
 
     if (command === 'warn') {
-        if (!(await isStaffSafe(message.member))) { await message.delete().catch(() => {}); return; }
+        if (!(await nativeAllowed(message, isStaffSafe))) { await message.delete().catch(() => {}); return; }
         const input = args[0];
         if (!input) {
             const embed = new EmbedBuilder().setDescription('Usage: `*warn @user/ID reason`').setColor(COLORS.ERROR).setThumbnail(THUMBNAIL_URL);
