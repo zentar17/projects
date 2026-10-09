@@ -3382,6 +3382,54 @@ app.post('/api/commands/:guildId', requireAuth, writeLimiter, async (req, res) =
     }
 });
 
+const NATIVE_COMMAND_NAMES = ['md', 'modlogs', 'mute', 'unmute', 'ban', 'unban', 'warn', 'kick'];
+
+app.get('/api/native-commands/:guildId', requireAuth, async (req, res) => {
+    try {
+        if (!canAccessGuild(req, req.params.guildId) && !isDashboardAdmin(req)) {
+            return res.status(403).json({ error: 'Access Denied' });
+        }
+        const { db } = global.PredCord;
+        const settings = await db.loadNativeCommandSettingsDB(req.params.guildId);
+        res.json(NATIVE_COMMAND_NAMES.map(name => {
+            const st = settings[name];
+            return {
+                name,
+                prefix: '*',
+                allowedRoles: st ? st.allowedRoles : [],
+                deleteCommand: st ? st.deleteCommand !== false : true
+            };
+        }));
+    } catch (e) {
+        serverError(res, e);
+    }
+});
+
+app.put('/api/native-commands/:guildId/:name', requireAuth, writeLimiter, async (req, res) => {
+    try {
+        const { guildId } = req.params;
+        const name = String(req.params.name || '').toLowerCase();
+        if (!NATIVE_COMMAND_NAMES.includes(name)) {
+            return res.status(404).json({ error: 'Command not found' });
+        }
+        const hasPerm = await userHasPermission(req, 'editRoles', guildId);
+        if (!hasPerm) {
+            return res.status(403).json({ error: 'Access Denied' });
+        }
+        const { db } = global.PredCord;
+        const body = req.body || {};
+        let allowedRoles = [];
+        if (Array.isArray(body.allowedRoles)) {
+            allowedRoles = Array.from(new Set(body.allowedRoles.filter(r => typeof r === 'string' && isSnowflake(r)))).slice(0, 250);
+        }
+        const deleteCommand = body.deleteCommand !== false;
+        await db.saveNativeCommandSettingDB(guildId, name, { allowedRoles, deleteCommand });
+        res.json({ success: true, command: { name, prefix: '*', allowedRoles, deleteCommand } });
+    } catch (e) {
+        serverError(res, e);
+    }
+});
+
 app.delete('/api/commands/:guildId/:name', requireAuth, writeLimiter, async (req, res) => {
     try {
         const { db } = global.PredCord;
