@@ -3397,6 +3397,7 @@ app.get('/api/native-commands/:guildId', requireAuth, async (req, res) => {
                 name,
                 prefix: '*',
                 allowedRoles: st ? st.allowedRoles : [],
+                blockedChannels: st ? (st.blockedChannels || []) : [],
                 deleteCommand: st ? st.deleteCommand !== false : true
             };
         }));
@@ -3422,9 +3423,13 @@ app.put('/api/native-commands/:guildId/:name', requireAuth, writeLimiter, async 
         if (Array.isArray(body.allowedRoles)) {
             allowedRoles = Array.from(new Set(body.allowedRoles.filter(r => typeof r === 'string' && isSnowflake(r)))).slice(0, 250);
         }
+        let blockedChannels = [];
+        if (Array.isArray(body.blockedChannels)) {
+            blockedChannels = Array.from(new Set(body.blockedChannels.filter(c => typeof c === 'string' && isSnowflake(c)))).slice(0, 1000);
+        }
         const deleteCommand = body.deleteCommand !== false;
-        await db.saveNativeCommandSettingDB(guildId, name, { allowedRoles, deleteCommand });
-        res.json({ success: true, command: { name, prefix: '*', allowedRoles, deleteCommand } });
+        await db.saveNativeCommandSettingDB(guildId, name, { allowedRoles, blockedChannels, deleteCommand });
+        res.json({ success: true, command: { name, prefix: '*', allowedRoles, blockedChannels, deleteCommand } });
     } catch (e) {
         serverError(res, e);
     }
