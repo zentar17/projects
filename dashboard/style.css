@@ -5264,3 +5264,23 @@ main .mc-ticket-num, main .mc-ticket-claim.claimed, main .modlog-server-badge { 
 .confirm-modal-actions button { flex: 1 1 0; min-width: 0; width: 50%; height: 36px; padding-left: 0; padding-right: 0; display: inline-flex; align-items: center; justify-content: center; }
 
 html.pd-restoring #serverSelectScreen, html.pd-restoring #dashboardMain, html.pd-restoring #siteFooter { visibility: hidden; }
+
+
+.cmd-subtabs { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; width: 100%; max-width: 280px; height: 38px; margin: 0 0 16px; padding: 3px; background: #27272a; border-radius: 9px; }
+.cmd-subtab { display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid transparent; border-radius: 7px; color: #a1a1aa; font-family: 'Montserrat', 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; padding: 0; transition: color 0.15s ease, background 0.15s ease; }
+.cmd-subtab:hover { color: #e4e4e7; }
+.cmd-subtab.active { background: #09090b; color: #fafafa; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); border-color: rgba(39, 39, 42, 0.7); }
+#tab-commands .commands-list.hidden { display: none; }
+#tab-commands .command-badge.default { background: rgba(37, 99, 235, 0.16); color: #60a5fa; border-color: transparent; }
+#tab-commands .command-badge.keep { background: transparent; color: #a1a1aa; border-color: #3f3f46; }
+.cm-native-note { margin: 0; font-size: 12.5px; line-height: 1.55; color: #a1a1aa; }
+#cmDialog.cm-native .cm-grid > .cm-f { display: none !important; }
+#cmDialog.cm-native .cm-grid > #cmNameWrap,
+#cmDialog.cm-native .cm-grid > #cmPermWrap,
+#cmDialog.cm-native .cm-grid > #cmNativeNote { display: flex !important; grid-column: 1 / -1; }
+#cmDialog.cm-native #cmEnabledRow,
+#cmDialog.cm-native #cmInfoSection,
+#cmDialog.cm-native #previewSection { display: none !important; }
+#cmDialog.cm-native #cmPermChannels { display: none; }
+#permissionsBox.cm-native .cm-tabs { display: none; }
+#tab-commands .panel-header { min-height: 57px; box-sizing: border-box; }
