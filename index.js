@@ -1697,6 +1697,7 @@ client.on('messageCreate', async (message) => {
             if (NATIVE_CONFIGURABLE.has(command)) {
                 const nativeSetting = await db.getNativeCommandSettingDB(message.guild.id, command);
                 if (nativeSetting) {
+                    if (isCommandBlockedInChannel(nativeSetting, message.channel)) return;
                     if (nativeSetting.deleteCommand === false) message.delete = async () => message;
                     if (Array.isArray(nativeSetting.allowedRoles) && nativeSetting.allowedRoles.length > 0) {
                         const roleOk = nativeSetting.allowedRoles.some(roleId => message.member?.roles?.cache?.has(roleId));
