@@ -470,6 +470,7 @@ header img {
 .hx-row b { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; word-break: break-all; }
 @media (max-width: 860px) {
     .hx-about { margin-bottom: 40px; }
+    .hx-about::after { visibility: hidden; }
     .hx-x { width: 56px; height: 56px; bottom: -40px; }
     .hx-page { grid-template-columns: 1fr; gap: 48px; padding: 56px 20px 80px; min-height: 0; align-content: start; }
     .hx-title { font-size: 34px; }
@@ -528,7 +529,7 @@ header { position: fixed; z-index: 1000; }
 @keyframes hxXFlash { 0% { filter: drop-shadow(0 0 0 rgba(255,255,255,0)); } 30% { filter: drop-shadow(0 0 12px rgba(255,255,255,1)) drop-shadow(0 0 32px rgba(255,255,255,0.8)); } 100% { filter: drop-shadow(0 0 6px rgba(255,255,255,0.35)); } }
 @keyframes hxXIdle { 0%,100% { filter: drop-shadow(0 0 6px rgba(255,255,255,0.35)); } 50% { filter: drop-shadow(0 0 12px rgba(255,255,255,0.65)); } }
 @keyframes hxXRipple { 0% { opacity: 0.8; transform: scale(1); } 100% { opacity: 0; transform: scale(2.1); } }
-.hx-trace { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 1100; pointer-events: none; overflow: visible; }
+.hx-trace { position: absolute; left: 0; top: 0; z-index: 1100; pointer-events: none; overflow: visible; }
 .hx-trace path { fill: none; stroke: #ffffff; stroke-linecap: round; stroke-linejoin: round; }
 .hx-trace path.g { stroke: rgba(255,255,255,0.22); }
 .hx-logo.hx-lit { animation: hxLitPulse 4.2s ease-in-out infinite; filter: drop-shadow(0 0 8px rgba(255,255,255,0.65)) drop-shadow(0 0 22px rgba(255,255,255,0.35)); }
@@ -558,7 +559,7 @@ header { position: fixed; z-index: 1000; }
 }
 #hxMoon { position: fixed; z-index: 0; pointer-events: none; border-radius: 50%; object-fit: cover; opacity: 0; transition: opacity 1.8s ease; box-shadow: 0 0 36px rgba(255,255,255,0.16), 0 0 90px rgba(255,255,255,0.07); }
 #hxMoon.on { opacity: 1; }
-#hxShoot { position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; z-index: 0; pointer-events: none; }
+#hxShoot { position: fixed; left: 0; top: 0; z-index: 0; pointer-events: none; }
 @keyframes hxLoad { 0% { background-size: 0% 100%, 100% 100%; } 80% { background-size: 100% 100%, 100% 100%; } 100% { background-size: 100% 100%, 100% 100%; opacity: 1; } }
 .hx-devs-title { opacity: 0; animation: hxFadeUp 0.8s ease 0.5s forwards; }
 .hx-dev { opacity: 0; animation: hxFadeUp 0.8s cubic-bezier(.2,.7,.2,1) forwards; }
@@ -1108,6 +1109,7 @@ header { position: fixed; z-index: 1000; }
     var sky = null, skyCtx = null, shootCv = null, shCtx = null, shActive = false, lastDraw = 0, moonEl = null, moonReady = false, moonFade = -1, moonGen = false, stars = [], skyW = 0, skyH = 0, skyDpr = 1, skyRunning = false, skyT0 = 0;
     var moonCut = false, allArrive = 0, moon = null, shooters = [], nextShoot = 0, shootEnabled = false;
     var finished = false;
+    var isPhone = !!(window.matchMedia && window.matchMedia('(max-width: 860px)').matches);
 
     var xBtn = document.getElementById('hxX');
     var xDone = false;
@@ -1229,7 +1231,7 @@ header { position: fixed; z-index: 1000; }
         sky = document.createElement('canvas');
         sky.id = 'hxSky';
         sky.setAttribute('aria-hidden', 'true');
-        sky.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:0;pointer-events:none;';
+        sky.style.cssText = 'position:fixed;left:0;top:0;z-index:0;pointer-events:none;';
         document.body.appendChild(sky);
         skyCtx = sky.getContext('2d');
         shootCv = document.createElement('canvas');
@@ -1238,7 +1240,14 @@ header { position: fixed; z-index: 1000; }
         document.body.appendChild(shootCv);
         shCtx = shootCv.getContext('2d');
         sizeSky();
-        window.addEventListener('resize', sizeSky);
+        var rt = null;
+        window.addEventListener('resize', function() {
+            clearTimeout(rt);
+            rt = setTimeout(function() {
+                var dw = Math.abs(window.innerWidth - skyW), dh = Math.abs(window.innerHeight - skyH);
+                if (dw > 0 || dh > 160) sizeSky();
+            }, 200);
+        });
     }
 
     function sizeSky() {
@@ -1246,6 +1255,10 @@ header { position: fixed; z-index: 1000; }
         skyDpr = Math.min(window.devicePixelRatio || 1, 1.25);
         skyW = window.innerWidth;
         skyH = window.innerHeight;
+        sky.style.width = skyW + 'px';
+        sky.style.height = skyH + 'px';
+        shootCv.style.width = skyW + 'px';
+        shootCv.style.height = skyH + 'px';
         sky.width = Math.round(skyW * skyDpr);
         sky.height = Math.round(skyH * skyDpr);
         skyCtx.setTransform(skyDpr, 0, 0, skyDpr, 0, 0);
@@ -1632,6 +1645,11 @@ header { position: fixed; z-index: 1000; }
         finished = true;
         if (!logo.classList.contains('hx-flash')) lit();
         if (reduce) { showX(true); staticSky(); return; }
+        if (isPhone) {
+            var pl = logo.getBoundingClientRect();
+            dissolve(pl.left + pl.width * 0.2, pl.left + pl.width * 0.8, pl.top + pl.height / 2);
+            return;
+        }
         var desc = document.querySelector('.hx-desc');
         var ar = about.getBoundingClientRect();
         var dr = desc.getBoundingClientRect();
@@ -1651,18 +1669,18 @@ header { position: fixed; z-index: 1000; }
 
     if (reduce || !document.documentElement.animate) { clearTimeout(safety); finish(); return; }
 
-    function makePath(svg, d, width) {
+    function makePath(layer, d, width) {
         var gl = document.createElementNS(NS, 'path');
         gl.setAttribute('d', d);
         gl.setAttribute('pathLength', '1');
         gl.setAttribute('stroke-width', width * 4);
         gl.setAttribute('class', 'g');
-        svg.appendChild(gl);
+        layer.appendChild(gl);
         var el = document.createElementNS(NS, 'path');
         el.setAttribute('d', d);
         el.setAttribute('pathLength', '1');
         el.setAttribute('stroke-width', width);
-        svg.appendChild(el);
+        layer.appendChild(el);
         el.gl = gl;
         return el;
     }
@@ -1689,6 +1707,12 @@ header { position: fixed; z-index: 1000; }
     }
 
     function run() {
+        if (isPhone) {
+            logo.classList.add('hx-flash');
+            logo.addEventListener('animationend', function(ev) { if (ev.target === logo) lit(); });
+            wait(1500).then(function() { clearTimeout(safety); finish(); }).catch(function() { finish(); });
+            return;
+        }
         var W = window.innerWidth, H = window.innerHeight;
         var lr = logo.getBoundingClientRect();
         var ar = about.getBoundingClientRect();
@@ -1705,8 +1729,16 @@ header { position: fixed; z-index: 1000; }
         var gx = Math.max(6, ar.left - 14);
 
         var svg = document.createElementNS(NS, 'svg');
+        var sx = window.pageXOffset || 0, sy = window.pageYOffset || 0;
+        var docW = Math.max(document.documentElement.scrollWidth, W + sx), docH = Math.max(document.documentElement.scrollHeight, H + sy);
         svg.setAttribute('class', 'hx-trace');
-        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+        svg.setAttribute('width', docW);
+        svg.setAttribute('height', docH);
+        svg.style.width = docW + 'px';
+        svg.style.height = docH + 'px';
+        var layer = document.createElementNS(NS, 'g');
+        layer.setAttribute('transform', 'translate(' + sx + ',' + sy + ')');
+        svg.appendChild(layer);
         document.body.appendChild(svg);
 
         var loop = ' L' + right + ',' + top + ' L' + right + ',' + bottom + ' L' + left + ',' + bottom + ' L' + left + ',' + top + ' L' + tx + ',' + top;
@@ -1714,7 +1746,7 @@ header { position: fixed; z-index: 1000; }
         var hexD = 'M' + hx(32, 4) + ' L' + hx(56, 18) + ' L' + hx(56, 46) + ' L' + hx(32, 60) + ' L' + hx(8, 46) + ' L' + hx(8, 18) + ' Z';
         var back = 'M' + hx(8, 46) + ' L' + gx + ',' + (lr.top + 46 * k) + ' L' + gx + ',' + lineY + ' L' + ar.left + ',' + lineY;
 
-        var lapEl = makePath(svg, lap, 3);
+        var lapEl = makePath(layer, lap, 3);
         var d = 0.026;
         dash(lapEl, d + ' 3');
         dashOff(lapEl, d);
@@ -1722,7 +1754,7 @@ header { position: fixed; z-index: 1000; }
 
         lapAnim.finished.then(function() {
             killPath(lapEl);
-            var hexEl = makePath(svg, hexD, Math.max(3, 4 * k));
+            var hexEl = makePath(layer, hexD, Math.max(3, 4 * k));
             dash(hexEl, '1 3');
             dashOff(hexEl, 1);
             var hexAnim = play(hexEl, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 360, easing: 'linear', fill: 'forwards' });
@@ -1732,7 +1764,7 @@ header { position: fixed; z-index: 1000; }
                 return wait(90);
             }).then(function() {
                 var fade = play(hexEl, [{ opacity: 1 }, { opacity: 0 }], { duration: 400, easing: 'ease-out', fill: 'forwards' });
-                var backEl = makePath(svg, back, 3);
+                var backEl = makePath(layer, back, 3);
                 var bd = 0.12;
                 dash(backEl, bd + ' 3');
                 dashOff(backEl, bd);
