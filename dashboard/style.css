@@ -5281,6 +5281,4 @@ html.pd-restoring #serverSelectScreen, html.pd-restoring #dashboardMain, html.pd
 #cmDialog.cm-native #cmEnabledRow,
 #cmDialog.cm-native #cmInfoSection,
 #cmDialog.cm-native #previewSection { display: none !important; }
-#cmDialog.cm-native #cmPermChannels { display: none; }
-#permissionsBox.cm-native .cm-tabs { display: none; }
 #tab-commands .panel-header { min-height: 57px; box-sizing: border-box; }
