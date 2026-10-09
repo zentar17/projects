@@ -868,12 +868,14 @@ function renderNativeCommands() {
         const rolesBadge = n > 0
             ? `<span class="command-badge roles">${n} role${n === 1 ? '' : 's'}</span>`
             : '<span class="command-badge roles">Default permissions</span>';
+        const nc = Array.isArray(cmd.blockedChannels) ? cmd.blockedChannels.length : 0;
+        const chBadge = nc > 0 ? `<span class="command-badge keep">${nc} channel${nc === 1 ? '' : 's'} blocked</span>` : '';
         const keepBadge = cmd.deleteCommand === false ? '<span class="command-badge keep">Keeps message</span>' : '';
         return `
         <div class="command-card">
             <div class="command-info">
                 <h4>${escapeHtml((cmd.prefix || '*') + cmd.name)}</h4>
-                <div class="command-badges"><span class="command-badge default">Default</span>${rolesBadge}${keepBadge}</div>
+                <div class="command-badges"><span class="command-badge default">Default</span>${rolesBadge}${chBadge}${keepBadge}</div>
             </div>
             <div class="command-actions">
                 <button class="btn-edit" data-name="${escapeAttr(cmd.name)}">Edit</button>
@@ -918,7 +920,7 @@ function openNativeModal(name) {
     nameEl.disabled = true;
     document.getElementById('cmdDelete').checked = cmd.deleteCommand !== false;
     cmSelRoles = new Set(Array.isArray(cmd.allowedRoles) ? cmd.allowedRoles : []);
-    cmSelChannels = new Set();
+    cmSelChannels = new Set(Array.isArray(cmd.blockedChannels) ? cmd.blockedChannels : []);
     document.getElementById('cmSaveBtn').textContent = 'Save';
 
     closePermissionsBox();
@@ -942,6 +944,7 @@ async function saveNativeCommand(e) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 allowedRoles: Array.from(cmSelRoles),
+                blockedChannels: Array.from(cmSelChannels),
                 deleteCommand: document.getElementById('cmdDelete').checked
             })
         });
