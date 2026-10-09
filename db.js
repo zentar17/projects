@@ -173,6 +173,7 @@ const NativeCommandSettingSchema = new mongoose.Schema({
     guildId: { type: String, required: true },
     name: { type: String, required: true },
     allowedRoles: { type: [String], default: [] },
+    blockedChannels: { type: [String], default: [] },
     deleteCommand: { type: Boolean, default: true }
 }, { timestamps: true });
 
@@ -794,6 +795,7 @@ async function loadNativeCommandSettingsDB(guildId) {
     for (const doc of docs) {
         obj[doc.name] = {
             allowedRoles: Array.isArray(doc.allowedRoles) ? doc.allowedRoles : [],
+            blockedChannels: Array.isArray(doc.blockedChannels) ? doc.blockedChannels : [],
             deleteCommand: doc.deleteCommand !== false
         };
     }
@@ -809,7 +811,7 @@ async function saveNativeCommandSettingDB(guildId, name, data) {
     nativeSettingsCache.delete(String(guildId));
     await NativeCommandSetting.findOneAndUpdate(
         { guildId: String(guildId), name: String(name).toLowerCase() },
-        { $set: { allowedRoles: data.allowedRoles, deleteCommand: data.deleteCommand !== false } },
+        { $set: { allowedRoles: data.allowedRoles, blockedChannels: data.blockedChannels || [], deleteCommand: data.deleteCommand !== false } },
         { upsert: true, new: true }
     );
 }
