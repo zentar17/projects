@@ -266,12 +266,15 @@ const mcTicketMessageLimiter = rateLimit({
 const VIDEO_UPLOAD_TMP_DIR = path.join(os.tmpdir(), 'predcord-video-uploads');
 if (!fs.existsSync(VIDEO_UPLOAD_TMP_DIR)) fs.mkdirSync(VIDEO_UPLOAD_TMP_DIR, { recursive: true });
 
+const VIDEO_MAX_UPLOAD_GB = Math.min(20, Math.max(0.1, parseFloat(process.env.VIDEO_MAX_UPLOAD_GB) || 4));
+const VIDEO_MAX_UPLOAD_BYTES = Math.round(VIDEO_MAX_UPLOAD_GB * 1024 * 1024 * 1024);
+
 const videoUpload = multer({
     storage: multer.diskStorage({
         destination: (req, file, cb) => cb(null, VIDEO_UPLOAD_TMP_DIR),
         filename: (req, file, cb) => cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}`)
     }),
-    limits: { fileSize: 1024 * 1024 * 1024, fieldSize: 5 * 1024 * 1024 },
+    limits: { fileSize: VIDEO_MAX_UPLOAD_BYTES, fieldSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const isMp4 = file.mimetype === 'video/mp4' && path.extname(file.originalname).toLowerCase() === '.mp4';
         if (!isMp4) return cb(new Error('Only MP4 video files are allowed'));
@@ -281,7 +284,10 @@ const videoUpload = multer({
 
 function uploadVideoMiddleware(req, res, next) {
     videoUpload.single('video')(req, res, (err) => {
-        if (err) return res.status(400).json({ error: err.message || 'Upload failed' });
+        if (err) {
+            if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: `Video too large (max ${VIDEO_MAX_UPLOAD_GB} GB)` });
+            return res.status(400).json({ error: err.message || 'Upload failed' });
+        }
         next();
     });
 }
@@ -304,7 +310,7 @@ function runFfmpegHls(inputPath, outputDir) {
             manifestPath
         ];
         const proc = spawn(ffmpegPath, args);
-        const killTimer = setTimeout(() => { try { proc.kill('SIGKILL'); } catch {} }, 20 * 60 * 1000);
+        const killTimer = setTimeout(() => { try { proc.kill('SIGKILL'); } catch {} }, 90 * 60 * 1000);
         proc.on('close', () => clearTimeout(killTimer));
         let stderr = '';
         proc.stderr.on('data', (d) => { stderr += d.toString(); });
@@ -4059,9 +4065,11 @@ waitForBot().then(() => {
     setInterval(cleanupExpiredMcTickets, 10 * 60 * 1000);
     purgeExpiredMcEmails();
     setInterval(purgeExpiredMcEmails, 60 * 1000);
-    app.listen(PORT, '0.0.0.0', () => {
+    const httpServer = app.listen(PORT, '0.0.0.0', () => {
         console.log(`Dashboard running on http://0.0.0.0:${PORT}`);
     });
+    httpServer.requestTimeout = 4 * 60 * 60 * 1000;
+    httpServer.timeout = 0;
 }).catch((err) => {
     console.error('Startup error:', err.message);
     process.exit(1);
